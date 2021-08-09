@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index adb899f..bc9d939 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -148,7 +148,7 @@ if [[ "$a8_target" = "ps2" ]]; then
+ fi
+ if [[ "$a8_target" = "rpi" ]]; then
+     [[ -z "$RPI_SDK" ]] && RPI_SDK="/opt/vc"
+-    CC="arm-linux-gnueabihf-gcc"
++    CC="gcc"
+     CFLAGS="$CFLAGS -I${RPI_SDK}/include -I${RPI_SDK}/include/SDL -I${RPI_SDK}/include/interface/vmcs_host/linux -I${RPI_SDK}/include/interface/vcos/pthreads"
+     LDFLAGS="$LDFLAGS -Wl,--unresolved-symbols=ignore-in-shared-libs -L${RPI_SDK}/lib"
+ fi
