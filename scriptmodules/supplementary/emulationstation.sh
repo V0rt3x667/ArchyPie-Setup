@@ -125,7 +125,7 @@ function _add_rom_emulationstation() {
 }
 
 function depends_emulationstation() {
-    local depends=('freeimage' 'freetype2' 'curl' 'cmake' 'sdl2' 'libsm' 'vlc')
+    local depends=('freeimage' 'freetype2' 'curl' 'cmake' 'sdl2' 'libsm' 'rapidjson' 'vlc')
 
     #compareVersions "$__os_debian_ver" gt 8 && depends+=(rapidjson-dev)
     isPlatform "x11" && depends+=(gnome-terminal)
