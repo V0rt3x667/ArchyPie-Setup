@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-prboom"
-rp_module_desc="Doom/Doom II engine - PrBoom port for libretro"
+rp_module_desc="PrBoom (Doom, Doom II, Final Doom & Doom IWAD Mods) Libretro Core"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-prboom/master/COPYING"
 rp_module_repo="git https://github.com/libretro/libretro-prboom.git master"
 rp_module_section="opt"
@@ -54,13 +49,15 @@ function _add_games_lr-prboom() {
     local addon="$romdir/ports/doom/addon"
 
     declare -A games=(
-        ['doom1.wad']="Doom"
-        ['doom2.wad']="Doom II"
-        ['doomu.wad']="The Ultimate Doom"
+        ['doom.wad']="Doom"
+        ['doom1.wad']="Doom (Shareware)"
+        ['doomu.wad']="Doom - The Ultimate Doom"
+        ['tnt.wad']="Final Doom - TNT:Evilution"
+        ['plutonia.wad']="Final Doom - The Plutonia Experiment"
+        ['doom2.wad']="Doom II - Hell on Earth"
+        ['masterlevels.wad']="Doom II - Master Levels"
         ['freedoom1.wad']="Freedoom - Phase I"
         ['freedoom2.wad']="Freedoom - Phase II"
-        ['tnt.wad']="TNT - Evilution"
-        ['plutonia.wad']="The Plutonia Experiment"
     )
 
     if [[ "$md_id" =~ "zdoom" ]]; then
@@ -68,8 +65,11 @@ function _add_games_lr-prboom() {
             ['heretic.wad']="Heretic - Shadow of the Serpent Riders"
             ['hexen.wad']="Hexen - Beyond Heretic"
             ['hexdd.wad']="Hexen - Deathkings of the Dark Citadel"
+            ['chex.wad']="Chex Quest"
+            ['chex2.wad']="Chex Quest 2"
             ['chex3.wad']="Chex Quest 3"
             ['strife1.wad']="Strife"
+            ['hacx.wad']="HacX"
         )
     fi
 

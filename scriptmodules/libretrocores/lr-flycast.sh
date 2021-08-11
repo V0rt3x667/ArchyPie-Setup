@@ -1,32 +1,22 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-flycast"
-rp_module_desc="Dreamcast emulator - Reicast port for libretro"
-rp_module_help="Previously named lr-reicast then lr-beetle-dc\n\nDreamcast ROM Extensions: .cdi .gdi .chd .m3u, Naomi/Atomiswave ROM Extension: .zip\n\nCopy your Dreamcast/Naomi roms to $romdir/dreamcast\n\nCopy the required Dreamcast BIOS files dc_boot.bin and dc_flash.bin to $biosdir/dc\n\nCopy the required Naomi/Atomiswave BIOS files naomi.zip and awbios.zip to $biosdir/dc"
+rp_module_desc="Sega Dreamcast & Naomi Atomiswave Libretro Core"
+rp_module_help="Dreamcast ROM Extensions: .cdi .gdi .chd .m3u, Naomi Atomiswave ROM Extension: .zip\n\nCopy your Dreamcast/Naomi roms to $romdir/dreamcast\n\nCopy the required Dreamcast BIOS files dc_boot.bin and dc_flash.bin to $biosdir/dc\n\nCopy the required Naomi/Atomiswave BIOS files naomi.zip and awbios.zip to $biosdir/dc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/flycast/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/flycast.git master"
 rp_module_section="opt"
 rp_module_flags="!armv6"
 
 function depends_lr-flycast() {
-    local depends=(zlib1g-dev)
+    local depends=(zlib)
     isPlatform "videocore" && depends+=(libraspberrypi-dev)
     isPlatform "mesa" && depends+=(libgles2-mesa-dev)
     getDepends "${depends[@]}"
-}
-
-function _update_hook_lr-flycast() {
-    renameModule "lr-reicast" "lr-beetle-dc"
-    renameModule "lr-beetle-dc" "lr-flycast"
 }
 
 function sources_lr-flycast() {
@@ -52,6 +42,11 @@ function build_lr-flycast() {
         else
             params+=("HAVE_GL3=0")
         fi
+    fi
+    if isPlatform "x86"; then
+        params+=("HAVE_OIT=1")
+    else
+        params+=("HAVE_OIT=0")
     fi
     isPlatform "aarch64" && params+=("WITH_DYNAREC=arm64" "HOST_CPU_FLAGS=-DTARGET_LINUX_ARMv8")
     isPlatform "arm" && params+=("WITH_DYNAREC=arm")

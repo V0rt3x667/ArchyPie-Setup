@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-quicknes"
-rp_module_desc="NES emulator - QuickNES Port for libretro"
+rp_module_desc="Nintendo Entertainment System Libretro Core"
 rp_module_help="ROM Extensions: .nes .zip\n\nCopy your NES roms to $romdir/nes"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/QuickNES_Core/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/QuickNES_Core.git master"

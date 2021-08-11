@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-bluemsx"
-rp_module_desc="MSX/MSX2/Colecovision emu - blueMSX port for libretro"
+rp_module_desc="Microsoft MSX, MSX2, Coleco ColecoVision & Sega SG-1000 Libretro Core"
 rp_module_help="ROM Extensions: .cas .rom .mx1 .mx2 .col .dsk .zip\n\nCopy your MSX/MSX2 games to $romdir/msx\nCopy your Colecovision games to $romdir/coleco\n\nlr-bluemsx requires the BIOS files from the full standalone package of BlueMSX to be copied to '$biosdir/Machines' folder.\nColecovision BIOS needs to be copied to '$biosdir/Machines/COL - ColecoVision\coleco.rom'"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/blueMSX-libretro/master/license.txt"
 rp_module_repo="git https://github.com/libretro/blueMSX-libretro.git master"
@@ -42,6 +37,9 @@ function configure_lr-bluemsx() {
     mkRomDir "coleco"
     ensureSystemretroconfig "coleco"
 
+    mkRomDir "msx2"
+    ensureSystemretroconfig "msx2"
+
     # force colecovision system
     local core_config="$md_conf_root/coleco/retroarch-core-options.cfg"
     iniConfig " = " '"' "$md_conf_root/coleco/retroarch.cfg"
@@ -54,6 +52,9 @@ function configure_lr-bluemsx() {
 
     addEmulator 1 "$md_id" "msx" "$md_inst/bluemsx_libretro.so"
     addSystem "msx"
+
+    addEmulator 1 "$md_id" "msx2" "$md_inst/bluemsx_libretro.so"
+    addSystem "msx2"
 
     addEmulator 1 "$md_id" "coleco" "$md_inst/bluemsx_libretro.so"
     addSystem "coleco"

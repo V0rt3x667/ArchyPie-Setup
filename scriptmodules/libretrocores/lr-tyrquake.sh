@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-tyrquake"
-rp_module_desc="Quake 1 engine - Tyrquake port for libretro"
+rp_module_desc="Quake Libretro Core"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/tyrquake/master/gnu.txt"
 rp_module_repo="git https://github.com/libretro/tyrquake.git master"
 rp_module_section="opt"
@@ -56,9 +51,9 @@ function _add_games_lr-tyrquake() {
     local cmd="$1"
     declare -A games=(
         ['id1']="Quake"
-        ['hipnotic']="Quake Mission Pack 1 (hipnotic)"
-        ['rogue']="Quake Mission Pack 2 (rogue)"
-        ['dopa']="Quake Episode 5 (dopa)"
+        ['hipnotic']="Quake Mission Pack 1 - Scourge of Armagon"
+        ['rogue']="Quake Mission Pack 2 - Dissolution of Eternity"
+        ['dopa']="Quake Episode 5 - Dimensions of the Past"
     )
     local dir
     local pak

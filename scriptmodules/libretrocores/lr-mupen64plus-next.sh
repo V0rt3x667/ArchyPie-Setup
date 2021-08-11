@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-mupen64plus-next"
-rp_module_desc="N64 emulator - Mupen64Plus + GLideN64 for libretro (next version)"
+rp_module_desc="Nintendo N64 Libretro Core"
 rp_module_help="ROM Extensions: .z64 .n64 .v64\n\nCopy your N64 roms to $romdir/n64"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mupen64plus-libretro-nx/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/mupen64plus-libretro-nx.git develop"
@@ -19,10 +14,10 @@ rp_module_flags=""
 
 function depends_lr-mupen64plus-next() {
     local depends=()
-    isPlatform "x11" && depends+=(libglew-dev libglu1-mesa-dev)
+    isPlatform "x11" && depends+=(glew libglvnd)
     isPlatform "x86" && depends+=(nasm)
-    isPlatform "videocore" && depends+=(libraspberrypi-dev)
-    isPlatform "mesa" && depends+=(libgles2-mesa-dev)
+    isPlatform "videocore" && depends+=(raspberrypi-firmware)
+    isPlatform "mesa" && depends+=(libglvnd)
     getDepends "${depends[@]}"
 }
 

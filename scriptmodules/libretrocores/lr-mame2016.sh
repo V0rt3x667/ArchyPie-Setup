@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-mame2016"
-rp_module_desc="MAME emulator - MAME 0.174 port for libretro"
+rp_module_desc="MAME 0.174 Libretro Core"
 rp_module_help="ROM Extension: .zip\n\nCopy your MAME roms to either $romdir/mame-libretro or\n$romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame2016-libretro/master/LICENSE.md"
 rp_module_repo="git https://github.com/libretro/mame2016-libretro.git master"
@@ -18,7 +13,7 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function depends_lr-mame2016() {
-    getDepends libasound2-dev
+    getDepends ffmpeg
 }
 
 function sources_lr-mame2016() {

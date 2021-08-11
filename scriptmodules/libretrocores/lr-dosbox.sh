@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-dosbox"
-rp_module_desc="DOS emulator"
+rp_module_desc="DOSBox Libretro Core"
 rp_module_help="ROM Extensions: .bat .com .exe .sh\n\nCopy your DOS games to $ROMDIR/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/dosbox-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/dosbox-libretro.git master"
@@ -31,7 +26,7 @@ function build_lr-dosbox() {
         fi
     fi
     make clean
-    make "${params[@]}"
+    make -f Makefile.libretro "${params[@]}"
     md_ret_require="$md_build/dosbox_libretro.so"
 }
 

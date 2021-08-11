@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-mame"
-rp_module_desc="MAME emulator - MAME (current) port for libretro"
+rp_module_desc="MAME (Latest Version) Libretro Core"
 rp_module_help="ROM Extension: .zip\n\nCopy your MAME roms to either $romdir/mame-libretro or\n$romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame/master/COPYING"
 rp_module_repo="git https://github.com/libretro/mame.git master"
@@ -18,19 +13,19 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function _get_params_lr-mame() {
-    local params=(OSD=retro RETRO=1 NOWERROR=1 OS=linux TARGETOS=linux CONFIG=libretro NO_USE_MIDI=1 TARGET=mame PYTHON_EXECUTABLE=python3)
+    local params=(OSD=retro RETRO=1 NOWERROR=1 OS=linux TARGETOS=linux CONFIG=libretro NO_USE_MIDI=1 TARGET=mame PYTHON_EXECUTABLE=python)
     isPlatform "64bit" && params+=(PTR64=1)
     echo "${params[@]}"
 }
 
 function depends_lr-mame() {
-    if compareVersions $__gcc_version lt 7; then
-        md_ret_errors+=("Sorry, you need an OS with gcc 7 or newer to compile $md_id")
-        return 1
-    fi
-    local depends=(libasound2-dev)
-    isPlatform "gles" && depends+=(libgles2-mesa-dev)
-    isPlatform "gl" && depends+=(libglu1-mesa-dev)
+#    if compareVersions $__gcc_version lt 7; then
+#        md_ret_errors+=("Sorry, you need an OS with gcc 7 or newer to compile $md_id")
+#        return 1
+#    fi
+    local depends=(ffmpeg)
+    isPlatform "gles" && depends+=(libglvnd)
+    isPlatform "gl" && depends+=(glu)
     getDepends "${depends[@]}"
 }
 

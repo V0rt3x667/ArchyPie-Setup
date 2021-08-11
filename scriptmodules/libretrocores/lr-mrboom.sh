@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-mrboom"
-rp_module_desc="Mr.Boom - 8 players Bomberman clone for libretro."
-rp_module_help="8 players Bomberman clone for libretro."
+rp_module_desc="Mr.Boom Libretro Core"
+rp_module_help="8 Players Bomberman Clone"
 rp_module_licence="MIT https://raw.githubusercontent.com/libretro/mrboom-libretro/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/mrboom-libretro.git master"
 rp_module_section="opt"

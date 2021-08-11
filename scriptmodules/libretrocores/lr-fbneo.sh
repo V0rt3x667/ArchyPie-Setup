@@ -1,26 +1,15 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-fbneo"
-rp_module_desc="Arcade emu - FinalBurn Neo (latest version) port for libretro"
-rp_module_help="Previously called lr-fba-next and fbalpha\n\ROM Extension: .zip\n\nCopy your FBA roms to\n$romdir/fba or\n$romdir/neogeo or\n$romdir/arcade\n\nFor NeoGeo games the neogeo.zip BIOS is required and must be placed in the same directory as your FBA roms."
+rp_module_desc="FinalBurn Neo Arcade Libretro Core"
+rp_module_help="ROM Extension: .zip\n\nCopy your FBA roms to\n$romdir/fba or\n$romdir/neogeo or\n$romdir/arcade\n\nFor NeoGeo games the neogeo.zip BIOS is required and must be placed in the same directory as your FBA roms."
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/FBNeo/master/src/license.txt"
 rp_module_repo="git https://github.com/libretro/FBNeo.git master"
 rp_module_section="main armv6=opt"
-
-function _update_hook_lr-fbneo() {
-    # move from old location and update emulators.cfg
-    renameModule "lr-fba-next" "lr-fbalpha"
-    renameModule "lr-fbalpha" "lr-fbneo"
-}
 
 function sources_lr-fbneo() {
     gitPullOrClone
