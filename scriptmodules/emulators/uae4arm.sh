@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="uae4arm"
-rp_module_desc="Amiga emulator with JIT support"
+rp_module_desc="UAE4ARM (JIT Support) - Commodore Amiga Emulator"
 rp_module_help="ROM Extension: .adf\n\nCopy your Amiga games to $romdir/amiga\n\nCopy the required BIOS files\nkick13.rom\nkick20.rom\nkick31.rom\nto $biosdir"
 rp_module_licence="GPL2"
 rp_module_repo="git https://github.com/Chips-fr/uae4arm-rpi.git master"
@@ -18,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!all videocore"
 
 function depends_uae4arm() {
-    getDepends libsdl1.2-dev libsdl-gfx1.2-dev libsdl-ttf2.0-dev libguichan-dev libmpg123-dev libxml2-dev libflac-dev libmpeg2-4-dev
+    getDepends sdl sdl_mixer sdl_image sdl_gfx sdl_ttf guichan libmpg123 libxml2 flac libmpeg2
 }
 
 function sources_uae4arm() {

@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="retroarch"
-rp_module_desc="RetroArch - frontend to the libretro emulator cores - required by all lr-* emulators"
+rp_module_desc="RetroArch - Frontend to the Libretro Cores - Required by all lr-* Emulators"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
 rp_module_repo="git https://github.com/libretro/RetroArch.git v1.9.7"
 rp_module_section="core"
@@ -33,7 +33,7 @@ function depends_retroarch() {
     isPlatform "mesa" && depends+=('libx11' 'libxcb')
     isPlatform "mali" && depends+=(mali-fbdev)
     isPlatform "x11" && depends+=('libx11' 'libxcb' 'libxrandr' 'vulkan-headers' 'wayland' 'wayland-protocols')
-    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc zlib1g-dev libfreetype6-dev)
+#    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc zlib1g-dev libfreetype6-dev)
     isPlatform "kms" && depends+=(libgbm-dev)
 
 #    if compareVersions "$__os_debian_ver" ge 9; then
@@ -95,7 +95,7 @@ function build_retroarch() {
     isPlatform "neon" && params+=(--enable-neon)
     isPlatform "x11" && params+=(--enable-vulkan)
     ! isPlatform "x11" && params+=(--disable-vulkan --disable-wayland)
-    isPlatform "vero4k" && params+=(--enable-mali_fbdev --with-opengles_libs='-L/opt/vero3/lib')
+#    isPlatform "vero4k" && params+=(--enable-mali_fbdev --with-opengles_libs='-L/opt/vero3/lib')
     ./configure --prefix="$md_inst" "${params[@]}"
     make clean
     make
@@ -417,8 +417,7 @@ function gui_retroarch() {
 }
 
 # adds a retroarch global config option in `$configdir/all/retroarch.cfg`, if not already set
-function _set_config_option_retroarch()
-{
+function _set_config_option_retroarch() {
     local option="$1"
     local value="$2"
     iniConfig " = " "\"" "$configdir/all/retroarch.cfg"

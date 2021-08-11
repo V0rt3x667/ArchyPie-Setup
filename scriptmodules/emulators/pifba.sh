@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="pifba"
-rp_module_desc="FBA emulator PiFBA"
+rp_module_desc="PiFBA - Final Burn Alpha Emulator"
 rp_module_help="ROM Extension: .zip\n\nCopy your FBA roms to\n$romdir/fba or\n$romdir/neogeo or\n$romdir/arcade\n\nFor NeoGeo games the neogeo.zip BIOS is required and must be placed in the same directory as your FBA roms."
 rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/pifba/master/FBAcapex_src/COPYING"
 rp_module_repo="git https://github.com/RetroPie/pifba.git master"
@@ -18,7 +13,7 @@ rp_module_section="opt armv6=main"
 rp_module_flags="!all videocore"
 
 function depends_pifba() {
-    getDepends libasound2-dev libsdl1.2-dev libraspberrypi-dev
+    getDepends ffmpeg sdl raspberrypi-firmware
 }
 
 function sources_pifba() {

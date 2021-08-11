@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="osmose"
-rp_module_desc="Gamegear emulator Osmose"
+rp_module_desc="Osmose - Sega Game Gear Emulator"
 rp_module_help="ROM Extensions: .bin .gg .sms .zip\nCopy your Game Gear roms to $romdir/gamegear\n\nMasterSystem roms to $romdir/mastersystem"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/osmose-rpi/master/license.txt"
 rp_module_repo="git https://github.com/RetroPie/osmose-rpi.git master"
@@ -18,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!mali !kms"
 
 function depends_osmose() {
-    getDepends libsdl1.2-dev
+    getDepends sdl
 }
 
 function sources_osmose() {

@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="amiberry"
-rp_module_desc="Amiga emulator with JIT support (forked from uae4arm)"
+rp_module_desc="Amiberry - Commodore Amiga Emulator)"
 rp_module_help="ROM Extension: .adf .ipf .zip\n\nCopy your Amiga games to $romdir/amiga\n\nCopy the required BIOS files\nkick13.rom\nkick20.rom\nkick31.rom\nto $biosdir"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/midwan/amiberry/master/COPYING"
 rp_module_repo="git https://github.com/midwan/amiberry v3.3"
@@ -27,17 +22,17 @@ function _get_platform_amiberry() {
         platform="c1"
     elif isPlatform "tinker"; then
         platform="tinker"
-    elif isPlatform "vero4k"; then
-        platform="vero4k"
+    #elif isPlatform "vero4k"; then
+    #    platform="vero4k"
     fi
     echo "$platform"
 }
 
 function depends_amiberry() {
-    local depends=(autoconf libpng-dev libmpeg2-4-dev zlib1g-dev libmpg123-dev libflac-dev libxml2-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev)
+    local depends=(autoconf libpng libmpeg2 zlib libmpg123 flac libxml2 sdl2 sdl2_image sdl2_ttf)
 
-    isPlatform "dispmanx" && depends+=(libraspberrypi-dev)
-    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
+    isPlatform "dispmanx" && depends+=(libraspberrypi-firmware)
+    #isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
 
     getDepends "${depends[@]}"
 }

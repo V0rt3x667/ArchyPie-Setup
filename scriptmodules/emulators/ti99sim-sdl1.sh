@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="ti99sim-sdl1"
-rp_module_desc="TI-99/SIM - Texas Instruments Home Computer Emulator (SDL1 version)"
+rp_module_desc="TI-99/SIM (SDL1 Version) - Texas Instruments Home Computer Emulator"
 rp_module_help="ROM Extension: .ctg\n\nCopy your TI-99 games to $romdir/ti99\n\nCopy the required BIOS file TI-994A.ctg (case sensitive) to $biosdir"
 rp_module_licence="GPL2 http://www.mrousseau.org/programs/ti99sim/"
 rp_module_repo="file $__archive_url/ti99sim-0.15.0.src.tar.gz"
@@ -18,7 +13,7 @@ rp_module_section="exp"
 rp_module_flags="sdl1 !mali"
 
 function depends_ti99sim-sdl1() {
-    getDepends libsdl1.2-dev libssl-dev libboost-regex-dev
+    getDepends sdl openssl boost-libs
 }
 
 function sources_ti99sim-sdl1() {

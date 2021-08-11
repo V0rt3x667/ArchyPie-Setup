@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="pisnes"
-rp_module_desc="SNES emulator PiSNES"
+rp_module_desc="PiSNES - Nintendo SNES Emulator"
 rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your SNES roms to $romdir/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/RetroPie/pisnes/master/snes9x.h"
 rp_module_repo="git https://github.com/RetroPie/pisnes.git master"
@@ -18,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!all videocore"
 
 function depends_pisnes() {
-    getDepends libasound2-dev libsdl1.2-dev libraspberrypi-dev libjpeg-dev
+    getDepends ffmpeg sdl raspberrypi-firmware libjpeg
 }
 
 function sources_pisnes() {

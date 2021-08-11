@@ -1,25 +1,23 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="drastic"
-rp_module_desc="NDS emu - DraStic"
+rp_module_desc="DraStic - Nintendo DS Emulator"
 rp_module_help="ROM Extensions: .nds .zip\n\nCopy your Nintendo DS roms to $romdir/nds"
 rp_module_licence="PROP"
 rp_module_section="exp"
 rp_module_flags="sdl2 !all arm !armv6 !mali"
 
 function depends_drastic() {
-    local depends=(libasound2-dev libsdl2-dev zlib1g-dev)
+    local depends=(ffmpeg sdl2 zlib)
     if isPlatform "kms" && ! isPlatform "x11"; then
-        depends+=(matchbox-window-manager xorg xserver-xorg-input-all)
+        depends+=(xorg-server xorg-input)
+    fi
+    if isPlatform "kms" && ! isPlatform "x11"; then
+        pacmanPkg matchbox-window-manager
     fi
 
     getDepends ${depends[@]}

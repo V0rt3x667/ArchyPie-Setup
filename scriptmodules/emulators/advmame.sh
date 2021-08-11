@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="advmame"
 rp_module_desc="AdvanceMAME v3.9"
@@ -22,16 +17,16 @@ function _update_hook_advmame() {
     # when doing update all packages
     if [[ -d "$md_inst/0.94.0" ]]; then
         mkdir -p "$rootdir/emulators/advmame-"{0.94,1.4}
-        printMsgs "dialog" "The advmame package has now been split into the following packages.\n\nadvmame-0.94\nadvmame-1.4\nadvmame\n\nIf you have chosen just to update the RetroPie-Setup script, you will need to update all the advmame packages for them to work correctly.\n\nNote that advmame-0.94.0.rc will be renamed to advmame-0.94.rc and the config for the main advmame will be advmame.rc.\n\nThe advmame package will be the latest version of the software."
+        printMsgs "dialog" "The advmame package has now been split into the following packages.\n\nadvmame-0.94\nadvmame-1.4\nadvmame\n\nIf you have chosen just to update the ArchyPie-Setup script, you will need to update all the advmame packages for them to work correctly.\n\nNote that advmame-0.94.0.rc will be renamed to advmame-0.94.rc and the config for the main advmame will be advmame.rc.\n\nThe advmame package will be the latest version of the software."
     fi
 }
 
 function depends_advmame() {
     local depends=(autoconf automake)
     if isPlatform "videocore"; then
-        depends+=(libsdl1.2-dev libraspberrypi-dev)
+        depends+=(sdl libraspberrypi-firmware)
     else
-        depends+=(libsdl2-dev)
+        depends+=(sdl2)
     fi
     getDepends "${depends[@]}"
 }

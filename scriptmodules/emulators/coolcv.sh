@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="coolcv"
 rp_module_desc="CoolCV Colecovision Emulator"
@@ -18,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!all videocore"
 
 function depends_coolcv() {
-    getDepends libsdl2-dev
+    getDepends sdl2
 }
 
 function install_bin_coolcv() {

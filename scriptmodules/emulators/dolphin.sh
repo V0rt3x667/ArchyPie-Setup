@@ -1,33 +1,39 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dolphin"
-rp_module_desc="Gamecube/Wii emulator Dolphin"
+rp_module_desc="Dolphin - Nintendo Gamecube, Wii & Triforce Emulator"
 rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy your Gamecube roms to $romdir/gc and Wii roms to $romdir/wii"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dolphin-emu/dolphin/master/license.txt"
-rp_module_repo="git https://github.com/dolphin-emu/dolphin.git :_get_branch_dolphin"
+rp_module_repo="git https://github.com/dolphin-emu/dolphin.git master"
 rp_module_section="exp"
 rp_module_flags="!all 64bit"
 
-function _get_branch_dolphin() {
-    local branch="master"
-    # current HEAD of dolphin doesn't build on Ubuntu 16.04 (with  gcc 5.4)
-    compareVersions $__gcc_version lt 6 && branch="5.0"
-    echo "$branch"
-}
+#function _get_branch_dolphin() {
+#    local branch="master"
+#    # current HEAD of dolphin doesn't build on Ubuntu 16.04 (with  gcc 5.4)
+#    compareVersions $__gcc_version lt 6 && branch="5.0"
+#    echo "$branch"
+#}
 
 function depends_dolphin() {
-    local depends=(cmake pkg-config libao-dev libasound2-dev libavcodec-dev libavformat-dev libbluetooth-dev libenet-dev liblzo2-dev libminiupnpc-dev libopenal-dev libpulse-dev libreadline-dev libsfml-dev libsoil-dev libsoundtouch-dev libswscale-dev libusb-1.0-0-dev libxext-dev libxi-dev libxrandr-dev portaudio19-dev zlib1g-dev libudev-dev libevdev-dev libmbedtls-dev libcurl4-openssl-dev libegl1-mesa-dev qtbase5-private-dev)
+    local depends=(
+        'bluez-libs'
+        'enet'
+        'ffmpeg'
+        'lzo'
+        'mbedtls'
+        'miniupnpc'
+        'pugixml'
+        'qt5-base'
+        'sfml'
+        'cmake'
+    )
     # current HEAD of dolphin doesn't build gtk2 UI anymore
-    compareVersions $__gcc_version lt 6 && depends+=(libgtk2.0-dev libwxbase3.0-dev libwxgtk3.0-dev)
+    #compareVersions $__gcc_version lt 6 && depends+=(libgtk2.0-dev libwxbase3.0-dev libwxgtk3.0-dev)
     getDepends "${depends[@]}"
 }
 
@@ -38,7 +44,10 @@ function sources_dolphin() {
 function build_dolphin() {
     mkdir build
     cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$md_inst"
+    cmake .. \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DUSE_SHARED_ENET=ON
     make clean
     make
     md_ret_require="$md_build/build/Binaries/dolphin-emu"
