@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="ppsspp"
 rp_module_desc="PlayStation Portable emulator PPSSPP"
@@ -18,10 +13,10 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function depends_ppsspp() {
-    local depends=(cmake libsdl2-dev libsnappy-dev libzip-dev zlib1g-dev)
-    isPlatform "videocore" && depends+=(libraspberrypi-dev)
-    isPlatform "mesa" && depends+=(libgles2-mesa-dev)
-    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
+    local depends=(cmake sdl2 snappy libzip zlib)
+    isPlatform "videocore" && depends+=(libraspberrypi-firmware)
+    isPlatform "mesa" && depends+=(libglvnd)
+#    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
     getDepends "${depends[@]}"
 }
 
@@ -44,95 +39,95 @@ function sources_ppsspp() {
     # ensure Pi vendor libraries are available for linking of shared library
     sed -n -i "p; s/^set(CMAKE_EXE_LINKER_FLAGS/set(CMAKE_SHARED_LINKER_FLAGS/p" cmake/Toolchains/raspberry.armv?.cmake
 
-    if hasPackage cmake 3.6 lt; then
-        cd ..
-        mkdir -p cmake
-        downloadAndExtract "$__archive_url/cmake-3.6.2.tar.gz" "$md_build/cmake" --strip-components 1
-    fi
+#    if hasPackage cmake 3.6 lt; then
+#        cd ..
+#        mkdir -p cmake
+#        downloadAndExtract "$__archive_url/cmake-3.6.2.tar.gz" "$md_build/cmake" --strip-components 1
+#    fi
 }
 
-function build_ffmpeg_ppsspp() {
-    cd "$1"
-    local arch
-    if isPlatform "arm"; then
-        if isPlatform "armv6"; then
-            arch="arm"
-        else
-            arch="armv7"
-        fi
-    elif isPlatform "x86"; then
-        if isPlatform "x86_64"; then
-            arch="x86_64";
-        else
-            arch="x86";
-        fi
-    elif isPlatform "aarch64"; then
-        arch="aarch64"
-    fi
-    isPlatform "vero4k" && local extra_params='--arch=arm'
+#function build_ffmpeg_ppsspp() {
+#    cd "$1"
+#    local arch
+#    if isPlatform "arm"; then
+#        if isPlatform "armv6"; then
+#            arch="arm"
+#        else
+#            arch="armv7"
+#        fi
+#    elif isPlatform "x86"; then
+#        if isPlatform "x86_64"; then
+#            arch="x86_64";
+#        else
+#            arch="x86";
+#        fi
+#    elif isPlatform "aarch64"; then
+#        arch="aarch64"
+#    fi
+##    isPlatform "vero4k" && local extra_params='--arch=arm'
 
-    local MODULES
-    local VIDEO_DECODERS
-    local AUDIO_DECODERS
-    local VIDEO_ENCODERS
-    local AUDIO_ENCODERS
-    local DEMUXERS
-    local MUXERS
-    local PARSERS
-    local GENERAL
-    local OPTS # used by older lr-ppsspp fork
-    # get the ffmpeg configure variables from the ppsspp ffmpeg distributed script
-    source linux_arm.sh
-    # linux_arm.sh has set -e which we need to switch off
-    set +e
-    ./configure $extra_params \
-        --prefix="./linux/$arch" \
-        --extra-cflags="-fasm -Wno-psabi -fno-short-enums -fno-strict-aliasing -finline-limit=300" \
-        --disable-shared \
-        --enable-static \
-        --enable-zlib \
-        --enable-pic \
-        --disable-everything \
-        ${MODULES} \
-        ${VIDEO_DECODERS} \
-        ${AUDIO_DECODERS} \
-        ${VIDEO_ENCODERS} \
-        ${AUDIO_ENCODERS} \
-        ${DEMUXERS} \
-        ${MUXERS} \
-        ${PARSERS}
-    make clean
-    make install
-}
+#    local MODULES
+#    local VIDEO_DECODERS
+#    local AUDIO_DECODERS
+#    local VIDEO_ENCODERS
+#    local AUDIO_ENCODERS
+#    local DEMUXERS
+#    local MUXERS
+#    local PARSERS
+#    local GENERAL
+#    local OPTS # used by older lr-ppsspp fork
+#    # get the ffmpeg configure variables from the ppsspp ffmpeg distributed script
+#    source linux_arm.sh
+#    # linux_arm.sh has set -e which we need to switch off
+#    set +e
+#    ./configure $extra_params \
+#        --prefix="./linux/$arch" \
+#        --extra-cflags="-fasm -Wno-psabi -fno-short-enums -fno-strict-aliasing -finline-limit=300" \
+#        --disable-shared \
+#        --enable-static \
+#        --enable-zlib \
+#        --enable-pic \
+#        --disable-everything \
+#        ${MODULES} \
+#        ${VIDEO_DECODERS} \
+#        ${AUDIO_DECODERS} \
+#        ${VIDEO_ENCODERS} \
+#        ${AUDIO_ENCODERS} \
+#        ${DEMUXERS} \
+#        ${MUXERS} \
+#        ${PARSERS}
+#    make clean
+#    make install
+#}
 
-function build_cmake_ppsspp() {
-    cd "$md_build/cmake"
-    ./bootstrap
-    make
-}
+#function build_cmake_ppsspp() {
+#    cd "$md_build/cmake"
+#    ./bootstrap
+#    make
+#}
 
 function build_ppsspp() {
     local ppsspp_binary="PPSSPPSDL"
     local cmake="cmake"
-    if hasPackage cmake 3.6 lt; then
-        build_cmake_ppsspp
-        cmake="$md_build/cmake/bin/cmake"
-    fi
+#    if hasPackage cmake 3.6 lt; then
+#        build_cmake_ppsspp
+#        cmake="$md_build/cmake/bin/cmake"
+#    fi
 
     # build ffmpeg
-    build_ffmpeg_ppsspp "$md_build/ppsspp/ffmpeg"
+#    build_ffmpeg_ppsspp "$md_build/ppsspp/ffmpeg"
 
     # build ppsspp
     cd "$md_build/ppsspp"
     rm -rf CMakeCache.txt CMakeFiles
     local params=()
-    if isPlatform "videocore"; then
-        if isPlatform "armv6"; then
-            params+=(-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/raspberry.armv6.cmake -DFORCED_CPU=armv6)
-        else
-            params+=(-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/raspberry.armv7.cmake)
-        fi
-    elif isPlatform "mesa"; then
+#    if isPlatform "videocore"; then
+#        if isPlatform "armv6"; then
+#            params+=(-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/raspberry.armv6.cmake -DFORCED_CPU=armv6)
+#        else
+#            params+=(-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/raspberry.armv7.cmake)
+#        fi
+    if isPlatform "mesa"; then
         params+=(-DUSING_GLES2=ON -DUSING_EGL=OFF)
     elif isPlatform "mali"; then
         params+=(-DUSING_GLES2=ON -DUSING_FBDEV=ON)
@@ -141,8 +136,8 @@ function build_ppsspp() {
         params+=(-DCMAKE_CXX_FLAGS="${CXXFLAGS/-DGL_GLEXT_PROTOTYPES/}")
     elif isPlatform "tinker"; then
         params+=(-DCMAKE_TOOLCHAIN_FILE="$md_data/tinker.armv7.cmake")
-    elif isPlatform "vero4k"; then
-        params+=(-DCMAKE_TOOLCHAIN_FILE="cmake/Toolchains/vero4k.armv8.cmake")
+    #elif isPlatform "vero4k"; then
+    #    params+=(-DCMAKE_TOOLCHAIN_FILE="cmake/Toolchains/vero4k.armv8.cmake")
     fi
     if isPlatform "arm" && ! isPlatform "x11"; then
         params+=(-DARM_NO_VULKAN=ON)
