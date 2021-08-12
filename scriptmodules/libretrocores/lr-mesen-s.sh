@@ -11,18 +11,18 @@ rp_module_licence="GPL3 https://raw.githubusercontent.com/SourMesen/Mesen-S/mast
 rp_module_repo="git https://github.com/SourMesen/Mesen-S.git master"
 rp_module_section="opt"
 
-function sources_lr-messen-s() {
+function sources_lr-mesen-s() {
     gitPullOrClone
 }
 
-function build_lr-messen-s() {
+function build_lr-mesen-s() {
     make clean
     make
-    md_ret_require="$md_build/messen-s_libretro.so"
+    md_ret_require="$md_build/mesen-s_libretro.so"
 }
 
-function install_lr-messen-s() {
-    md_ret_files=('messen-s_libretro.so')
+function install_lr-mesen-s() {
+    md_ret_files=('mesen-s_libretro.so')
 }
 
 function configure_lr-mesen-s() {
