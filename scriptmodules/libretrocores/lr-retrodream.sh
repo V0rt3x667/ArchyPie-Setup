@@ -16,13 +16,13 @@ function sources_lr-retrodream() {
 }
 
 function build_lr-retrodream() {
-    make clean
-    make
-    md_ret_require="$md_build/retrodream_libretro.so"
+    make -C deps/libretro clean
+    make -C deps/libretro
+    md_ret_require="$md_build/deps/libretro/retrodream_libretro.so"
 }
 
 function install_lr-retrodream() {
-    md_ret_files=('retrodream_libretro.so')
+    md_ret_files=('deps/libretro/retrodream_libretro.so')
 }
 
 function configure_lr-retrodream() {

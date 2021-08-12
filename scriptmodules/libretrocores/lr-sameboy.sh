@@ -11,19 +11,33 @@ rp_module_licence="MIT https://raw.githubusercontent.com/libretro/SameBoy/buildb
 rp_module_repo="git https://github.com/libretro/SameBoy.git master"
 rp_module_section="opt"
 
+function depends_lr-sameboy() {
+    local depends=(
+        'glibc'
+        'libgl'
+        'clang'
+        'libglvnd'
+        'rgbds'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
+}
+
 function sources_lr-sameboy() {
     gitPullOrClone
 }
 
 function build_lr-sameboy() {
+    export CC="clang"
     make clean
-    make
-    md_ret_require="$md_build/sameboy_libretro.so"
+    make -C libretro CONF=release
+    md_ret_require="$md_build/build/bin/sameboy_libretro.so"
+    export CC=""
 }
 
 function install_lr-sameboy() {
     md_ret_files=(
-        'sameboy_libretro.so'
+        'build/bin/sameboy_libretro.so'
         'LICENSE'
     )
 }
