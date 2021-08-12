@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This file is part of the Arch-RGS project.
+# This file is part of the ArchyPie project.
 #
 # Please see the LICENSE file at the top-level directory of this distribution.
 

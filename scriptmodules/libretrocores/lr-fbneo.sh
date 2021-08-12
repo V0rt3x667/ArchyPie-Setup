@@ -11,6 +11,11 @@ rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/FBNeo/maste
 rp_module_repo="git https://github.com/libretro/FBNeo.git master"
 rp_module_section="main armv6=opt"
 
+function depends_emulationstation() {
+    local depends=('clang')
+    getDepends "${depends[@]}"
+}
+
 function sources_lr-fbneo() {
     gitPullOrClone
 }
@@ -22,6 +27,8 @@ function build_lr-fbneo() {
     isPlatform "neon" && params+=(HAVE_NEON=1)
     isPlatform "x86" && isPlatform "64bit" && params+=(USE_X64_DRC=1)
     make clean
+    #CXXFLAGS+=" -fcommon -ffile-prefix-map=\"$PWD\"=." \
+    CC="clang" CXX="clang++" \
     make "${params[@]}"
     md_ret_require="$md_build/src/burner/libretro/fbneo_libretro.so"
 }

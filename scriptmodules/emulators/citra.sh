@@ -19,6 +19,7 @@ function depends_citra() {
         'sdl2'
         'cmake'
         'doxygen'
+        'libc++'
     )
     getDepends "${depends[@]}"
 }

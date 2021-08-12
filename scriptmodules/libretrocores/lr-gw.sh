@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-gw"
-rp_module_desc="Nintendo Game & Watch Libretro Corer"
+rp_module_desc="Nintendo Game & Watch Libretro Core"
 rp_module_help="ROM Extension: .mgw\n\nCopy your Game and Watch games to $romdir/gameandwatch"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/libretro/gw-libretro/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/gw-libretro.git master"

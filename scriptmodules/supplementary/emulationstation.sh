@@ -128,7 +128,7 @@ function depends_emulationstation() {
     local depends=('freeimage' 'freetype2' 'curl' 'cmake' 'sdl2' 'libsm' 'rapidjson' 'vlc')
 
     #compareVersions "$__os_debian_ver" gt 8 && depends+=(rapidjson-dev)
-    isPlatform "x11" && depends+=(gnome-terminal)
+    isPlatform "x11" && depends+=('gnome-terminal' 'mesa-demos')
     if isPlatform "rpi" && isPlatform "32bit"; then
         depends+=(omxplayer-git)
     fi

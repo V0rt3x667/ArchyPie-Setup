@@ -19,7 +19,8 @@ function _params_lr-desmume() {
 }
 
 function depends_lr-desmume() {
-    getDepends ('libpcap' 'mesa')
+    local depends=('libpcap' 'mesa')
+    getDepends "${depends[@]}"
 }
 
 function sources_lr-desmume() {

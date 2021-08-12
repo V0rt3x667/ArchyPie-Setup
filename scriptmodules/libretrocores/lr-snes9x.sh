@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-snes9x"
-rp_module_desc="Nintendo Super Nintendo Entertainment System Libretro Core"
+rp_module_desc="Nintendo SNES Libretro Core"
 rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your SNES roms to $romdir/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/snes9x/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/snes9x.git master"

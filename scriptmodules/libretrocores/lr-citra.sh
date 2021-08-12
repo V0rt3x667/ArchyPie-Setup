@@ -13,8 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!all 64bit"
 
 function depends_lr-citra() {
-    local depends=(cmake sdl2)
-    getDepends "${depends[@]}"
+    depends_citra
 }
 
 function sources_lr-citra() {
@@ -32,15 +31,14 @@ function build_lr-citra() {
         -DENABLE_WEB_SERVICE=OFF
     make clean
     make
-    md_ret_require="$md_build/build/citra_libretro.so"
+    md_ret_require="$md_build/build/src/citra_libretro/citra_libretro.so"
 }
 
 function install_lr-citra() {
-    cd build
-    md_ret_files=('citra_libretro.so')
+    md_ret_files=('build/src/citra_libretro/citra_libretro.so')
 }
 
-function configure_rgs-lr-citra() {
+function configure_lr-citra() {
     mkRomDir "3ds"
 
     ensureSystemretroconfig "3ds"

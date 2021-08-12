@@ -28,7 +28,7 @@ function install_lr-blastem() {
     )
 }
 
-function configure_rgs-lr-blastem() {
+function configure_lr-blastem() {
     mkRomDir "megadrive"
     ensureSystemretroconfig "megadrive"
 
