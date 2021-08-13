@@ -16,13 +16,13 @@ function sources_lr-mesen-s() {
 }
 
 function build_lr-mesen-s() {
-    make clean
-    make
-    md_ret_require="$md_build/mesen-s_libretro.so"
+    make -C Libretro clean
+    make -C Libretro
+    md_ret_require="$md_build/Libretro/mesens_libretro.so"
 }
 
 function install_lr-mesen-s() {
-    md_ret_files=('mesen-s_libretro.so')
+    md_ret_files=('Libretro/mesens_libretro.so')
 }
 
 function configure_lr-mesen-s() {
@@ -30,7 +30,7 @@ function configure_lr-mesen-s() {
   for system in "snes" "gb" "gbc"; do
     mkRomDir "$system"
     ensureSystemretroconfig "$system"
-    addEmulator 0 "$md_id" "$system" "$md_inst/mesen-s_libretro.so"
+    addEmulator 0 "$md_id" "$system" "$md_inst/mesens_libretro.so"
     addSystem "$system"
   done
 }
