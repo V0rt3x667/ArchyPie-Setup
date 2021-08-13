@@ -13,7 +13,20 @@ rp_module_section="exp"
 rp_module_flags="!all 64bit"
 
 function depends_lr-dolphin() {
-    depends_dolphin
+    local depends=(
+        'gcc10'
+        'bluez-libs'
+        'enet'
+        'ffmpeg'
+        'lzo'
+        'mbedtls'
+        'miniupnpc'
+        'pugixml'
+        'qt5-base'
+        'sfml'
+        'cmake'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_lr-dolphin() {
@@ -23,6 +36,7 @@ function sources_lr-dolphin() {
 function build_lr-dolphin() {
     mkdir build
     cd build
+    export CC="gcc-10" CXX="g++-10"
     cmake .. \
         -DLIBRETRO_STATIC=1 \
         -DCMAKE_BUILD_TYPE=Release \
@@ -35,12 +49,14 @@ function build_lr-dolphin() {
         -Wno-dev
     make clean
     make
+    export CC="" CXX=""
     md_ret_require="$md_build/build/dolphin_libretro.so"
 }
 
 function install_lr-dolphin() {
     md_ret_files=(
         'build/dolphin_libretro.so'
+        'Data/Sys'
     )
 }
 
@@ -50,6 +66,9 @@ function configure_lr-dolphin() {
 
     ensureSystemretroconfig "gc"
     ensureSystemretroconfig "wii"
+
+    mkdir $biosdir/dolphin-emu
+    ln -sf $md_inst/Sys $biosdir/dolphin-emu/
 
     addEmulator 1 "$md_id" "gc" "$md_inst/dolphin_libretro.so"
     addEmulator 1 "$md_id" "wii" "$md_inst/dolphin_libretro.so"
