@@ -23,7 +23,7 @@ function sources_lr-mame2016() {
 
 function build_lr-mame2016() {
     rpSwap on 1200
-    local params=($(_get_params_lr-mame) SUBTARGET=arcade)
+    local params=($(_get_params_lr-mame) SUBTARGET=arcade PYTHON_EXECUTABLE=python2)
     make -f Makefile.libretro clean
     make -f Makefile.libretro "${params[@]}"
     rpSwap off
