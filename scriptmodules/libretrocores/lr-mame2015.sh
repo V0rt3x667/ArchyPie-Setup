@@ -11,6 +11,11 @@ rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/mame2015-li
 rp_module_repo="git https://github.com/libretro/mame2015-libretro.git master"
 rp_module_section="exp"
 
+function depends_lr-mame2015() {
+    local depends=('python2')
+    getDepends "${depends[@]}"
+}
+
 function sources_lr-mame2015() {
     gitPullOrClone
 }

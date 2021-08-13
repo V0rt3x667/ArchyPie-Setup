@@ -13,7 +13,8 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function depends_lr-mame2016() {
-    getDepends ffmpeg
+    local depends=('python2' 'zlib')
+    getDepends "${depends[@]}"
 }
 
 function sources_lr-mame2016() {
