@@ -49,7 +49,7 @@ function build_lr-dolphin() {
         -Wno-dev
     make clean
     make
-    export CC="" CXX=""
+    export CC="gcc" CXX="g++"
     md_ret_require="$md_build/build/dolphin_libretro.so"
 }
 

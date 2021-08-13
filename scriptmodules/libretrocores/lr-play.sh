@@ -13,7 +13,15 @@ rp_module_section="exp"
 rp_module_flags="!all 64bit"
 
 function depends_lr-play() {
-    local depends=(glew)
+    local depends=(
+        'glew'
+        'libglvnd'
+        'icu'
+        'libgl'
+        'bzip2'
+        'glibc'
+        'zlib'
+    )
     getDepends "${depends[@]}"
 }
 
@@ -32,12 +40,14 @@ function build_lr-play() {
         -DENABLE_AMAZON_S3=OFF
     make clean
     make
-    md_ret_require="$md_build/build/play_libretro.so"
+    md_ret_require="$md_build/build/Source/ui_libretro/play_libretro.so"
 }
 
 function install_lr-play() {
-    cd build
-    md_ret_files=('play_libretro.so' 'License.txt')
+    md_ret_files=(
+        'build/Source/ui_libretro/play_libretro.so'
+        'License.txt'
+    )
 }
 
 function configure_lr-play() {

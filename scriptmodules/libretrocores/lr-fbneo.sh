@@ -29,7 +29,7 @@ function build_lr-fbneo() {
     export CC="clang" CXX="clang++"
     make clean
     make "${params[@]}"
-    export CC="" CXX=""
+    export CC="gcc" CXX="g++"
     md_ret_require="$md_build/src/burner/libretro/fbneo_libretro.so"
 }
 
