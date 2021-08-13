@@ -10,7 +10,7 @@ rp_module_help="See wiki for detailed explanation"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame2016-libretro/master/LICENSE.md"
 rp_module_repo="git https://github.com/libretro/mame2016-libretro.git master"
 rp_module_section="exp"
-rp_module_flags=""
+rp_module_flags="!all arm !armv6"
 
 function depends_lr-mess2016() {
     depends_lr-mame2016
