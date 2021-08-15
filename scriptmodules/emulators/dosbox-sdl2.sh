@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dosbox-sdl2"
-rp_module_desc="DOSBox r4250 Enhanced Fork - DOS Emulator"
+rp_module_desc="DOSBox r4250 Enhanced Fork - MS-DOS Emulator"
 rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy your DOS games to $romdir/pc"
 rp_module_licence="GPL2 https://sourceforge.net/p/dosbox/code-0/HEAD/tree/dosbox/trunk/COPYING"
 rp_module_repo="git https://github.com/duganchen/dosbox.git master"

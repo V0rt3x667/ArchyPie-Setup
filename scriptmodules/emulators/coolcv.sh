@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="coolcv"
-rp_module_desc="CoolCV Colecovision Emulator"
+rp_module_desc="CoolCV - ColecoVision Emulator"
 rp_module_help="ROM Extensions: .bin .col .rom .zip\n\nCopy your Colecovision roms to $romdir/coleco"
 rp_module_licence="PROP"
 rp_module_repo="file $__archive_url/coolcv.tar.gz"

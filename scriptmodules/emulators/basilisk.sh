@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="basilisk"
-rp_module_desc="Macintosh emulator"
+rp_module_desc="BasiliskII - Apple Macintosh II Emulator"
 rp_module_help="ROM Extensions: .img .rom\n\nCopy your Macintosh roms mac.rom and disk.img to $romdir/macintosh"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/cebix/macemu/master/BasiliskII/COPYING"
 rp_module_repo="git https://github.com/cebix/macemu.git master"
@@ -18,8 +13,8 @@ rp_module_section="opt"
 rp_module_flags="sdl1 !mali"
 
 function depends_basilisk() {
-    local depends=(libsdl1.2-dev autoconf automake oss-compat)
-    isPlatform "x11" && depends+=(libgtk2.0-dev)
+    local depends=('sdl' 'vde2')
+    isPlatform "x11" && depends+=('gtk2')
     getDepends "${depends[@]}"
 }
 

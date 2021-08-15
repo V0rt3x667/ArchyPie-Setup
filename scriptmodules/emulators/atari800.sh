@@ -1,25 +1,20 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="atari800"
-rp_module_desc="Atari 8-bit/800/5200 emulator"
-rp_module_help="ROM Extensions: .a52 .bas .bin .car .xex .atr .xfd .dcm .atr.gz .xfd.gz\n\nCopy your Atari800 games to $romdir/atari800\n\nCopy your Atari 5200 roms to $romdir/atari5200 You need to copy the Atari 800/5200 BIOS files (5200.ROM, ATARIBAS.ROM, ATARIOSB.ROM and ATARIXL.ROM) to the folder $biosdir and then on first launch configure it to scan that folder for roms (F1 -> Emulator Configuration -> System Rom Settings)"
+rp_module_desc="Atari 800 - Atari 400, 800, 600XL, 800XL, 130XE & 5200 Emulator"
+rp_module_help="ROM Extensions: .a52 .atr .atr.gz .bas .bin .car .dcm .xex .xfd .xfd.gz\n\nCopy your Atari800 games to $romdir/atari800\n\nCopy your Atari 5200 roms to $romdir/atari5200 You need to copy the Atari 800/5200 BIOS files (5200.ROM, ATARIBAS.ROM, ATARIOSB.ROM and ATARIXL.ROM) to the folder $biosdir and then on first launch configure it to scan that folder for roms (F1 -> Emulator Configuration -> System Rom Settings)"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/atari800/atari800/master/COPYING"
 rp_module_repo="git https://github.com/atari800/atari800.git ATARI800_4_2_0"
 rp_module_section="opt"
 rp_module_flags="sdl1 !mali"
 
 function depends_atari800() {
-    local depends=(libsdl1.2-dev autoconf automake zlib1g-dev libpng-dev)
-    isPlatform "rpi" && depends+=(libraspberrypi-dev)
+    local depends=('sdl' 'zlib' 'libpng')
+    isPlatform "rpi" && depends+=('raspberrypi-firmware')
     getDepends "${depends[@]}"
 }
 

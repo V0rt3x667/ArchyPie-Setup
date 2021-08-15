@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dosbox-staging"
-rp_module_desc="modern DOS/x86 emulator focusing on ease of use"
+rp_module_desc="DOSBox-Staging - MS-DOS/x86 Emulator"
 rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy your DOS games to $romdir/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dosbox-staging/dosbox-staging/master/COPYING"
 rp_module_repo="git https://github.com/dosbox-staging/dosbox-staging.git :_get_branch_dosbox-staging"
@@ -22,7 +17,7 @@ function _get_branch_dosbox-staging() {
 }
 
 function depends_dosbox-staging() {
-    getDepends cmake libasound2-dev libglib2.0-dev libopusfile-dev libpng-dev libsdl2-dev libsdl2-net-dev meson ninja-build
+    getDepends cmake alsa-lib fluidsynth ncurses opusfile libpng sdl2 sdl2_net meson ninja gzip
 }
 
 function sources_dosbox-staging() {
@@ -33,9 +28,9 @@ function build_dosbox-staging() {
     local params=(-Dbuildtype=release -Ddefault_library=static --prefix="$md_inst")
 
     # Fluidsynth (static)
-    cd "$md_build/contrib/static-fluidsynth"
-    make
-    export PKG_CONFIG_PATH="${md_build}/contrib/static-fluidsynth/fluidsynth/build"
+#    cd "$md_build/contrib/static-fluidsynth"
+#    make
+#    export PKG_CONFIG_PATH="${md_build}/contrib/static-fluidsynth/fluidsynth/build"
 
     cd "$md_build"
     meson setup "${params[@]}" build

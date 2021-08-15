@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="advmame"
-rp_module_desc="AdvanceMAME v3.9"
+rp_module_desc="AdvanceMAME v3.9 - Arcade Emulator"
 rp_module_help="ROM Extension: .zip\n\nCopy your AdvanceMAME roms to either $romdir/mame-advmame or\n$romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/amadvance/advancemame/master/COPYING"
 rp_module_repo="git https://github.com/amadvance/advancemame v3.9"

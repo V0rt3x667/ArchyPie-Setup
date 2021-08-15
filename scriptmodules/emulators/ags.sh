@@ -1,24 +1,20 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="ags"
-rp_module_desc="Adventure Game Studio - Adventure game engine"
+rp_module_desc="Adventure Game Studio - Adventure Game Engine"
 rp_module_help="ROM Extension: .exe\n\nCopy your Adventure Game Studio roms to $romdir/ags"
 rp_module_licence="OTHER https://raw.githubusercontent.com/adventuregamestudio/ags/master/License.txt"
-rp_module_repo="git https://github.com/adventuregamestudio/ags.git ags3"
+rp_module_repo="git https://github.com/adventuregamestudio/ags.git v.3.5.1.10"
 rp_module_section="opt"
 rp_module_flags="!mali"
 
 function depends_ags() {
-    getDepends xorg pkg-config libaldmb1-dev libfreetype6-dev libtheora-dev libvorbis-dev libogg-dev liballegro4-dev
+    local depends=('allegro' 'dumb' 'freetype2' 'libogg' 'libtheora' 'libvorbis' 'xorg-server')
+    getDepends "${depends[@]}"
 }
 
 function sources_ags() {

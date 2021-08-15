@@ -1,32 +1,27 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dosbox"
-rp_module_desc="DOS emulator"
+rp_module_desc="DOSBox - MS-DOS Emulator"
 rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy your DOS games to $romdir/pc"
 rp_module_licence="GPL2 https://sourceforge.net/p/dosbox/code-0/HEAD/tree/dosbox/trunk/COPYING"
-rp_module_repo="svn https://svn.code.sf.net/p/dosbox/code-0/dosbox/trunk - 4252"
+rp_module_repo="svn https://svn.code.sf.net/p/dosbox/code-0/dosbox/trunk - 4465"
 rp_module_section="opt"
 rp_module_flags="sdl1 !mali"
 
 function depends_dosbox() {
-    local depends=(libasound2-dev libpng-dev automake autoconf zlib1g-dev "$@")
-    [[ "$md_id" == "dosbox" ]] && depends+=(libsdl1.2-dev libsdl-net1.2-dev libsdl-sound1.2-dev)
-    isPlatform "rpi" && depends+=(timidity freepats)
+    local depends=(alsa-lib libpng zlib "$@")
+    [[ "$md_id" == "dosbox" ]] && depends+=(sdl sdl_net sdl_sound)
+    isPlatform "rpi" && depends+=(timidity++ )
     getDepends "${depends[@]}"
 }
 
 function sources_dosbox() {
     local revision="$1"
-    [[ -z "$revision" ]] && revision="4252"
+    [[ -z "$revision" ]] && revision="4465"
 
     svn checkout "$md_repo_url" "$md_build" -r "$revision"
     applyPatch "$md_data/01-fully-bindable-joystick.diff"
@@ -81,6 +76,9 @@ function configure_dosbox() {
             launcher_name="+Start DOSBox-Staging.sh"
             config_dir="$home/.config/dosbox"
             ;;
+        dosbox-x)
+            launcher_name="+Start DOSBox-X.sh"
+            ;; 
         *)
             return 1
             ;;

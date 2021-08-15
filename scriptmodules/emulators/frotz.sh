@@ -1,32 +1,48 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="frotz"
-rp_module_desc="Z-Machine Interpreter for Infocom games"
+rp_module_desc="Frotz - Interpreter for Infocom & Z-Machine Games"
 rp_module_help="ROM Extensions: .dat .zip .z1 .z2 .z3 .z4 .z5 .z6 .z7 .z8\n\nCopy your Infocom games to $romdir/zmachine"
-rp_module_licence="GPL2 https://raw.githubusercontent.com/DavidGriffith/frotz/master/COPYING"
+rp_module_licence="GPL2 https://gitlab.com/DavidGriffith/frotz/raw/master/COPYING"
 rp_module_section="opt"
+rp_module_repo="git https://gitlab.com/DavidGriffith/frotz.git :_get_branch_frotz"
 rp_module_flags=""
 
-function _update_hook_frotz() {
-    # to show as installed in retropie-setup 4.x
-    hasPackage frotz && mkdir -p "$md_inst"
+function _get_branch_frotz() {
+    download https://gitlab.com/api/v4/projects/DavidGriffith%2Ffrotz/releases - | grep -m 1 tag_name | cut -d\" -f4
 }
 
-function install_bin_frotz() {
-    aptInstall frotz
+function depends_frotz() {
+    local depends=(
+        libao
+        libmodplug
+        libsamplerate
+        libsndfile
+        libvorbis
+        freetype2
+        libjpeg-turbo
+        libpng
+        sdl2
+        sdl2_mixer
+        zlib
+    )
+    getDepends "${depends[@]}"
 }
 
-function remove_frotz() {
-    aptRemove frotz
+function sources_frotz() {
+    gitPullOrClone
+}
+
+function build_frotz() {
+    make PREFIX="$md_inst" SYSCONFDIR="$HOME/.config/frotz" sdl
+}
+
+function install_frotz() {
+     make PREFIX="$md_inst" install_sdl
 }
 
 function game_data_frotz() {
@@ -49,7 +65,7 @@ function configure_frotz() {
     mkRomDir "zmachine"
 
     # CON: to stop runcommand from redirecting stdout to log
-    addEmulator 1 "$md_id" "zmachine" "CON:pushd $romdir/zmachine; frotz %ROM%; popd"
+    addEmulator 1 "$md_id" "zmachine" "CON:pushd $romdir/zmachine; $md_inst/bin/sfrotz %ROM%; popd"
     addSystem "zmachine"
 
     [[ "$md_mode" == "install" ]] && game_data_frotz
