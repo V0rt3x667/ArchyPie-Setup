@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="hatari"
-rp_module_desc="Atari emulator Hatari"
+rp_module_desc="Hatari - Atari ST, STE, TT & Falcon Emulator"
 rp_module_help="ROM Extensions: .st .stx .img .rom .raw .ipf .ctr .zip\n\nCopy your Atari ST games to $romdir/atarist\n\nCopy Atari ST BIOS (tos.img) to $biosdir"
 rp_module_licence="GPL2 https://git.tuxfamily.org/hatari/hatari.git/plain/gpl.txt"
-rp_module_repo="git git://git.tuxfamily.org/gitroot/hatari/hatari.git v2.3.1"
+rp_module_repo="git https://github.com/hatari/hatari.git master"
 rp_module_section="opt"
 rp_module_flags=""
 
 function depends_hatari() {
-    getDepends libsdl2-dev zlib1g-dev libpng-dev cmake libreadline-dev portaudio19-dev
+    getDepends sdl2 zlib libpng cmake readline portaudio
 }
 
 function _sources_libcapsimage_hatari() {
@@ -28,7 +23,6 @@ function _sources_libcapsimage_hatari() {
 }
 
 function sources_hatari() {
-    # shallow clone isn't supported via https:// on this repo
     gitPullOrClone
     _sources_libcapsimage_hatari
 }

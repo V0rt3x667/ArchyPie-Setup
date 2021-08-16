@@ -36,9 +36,7 @@ function build_dosbox-staging() {
     meson setup "${params[@]}" build
     ninja -C build
 
-    md_ret_require=(
-        "$md_build/build/dosbox"
-    )
+    md_ret_require=('$md_build/build/dosbox')
 }
 
 function install_dosbox-staging() {

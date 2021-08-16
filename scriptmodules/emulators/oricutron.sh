@@ -1,24 +1,23 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="oricutron"
-rp_module_desc="Oricutron Oric 1/Oric Atmos emulator"
+rp_module_desc="Oricutron - Tangerine Computer Systems Oric-1, Atmos, Stratos, Telestrat & Pravetz 8D Emulator"
 rp_module_help="ROM Extensions: .dsk .tap\n\nCopy your Oric games to $romdir/oric"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/pete-gordon/oricutron/4c359acfb6bd36d44e6d37891d7b6453324faf7d/main.h"
-rp_module_repo="git https://github.com/HerbFargus/oricutron.git extras"
+rp_module_repo="git https://github.com/pete-gordon/oricutron.git :_get_branch_oricutron"
 rp_module_section="exp"
 
+function _get_branch_oricutron() {
+    download https://api.github.com/repos/pete-gordon/oricutron/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_oricutron() {
-    local depends=(cmake libsdl2-dev)
-    isPlatform "x11" && depends+=(libgtk-3-dev)
+    local depends=('cmake' 'sdl2')
+    isPlatform "x11" && depends+=('gtk3')
     getDepends "${depends[@]}"
 }
 
@@ -27,18 +26,26 @@ function sources_oricutron() {
 }
 
 function build_oricutron() {
+#    make clean
+#    if isPlatform "rpi" || isPlatform "mali"; then
+#        make PLATFORM=rpi SDL_LIB=sdl2
+#    else
+#        make SDL_LIB=sdl2
+#    fi
+
+    mkdir build
+    cd build
+    cmake .. \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_TYPE="Release"
     make clean
-    if isPlatform "rpi" || isPlatform "mali"; then
-        make PLATFORM=rpi SDL_LIB=sdl2
-    else
-        make SDL_LIB=sdl2
-    fi
-    md_ret_require="$md_build/oricutron"
+    make 
+    md_ret_require="$md_build/build/oricutron"
 }
 
 function install_oricutron() {
     md_ret_files=(
-        'oricutron'
+        'build/oricutron'
         'oricutron.cfg'
         'roms'
         'disks'

@@ -1,27 +1,23 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="np2pi"
-rp_module_desc="NEC PC-9801 emulator"
+rp_module_desc="NP2Pi - NEC PC-9801 Emulator"
 rp_module_help="ROM Extensions: .d88 .d98 .88d .98d .fdi .xdf .hdm .dup .2hd .tfd .hdi .thd .nhd .hdd\n\nCopy your pc98 games to to $romdir/pc88\n\nCopy bios files 2608_bd.wav, 2608_hh.wav, 2608_rim.wav, 2608_sd.wav, 2608_tom.wav 2608_top.wav, bios.rom, FONT.ROM and sound.rom to $biosdir/pc98"
 rp_module_repo="git https://github.com/eagle0wl/np2pi.git master"
 rp_module_section="exp"
 rp_module_flags="sdl1 !all rpi !aarch64"
 
 function depends_np2pi() {
-    getDepends libsdl1.2-dev libasound2-dev libsdl-ttf2.0-dev fonts-takao-gothic
+    getDepends sdl alsa-lib sdl_ttf
 }
 
 function sources_np2pi() {
     gitPullOrClone
+    downloadAndExtract "https://launchpad.net/takao-fonts/trunk/15.03/+download/TakaoFonts_00303.01.zip" "$md_build/fonts" --strip-components 1
 }
 
 function build_np2pi() {
@@ -33,6 +29,7 @@ function build_np2pi() {
 function install_np2pi() {
     md_ret_files=(
         'bin/np2'
+        'fonts'
     )
 }
 
@@ -54,7 +51,7 @@ function configure_np2pi() {
     done
 
     # symlink font
-    ln -sf /usr/share/fonts/truetype/takao-gothic/TakaoGothic.ttf "$md_conf_root/pc98/default.ttf"
+    ln -sf "$md_inst/fonts/TakaoGothic.ttf" "$md_conf_root/pc98/default.ttf"
 
     addEmulator 1 "$md_id" "pc98" "pushd $md_conf_root/pc98; $md_inst/np2 %ROM%; popd"
     addSystem "pc98"

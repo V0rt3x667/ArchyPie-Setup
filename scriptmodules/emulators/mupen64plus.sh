@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="mupen64plus"
-rp_module_desc="N64 emulator MUPEN64Plus"
+rp_module_desc="MUPEN64Plus - Nintendo N64 Emulator"
 rp_module_help="ROM Extensions: .z64 .n64 .v64\n\nCopy your N64 roms to $romdir/n64"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/mupen64plus/mupen64plus-core/master/LICENSES"
 rp_module_repo=":_pkg_info_mupen64plus"
@@ -18,14 +13,20 @@ rp_module_section="main"
 rp_module_flags="sdl2"
 
 function depends_mupen64plus() {
-    local depends=(cmake libsamplerate0-dev libspeexdsp-dev libsdl2-dev libpng-dev libfreetype6-dev fonts-freefont-ttf libboost-filesystem-dev)
-    isPlatform "rpi" && depends+=(libraspberrypi-bin libraspberrypi-dev)
-    isPlatform "mesa" && depends+=(libgles2-mesa-dev)
-    isPlatform "gl" && depends+=(libglew-dev libglu1-mesa-dev)
-    isPlatform "x86" && depends+=(nasm)
-    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
-    # was a vero4k only line - I think it's not needed or can use a smaller subset of boost
-    isPlatform "osmc" && depends+=(libboost-all-dev)
+    local depends=(
+        'boost-libs'
+        'freetype2'
+        'libsamplerate'
+        'minizip'
+        'sdl2'
+        'speexdsp'
+        'cmake'
+)
+    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "mesa" && depends+=('libglvnd')
+    isPlatform "gl" && depends+=('glew' 'glu')
+    isPlatform "x86" && depends+=('nasm')
+
     getDepends "${depends[@]}"
 }
 
@@ -55,17 +56,18 @@ function _get_repos_mupen64plus() {
         )
     fi
 
-    local commit=""
-    # GLideN64 now requires cmake 3.9 so use an older commit as a workaround for systems with older cmake (pre buster).
-    # Test using "apt-cache madison" as this code could be called when cmake isn't yet installed but correct version
-    # is available - eg via update check with builder module which removes dependencies after building.
-    # Multiple versions may be available, so grab the versions via cut, sort by version, take the latest from the top
-    # and pipe to xargs to strip whitespace
-    local cmake_ver=$(apt-cache madison cmake | cut -d\| -f2 | sort --version-sort | head -1 | xargs)
-    if compareVersions "$cmake_ver" lt 3.9; then
-        commit="8a9d52b41b33d853445f0779dd2b9f5ec4ecdda8"
-    fi
-    repos+=("gonetz GLideN64 master $commit")
+#    local commit=""
+#    # GLideN64 now requires cmake 3.9 so use an older commit as a workaround for systems with older cmake (pre buster).
+#    # Test using "apt-cache madison" as this code could be called when cmake isn't yet installed but correct version
+#    # is available - eg via update check with builder module which removes dependencies after building.
+#    # Multiple versions may be available, so grab the versions via cut, sort by version, take the latest from the top
+#    # and pipe to xargs to strip whitespace
+#    local cmake_ver=$(apt-cache madison cmake | cut -d\| -f2 | sort --version-sort | head -1 | xargs)
+#    if compareVersions "$cmake_ver" lt 3.9; then
+#        commit="8a9d52b41b33d853445f0779dd2b9f5ec4ecdda8"
+#    fi
+#    repos+=("gonetz GLideN64 master $commit")
+    repos+=('gonetz GLideN64 master')
 
     local repo
     for repo in "${repos[@]}"; do
@@ -142,10 +144,10 @@ function sources_mupen64plus() {
         gitPullOrClone "$md_build/${repo[1]}" https://github.com/${repo[0]}/${repo[1]} ${repo[2]} ${repo[3]}
     done < <(_get_repos_mupen64plus)
 
-    if isPlatform "videocore"; then
-        # workaround for shader cache crash issue on Raspbian stretch. See: https://github.com/gonetz/GLideN64/issues/1665
-        applyPatch "$md_data/0001-GLideN64-use-emplace.patch"
-    fi
+#    if isPlatform "videocore"; then
+#        # workaround for shader cache crash issue on Raspbian stretch. See: https://github.com/gonetz/GLideN64/issues/1665
+#        applyPatch "$md_data/0001-GLideN64-use-emplace.patch"
+#    fi
 
     local config_version=$(grep -oP '(?<=CONFIG_VERSION_CURRENT ).+?(?=U)' GLideN64/src/Config.h)
     echo "$config_version" > "$md_build/GLideN64_config_version.ini"

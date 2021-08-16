@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="mame"
-rp_module_desc="MAME emulator"
+rp_module_desc="MAME - Multiple Arcade Machine & Computer Emulator (Latest Version)"
 rp_module_help="ROM Extensions: .zip .7z\n\nCopy your MAME roms to either $romdir/mame or\n$romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/mamedev/mame/master/COPYING"
 rp_module_repo="git https://github.com/mamedev/mame.git :_get_branch_mame"
@@ -22,18 +17,38 @@ function _get_branch_mame() {
 }
 
 function depends_mame() {
-    if compareVersions $__gcc_version lt 7; then
-        md_ret_errors+=("Sorry, you need an OS with gcc 7 or newer to compile $md_id")
-        return 1
-    fi
+#    if compareVersions $__gcc_version lt 7; then
+#        md_ret_errors+=("Sorry, you need an OS with gcc 7 or newer to compile $md_id")
+#        return 1
+#    fi
 
     # Install required libraries required for compilation and running
     # Note: libxi-dev is required as of v0.210, because of flag changes for XInput
-    getDepends libfontconfig1-dev qt5-default libsdl2-ttf-dev libxinerama-dev libxi-dev libpulse-dev
+    local depends=(
+        'flac'
+        'glm'
+        'libpulse'
+        'libutf8proc'
+        'libxinerama'
+        'lua53'
+        'nasm'
+        'portaudio'
+        'portmidi'
+        'pugixml'
+        'python'
+        'qt5-base'
+        'rapidjson'
+        'sdl2_ttf'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_mame() {
     gitPullOrClone
+    # Use System Libraries
+    sed -e 's|\# USE_SYSTEM_LIB|USE_SYSTEM_LIB|g' -i makefile
+    # Except for ASIO
+    sed -e 's|USE_SYSTEM_LIB_ASIO|\# USE_SYSTEM_LIB_ASIO|g' -i makefile
 }
 
 function build_mame() {
@@ -44,8 +59,16 @@ function build_mame() {
         rpSwap on 4096
     fi
 
+    export CFLAGS+=" -I/usr/include/lua5.3/"
+    export CXXFLAGS+=" -I/usr/include/lua5.3/"
+
+    # Hack to force linking to lua5.3
+    mkdir lib
+    ln -s /usr/lib/liblua5.3.so lib/liblua.so
+    export LDFLAGS+=" -L${PWD}/lib"
+
     # Compile MAME
-    local params=(NOWERROR=1 ARCHOPTS=-U_FORTIFY_SOURCE PYTHON_EXECUTABLE=python3)
+    local params=(NOWERROR=1 ARCHOPTS=-flifetime-dse=1 PYTHON_EXECUTABLE=python OPTIMIZE=2)
     make "${params[@]}"
     strip mame
 

@@ -1,34 +1,40 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="openmsx"
-rp_module_desc="MSX emulator OpenMSX"
-rp_module_help="ROM Extensions: .cas .rom .mx1 .mx2 .col .dsk .zip\n\nCopy your MSX/MSX2 games to $romdir/msx\nCopy the BIOS files to $biosdir/openmsx"
+rp_module_desc="OpenMSX - Microsoft MSX, MSX2, MSX2+ & TurboR Emulator"
+rp_module_help="ROM Extensions: .cas .col .dsk .mx1 .mx2 .rom .zip\n\nCopy your MSX/MSX2 games to $romdir/msx\nCopy the BIOS files to $biosdir/openmsx"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/openMSX/openMSX/master/doc/GPL.txt"
-rp_module_repo="git https://github.com/openMSX/openMSX.git RELEASE_17_0 :_get_commit_openmsx"
+rp_module_repo="git https://github.com/openMSX/openMSX.git :_get_branch_openmsx"
 rp_module_section="opt"
 rp_module_flags=""
 
-function _get_commit_openmsx() {
-    local commit
-    # latest code requires at least GCC 8.3 (Debian Buster) for full C++17 support
-    compareVersions $__gcc_version lt 8 && commit="c8d90e70"
-    # for GCC before 7, build from an earlier commit, before C++17 support was added
-    compareVersions $__gcc_version lt 7 && commit="5ee25b62"
-    echo "$commit"
+#function _get_commit_openmsx() {
+#    local commit
+#    # latest code requires at least GCC 8.3 (Debian Buster) for full C++17 support
+#    compareVersions $__gcc_version lt 8 && commit="c8d90e70"
+#    # for GCC before 7, build from an earlier commit, before C++17 support was added
+#    compareVersions $__gcc_version lt 7 && commit="5ee25b62"
+#    echo "$commit"
+#}
+
+function _get_branch_openmsx() {
+    download https://api.github.com/repos/openMSX/openMSX/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_openmsx() {
-    local depends=(libsdl2-dev libsdl2-ttf-dev libao-dev libogg-dev libtheora-dev libxml2-dev libvorbis-dev tcl-dev libasound2-dev libfreetype6-dev)
-    isPlatform "x11" && depends+=(libglew-dev)
+    local depends=(
+        'alsa-lib' 
+        'libtheora' 
+        'libvorbis' 
+        'sdl2_ttf' 
+        'tcl'
+        'python'
+    )
+    isPlatform "x11" && depends+=('glew')
 
     getDepends "${depends[@]}"
 }
@@ -37,6 +43,8 @@ function sources_openmsx() {
     gitPullOrClone
     sed -i "s|INSTALL_BASE:=/opt/openMSX|INSTALL_BASE:=$md_inst|" build/custom.mk
     sed -i "s|SYMLINK_FOR_BINARY:=true|SYMLINK_FOR_BINARY:=false|" build/custom.mk
+    sed -i "s|<SDL_ttf.h>|<SDL2/SDL_ttf.h>|" build/libraries.py
+    echo "LINK_FLAGS:=-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now,-lrt" >> build/custom.mk
 }
 
 function build_openmsx() {
@@ -56,12 +64,14 @@ function install_openmsx() {
 
 function configure_openmsx() {
     mkRomDir "msx"
+    mkRomDir "msx2"
 
     addEmulator 0 "$md_id" "msx" "$md_inst/bin/openmsx %ROM%"
-    addEmulator 0 "$md_id-msx2" "msx" "$md_inst/bin/openmsx -machine 'Boosted_MSX2_EN' %ROM%"
-    addEmulator 0 "$md_id-msx2-plus" "msx" "$md_inst/bin/openmsx -machine 'Boosted_MSX2+_JP' %ROM%"
+    addEmulator 0 "$md_id-msx2" "msx2" "$md_inst/bin/openmsx -machine 'Boosted_MSX2_EN' %ROM%"
+    addEmulator 0 "$md_id-msx2-plus" "msx2" "$md_inst/bin/openmsx -machine 'Boosted_MSX2+_JP' %ROM%"
     addEmulator 0 "$md_id-msx-turbor" "msx" "$md_inst/bin/openmsx -machine 'Panasonic_FS-A1GT' %ROM%"
     addSystem "msx"
+    addSystem "msx2"
 
     [[ $md_mode == "remove" ]] && return
 
@@ -78,7 +88,7 @@ function configure_openmsx() {
     rm "$config"
 
     # Add an autostart script, used for joypad configuration
-    cp "$md_data/retropie-init.tcl" "$home/.openMSX/share/scripts"
+    cp "$md_data/archypie-init.tcl" "$home/.openMSX/share/scripts"
     chown -R "$user:$user" "$home/.openMSX/share/scripts"
 }
 

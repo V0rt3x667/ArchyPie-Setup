@@ -1,4 +1,4 @@
-namespace eval retropie {
+namespace eval archypie {
 
 proc init {} {
     set rom_name [guess_title]
@@ -43,6 +43,6 @@ proc load_config_joystick { conf_name conf_script } {
     message "Loaded joystick configuration for '$conf_name'"
 }
 
-}; # namespace: retropie
+}; # namespace: archypie
 
-after boot retropie::init
+after boot archypie::init

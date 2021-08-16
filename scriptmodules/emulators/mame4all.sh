@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="mame4all"
-rp_module_desc="MAME4All-Pi - Arcade Emulator"
+rp_module_desc="MAME4All-Pi - Arcade Machine Emulator"
 rp_module_help="ROM Extension: .zip\n\nCopy your MAME4all-Pi roms to either $romdir/mame-mame4all or\n$romdir/arcade"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/RetroPie/mame4all-pi/master/readme.txt"
 rp_module_repo="git https://github.com/RetroPie/mame4all-pi.git master"

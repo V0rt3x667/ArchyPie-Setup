@@ -1,42 +1,66 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
-rom="$1"
+ROM="$1"
+MODEL="$2"
 
-rootdir="/opt/retropie"
-datadir="$HOME/RetroPie"
+rootdir="/opt/archypie"
+datadir="$HOME/ArchyPie"
 romdir="$datadir/roms/amiga"
 savedir="$romdir"
-biosdir="$datadir/BIOS"
-kickfile="$biosdir/kick13.rom"
 
 source "$rootdir/lib/archivefuncs.sh"
 
-if [[ ! -f "$kickfile" ]]; then
-    dialog --no-cancel --pause "You need to copy the Amiga kickstart file (kick13.rom) to the folder $biosdir to boot the Amiga emulator." 22 76 15
-    exit 1
-fi
+function launch_amiga() {
+    case "$MODEL" in
+        CD32)
+            "$rootdir/emulators/fs-uae/bin/fs-uae" \
+            --amiga_model="$MODEL" \
+            --cdrom_drive_0="$ROM" \
+            --cdroms_dir="$datadir/roms/cd32" \
+            --save_states_dir="$datadir/roms/cd32"
+            ;;
+        CDTV)
+            "$rootdir/emulators/fs-uae/bin/fs-uae" \
+            --amiga_model="$MODEL" \
+            --cdrom_drive_0="$ROM" \
+            --cdroms_dir="$datadir/roms/cdtv" \
+            --save_states_dir="$datadir/roms/cdtv"
+            ;;
+        A500|A500+|A600|A1200)
+            "$rootdir/emulators/fs-uae/bin/fs-uae" \
+            --amiga_model="$MODEL" \
+            --floppy_drive_0="$ROM" \
+            "${floppy_images[@]}" \
+            --floppies_dir="$romdir" \
+            --save_states_dir="$savedir"
+            ;;
+    esac
+}
 
-archiveExtract "$rom" ".adf .adz .dms .ipf"
+function check_arch_files() {
+    case "$MODEL" in
+        CD32|CDTV)
+            launch_amiga
+            ;;
+        A500|A500+|A600|A1200)
+            archiveExtract "$ROM" ".adf .adz .dms .ipf"
+            # Check for Successful Extraction
+            if [[ $? == 0 ]]; then
+                ROM="${arch_files[0]}"
+                romdir="$arch_dir"
+                floppy_images=()
+                for i in "${!arch_files[@]}"; do
+                    floppy_images+=("--floppy_image_$i=${arch_files[$i]}")
+                done
+            fi
+            launch_amiga
+            ;;
+    esac
+}
 
-# check successful extraction and if we have at least one file
-if [[ $? == 0 ]]; then
-    rom="${arch_files[0]}"
-    romdir="$arch_dir"
-
-    floppy_images=()
-    for i in "${!arch_files[@]}"; do
-        floppy_images+=("--floppy_image_$i=${arch_files[$i]}")
-    done
-fi
-
-fs-uae --floppy_drive_0="$rom" "${floppy_images[@]}" --kickstart_file="$kickfile" --floppies_dir="$romdir" --save_states_dir="$savedir"
+check_arch_files
 archiveCleanup
