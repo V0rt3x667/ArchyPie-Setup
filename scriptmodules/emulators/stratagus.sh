@@ -1,24 +1,31 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="stratagus"
-rp_module_desc="Stratagus - A strategy game engine to play Warcraft I or II, Starcraft, and some similar open-source games"
+rp_module_desc="Stratagus - Strategy Game Engine to Play Warcraft I, II & Starcraft"
 rp_module_help="Copy your Stratagus games to $romdir/stratagus"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/Wargus/stratagus/master/COPYING"
-rp_module_repo="git https://github.com/Wargus/stratagus.git v2.4.3"
+rp_module_repo="git https://github.com/Wargus/stratagus.git :_get_branch_stratagus"
 rp_module_section="opt"
 rp_module_flags="!mali !kms"
 
+function _get_branch_mame() {
+    download https://api.github.com/repos/Wargus/stratagus/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_stratagus() {
-    getDepends cmake libsdl1.2-dev libbz2-dev libogg-dev libvorbis-dev libtheora-dev libpng-dev liblua5.1-0-dev libtolua++5.1-dev libfluidsynth-dev libmikmod-dev
+    local depends=(
+        'libmng'
+        'libtheora'
+        'sdl2_image'
+        'sdl2_mixer'
+        'sqlite'
+        'tolua++'
+        'cmake'
+    )
 }
 
 function sources_stratagus() {
@@ -28,7 +35,13 @@ function sources_stratagus() {
 function build_stratagus() {
     mkdir build
     cd build
-    cmake -DENABLE_STRIP=ON ..
+    cmake ..
+        -DENABLE_STRIP=ON \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DLUA_INCLUDE_DIR=/usr/include/lua5.1 \
+        -DCMAKE_CXX_FLAGS="-Wno-error"
+    make clean
     make
     md_ret_require="$md_build/build/stratagus"
 }

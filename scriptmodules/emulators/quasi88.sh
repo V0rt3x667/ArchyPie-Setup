@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="quasi88"
-rp_module_desc="NEC PC-8801 emulator"
+rp_module_desc="QUASI88 - NEC PC-8801 Emulator"
 rp_module_help="ROM Extensions: .d88 .88d .cmt .t88\n\nCopy your pc88 games to to $romdir/pc88\n\nCopy bios files FONT.ROM, N88.ROM, N88KNJ1.ROM, N88KNJ2.ROM, and N88SUB.ROM to $biosdir/pc88"
 rp_module_repo="file $__archive_url/quasi88-0.6.4.tgz"
 rp_module_section="exp"
 rp_module_flags="sdl1 !mali !kms"
 
 function depends_quasi88() {
-    getDepends libsdl1.2-dev
+    getDepends sdl
 }
 
 function sources_quasi88() {

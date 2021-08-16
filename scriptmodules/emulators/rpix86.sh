@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="rpix86"
-rp_module_desc="rpix86 - DOS Emulator"
+rp_module_desc="rpix86 - MS-DOS Emulator"
 rp_module_help="ROM Extensions: .bat .com .exe .sh\n\nCopy your DOS games to $romdir/pc"
 rp_module_licence="FREEWARE http://rpix86.patrickaalto.com/rdown.html"
 rp_module_section="opt"

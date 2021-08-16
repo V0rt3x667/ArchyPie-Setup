@@ -28,13 +28,13 @@ function depends_retroarch() {
         'systemd-libs'
     )
 
-    isPlatform "rpi" && depends+=(libraspberrypi-dev)
-    isPlatform "gles" && ! isPlatform "vero4k" && depends+=(libgles2-mesa-dev)
+    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "gles" && depends+=('libglvnd')
     isPlatform "mesa" && depends+=('libx11' 'libxcb')
-    isPlatform "mali" && depends+=(mali-fbdev)
+    isPlatform "mali" && depends+=('mali-utgard-meson-libgl-fb')
     isPlatform "x11" && depends+=('libx11' 'libxcb' 'libxrandr' 'vulkan-headers' 'wayland' 'wayland-protocols')
 #    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc zlib1g-dev libfreetype6-dev)
-    isPlatform "kms" && depends+=(libgbm-dev)
+    isPlatform "kms" && depends+=('mesa')
 
 #    if compareVersions "$__os_debian_ver" ge 9; then
 #        depends+=(libavcodec-dev libavformat-dev libavdevice-dev)

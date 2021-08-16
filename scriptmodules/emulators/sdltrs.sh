@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="sdltrs"
-rp_module_desc="Radio Shack TRS-80 Model I/III/4/4P emulator"
+rp_module_desc="SDLTRS - Radio Shack TRS-80 Model 1, 3, 4 & 4P Emulator"
 rp_module_help="ROM Extension: .dsk\n\nCopy your TRS-80 games to $romdir/trs-80\n\nCopy the required BIOS file level2.rom, level3.rom, level4.rom or level4p.rom to $biosdir"
 rp_module_section="exp"
 rp_module_licence="BSD https://gitlab.com/jengun/sdltrs/-/raw/master/LICENSE"
@@ -18,7 +13,7 @@ rp_module_repo="git https://gitlab.com/jengun/sdltrs.git sdl2"
 rp_module_flags=""
 
 function depends_sdltrs() {
-    getDepends libsdl2-dev libreadline-dev
+    getDepends sdl2 readline
 }
 
 function sources_sdltrs() {

@@ -17,10 +17,15 @@ function depends_np2pi() {
 
 function sources_np2pi() {
     gitPullOrClone
-    downloadAndExtract "https://launchpad.net/takao-fonts/trunk/15.03/+download/TakaoFonts_00303.01.zip" "$md_build/fonts" --strip-components 1
+}
+
+function _build_otf-takao_np2pi() {
+    pacmanPkg otf-takao
 }
 
 function build_np2pi() {
+    _build_otf-takao_np2pi
+
     cd sdl
     make -j 1 -f makefile.rpi
     md_ret_require="$md_build/bin/np2"
@@ -51,7 +56,7 @@ function configure_np2pi() {
     done
 
     # symlink font
-    ln -sf "$md_inst/fonts/TakaoGothic.ttf" "$md_conf_root/pc98/default.ttf"
+    ln -sf "/usr/share/fonts/OTF/TakaoGothic.ttf" "$md_conf_root/pc98/default.ttf"
 
     addEmulator 1 "$md_id" "pc98" "pushd $md_conf_root/pc98; $md_inst/np2 %ROM%; popd"
     addSystem "pc98"

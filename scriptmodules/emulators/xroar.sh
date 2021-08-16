@@ -1,28 +1,23 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="xroar"
-rp_module_desc="Dragon / CoCo emulator XRoar"
+rp_module_desc="XRoar - Dragon Data Dragon 32, 64 & Tandy Colour Computer (CoCo) 1 & 2 Emulator"
 rp_module_help="ROM Extensions: .cas .wav .bas .asc .dmk .jvc .os9 .dsk .vdk .rom .ccc .sna\n\nCopy your Dragon roms to $romdir/dragon32\n\nCopy your CoCo games to $romdir/coco\n\nCopy the required BIOS files d32.rom (Dragon 32) and bas13.rom (CoCo) to $biosdir"
 rp_module_licence="GPL3 http://www.6809.org.uk/xroar/"
-rp_module_repo="git http://www.6809.org.uk/git/xroar.git 0.36"
+rp_module_repo="git http://www.6809.org.uk/git/xroar.git 0.37"
 rp_module_section="opt"
 rp_module_flags=""
 
 function depends_xroar() {
-    getDepends libsdl2-dev automake texinfo
+    getDepends sdl2 texinfo
 }
 
 function sources_xroar() {
-    gitPullOrClone "$md_build" "$md_repo_url" "$md_repo_branch" "" 0
+    gitPullOrClone #"$md_build" "$md_repo_url" "$md_repo_branch" "" 0
 
 }
 

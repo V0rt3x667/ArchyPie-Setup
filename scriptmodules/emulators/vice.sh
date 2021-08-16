@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="vice"
-rp_module_desc="C64 emulator VICE"
+rp_module_desc="VICE - Commodore C64, C64DTV, C128, VIC20, PET, PLUS4 & CBM-II Emulator"
 rp_module_help="ROM Extensions: .crt .d64 .g64 .prg .t64 .tap .x64 .zip .vsf\n\nCopy your Commodore 64 games to $romdir/c64"
 rp_module_licence="GPL2 http://svn.code.sf.net/p/vice-emu/code/trunk/vice/COPYING"
 rp_module_repo="svn svn://svn.code.sf.net/p/vice-emu/code/tags/v3.5/vice - HEAD"
@@ -18,8 +13,25 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function depends_vice() {
-    local depends=(libsdl2-dev libsdl2-image-dev libmpg123-dev libpng-dev zlib1g-dev libasound2-dev libvorbis-dev libflac-dev libpcap-dev automake bison flex libjpeg-dev portaudio19-dev xa65 dos2unix)
-    isPlatform "x11" && depends+=(libpulse-dev)
+    local depends=(
+        'alsa-lib'
+        'dos2unix'
+        'ffmpeg'
+        'flac'
+        'libjpeg'
+        'libmpg123'
+        'libpcap' 
+        'libpng'
+        'libvorbis'
+        'libxaw'
+        'pciutils'
+        'portaudio'
+        'sdl2'
+        'sdl2_image'
+        'subversion'
+        'xa'
+    )
+    isPlatform "x11" && depends+=('libpulse')
     getDepends "${depends[@]}"
 }
 
@@ -28,10 +40,19 @@ function sources_vice() {
 }
 
 function build_vice() {
-    local params=(--enable-sdlui2 --without-oss --enable-ethernet --enable-x64 --disable-pdf-docs --with-fastsid)
+    local params=(
+        --disable-pdf-docs
+        --enable-ethernet
+        --enable-external-ffmpeg
+        --enable-sdlui2
+        --enable-x64
+        --with-fastsid
+        --without-oss
+    )
     ! isPlatform "x11" && params+=(--disable-catweasel --without-pulse)
     ./autogen.sh
     ./configure --prefix="$md_inst" "${params[@]}"
+    make clean
     make
     md_ret_require="$md_build/src/x64"
 }

@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="ti99sim"
 rp_module_desc="TI-99/SIM - Texas Instruments Home Computer Emulator"
@@ -18,15 +13,16 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function depends_ti99sim() {
-    if compareVersions $__gcc_version lt 8; then
-        md_ret_errors+=("Sorry, you need an OS with gcc 8 or newer to compile $md_id")
-        return 1
-    fi
-    getDepends libsdl2-dev libssl-dev
+#    if compareVersions $__gcc_version lt 8; then
+#        md_ret_errors+=("Sorry, you need an OS with gcc 8 or newer to compile $md_id")
+#        return 1
+#    fi
+    getDepends sdl2 openssl
 }
 
 function sources_ti99sim() {
     downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
+    sed s'|LFLAGS += -Wl,--gc-sections|LFLAGS += -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now,--gc-sections|'g -i ./rules.mak
 }
 
 function build_ti99sim() {

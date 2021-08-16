@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="xm7"
-rp_module_desc="Fujitsu FM-7 series emulator"
+rp_module_desc="XM7 - Fujitsu FM-7 Series Emulator"
 rp_module_help="ROM Extensions: .d77 .t77 .d88 .2d \n\nCopy your FM-7 games to to $romdir/xm7\n\nCopy bios files DICROM.ROM, EXTSUB.ROM, FBASIC30.ROM, INITIATE.ROM, KANJI1.ROM, KANJI2.ROM, SUBSYS_A.ROM, SUBSYS_B.ROM, SUBSYSCG.ROM, SUBSYS_C.ROM, fddseek.wav, relayoff.wav and relay_on.wav to $biosdir/xm7"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/nakatamaho/XM7-for-SDL/master/Doc/mess/license.txt"
 rp_module_repo="git https://github.com/nakatamaho/XM7-for-SDL.git master"
@@ -18,7 +13,7 @@ rp_module_section="exp"
 rp_module_flags="!mali !kms"
 
 function depends_xm7() {
-    getDepends cmake libjpeg-dev libsdl1.2-dev libsdl-mixer1.2-dev libtool libpng-dev libuim-dev libfreetype6-dev libfontconfig1-dev gawk fonts-takao libxinerama-dev libx11-dev imagemagick
+    getDepends cmake libjpeg sdl sdl_mixer libtool libpng freetype2 fontconfig gawk libxinerama libx11 imagemagick
 }
 
 function sources_xm7() {
@@ -31,9 +26,19 @@ function sources_xm7() {
     applyPatch "$md_data/01_fix_build.diff"
 }
 
-function build_xm7() {
-    cd agar
+function _build_uim_xm7() {
+    pacmanPkg uim
+}
 
+function _build_otf-takao_xm7() {
+    pacmanPkg otf-takao
+}
+
+function build_xm7() {
+    _build_uim_xm7
+    _build_otf-takao_xm7
+
+    cd agar
     # create fake freetype-config to use pkg-config due to freetype-config being removed in recent versions
     mkdir -p bin
     cat > bin/freetype-config << _EOF_

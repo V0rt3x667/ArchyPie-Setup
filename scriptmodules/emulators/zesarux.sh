@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/petrockblog/RetroPie-Setup/master/LICENSE.md.
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="zesarux"
-rp_module_desc="ZX Spectrum emulator ZEsarUX"
+rp_module_desc="ZEsarUX - Sinclair Zx80, Zx81, Z88, Zx Spectrum 16, 48, 128, +2, +2A & ZX-Uno Emulator"
 rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk .zip\n\nCopy your ZX Spectrum games to $romdir/zxspectrum"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/chernandezba/zesarux/master/src/LICENSE"
 rp_module_repo="git https://github.com/chernandezba/zesarux.git 9.1"
@@ -18,13 +13,13 @@ rp_module_section="opt"
 rp_module_flags="sdl2 sdl1-videocore"
 
 function depends_zesarux() {
-    local depends=(libssl-dev libpthread-stubs0-dev libasound2-dev)
-    isPlatform "x11" && depends+=(libpulse-dev)
+    local depends=(openssl alsa-lib)
+    isPlatform "x11" && depends+=(libpulse)
 
     if isPlatform "videocore"; then
-        depends+=(libsdl1.2-dev)
+        depends+=(sdl)
     else
-        depends+=(libsdl2-dev)
+        depends+=(sdl2)
     fi
 
     getDepends "${depends[@]}"

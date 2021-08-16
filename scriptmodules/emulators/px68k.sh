@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="px68k"
-rp_module_desc="SHARP X68000 Emulator"
+rp_module_desc="PX68K - SHARP X68000 Emulator"
 rp_module_help="You need to copy a X68000 bios file (iplrom30.dat, iplromco.dat, iplrom.dat, or iplromxv.dat), and the font file (cgrom.dat or cgrom.tmp) to $biosdir/keropi. Use F12 to access the in emulator menu."
 rp_module_repo="git https://github.com/hissorii/px68k.git master"
 rp_module_section="exp"
 rp_module_flags="sdl1 !mali !kms"
 
 function depends_px68k() {
-    getDepends libsdl1.2-dev libsdl-gfx1.2-dev
+    getDepends sdl sdl_gfx
 }
 
 function sources_px68k() {

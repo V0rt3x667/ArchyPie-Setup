@@ -1,29 +1,24 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="reicast"
-rp_module_desc="Dreamcast emulator Reicast"
-rp_module_help="ROM Extensions: .cdi .gdi\n\nCopy your Dreamcast roms to $romdir/dreamcast\n\nCopy the required BIOS files dc_boot.bin and dc_flash.bin to $biosdir/dc"
+rp_module_desc="Reicast - Sega Dreamcast Emulator"
+rp_module_help="ROM Extensions: .cdi .chd .gdi\n\nCopy your Dreamcast roms to $romdir/dreamcast\n\nCopy the required BIOS files dc_boot.bin and dc_flash.bin to $biosdir/dc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/reicast/reicast-emulator/master/LICENSE"
 rp_module_repo="git https://github.com/reicast/reicast-emulator.git master"
 rp_module_section="opt"
 rp_module_flags="!armv6"
 
 function depends_reicast() {
-    local depends=(libsdl2-dev python3-dev python3-pip alsa-oss python3-setuptools libevdev-dev libasound2-dev libudev-dev)
-    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
-    isPlatform "mesa" && depends+=(libgles2-mesa-dev)
+    local depends=(sdl2 python python-evdev alsa-oss python-setuptools libevdev libpulse libao alsa-lib systemd)
+#    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
+    isPlatform "mesa" && depends+=(libglvnd)
     getDepends "${depends[@]}"
-    isPlatform "vero4k" && pip3 install wheel
-    pip3 install evdev
+#    isPlatform "vero4k" && pip3 install wheel
+#    pip3 install evdev
 }
 
 function sources_reicast() {
@@ -31,7 +26,6 @@ function sources_reicast() {
     applyPatch "$md_data/0001-enable-rpi4-sdl2-target.patch"
     applyPatch "$md_data/0002-enable-vsync.patch"
     applyPatch "$md_data/0003-fix-sdl2-sighandler-conflict.patch"
-    sed -i "s#/usr/bin/env python#/usr/bin/env python3#" shell/linux/tools/reicast-joyconfig.py
 }
 
 function _params_reicast() {

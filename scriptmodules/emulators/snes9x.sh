@@ -1,24 +1,30 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="snes9x"
-rp_module_desc="SNES emulator SNES9X-RPi"
+rp_module_desc="SNES9X - Nintendo SNES Emulator"
 rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your SNES roms to $romdir/snes"
-rp_module_licence="NONCOM https://raw.githubusercontent.com/RetroPie/snes9x-rpi/master/snes9x.h"
-rp_module_repo="git https://github.com/RetroPie/snes9x-rpi.git retropie"
-rp_module_section="opt"
-rp_module_flags="sdl1 !all videocore"
+rp_module_licence="NONCOM https://raw.githubusercontent.com/snes9xgit/snes9x/master/LICENSE"
+rp_module_repo="git https://github.com/snes9xgit/snes9x master"
+rp_module_section="main"
+rp_module_flags="!all x86"
 
 function depends_snes9x() {
-    getDepends libsdl1.2-dev libboost-thread-dev libboost-system-dev libsdl-ttf2.0-dev libasound2-dev
+    local depends=(
+        'alsa-lib'
+        'boost-libs'
+        'libpulse'
+        'libx11'
+        'libxv'
+        'minizip'
+        'portaudio'
+        'sdl2'
+        'sdl2_ttf'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_snes9x() {
@@ -26,27 +32,31 @@ function sources_snes9x() {
 }
 
 function build_snes9x() {
+    cd unix
+    CXXFLAGS+=" -I/usr/include/glslang"
+    ./configure \
+        --buildtype=release \
+        --prefix="$md_inst" \
+        --enable-netplay \
+        --strip \
     make clean
     make
-    md_ret_require="$md_build/snes9x"
+    md_ret_require="$md_build/unix/snes9x"
 }
 
 function install_snes9x() {
     md_ret_files=(
-        'changes.txt'
-        'hardware.txt'
-        'problems.txt'
-        'readme.txt'
-        'README.md'
-        'snes9x'
+        'unix/snes9x'
+        'docs'
+        'LICENSE'
     )
 }
 
 function configure_snes9x() {
     mkRomDir "snes"
 
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
+    moveConfigDir "$home/.config/snes9x" "$md_conf_root/snes/snes9x"
 
-    addEmulator 0 "$md_id" "snes" "$md_inst/snes9x %ROM%"
+    addEmulator 1 "$md_id" "snes" "$md_inst/snes9x -fullscreen %ROM%"
     addSystem "snes"
 }

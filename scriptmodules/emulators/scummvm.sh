@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="scummvm"
-rp_module_desc="ScummVM"
+rp_module_desc="ScummVM - Virtual Machine for Graphical Point-and-Click Adventure Games"
 rp_module_help="Copy your ScummVM games to $romdir/scummvm"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/scummvm/scummvm/master/COPYING"
 rp_module_repo="git https://github.com/scummvm/scummvm.git v2.2.0"
@@ -19,17 +14,23 @@ rp_module_flags="sdl2"
 
 function depends_scummvm() {
     local depends=(
-        libmpeg2-4-dev libogg-dev libvorbis-dev libflac-dev libmad0-dev libpng-dev
-        libtheora-dev libfaad-dev libfluidsynth-dev libfreetype6-dev zlib1g-dev
-        libjpeg-dev libasound2-dev libcurl4-openssl-dev
-    )
-    if isPlatform "vero4k"; then
-        depends+=(vero3-userland-dev-osmc)
-    fi
+        'a52dec'
+        'faad2'
+        'flac'
+        'fluidsynth'
+        'libjpeg-turbo'
+        'libmad'
+        'libmpeg2'
+        'libtheora'
+        'libspeechd'
+)
+#    if isPlatform "vero4k"; then
+#        depends+=(vero3-userland-dev-osmc)
+#    fi
     if [[ "$md_id" == "scummvm-sdl1" ]]; then
-        depends+=(libsdl1.2-dev)
+        depends+=('sdl' 'sdl_net')
     else
-        depends+=(libsdl2-dev)
+        depends+=('sdl2' 'sdl_net')
     fi
     getDepends "${depends[@]}"
 }
@@ -40,8 +41,12 @@ function sources_scummvm() {
 
 function build_scummvm() {
     local params=(
-        --enable-release --enable-vkeybd
-        --disable-debug --disable-eventrecorder --prefix="$md_inst"
+        --enable-release
+        --enable-vkeybd
+        --disable-debug
+        --disable-eventrecorder
+        --prefix="$md_inst"
+        --enable-all-engines
     )
     isPlatform "rpi" && isPlatform "32bit" && params+=(--host=raspberrypi)
     isPlatform "gles" && params+=(--opengl-mode=gles2)

@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="fbzx"
-rp_module_desc="FBZX - ZXSpectrum Emulator"
+rp_module_desc="FBZX - ZX Spectrum Emulator"
 rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk .zip\n\nCopy your ZX Spectrum to $romdir/zxspectrum"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/rastersoft/fbzx/master/COPYING"
 rp_module_repo="git https://github.com/rastersoft/fbzx :_get_branch_fbzx"

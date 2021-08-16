@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="mame"
-rp_module_desc="MAME - Multiple Arcade Machine & Computer Emulator (Latest Version)"
+rp_module_desc="MAME - Arcade Machine & Computer Emulator (Latest Version)"
 rp_module_help="ROM Extensions: .zip .7z\n\nCopy your MAME roms to either $romdir/mame or\n$romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/mamedev/mame/master/COPYING"
 rp_module_repo="git https://github.com/mamedev/mame.git :_get_branch_mame"
