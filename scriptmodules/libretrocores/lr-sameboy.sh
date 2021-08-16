@@ -30,12 +30,12 @@ function sources_lr-sameboy() {
 function build_lr-sameboy() {
     make clean
     make -C libretro CONF=release
-    md_ret_require="$md_build/build/bin/sameboy_libretro.so"
+    md_ret_require="$md_build/libretro/sameboy_libretro.so"
 }
 
 function install_lr-sameboy() {
     md_ret_files=(
-        'build/bin/sameboy_libretro.so'
+        'libretro/sameboy_libretro.so'
         'LICENSE'
     )
 }
