@@ -52,7 +52,7 @@ function _show_images_launchingimages() {
 
     if isPlatform "x11"; then
         feh \
-            --cycle-once \
+            --on-last-slide quit \
             --hide-pointer \
             --fullscreen \
             --auto-zoom \

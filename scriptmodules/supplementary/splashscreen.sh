@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="splashscreen"
 rp_module_desc="Configure Splashscreen"
@@ -32,8 +27,9 @@ function _video_exts_splashscreen() {
 }
 
 function depends_splashscreen() {
-    local params=(insserv)
-    isPlatform "32bit" && params+=(omxplayer)
+#    local params=(insserv)
+    local params
+    isPlatform "32bit" && params+=(omxplayer-git)
     getDepends "${params[@]}"
 }
 
@@ -108,7 +104,7 @@ function configure_splashscreen() {
     [[ "$md_mode" == "remove" ]] && return
 
     # remove legacy service
-    [[ -f "/etc/init.d/asplashscreen" ]] && insserv -r asplashscreen && rm -f /etc/init.d/asplashscreen
+    #[[ -f "/etc/init.d/asplashscreen" ]] && insserv -r asplashscreen && rm -f /etc/init.d/asplashscreen
 
     disable_plymouth_splashscreen
     enable_splashscreen
@@ -125,8 +121,8 @@ function remove_splashscreen() {
 
 function choose_path_splashscreen() {
     local options=(
-        1 "RetroPie splashscreens"
-        2 "Own/Extra splashscreens (from $datadir/splashscreens)"
+        1 "ArchyPie Splashscreens"
+        2 "Own/Extra Splashscreens (from $datadir/splashscreens)"
     )
     local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
@@ -185,9 +181,9 @@ function choose_splashscreen() {
 
 function randomize_splashscreen() {
     options=(
-        1 "Randomize RetroPie splashscreens"
-        2 "Randomize own splashscreens (from $datadir/splashscreens)"
-        3 "Randomize all splashscreens"
+        1 "Randomize ArchyPie Splashscreens"
+        2 "Randomize Own Splashscreens (from $datadir/splashscreens)"
+        3 "Randomize All Splashscreens"
         4 "Randomize /etc/splashscreen.list"
     )
     local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
@@ -197,7 +193,7 @@ function randomize_splashscreen() {
 
     case "$choice" in
         1)
-            iniSet "RANDOMIZE" "retropie"
+            iniSet "RANDOMIZE" "archypie"
             printMsgs "dialog" "Splashscreen randomizer enabled in directory $path"
             ;;
         2)
@@ -224,7 +220,7 @@ function preview_splashscreen() {
 
     local path
     local file
-    local omxiv="/opt/retropie/supplementary/omxiv/omxiv"
+    local omxiv="/opt/archypie/supplementary/omxiv/omxiv"
     while true; do
         local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
@@ -260,8 +256,8 @@ function preview_splashscreen() {
 }
 
 function download_extra_splashscreen() {
-    gitPullOrClone "$datadir/splashscreens/retropie-extra" https://github.com/HerbFargus/retropie-splashscreens-extra
-    chown -R $user:$user "$datadir/splashscreens/retropie-extra"
+    gitPullOrClone "$datadir/splashscreens/archypie-extra" https://github.com/HerbFargus/retropie-splashscreens-extra
+    chown -R $user:$user "$datadir/splashscreens/archypie-extra"
 }
 
 function gui_splashscreen() {
@@ -294,8 +290,8 @@ function gui_splashscreen() {
             5 "Manually edit splashscreen list"
             6 "Append splashscreen to list (for multiple entries)"
             7 "Preview splashscreens"
-            8 "Update RetroPie splashscreens"
-            9 "Download RetroPie-Extra splashscreens"
+            8 "Update ArchyPie splashscreens"
+            9 "Download ArchyPie-Extra splashscreens"
         )
 
         iniConfig "=" '"' "$configdir/all/$md_id.cfg"
@@ -332,7 +328,7 @@ function gui_splashscreen() {
                     ;;
                 4)
                     default_splashscreen
-                    printMsgs "dialog" "Splashscreen set to RetroPie default."
+                    printMsgs "dialog" "Splashscreen set to ArchyPie default."
                     ;;
                 5)
                     editFile /etc/splashscreen.list
@@ -348,7 +344,7 @@ function gui_splashscreen() {
                     ;;
                 9)
                     rp_callModule splashscreen download_extra
-                    printMsgs "dialog" "The RetroPie-Extra splashscreens have been downloaded to $datadir/splashscreens/retropie-extra"
+                    printMsgs "dialog" "The RetroPie-Extra splashscreens have been downloaded to $datadir/splashscreens/archypie-extra"
                     ;;
                 A)  
                     duration=$(dialog --title "Splashscreen duration" --clear --rangebox "Configure how many seconds the splashscreen is active" 0 60 5 100 $duration 2>&1 >/dev/tty)
