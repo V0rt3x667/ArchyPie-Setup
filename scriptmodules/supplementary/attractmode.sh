@@ -7,7 +7,7 @@
 rp_module_id="attractmode"
 rp_module_desc="Attract Mode emulator frontend"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/mickelson/attract/master/License.txt"
-rp_module_repo="git https://github.com/mickelson/attract master"
+rp_module_repo="git https://github.com/mickelson/attract.git master"
 rp_module_section="exp"
 rp_module_flags="!mali frontend"
 
@@ -123,40 +123,42 @@ function _add_rom_attractmode() {
 
 function depends_attractmode() {
     local depends=('cmake' 'ffmpeg' 'libarchive' 'libxinerama')
-    isPlatform "videocore" && depends+=(libraspberrypi-dev)
-    isPlatform "kms" && depends+=(libegl1-mesa-dev libgl-dev libglu1-mesa-dev libdrm-dev libgbm-dev)
+    isPlatform "videocore" && depends+=('libraspberrypi-firmware')
+    isPlatform "kms" && depends+=('mesa' 'libglvnd' 'glu' 'libdrm')
     isPlatform "x11" && depends+=('sfml')
     getDepends "${depends[@]}"
 }
 
 function sources_attractmode() {
-    gitPullOrClone "$md_build/attract"
+    gitPullOrClone
     isPlatform "rpi" && gitPullOrClone "$md_build/sfml-pi" "https://github.com/mickelson/sfml-pi"
 }
 
+function _build_sfml_attractmode() {
+    local params
+    cd sfml-pi
+
+    isPlatform "videocore" && params="-DSFML_RPI=1 -DEGL_INCLUDE_DIR=/opt/vc/include -DEGL_LIBRARY=/opt/vc/lib/libbrcmEGL.so -DGLES_INCLUDE_DIR=/opt/vc/include -DGLES_LIBRARY=/opt/vc/lib/libbrcmGLESv2.so"
+    isPlatform "kms" && params="-DSFML_DRM=1"
+    cmake . -DCMAKE_INSTALL_PREFIX="$md_inst/sfml" $params
+    make clean
+    make
+}
 function build_attractmode() {
     if isPlatform "rpi"; then
-        local params
-        cd sfml-pi
-        isPlatform "videocore" && params="-DSFML_RPI=1 -DEGL_INCLUDE_DIR=/opt/vc/include -DEGL_LIBRARY=/opt/vc/lib/libbrcmEGL.so -DGLES_INCLUDE_DIR=/opt/vc/include -DGLES_LIBRARY=/opt/vc/lib/libbrcmGLESv2.so"
-        isPlatform "kms" && params="-DSFML_DRM=1"
-        isPlatform "x11" && params="-DFE_HWACCEL_VAAPI=1 -DFE_HWACCEL_VDPAU=1"
-        cmake . -DCMAKE_INSTALL_PREFIX="$md_inst/sfml" $params
-        make clean
-        make
-        cd ..
+        _build_sfml_attractmode
     fi
-    cd attract
+
     make clean
     local params=(prefix="$md_inst")
     isPlatform "videocore" && params+=(USE_GLES=1 EXTRA_CFLAGS="$CFLAGS -I$md_build/sfml-pi/include -L$md_build/sfml-pi/lib")
     isPlatform "kms" && params+=(USE_DRM=1 EXTRA_CFLAGS="$CFLAGS -I$md_build/sfml-pi/include -L$md_build/sfml-pi/lib")
     isPlatform "rpi" && params+=(USE_MMAL=1)
+    isPlatform "x11" && params+=(FE_HWACCEL_VAAPI=1 FE_HWACCEL_VDPAU=1)
     make "${params[@]}"
 
     # remove example configs
     rm -rf "$md_build/attract/config/emulators/"*
-
     md_ret_require="$md_build/attract/attract"
 }
 
