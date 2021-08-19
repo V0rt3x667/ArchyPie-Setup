@@ -13,31 +13,44 @@ rp_module_section="exp"
 rp_module_flags="!mali !kms"
 
 function depends_xm7() {
-    getDepends cmake libjpeg sdl sdl_mixer libtool libpng freetype2 fontconfig gawk libxinerama libx11 imagemagick
+    local depends=(
+        'cmake'
+        'fontconfig'
+        'freetype2'
+        'gawk'
+        'gcc10'
+        'imagemagick'
+        'libjpeg'
+        'libpng'
+        'libtool'
+        'libx11'
+        'libxinerama'
+        'sdl'
+        'sdl_mixer'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_xm7() {
     gitPullOrClone
+    # needs libx11 to link
+    applyPatch "$md_data/01_fix_build.diff"
+
     mkdir -p "$md_build/agar"
     downloadAndExtract "http://stable.hypertriton.com/agar/agar-1.5.0.tar.gz" "$md_build/agar" --strip-components 1
     # _BSD_SOURCE is deprecated and will throw an error during configure
     sed -i "s/_BSD_SOURCE/_DEFAULT_SOURCE/g" "$md_build/agar/configure"
-    # needs libx11 to link
-    applyPatch "$md_data/01_fix_build.diff"
 }
 
 function _build_uim_xm7() {
-    pacmanPkg uim
+    pacmanPkg archy-uim
 }
 
 function _build_otf-takao_xm7() {
     pacmanPkg otf-takao
 }
 
-function build_xm7() {
-    _build_uim_xm7
-    _build_otf-takao_xm7
-
+function _build_libagar_xm7() {
     cd agar
     # create fake freetype-config to use pkg-config due to freetype-config being removed in recent versions
     mkdir -p bin
@@ -49,13 +62,30 @@ pkg-config freetype2 \$arg
 _EOF_
     chmod +x "bin/freetype-config"
 
-    ./configure --disable-shared --prefix="$md_build/libagar" --enable-freetype="$md_build/agar"
+    ./configure \
+        --disable-shared \
+        --prefix="$md_build/libagar" \
+        --enable-freetype="$md_build/agar"
     make -j1 depend all install
+}
 
-    cd "$md_build"
-    mkdir linux-sdl/build
-    cd linux-sdl/build
-    cmake -DCMAKE_CXX_FLAGS="-DSHAREDIR='\"${md_inst}/share/xm7\"'" -DCMAKE_INSTALL_PREFIX:PATH="$md_inst" -DCMAKE_BUILD_TYPE=Release -DUSE_OPENCL=No -DUSE_OPENGL=No -DWITH_LIBAGAR_PREFIX="$md_build/libagar" -DWITH_AGAR_STATIC=yes ..
+function build_xm7() {
+    _build_uim_xm7
+    _build_otf-takao_xm7
+    _build_libagar_xm7
+
+    mkdir $md_build/linux-sdl/build
+    cd $md_build/linux-sdl/build
+    export CC="gcc-10" CXX="g++-10" 
+    cmake .. \
+        -DCMAKE_CXX_FLAGS="-DSHAREDIR='\"${md_inst}/share/xm7\"'" \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DUSE_OPENCL=No \
+        -DUSE_OPENGL=No \
+        -DWITH_LIBAGAR_PREFIX="$md_build/libagar" \
+        -DWITH_AGAR_STATIC=yes \
+        -Wno-dev
     make
     md_ret_require="$md_build/linux-sdl/build/sdl/xm7"
 }

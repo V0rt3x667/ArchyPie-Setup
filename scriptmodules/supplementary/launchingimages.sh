@@ -30,7 +30,7 @@ function install_bin_launchingimages() {
         "24,$ s|RetroPie|ArchyPie|"
         "s|apt-get install|pacman -S|g"
         "s|x11-xserver-utils|xorg-xrandr|g"
-        
+        "s|--cycle-once|--on-last-slide quit|g"
     )
     for p in "${pattern[@]}"; do
         sed -i "$p" "$script"
