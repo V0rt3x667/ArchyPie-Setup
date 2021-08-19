@@ -30,13 +30,22 @@ function depends_scummvm() {
     if [[ "$md_id" == "scummvm-sdl1" ]]; then
         depends+=('sdl' 'sdl_net')
     else
-        depends+=('sdl2' 'sdl_net')
+        depends+=('sdl2' 'sdl2_net')
     fi
     getDepends "${depends[@]}"
 }
 
 function sources_scummvm() {
     gitPullOrClone
+    local patches=(
+        'https://github.com/scummvm/scummvm/pull/2729.patch'
+        'https://github.com/scummvm/scummvm/commit/a3bc5d64b8c4041326c8a214c47f9a206fb8b693.patch'
+        'https://github.com/scummvm/scummvm/commit/6ef406ac20a68f53e66bb98a0c9842dc9553da07.patch'
+        'https://github.com/scummvm/scummvm/pull/2915.patch'
+    )
+    for patch in "${patches[@]}"; do
+        download "$patch" "$md_build" | applyPatch "${patch##*/}"
+    done
 }
 
 function build_scummvm() {

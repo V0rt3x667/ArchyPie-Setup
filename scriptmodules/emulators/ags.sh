@@ -22,13 +22,23 @@ function sources_ags() {
 }
 
 function build_ags() {
-    make -C Engine clean
-    make -C Engine
-    md_ret_require="$md_build/Engine/ags"
+    mkdir build
+    cd build
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -Wno-dev
+    make clean
+    make
+
+#    make -C Engine clean
+#    make -C Engine
+    md_ret_require="$md_build/build/ags"
 }
 
 function install_ags() {
-    make -C Engine PREFIX="$md_inst" install
+    cd build
+    make install
 }
 
 function configure_ags() {

@@ -15,7 +15,7 @@ function _get_branch_skyscraper() {
 }
 
 function depends_skyscraper() {
-    getDepends nano qt5 p7zip
+    getDepends nano qt5-base p7zip
 }
 
 function sources_skyscraper() {

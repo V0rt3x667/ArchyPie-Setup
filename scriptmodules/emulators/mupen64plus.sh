@@ -84,8 +84,8 @@ function _pkg_info_mupen64plus() {
             local hash
             local date
             local newest_date
-            while read repo; do
-                repo=($repo)
+            while read -r repo; do
+                repo=("$repo")
                 date=$(git -C "$md_build/${repo[1]}" log -1 --format=%aI)
                 hash="$(git -C "$md_build/${repo[1]}" log -1 --format=%H)"
                 hashes+=("$hash")
@@ -184,13 +184,13 @@ function build_mupen64plus() {
     "$md_build/GLideN64/src/getRevision.sh"
     pushd "$md_build/GLideN64/projects/cmake"
 
-    params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On")
+    params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On" "-DCMAKE_CXX_FLAGS=${CXXFLAGS} -fpermissive" "-Wno-dev")
     isPlatform "neon" && params+=("-DNEON_OPT=On")
     isPlatform "mesa" && params+=("-DMESA=On" "-DEGL=On")
     isPlatform "vero4k" && params+=("-DVERO4K=On")
     isPlatform "armv8" && params+=("-DCRC_ARMV8=On")
     isPlatform "mali" && params+=("-DVERO4K=On" "-DCRC_OPT=On" "-DEGL=On")
-    isPlatform "x86" && params+=("-DCRC_OPT=On")
+    isPlatform "x86" && params+=("-DCRC_OPT=On" "-DX86_OPT=ON")
 
     cmake "${params[@]}" ../../src/
     make

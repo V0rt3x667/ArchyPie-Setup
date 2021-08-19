@@ -13,7 +13,7 @@ rp_module_repo="git https://github.com/stenzek/duckstation master"
 rp_module_flags="!all arm !armv6 aarch64 64bit"
 
 function depends_duckstation() {
-    getDepends cmake qt5-base sdl2 ninja xrandr qt5-tools libdrm
+    getDepends cmake qt5-base sdl2 ninja xorg-xrandr qt5-tools libdrm
 }
 
 function sources_duckstation() {
@@ -30,24 +30,24 @@ function build_duckstation() {
         -DBUILD_TESTING=NO \
         -DUSE_DRMKMS=ON \
         -DUSE_WAYLAND=ON \
+        -Wno-dev \
         -GNinja
     ninja
     md_ret_require=(
-        '$md_build/build/duckstation-nogui'
-        '$md_build/build/duckstation-qt'
+        'bin/duckstation-nogui'
+        'bin/duckstation-qt'
     )
 }
 
 function install_duckstation() {
-    cd build
     md_ret_files=(
-        'duckstation-nogui' 
-        'duckstation-qt'
-        'bin/database'
-        'bin/inputprofiles'
-        'bin/resources'
-        'bin/shaders'
-        'bin/translations'
+        'build/bin/duckstation-nogui' 
+        'build/bin/duckstation-qt'
+        'build/bin/database'
+        'build/bin/inputprofiles'
+        'build/bin/resources'
+        'build/bin/shaders'
+        'build/bin/translations'
     )
 }
 

@@ -20,22 +20,24 @@ function depends_basilisk() {
 
 function sources_basilisk() {
     gitPullOrClone
+    applyPatch "$md_data/01_fix_config_rpath_error.patch"
 }
 
 function build_basilisk() {
     cd BasiliskII/src/Unix
-    local params=(--enable-sdl-video --enable-sdl-audio --disable-vosf --without-mon --without-esd)
+    local params=(--enable-sdl-video --enable-sdl-audio --disable-vosf --without-mon --without-esd  --with-bincue --with-vdeplug)
     ! isPlatform "x86" && params+=(--disable-jit-compiler)
     ! isPlatform "x11" && params+=(--without-x --without-gtk)
     isPlatform "aarch64" && params+=(--build=arm)
-    ./autogen.sh --prefix="$md_inst" "${params[@]}"
+    NO_CONFIGURE=1 ./autogen.sh
+    ./configure --prefix="$md_inst" "${params[@]}"
     make clean
     make
     md_ret_require="$md_build/BasiliskII/src/Unix/BasiliskII"
 }
 
 function install_basilisk() {
-    cd "BasiliskII/src/Unix"
+    cd BasiliskII/src/Unix
     make install
 }
 

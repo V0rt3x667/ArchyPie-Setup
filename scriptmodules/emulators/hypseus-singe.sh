@@ -13,7 +13,11 @@ rp_module_section="main"
 rp_module_flags=""
 
 function _get_branch_hypseus-singe() {
-    download https://api.github.com/repos/DirtBagXon/hypseus-singe/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+    if isPlatform "rpi"; then
+        RetroPie
+    else
+        download https://api.github.com/repos/DirtBagXon/hypseus-singe/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+    fi
 }
 
 function depends_hypseus-singe() {
@@ -34,7 +38,6 @@ function sources_hypseus-singe() {
 
 function build_hypseus-singe() {
     mkdir build
-
     cd build
     cmake ../src \
         -DCMAKE_BUILD_TYPE=Release \
@@ -43,12 +46,19 @@ function build_hypseus-singe() {
     make clean
     make
 
-    md_ret_require=('$md_build/build/hypseus')
+    md_ret_require=("$md_build/build/hypseus")
 }
 
 function install_hypseus-singe() {
-    cd "$md_build/build"
-    make install
+    md_ret_files=(
+        'build/hypseus' 
+        'doc'
+        'sound'
+        'screenshots'
+        'pics'
+        'roms'
+        'fonts'
+    )
 }
 
 function configure_hypseus-singe() {
@@ -84,7 +94,7 @@ function configure_hypseus-singe() {
 #!/usr/bin/bash
 
 HYPSEUS_SHARE="$romdir/daphne"
-HYPSEUS_BIN="md_inst/hypseus"
+HYPSEUS_BIN="$md_inst/hypseus"
 
     case "$1" in
         ace)

@@ -42,29 +42,36 @@ function sources_csp-fm7() {
         'include(config_misccom)'
         'include(config_singleboards)'
     )
-
     for string in "${strings[@]}"; do
-        sed -e "s|$string|#$string|g" -i ./CMakeLists.txt
+        sed -e "s|$string|#$string|g" -i "$md_build/source/CMakeLists.txt"
     done
 }
 
 function build_csp-fm7() {
-    mkdir build
-    cd build
+    mkdir "$md_build/source/build"
+    cd "$md_build/source/build"
 
     export CXXFLAGS+=" -ffile-prefix-map=\"$PWD\"=."
     export LDFLAGS+=" -Wl,-rpath='${_installdir%/}/lib'"
-
     cmake .. \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -Wno-dev
     make clean
     make
+    md_ret_require=(
+        "$md_build/source/build/emufm8"
+        "$md_build/source/build/emufm7"
+        "$md_build/source/build/emufm77av"
+        "$md_build/source/build/emufm77av40"
+        "$md_build/source/build/emufm77av40ex"
+        "$md_build/source/build/emufm77av40sx"
+    )
 }
 
 function install_csp-fm7() {
-    cd build
+    cd "$md_build/source/build"
     make install
 }
 

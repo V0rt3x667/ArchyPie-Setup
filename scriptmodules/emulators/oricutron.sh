@@ -40,25 +40,17 @@ function build_oricutron() {
         -DCMAKE_BUILD_TYPE="Release"
     make clean
     make 
-    md_ret_require="$md_build/build/oricutron"
+    md_ret_require="$md_build/build/Oricutron"
 }
 
 function install_oricutron() {
     md_ret_files=(
-        'build/oricutron'
+        'build/Oricutron'
         'oricutron.cfg'
         'roms'
         'disks'
         'images'
     )
-}
-
-function game_data_oricutron() {
-    if [[ -d "$md_inst/disks" && ! -f "$romdir/oric/barbitoric.dsk" ]]; then
-        # copy demo disks
-        cp -v "$md_inst/disks/"* "$romdir/oric/"
-        chown -R $user:$user "$romdir/oric"
-    fi
 }
 
 function configure_oricutron() {
@@ -69,9 +61,7 @@ function configure_oricutron() {
     for machine in atmos oric1 o16k telestrat pravetz; do
         default=0
         [[ "$machine" == "atmos" ]] && default=1
-        addEmulator "$default" "$md_id-$machine" "oric" "pushd $md_inst; $md_inst/oricutron --machine $machine %ROM% --fullscreen; popd"
+        addEmulator "$default" "$md_id-$machine" "oric" "pushd $md_inst; $md_inst/Oricutron --machine $machine %ROM% --fullscreen; popd"
     done
     addSystem "oric"
-
-    [[ "$md_mode" == "install" ]] && game_data_oricutron
 }

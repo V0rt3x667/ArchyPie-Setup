@@ -31,7 +31,9 @@ function sources_pcsx2() {
 }
 
 function build_pcsx2() {
-    cmake -S pcsx2 -B build -G Ninja \
+    mkdir build
+    cd build
+    cmake .. \
         -DCMAKE_INSTALL_PREFIX="md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
@@ -50,12 +52,14 @@ function build_pcsx2() {
         -DXDG_STD=ON \
         -DwxWidgets_CONFIG_EXECUTABLE=/usr/bin/wx-config-gtk3 \
         -Wno-dev
-    ninja -C build
-    md_ret_require="$md_build/build/PCSX2"
+    make clean
+    make
+    md_ret_require="$md_build/build/pcsx/PCSX2"
 }
 
 function install_pcsx2() {
-    ninja -C build install
+    cd build
+    make install
 }
 
 function configure_pcsx2() {

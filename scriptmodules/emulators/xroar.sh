@@ -17,7 +17,7 @@ function depends_xroar() {
 }
 
 function sources_xroar() {
-    gitPullOrClone #"$md_build" "$md_repo_url" "$md_repo_branch" "" 0
+    gitPullOrClone "$md_build" "$md_repo_url" "$md_repo_branch" "" 0
 
 }
 

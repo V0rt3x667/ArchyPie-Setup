@@ -21,9 +21,9 @@ function sources_sdltrs() {
 }
 
 function build_sdltrs() {
-    make clean
-    ./autogen.sh
+    NO_CONFIGURE=1 ./autogen.sh
     ./configure --prefix="$md_inst"
+    make clean
     make
     md_ret_require="$md_build/sdl2trs"
 }

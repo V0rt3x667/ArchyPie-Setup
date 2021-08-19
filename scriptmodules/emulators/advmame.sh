@@ -33,6 +33,10 @@ function depends_advmame() {
 
 function sources_advmame() {
     gitPullOrClone
+    # Fix build errors due new gcc 10\11 default for -fno-common
+    for line in 290 855 856; do
+        sed -i -e "${line}s/^/extern /" src/drivers/cavepgm.c
+    done
 }
 
 function build_advmame() {
@@ -42,8 +46,8 @@ function build_advmame() {
     else
         params+=(--enable-sdl2 --disable-sdl1 --disable-vc)
     fi
-    ./autogen.sh
-    ./configure CFLAGS="$CFLAGS -fno-stack-protector" --prefix="$md_inst" "${params[@]}"
+    NO_CONFIGURE=1 ./autogen.sh
+    ./configure CFLAGS="$CFLAGS -fno-strict-aliasing -fno-strict-overflow -fsigned-char -fno-stack-protector" --prefix="$md_inst" "${params[@]}"
     make clean
     make
     md_ret_require="$md_build/advmame"

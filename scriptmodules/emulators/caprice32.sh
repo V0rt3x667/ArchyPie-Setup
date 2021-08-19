@@ -38,7 +38,7 @@ function build_caprice32() {
         LDFLAGS="${LDFLAGS}" \
         ARCH=linux \
         RELEASE=TRUE \
-        APP_PATH="$HOME/.config/caprice32" \
+        APP_PATH="~/.config/caprice32" \
         WITH_IPF=TRUE
     md_ret_require="$md_build"
 }

@@ -35,10 +35,8 @@ function build_snes9x() {
     cd unix
     CXXFLAGS+=" -I/usr/include/glslang"
     ./configure \
-        --buildtype=release \
         --prefix="$md_inst" \
-        --enable-netplay \
-        --strip \
+        --enable-netplay
     make clean
     make
     md_ret_require="$md_build/unix/snes9x"

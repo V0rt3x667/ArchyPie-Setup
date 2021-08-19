@@ -17,12 +17,21 @@ function depends_quasi88() {
 
 function sources_quasi88() {
     downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
-    applyPatch "$md_data/01_fixes.diff"
+    applyPatch "$md_data/01_Fix_Build_Flags.patch"
 }
 
 function build_quasi88() {
-    make X11_VERSION= SDL_VERSION=1 clean
-    make X11_VERSION= SDL_VERSION=1 ARCH=linux SOUND_SDL=1 USE_OLD_MAME_SOUND=1 USE_FMGEN=1 ROMDIR="$biosdir/pc88" DISKDIR="$romdir/pc88" TAPEDIR="$romdir/pc88"
+    make \
+        LDFLAGS=${LDFLAGS} \
+        X11_VERSION=1 \
+        SDL_VERSION=1 \
+        ARCH=linux \
+        SOUND_SDL=1 \
+        USE_OLD_MAME_SOUND=1 \
+        USE_FMGEN=1 \
+        ROMDIR="$biosdir/pc88" \
+        DISKDIR="$romdir/pc88" \
+        TAPEDIR="$romdir/pc88"
     md_ret_require="$md_build/quasi88.sdl"
 }
 

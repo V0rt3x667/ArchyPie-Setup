@@ -82,7 +82,7 @@ function configure_openmsx() {
     mkUserDir "$home/.openMSX/share/scripts"
     mkUserDir "$home/.openMSX/share/systemroms"
     moveConfigDir "$home/.openMSX" "$configdir/msx/openmsx"
-    moveConfigDir "$configdir/msx/openmsx/share/systemroms" "$home/RetroPie/BIOS/openmsx"
+    moveConfigDir "$configdir/msx/openmsx/share/systemroms" "$home/ArchyPie/BIOS/openmsx"
 
     copyDefaultConfig "$config" "$home/.openMSX/share/settings.xml"
     rm "$config"

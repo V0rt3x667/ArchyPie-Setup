@@ -8,34 +8,41 @@ rp_module_id="fuse"
 rp_module_desc="Fuse - ZX Spectrum Emulator"
 rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk .zip\n\nCopy your ZX Spectrum games to $romdir/zxspectrum"
 rp_module_licence="GPL2 https://sourceforge.net/p/fuse-emulator/fuse/ci/master/tree/COPYING"
-#rp_module_repo="file $__archive_url/fuse-1.5.7.tar.gz"
-rp_module_repo="git https://git.code.sf.net/p/fuse-emulator/fuse fuse-1.6.0"
+rp_module_repo="file https://sourceforge.net/projects/fuse-emulator/files/fuse/1.6.0/fuse-1.6.0.tar.gz"
 rp_module_section="opt"
 rp_module_flags="sdl1 !mali"
 
 function depends_fuse() {
-    getDepends sdl libpng zlib libzip2 audiofile bison flex
+    getDepends sdl libpng zlib lbzip2 audiofile bison flex
 }
 
 function sources_fuse() {
-    gitPullOrClone
-#    downloadAndExtract "$__archive_url/fuse-1.5.7.tar.gz" "$md_build" --strip-components 1
-    mkdir libspectrum
+    downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
     downloadAndExtract "https://sourceforge.net/projects/fuse-emulator/files/libspectrum/1.5.0/libspectrum-1.5.0.tar.gz" "$md_build/libspectrum" --strip-components 1
-#    downloadAndExtract "$__archive_url/libspectrum-1.4.4.tar.gz" "$md_build/libspectrum" --strip-components 1
     if ! isPlatform "x11"; then
         applyPatch "$md_data/01_disable_cursor.diff"
     fi
-    applyPatch "$md_data/02_sdl_fix.diff"
 }
 
-function build_fuse() {
-    pushd libspectrum
+function _build_libspectrum_fuse() {
+    cd "$md_build/libspectrum"
     ./configure --disable-shared
     make clean
     make
-    popd
-    ./configure --prefix="$md_inst" --without-libao --without-gpm --without-gtk --without-libxml2 --with-sdl LIBSPECTRUM_CFLAGS="-I$md_build/libspectrum" LIBSPECTRUM_LIBS="-L$md_build/libspectrum/.libs -lspectrum"
+}
+
+function build_fuse() {
+    _build_libspectrum_fuse
+
+    cd "$md_build"
+    ./autogen
+    ./configure LIBSPECTRUM_CFLAGS="-I$md_build/libspectrum" LIBSPECTRUM_LIBS="-L$md_build/libspectrum/.libs -lspectrum" \
+        --prefix="$md_inst" \
+        --without-libao \
+        --without-gpm \
+        --without-gtk \
+        --without-libxml2 \
+        --with-sdl
     make clean
     make
     md_ret_require="$md_build/fuse"

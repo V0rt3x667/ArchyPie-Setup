@@ -12,7 +12,7 @@ rp_module_repo="git https://github.com/Wargus/stratagus.git :_get_branch_stratag
 rp_module_section="opt"
 rp_module_flags="!mali !kms"
 
-function _get_branch_mame() {
+function _get_branch_stratagus() {
     download https://api.github.com/repos/Wargus/stratagus/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
 }
 
@@ -20,6 +20,7 @@ function depends_stratagus() {
     local depends=(
         'libmng'
         'libtheora'
+        'lua51'
         'sdl2_image'
         'sdl2_mixer'
         'sqlite'
@@ -35,12 +36,13 @@ function sources_stratagus() {
 function build_stratagus() {
     mkdir build
     cd build
-    cmake ..
+    cmake .. \
         -DENABLE_STRIP=ON \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DLUA_INCLUDE_DIR=/usr/include/lua5.1 \
-        -DCMAKE_CXX_FLAGS="-Wno-error"
+        -DCMAKE_CXX_FLAGS="-Wno-error" \
+        -DENABLE_STRIP=ON
     make clean
     make
     md_ret_require="$md_build/build/stratagus"

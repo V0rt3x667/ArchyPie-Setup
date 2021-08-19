@@ -19,7 +19,7 @@ function depends_vice() {
         'ffmpeg'
         'flac'
         'libjpeg'
-        'libmpg123'
+        'mpg123'
         'libpcap' 
         'libpng'
         'libvorbis'

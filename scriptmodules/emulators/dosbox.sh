@@ -24,7 +24,6 @@ function sources_dosbox() {
     [[ -z "$revision" ]] && revision="4465"
 
     svn checkout "$md_repo_url" "$md_build" -r "$revision"
-    applyPatch "$md_data/01-fully-bindable-joystick.diff"
 }
 
 function build_dosbox() {
