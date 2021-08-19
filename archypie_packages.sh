@@ -23,7 +23,7 @@ else
     [[ -z "$user" ]] && user="$(id -un)"
 fi
 
-home="$(eval echo ~$user)"
+home="$(eval echo ~"$user")"
 datadir="$home/ArchyPie"
 biosdir="$datadir/BIOS"
 romdir="$datadir/roms"
@@ -44,7 +44,7 @@ if [[ "$(id -u)" -ne 0 ]]; then
     exit 1
 fi
 
-__backtitle="ArchyPie Setup. Installation folder: $rootdir for user $user"
+__backtitle="ArchyPie Setup. Installation Folder: $rootdir User: $user"
 
 source "$scriptdir/scriptmodules/system.sh"
 source "$scriptdir/scriptmodules/helpers.sh"
