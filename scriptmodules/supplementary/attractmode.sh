@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="attractmode"
-rp_module_desc="Attract Mode emulator frontend"
+rp_module_desc="Attract Mode Emulator Frontend"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/mickelson/attract/master/License.txt"
 rp_module_repo="git https://github.com/mickelson/attract.git master"
 rp_module_section="exp"
@@ -144,6 +144,7 @@ function _build_sfml_attractmode() {
     make clean
     make
 }
+
 function build_attractmode() {
     if isPlatform "rpi"; then
         _build_sfml_attractmode
@@ -159,14 +160,14 @@ function build_attractmode() {
 
     # remove example configs
     rm -rf "$md_build/attract/config/emulators/"*
-    md_ret_require="$md_build/attract/attract"
+    md_ret_require="$md_build/attract"
 }
 
 function install_attractmode() {
     make -C sfml-pi install
     mkdir -p "$md_inst"/{bin,share,share/attract}
-    cp -v attract/attract "$md_inst/bin/"
-    cp -Rv attract/config/* "$md_inst/share/attract"
+    cp -v $md_build/attract "$md_inst/bin/"
+    cp -Rv $md_build/config/* "$md_inst/share/attract"
 }
 
 function remove_attractmode() {
