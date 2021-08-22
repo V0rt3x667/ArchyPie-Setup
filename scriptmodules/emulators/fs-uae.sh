@@ -81,7 +81,7 @@ function configure_fs-uae() {
 #    mkUserDir "$home/Documents/FS-UAE/Configurations"
 #    moveConfigDir "$home/Documents/FS-UAE/Configurations" "$md_conf_root/amiga/fs-uae"
 
-    moveConfigDir "$home/.config/fs-uae" "$configdir/amiga/fs-uae"
+    moveConfigDir "$home/.config/fs-uae" "$md_conf_root/amiga/$md_id"
 
     # copy default config file
     local config="$(mktemp)"
@@ -94,15 +94,15 @@ function configure_fs-uae() {
     iniSet "fsaa" "0"
     iniSet "scanlines" "0"
     iniSet "floppy_drive_speed" "100"
-    copyDefaultConfig "$config" "$md_conf_root/amiga/fs-uae/Default.fs-uae"
+    copyDefaultConfig "$config" "$md_conf_root/amiga/$md_id/fs-uae.conf"
     rm "$config"
 
-    addEmulator 0 "$md_id-a500+" "amiga" "$md_inst/fs-uae.sh %ROM% A500+"
-    addEmulator 1 "$md_id-a500" "amiga" "$md_inst/fs-uae.sh %ROM% A500"
-    addEmulator 0 "$md_id-a600" "amiga" "$md_inst/fs-uae.sh %ROM% A600"
-    addEmulator 0 "$md_id-a1200" "amiga" "$md_inst/fs-uae.sh %ROM% A1200"
-    addEmulator 1 "$md_id-cd32" "cd32" "$md_inst/fs-uae.sh %ROM% CD32"
-    addEmulator 1 "$md_id-cdtv" "cdtv" "$md_inst/fs-uae.sh %ROM% CDTV"
+    addEmulator 0 "$md_id-a500+" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500+"
+    addEmulator 1 "$md_id-a500" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500"
+    addEmulator 0 "$md_id-a600" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A600"
+    addEmulator 0 "$md_id-a1200" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A1200"
+    addEmulator 1 "$md_id-cd32" "cd32" "$md_inst/bin/fs-uae.sh %ROM% CD32"
+    addEmulator 1 "$md_id-cdtv" "cdtv" "$md_inst/bin/fs-uae.sh %ROM% CDTV"
     addSystem "amiga"
     addSystem "cd32"
     addSystem "cdtv"

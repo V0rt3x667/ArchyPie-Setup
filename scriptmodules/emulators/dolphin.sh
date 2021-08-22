@@ -12,13 +12,6 @@ rp_module_repo="git https://github.com/dolphin-emu/dolphin.git master"
 rp_module_section="exp"
 rp_module_flags="!all 64bit"
 
-#function _get_branch_dolphin() {
-#    local branch="master"
-#    # current HEAD of dolphin doesn't build on Ubuntu 16.04 (with  gcc 5.4)
-#    compareVersions $__gcc_version lt 6 && branch="5.0"
-#    echo "$branch"
-#}
-
 function depends_dolphin() {
     local depends=(
         'bluez-libs'
@@ -32,8 +25,6 @@ function depends_dolphin() {
         'sfml'
         'cmake'
     )
-    # current HEAD of dolphin doesn't build gtk2 UI anymore
-    #compareVersions $__gcc_version lt 6 && depends+=(libgtk2.0-dev libwxbase3.0-dev libwxgtk3.0-dev)
     getDepends "${depends[@]}"
 }
 

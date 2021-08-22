@@ -70,8 +70,8 @@ function configure_lr-dolphin() {
     mkdir $biosdir/dolphin-emu
     ln -sf $md_inst/Sys $biosdir/dolphin-emu/
 
-    addEmulator 1 "$md_id" "gc" "$md_inst/dolphin_libretro.so"
-    addEmulator 1 "$md_id" "wii" "$md_inst/dolphin_libretro.so"
+    addEmulator 0 "$md_id" "gc" "$md_inst/dolphin_libretro.so"
+    addEmulator 0 "$md_id" "wii" "$md_inst/dolphin_libretro.so"
 
     addSystem "gc"
     addSystem "wii"
