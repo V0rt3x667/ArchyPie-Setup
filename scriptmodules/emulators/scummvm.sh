@@ -18,15 +18,15 @@ function depends_scummvm() {
         'faad2'
         'flac'
         'fluidsynth'
+        'freetype2'
         'libjpeg-turbo'
         'libmad'
         'libmpeg2'
-        'libtheora'
+        'libpng'
         'libspeechd'
-)
-#    if isPlatform "vero4k"; then
-#        depends+=(vero3-userland-dev-osmc)
-#    fi
+        'libtheora'
+        'libvorbis'
+    )
     if [[ "$md_id" == "scummvm-sdl1" ]]; then
         depends+=('sdl' 'sdl_net')
     else

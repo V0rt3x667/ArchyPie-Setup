@@ -13,7 +13,16 @@ rp_module_section="opt"
 rp_module_flags="!mali"
 
 function depends_ags() {
-    local depends=('allegro' 'dumb' 'freetype2' 'libogg' 'libtheora' 'libvorbis' 'xorg-server')
+    local depends=(
+        'allegro'
+        'dumb'
+        'freetype2'
+        'libogg'
+        'libtheora'
+        'libvorbis'
+        'libxxf86vm'
+        'xorg-server'
+    )
     getDepends "${depends[@]}"
 }
 

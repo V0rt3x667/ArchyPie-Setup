@@ -14,13 +14,13 @@ rp_module_flags="sdl2"
 
 function depends_mupen64plus() {
     local depends=(
-        'boost-libs'
+        'boost'
+        'cmake'
         'freetype2'
         'libsamplerate'
         'minizip'
         'sdl2'
         'speexdsp'
-        'cmake'
 )
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
     isPlatform "mesa" && depends+=('libglvnd')

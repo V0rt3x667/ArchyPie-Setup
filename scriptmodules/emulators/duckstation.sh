@@ -13,7 +13,17 @@ rp_module_repo="git https://github.com/stenzek/duckstation master"
 rp_module_flags="!all arm !armv6 aarch64 64bit"
 
 function depends_duckstation() {
-    getDepends cmake qt5-base sdl2 ninja xorg-xrandr qt5-tools libdrm
+    local depends=(
+        'cmake'
+        'extra-cmake-modules'
+        'libdrm'
+        'ninja'
+        'qt5-base'
+        'qt5-tools'
+        'sdl2'
+        'xorg-xrandr'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_duckstation() {
