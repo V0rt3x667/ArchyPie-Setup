@@ -17,14 +17,8 @@ function _get_branch_mame() {
 }
 
 function depends_mame() {
-#    if compareVersions $__gcc_version lt 7; then
-#        md_ret_errors+=("Sorry, you need an OS with gcc 7 or newer to compile $md_id")
-#        return 1
-#    fi
-
-    # Install required libraries required for compilation and running
-    # Note: libxi-dev is required as of v0.210, because of flag changes for XInput
     local depends=(
+        'clang'
         'flac'
         'glm'
         'libpulse'
@@ -69,7 +63,7 @@ function build_mame() {
 
     # Compile MAME
     local params=(NOWERROR=1 ARCHOPTS=-flifetime-dse=1 PYTHON_EXECUTABLE=python OPTIMIZE=2)
-    make "${params[@]}"
+    make "${params[@]}" CC="clang" CXX="clang++"
     strip mame
 
     rpSwap off

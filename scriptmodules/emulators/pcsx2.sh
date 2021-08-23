@@ -14,14 +14,14 @@ rp_module_flags="!all x86"
 
 function depends_pcsx2() {
     local depends=(
+        'cmake'
         'fmt'
         'libaio'
+        'png++'
         'portaudio'
         'sdl2'
         'soundtouch'
         'wxgtk3'
-        'cmake'
-        'png++'
     )
     getDepends "${depends[@]}"
 }
@@ -36,17 +36,14 @@ function build_pcsx2() {
     cmake .. \
         -DCMAKE_INSTALL_PREFIX="md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DENABLE_TESTS=OFF \
-        -DDOC_DIR=/doc \
-        -DGAMEINDEX_DIR=/share \
-        -DPLUGIN_DIR=/lib \
         -DDISABLE_BUILD_DATE=ON \
         -DDISABLE_PCSX2_WRAPPER=ON \
-        -DEXTRA_PLUGINS=ON \
         -DSDL2_API=ON \
         -DREBUILD_SHADER=ON \
-        -DUSE_LTO=ON \
         -DUSE_VTUNE=OFF \
         -DUSE_SYSTEM_YAML=OFF \
         -DXDG_STD=ON \
@@ -54,7 +51,7 @@ function build_pcsx2() {
         -Wno-dev
     make clean
     make
-    md_ret_require="$md_build/build/pcsx/PCSX2"
+    md_ret_require="$md_build/build/pcsx2/PCSX2"
 }
 
 function install_pcsx2() {

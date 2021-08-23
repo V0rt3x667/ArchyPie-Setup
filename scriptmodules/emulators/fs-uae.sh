@@ -14,14 +14,22 @@ rp_module_flags="!all !arm x11"
 
 function depends_fs-uae() {
     local depends=(
+        'desktop-file-utils'
+        'freetype2'
+        'gettext'
         'glib2'
+        'hicolor-icon-theme'
         'libmpeg2'
         'libpng' 
+        'libx11'
+        'libxi'
+        'mesa'
         'openal'
         'python'
         'python-lhafile'
         'sdl2'
-        'libx11'
+        'shared-mime-info'
+        'zip'
         'zlib'
     )
     getDepends "${depends[@]}"
@@ -32,7 +40,7 @@ function _sources_libcapsimage_fs-uae() {
 }
 
 function sources_fs-uae() {
-    downloadAndExtract "$md_repo_url" "$md_build"
+    downloadAndExtract "$md_repo_url" "$md_build" --strip-components=1
     _sources_libcapsimage_fs-uae
 }
 
@@ -43,7 +51,7 @@ function _build_libcapsimage_fs-uae() {
     ./configure
     make clean
     make
-    md_ret_require='libcapsimage.so.5.1'
+    md_ret_require="$md_build/capsimg/CAPSImglibcapsimage.so.5.1"
 }
 
 function build_fs-uae() {
