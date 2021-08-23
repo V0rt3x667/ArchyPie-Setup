@@ -18,6 +18,7 @@ function _get_branch_stratagus() {
 
 function depends_stratagus() {
     local depends=(
+        'cmake'
         'libmng'
         'libtheora'
         'lua51'
@@ -25,8 +26,8 @@ function depends_stratagus() {
         'sdl2_mixer'
         'sqlite'
         'tolua++'
-        'cmake'
     )
+    getDepends "${depends[@]}"
 }
 
 function sources_stratagus() {
@@ -37,11 +38,10 @@ function build_stratagus() {
     mkdir build
     cd build
     cmake .. \
-        -DENABLE_STRIP=ON \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DLUA_INCLUDE_DIR=/usr/include/lua5.1 \
-        -DCMAKE_CXX_FLAGS="-Wno-error" \
+        -DCMAKE_CXX_FLAGS+="-Wno-error -Wno-dev" \
         -DENABLE_STRIP=ON
     make clean
     make
