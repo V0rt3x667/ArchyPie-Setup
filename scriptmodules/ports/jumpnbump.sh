@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="jumpnbump"
-rp_module_desc="Jump 'n Bump, play cute bunnies jumping on each other's heads - Modernization fork"
+rp_module_desc="Jump 'n' Bump - Play Cute Bunnies Jumping on Each Other's Heads"
 rp_module_help="Copy custom game levels (.dat) to $romdir/ports/jumpnbump"
 rp_module_licence="GPL2 https://gitlab.com/LibreGames/jumpnbump/raw/master/COPYING"
 rp_module_repo="git https://gitlab.com/LibreGames/jumpnbump.git master"
@@ -18,7 +13,7 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function depends_jumpnbump() {
-    getDepends libsdl2-dev libsdl2-net-dev libsdl2-mixer-dev libbz2-dev zlib1g-dev
+    getDepends sdl2 sdl2_net sdl2_mixer zlib
 }
 
 function sources_jumpnbump() {
@@ -36,7 +31,7 @@ function install_jumpnbump() {
     strip "$md_inst"/bin/{gobpack,jnbpack,jnbunpack,jumpnbump}
 }
 
-function game_data_jumpnbump() {
+function _game_data_jumpnbump() {
     local tmpdir="$(mktemp -d)"
     local compressed
     local uncompressed
@@ -60,7 +55,7 @@ function configure_jumpnbump() {
     [[ "$md_mode" == "remove" ]] && return
 
     # install game data
-    game_data_jumpnbump
+    _game_data_jumpnbump
 
     # install launch script
     cp "$md_data/jumpnbump.sh" "$md_inst"

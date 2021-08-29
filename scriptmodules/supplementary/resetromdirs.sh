@@ -5,11 +5,11 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="resetromdirs"
-rp_module_desc="Reset ownership/permissions of RetroPie/roms directory"
+rp_module_desc="Reset Ownership & Permissions of the ArchyPie ROM & BIOS Directories"
 rp_module_section="config"
 
 function gui_resetromdirs() {
-    printHeading "Resetting $romdir ownershop/permissions"
+    printHeading "Resetting $romdir Ownershop & Permissions"
     mkUserDir "$romdir"
     mkUserDir "$biosdir"
     chown -R $user:$user "$romdir"

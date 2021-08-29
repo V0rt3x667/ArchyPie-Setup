@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="wolf4sdl"
-rp_module_desc="Wolf4SDL - port of Wolfenstein 3D / Spear of Destiny engine"
-rp_module_licence="GPL2 https://raw.githubusercontent.com/AryanWolf3D/Wolf4SDL/master/license-gpl.txt"
-rp_module_repo="git https://github.com/AryanWolf3D/Wolf4SDL.git master"
+rp_module_desc="Wolf4SDL - Port of Wolfenstein 3D & Spear of Destiny"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/fabiangreffrath/wolf4sdl/master/license-gpl.txt"
+rp_module_repo="git https://github.com/fabiangreffrath/wolf4sdl.git master"
 rp_module_section="opt"
 rp_module_flags="sdl2"
 
 function depends_wolf4sdl() {
-    getDepends libsdl2-dev libsdl2-mixer-dev rename
+    getDepends sdl2 sdl2_mixer perl-rename
 }
 
 function sources_wolf4sdl() {
@@ -34,12 +29,13 @@ function _get_opts_wolf4sdl() {
 
 function add_games_wolf4sdl() {
     declare -A -g games_wolf4sdl=(
-        ['vswap.wl1']="Wolfenstein 3D demo"
-        ['vswap.wl6']="Wolfenstein 3D"
-        ['vswap.sd1']="Wolfenstein 3D - Spear of Destiny Ep 1"
-        ['vswap.sd2']="Wolfenstein 3D - Spear of Destiny Ep 2"
-        ['vswap.sd3']="Wolfenstein 3D - Spear of Destiny Ep 3"
-        ['vswap.sdm']="Wolfenstein 3D - Spear of Destiny Demo"
+        ['vswap.sod']="Wolfenstein 3D - Spear of Destiny"
+        ['vswap.sd1']="Wolfenstein 3D - Spear of Destiny"
+        ['vswap.sd2']="Wolfenstein 3D - Spear of Destiny Mission Pack 2 - Return to Danger"
+        ['vswap.sd3']="Wolfenstein 3D - Spear of Destiny Mission Pack 3 - Ultimate Challenge"
+        ['vswap.sdm']="Wolfenstein 3D - Spear of Destiny (Shareware)"
+        ['vswap.wl1']="Wolfenstein 3D - Wolfenstein 3D (Shareware)"
+        ['vswap.wl6']="Wolfenstein 3D - Wolfenstein 3D"
     )
 
     add_ports_wolf4sdl "$md_inst/bin/wolf4sdl.sh %ROM%" "wolf3d"
@@ -67,20 +63,18 @@ function build_wolf4sdl() {
         local defs="${opt#* }"
         make clean
         CFLAGS+=" -DVERSIONALREADYCHOSEN -DGPL $defs" make
-        mv wolf4sdl "bin/$bin"
+        mv wolf3d "bin/$bin"
         md_ret_require+=("bin/$bin")
     done < <(_get_opts_wolf4sdl)
 }
 
 function install_wolf4sdl() {
-    mkdir -p "$md_inst/share/man"
-    cp -Rv "$md_build/man6" "$md_inst/share/man/"
     md_ret_files=('bin')
 }
 
 function game_data_wolf4sdl() {
     pushd "$romdir/ports/wolf3d"
-    rename 'y/A-Z/a-z/' *
+    perl-rename 'y/A-Z/a-z/' *
     popd
     if [[ ! -f "$romdir/ports/wolf3d/vswap.wl6" && ! -f "$romdir/ports/wolf3d/vswap.wl1" ]]; then
         cd "$__tmpdir"

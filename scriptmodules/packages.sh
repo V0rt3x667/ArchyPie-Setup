@@ -25,7 +25,7 @@ function rp_listFunctions() {
 
     echo -e "ID:                 Description:                                 List of available functions"
     echo "-----------------------------------------------------------------------------------------------------------------------------------"
-    for id in ${__mod_id[@]}; do
+    for id in "${__mod_id[@]}"; do
         if rp_isEnabled "$id"; then
             printf "%-20s: %-42s :" "$id" "${__mod_info[$id/desc]}"
         else

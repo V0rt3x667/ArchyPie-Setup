@@ -36,7 +36,7 @@ function depends_fs-uae() {
 }
 
 function _sources_libcapsimage_fs-uae() {
-    gitPullOrClone "$md_build/capsimg" "https://github.com/FrodeSolheim/capsimg.git"
+    gitPullOrClone "$md_build" "https://github.com/FrodeSolheim/capsimg.git"
 }
 
 function sources_fs-uae() {
@@ -51,7 +51,8 @@ function _build_libcapsimage_fs-uae() {
     ./configure
     make clean
     make
-    md_ret_require="$md_build/capsimg/CAPSImglibcapsimage.so.5.1"
+    mv libcapsimage.so.5.1 capsimg.so
+    md_ret_require="$md_build/capsimg/CAPSImg/capsimage.so"
 }
 
 function build_fs-uae() {
@@ -66,7 +67,7 @@ function build_fs-uae() {
 
 function _install_libcapsimage_fs-uae() {
     cd "$md_build/capsimg/CAPSImg"
-    mv libcapsimage.so.5.1 "$md_inst/bin/capsimg.so"
+    cp capsimage.so "$md_inst/bin/"
 }
 
 function install_fs-uae() {
@@ -85,9 +86,6 @@ function configure_fs-uae() {
     chmod +x "$md_inst/bin/fs-uae.sh"
 
     mkUserDir "$md_conf_root/amiga"
-#    mkUserDir "$home/Documents/FS-UAE"
-#    mkUserDir "$home/Documents/FS-UAE/Configurations"
-#    moveConfigDir "$home/Documents/FS-UAE/Configurations" "$md_conf_root/amiga/fs-uae"
 
     moveConfigDir "$home/.config/fs-uae" "$md_conf_root/amiga/$md_id"
 
@@ -98,6 +96,7 @@ function configure_fs-uae() {
     iniSet "kickstarts_dir" "$biosdir"
     iniSet "fullscreen" "1"
     iniSet "keep_aspect" "1"
+    iniSet "video_sync" "Auto"
     iniSet "zoom" "full"
     iniSet "fsaa" "0"
     iniSet "scanlines" "0"
@@ -105,7 +104,7 @@ function configure_fs-uae() {
     copyDefaultConfig "$config" "$md_conf_root/amiga/$md_id/fs-uae.conf"
     rm "$config"
 
-    addEmulator 0 "$md_id-a500+" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500+"
+    addEmulator 0 "$md_id-a500-plus" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500+"
     addEmulator 1 "$md_id-a500" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500"
     addEmulator 0 "$md_id-a600" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A600"
     addEmulator 0 "$md_id-a1200" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A1200"

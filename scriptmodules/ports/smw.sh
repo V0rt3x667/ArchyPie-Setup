@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="smw"
-rp_module_desc="Super Mario War"
-rp_module_licence="GPL http://supermariowar.supersanctuary.net/"
-rp_module_repo="git https://github.com/HerbFargus/Super-Mario-War.git master"
+rp_module_desc="Super Mario War - Fan-made Multiplayer Super Mario Bros. Style Deathmatch Game"
+rp_module_licence="NONCOM"
+rp_module_repo="git https://github.com/mmatyas/supermariowar.git master"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="sdl2 !mali"
 
 function depends_smw() {
-    getDepends libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev
+    getDepends cmake enet sdl2 sdl2_mixer sdl2_image
 }
 
 function sources_smw() {
@@ -25,13 +20,18 @@ function sources_smw() {
 }
 
 function build_smw() {
-    ./configure --prefix="$md_inst"
+    mkdir build
+    cd build
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst"
     make clean
     make
-    md_ret_require="$md_build/smw"
+    md_ret_require="$md_build/build/Binaries/Release/smw"
 }
 
 function install_smw() {
+    cd build
     make install
 }
 

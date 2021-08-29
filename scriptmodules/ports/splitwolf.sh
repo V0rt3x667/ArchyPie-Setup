@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="splitwolf"
-rp_module_desc="SplitWolf - 2-4 player split-screen Wolfenstein 3D / Spear of Destiny"
-rp_module_help="Game File Extension: .wl6, .sod, .sd2, .sd3\n\nCopy your game files to $romdir/ports/wolf3d/\n\nIf you add new game files, run: sudo ~/RetroPie-Setup/retropie_packages.sh splitwolf configure"
+rp_module_desc="SplitWolf - 2-4 Player Split-Screen Wolfenstein 3D & Spear of Destiny Port"
+rp_module_help="Game File Extension: .wl1, .wl6, .sdm, .sod, .sd2, .sd3\n\nCopy Your Wolfenstein 3D & Spear of Destiny Game Files to $romdir/ports/wolf3d/"
 rp_module_licence="NONCOM https://bitbucket.org/linuxwolf6/splitwolf/raw/scrubbed/license-mame.txt"
 rp_module_repo="git https://bitbucket.org/linuxwolf6/splitwolf.git scrubbed"
 rp_module_section="exp"
 
 function depends_splitwolf() {
-    getDepends libsdl2-dev libsdl2-mixer-dev
+    getDepends sdl2 sdl2_mixer
 }
 
 function sources_splitwolf() {
@@ -42,17 +37,17 @@ function game_data_splitwolf() {
 
 function add_games_splitwolf() {
     declare -A games_wolf4sdl=(
-        ['vswap.wl1']="Splitwolf - Wolf 3D Demo"
-        ['vswap.wl6']="Splitwolf - Wolf 3D"
-        ['vswap.sod']="Splitwolf - Spear of Destiny Ep 1"
-        ['vswap.sd2']="Splitwolf - Spear of Destiny Ep 2"
-        ['vswap.sd3']="Splitwolf - Spear of Destiny Ep 3"
-        ['vswap.sdm']="Splitwolf - Spear of Destiny Demo"
+        ['vswap.sod']="SplitWolf - Spear of Destiny"
+        ['vswap.sd1']="SplitWolf - Spear of Destiny"
+        ['vswap.sd2']="SplitWolf - Spear of Destiny Mission Pack 2 - Return to Danger"
+        ['vswap.sd3']="SplitWolf - Spear of Destiny Mission Pack 3 - Ultimate Challenge"
+        ['vswap.sdm']="SplitWolf - Spear of Destiny (Shareware)"
+        ['vswap.wl1']="SplitWolf - Wolfenstein 3D (Shareware)"
+        ['vswap.wl6']="SplitWolf - Wolfenstein 3D"
     )
 
     add_ports_wolf4sdl "$md_inst/bin/splitwolf.sh %ROM%" "splitwolf"
 }
-
 
 function build_splitwolf() {
     mkdir -p "bin"
@@ -61,7 +56,8 @@ function build_splitwolf() {
         local bin="${opt%% *}"
         local defs="${opt#* }"
         make clean
-        make "$defs" DATADIR="$romdir/ports/wolf3d/"
+        CFLAGS+=" -Wno-narrowing"
+        make "$defs" DATADIR="$romdir/ports/wolf3d"
         mv "$bin" "bin/$bin"
         md_ret_require+=("bin/$bin")
     done < <(_get_opts_splitwolf)

@@ -1,27 +1,38 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lzdoom"
-rp_module_desc="lzdoom - DOOM source port (legacy version of GZDoom)"
+rp_module_desc="LZDoom - DOOM Source Port (Legacy Version of GZDoom)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/drfrag666/gzdoom/g3.3mgw/docs/licenses/README.TXT"
-rp_module_repo="git https://github.com/drfrag666/gzdoom 3.87c"
+rp_module_repo="git https://github.com/drfrag666/gzdoom.git :_get_branch_lzdoom"
 rp_module_section="opt"
 rp_module_flags=""
 
+function _get_branch_lzdoom() {
+    download https://api.github.com/repos/drfrag666/gzdoom/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_lzdoom() {
     local depends=(
-        libev-dev libfluidsynth-dev libgme-dev libsdl2-dev libmpg123-dev libsndfile1-dev zlib1g-dev libbz2-dev
-        timidity freepats cmake libopenal-dev libjpeg-dev libgl1-mesa-dev fluid-soundfont-gm
+        'bzip2'
+        'cmake'
+        'fluidsynth'
+        'freepats-general-midi'
+        'libev'
+        'libgme'
+        'libjpeg'
+        'libsndfile'
+        'mesa'
+        'mpg123'
+        'openal'
+        'sdl2'
+        'soundfont-fluid'
+        'timidity'
+        'zlib'
     )
-
     getDepends "${depends[@]}"
 }
 

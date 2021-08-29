@@ -1,64 +1,104 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="yquake2"
-rp_module_desc="yquake2 - The Yamagi Quake II client"
+rp_module_desc="Yamagi Quake II - Quake II Client Including Ground Zero, The Reckoning & Capture The Flag"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/yquake2/yquake2/master/LICENSE"
-rp_module_repo="git https://github.com/yquake2/yquake2.git QUAKE2_7_41"
+rp_module_repo="git https://github.com/yquake2/yquake2.git :_get_branch_yquake2"
 rp_module_section="exp"
 rp_module_flags=""
 
-function depends_yquake2() {
-    local depends=(libgl1-mesa-dev libglu1-mesa-dev libogg-dev libopenal-dev libsdl2-dev libvorbis-dev zlib1g-dev libcurl4-openssl-dev)
+function _get_branch_yquake2() {
+    download https://api.github.com/repos/yquake2/yquake2/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
 
+function depends_yquake2() {
+    local depends=(
+        'glu'
+        'libglvnd'
+        'libogg'
+        'libvorbis'
+        'openal'
+        'openssl'
+        'sdl2'
+        'zlib'
+    )
     getDepends "${depends[@]}"
 }
 
 function sources_yquake2() {
     gitPullOrClone
+    local url="https://github.com/yquake2"
+    local repo=(
+        'ctf'
+        'rogue'
+        'xatrix'
+    )
+    for r in "${repo[@]}"; do
+        gitPullOrClone "$md_build/$r" "$url/$r"
+    done
 }
 
 function build_yquake2() {
-    rm -rf release
-    cmake .
+    cmake . \
+        -Bbuild \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DSYSTEMWIDE_SUPPORT=OFF
     make clean
     make
-    md_ret_require="$md_build/release/quake2"
+
+    local dir=(
+        'ctf'
+        'rogue'
+        'xatrix'
+    )
+    for d in "${dir[@]}"; do
+        cd "$md_build/$d"
+        make clean
+        make
+    done
+    md_ret_require="$md_build/build/release/quake2"
 }
 
 function install_yquake2() {
     md_ret_files=(
-        'release/baseq2'
-        'release/q2ded'
-        'release/quake2'
-        'release/ref_gl1.so'
-        'release/ref_gl3.so'
-        'release/ref_soft.so'
+        'build/release/baseq2'
+        'build/release/q2ded'
+        'build/release/quake2'
+        'build/release/ref_gl1.so'
+        'build/release/ref_gl3.so'
+        'build/release/ref_soft.so'
         'LICENSE'
         'README.md'
     )
+    local dir=(
+        'ctf'
+        'rogue'
+        'xatrix'
+    )
+    for d in "${dir[@]}"; do
+         mkdir "$md_inst/$d"
+         cd "$md_build/$d/release"
+         cp game.so "$md_inst/$d" 
+    done
 }
 
 function add_games_yquake2() {
     local cmd="$1"
     declare -A games=(
         ['baseq2/pak0']="Quake II"
-        ['rogue/pak0']="Quake II - Ground Zero"
-        ['xatrix/pak0']="Quake II - The Reckoning"
+        ['xatrix/pak0']="Quake II - Mission Pack 1 - The Reckoning"
+        ['rogue/pak0']="Quake II - Mission Pack 2 - Ground Zero"
+        ['ctf/pak0']="Quake II - Third Wave Capture The Flag"
     )
 
     local game
-    local pak
+    local pak="$romdir/ports/quake2/$game.pak"
     for game in "${!games[@]}"; do
-        pak="$romdir/ports/quake2/$game.pak"
         if [[ -f "$pak" ]]; then
             addPort "$md_id" "quake2" "${games[$game]}" "$cmd" "${game%%/*}"
         fi
@@ -85,7 +125,7 @@ function game_data_yquake2() {
 function configure_yquake2() {
     local params=()
 
-    if isPlatform "gl3"; then
+    if isPlatform "gles3"; then
         params+=("+set vid_renderer gl3")
     elif isPlatform "gl" || isPlatform "mesa"; then
         params+=("+set vid_renderer gl1")

@@ -1,23 +1,32 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="gemrb"
-rp_module_desc="gemrb - open-source implementation of Infinity Engine"
+rp_module_desc="GemRB - Port of Bioware's Infinity Engine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/gemrb/gemrb/master/COPYING"
-rp_module_repo="git https://github.com/gemrb/gemrb.git v0.8.6"
+rp_module_repo="git https://github.com/gemrb/gemrb.git :_get_branch_gemrb"
 rp_module_section="exp"
 rp_module_flags="!mali dispmanx"
 
+function _get_branch_gemrb() {
+    download https://api.github.com/repos/gemrb/gemrb/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_gemrb() {
-    getDepends python2-dev libopenal-dev cmake libpng-dev libfreetype6-dev libsdl2-dev libvorbis-dev libvlc-dev libvlccore-dev
+    depends=(
+        'glew'
+        'libvorbis'
+        'libpng'
+        'openal'
+        'python'
+        'sdl2'
+        'vlc'
+        'cmake'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_gemrb() {

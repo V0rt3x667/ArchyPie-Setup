@@ -1,25 +1,20 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="darkplaces-quake"
-rp_module_desc="Quake 1 engine - Darkplaces Quake port with GLES rendering"
+rp_module_desc="DarkPlaces - Quake Engine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/xonotic/darkplaces/master/COPYING"
 rp_module_repo="git https://github.com/xonotic/darkplaces.git div0-stable"
 rp_module_section="opt"
 rp_module_flags="!mali"
 
 function depends_darkplaces-quake() {
-    local depends=(libsdl2-dev libjpeg-dev)
-    isPlatform "videocore" && depends+=(libraspberrypi-dev)
-    isPlatform "mesa" && depends+=(libgles2-mesa-dev)
+    local depends=('clang' 'sdl2' 'libjpeg-turbo')
+    isPlatform "videocore" && depends+=('raspberrypi-firmware')
+    isPlatform "mesa" && depends+=('mesa')
     getDepends "${depends[@]}"
 }
 
@@ -45,7 +40,7 @@ function build_darkplaces-quake() {
         fi
     fi
     make clean
-    make sdl-release "${params[@]}"
+    make sdl-release "${params[@]}" CC="clang" CXX="clang++"
     if isPlatform "rpi4" && [[ "$force_opengl" -eq 0 ]]; then
         mv "$md_build/darkplaces-sdl" "$md_build/darkplaces-sdl-gles"
         # revert rpi4 gles change which commented out invariant line from earlier.

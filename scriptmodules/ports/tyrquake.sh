@@ -1,36 +1,31 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="tyrquake"
-rp_module_desc="Quake 1 engine - TyrQuake port"
-rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/tyrquake/master/gnu.txt"
-rp_module_repo="git https://github.com/RetroPie/tyrquake.git master"
+rp_module_desc="TyrQuake - Quake Port"
+rp_module_licence="GPL2 https://disenchant.net/git/tyrquake.git/plain/gnu.txt?h=v0.68&id=2505bd88a4559d0b640fdc1524f776c73fc56c05"
+rp_module_repo="file https://disenchant.net/files/engine/tyrquake-0.68.tar.gz"
 rp_module_section="opt"
 
 function depends_tyrquake() {
-    local depends=(libsdl2-dev)
+    local depends=(sdl2)
     if isPlatform "gl" || isPlatform "mesa"; then
-        depends+=(libgl1-mesa-dev)
+        depends+=(libglvnd)
     fi
 
     getDepends "${depends[@]}"
 }
 
 function sources_tyrquake() {
-    gitPullOrClone
-    isPlatform "kms" && applyPatch "$md_data/0001-force-vsync.patch"
+    downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
+    isPlatform "kms" && applyPatch "$md_data/01_force_vsync.patch"
 }
 
 function build_tyrquake() {
-    local params=(USE_SDL=Y USE_XF86DGA=N)
+    local params=(USE_SDL=Y USE_XF86DGA=N LOCALBASE="$md_inst")
     make clean
     make "${params[@]}"
     md_ret_require="$md_build/bin/tyr-quake"

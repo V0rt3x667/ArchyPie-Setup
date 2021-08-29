@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="ioquake3"
-rp_module_desc="Quake 3 source port"
+rp_module_desc="ioquake3 - Quake 3 Arena Port"
 rp_module_licence="GPL2 https://github.com/ioquake/ioq3/blob/master/COPYING.txt"
-rp_module_repo="git https://github.com/ioquake/ioq3 main"
+rp_module_repo="git https://github.com/ioquake/ioq3.git main"
 rp_module_section="opt"
 rp_module_flags="!videocore"
 
 function depends_ioquake3() {
-    getDepends libsdl2-dev libgl1-mesa-dev
+    getDepends sdl2 mesa
 }
 
 function sources_ioquake3() {
@@ -45,11 +40,12 @@ function install_ioquake3() {
 }
 
 function configure_ioquake3() {
-    local launcher=("$md_inst/ioquake3.$(_arch_ioquake3)")
+    local launcher
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
 
-    addPort "$md_id" "quake3" "Quake III Arena" "${launcher[*]}"
+    addPort "$md_id" "quake3" "Quake III Arena" "$md_inst/ioquake3.$(_arch_ioquake3) ${launcher[*]}"
+    addPort "$md_id" "quake3" "Quake III Team Arena" "$md_inst/ioq3ded.$(_arch_ioquake3) ${launcher[*]}"
 
     mkRomDir "ports/quake3"
 

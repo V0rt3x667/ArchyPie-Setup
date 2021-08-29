@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="ionfury"
-rp_module_desc="Ion Fury - commercial FPS game based on eduke32 source port"
+rp_module_desc="Ion Fury - FPS Game Based on EDuke32 Source Port"
+rp_module_help="Copy fury.def, fury.grp and fury.grpinfo to $romdir/ports/ionfury"
 rp_module_licence="GPL2 https://voidpoint.io/terminx/eduke32/-/raw/master/package/common/gpl-2.0.txt?inline=false"
-rp_module_repo="git https://voidpoint.io/terminx/eduke32.git master dfc16b08"
+rp_module_repo="git https://voidpoint.io/terminx/eduke32.git master"
 rp_module_section="exp"
 
 function depends_ionfury() {

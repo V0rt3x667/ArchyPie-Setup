@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="solarus"
-rp_module_desc="Solarus - A lightweight, free and open-source game engine for Action-RPGs"
+rp_module_desc="Solarus - Open-source Game Engine for Action-RPGs"
 rp_module_help="Copy your Solarus quests (games) to $romdir/solarus"
 rp_module_licence="GPL3 https://gitlab.com/solarus-games/solarus/raw/dev/license.txt"
 rp_module_repo="git https://gitlab.com/solarus-games/solarus.git master"
@@ -24,13 +19,19 @@ function _options_cfg_file_solarus() {
 function depends_solarus() {
     # ref: https://gitlab.com/solarus-games/solarus/blob/dev/compilation.md
     local depends=(
-        cmake pkg-config
-        libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
-        libopenal-dev libvorbis-dev libogg-dev
-        libmodplug-dev libphysfs-dev libglm-dev
-        libluajit-5.1-dev
+        'cmake'
+        'glm'
+        'libmodplug'
+        'libvorbis'
+        'luajit'
+        'openal'
+        'physfs'
+        'qt5-base'
+        'sdl2'
+        'sdl2_image'
+        'sdl2_ttf'
     )
-    isPlatform "videocore" && depends+=(libraspberrypi-dev)
+    isPlatform "videocore" && depends+=(raspberrypi-firmware)
     getDepends "${depends[@]}"
 }
 

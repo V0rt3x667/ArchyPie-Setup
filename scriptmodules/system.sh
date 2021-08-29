@@ -313,7 +313,7 @@ function get_archypie_depends() {
         subversion
         unzip
         xmlstarlet
-)
+    )
 
     [[ -n "$DISTCC_HOSTS" ]] && depends+=(distcc)
 

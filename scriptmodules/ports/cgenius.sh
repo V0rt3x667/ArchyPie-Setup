@@ -1,44 +1,48 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="cgenius"
 rp_module_desc="Commander Genius - Modern Interpreter for the Commander Keen Games (Vorticon and Galaxy Games)"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/gerstrong/Commander-Genius/master/COPYRIGHT"
-rp_module_repo="git https://gitlab.com/Dringgstein/Commander-Genius.git v2.7.7"
+rp_module_repo="git https://gitlab.com/Dringgstein/Commander-Genius.git :_get_branch_cgenius"
 rp_module_section="exp"
 
+function _get_branch_cgenius() {
+    download https://gitlab.com/api/v4/projects/Dringgstein%2FCommander-Genius/releases - | grep -m 1 tag_name | cut -d\" -f8
+}
+
 function depends_cgenius() {
-    getDepends cmake libcurl4-openssl-dev libvorbis-dev libogg-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+    local depends=(
+        'cmake'
+        'sdl2_image' 
+        'sdl2_mixer'
+        'sdl2_ttf'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_cgenius() {
     gitPullOrClone
-
-    # use -O2 on older GCC due to segmentation fault when compiling with -O3
-    if compareVersions $__gcc_version lt 6; then
-        sed -i "s/ADD_DEFINITIONS(-O3)/ADD_DEFINITIONS(-O2)/" src/CMakeLists.txt
-    fi
 }
 
 function build_cgenius() {
-    cmake -DUSE_SDL2=yes -DCMAKE_INSTALL_PREFIX="$md_inst" -DNOTYPESAVE=on -DUSE_BOOST=no
+    mkdir build
+    cd build
+    cmake .. \
+        -DUSE_SDL2=yes \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DNOTYPESAVE=on \
+        -DUSE_BOOST=no
+    make clean
     make
-    md_ret_require="$md_build/src/CGeniusExe"
+    md_ret_require="$md_build/build/src/CGeniusExe"
 }
 
 function install_cgenius() {
-    md_ret_files=(
-        'vfsroot'
-        'src/CGeniusExe'
-    )
+    make install
 }
 
 function configure_cgenius() {

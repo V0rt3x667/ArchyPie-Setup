@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="eduke32"
-rp_module_desc="Duke3D source port"
+rp_module_desc="EDuke32 - Duke Nukem 3D Port"
 rp_module_licence="GPL2 https://voidpoint.io/terminx/eduke32/-/raw/master/package/common/gpl-2.0.txt?inline=false"
-rp_module_repo="git https://voidpoint.io/terminx/eduke32.git master dfc16b08"
+rp_module_repo="git https://voidpoint.io/terminx/eduke32.git master"
 rp_module_section="opt"
 
 function depends_eduke32() {
     local depends=(
-        flac libflac-dev libvorbis-dev libpng-dev libvpx-dev freepats
-        libsdl2-dev libsdl2-mixer-dev
+        'flac' 
+        'libvorbis'
+        'libpng'
+        'libvpx'
+        'freepats-general-midi'
+        'sdl2'
+        'sdl2_mixer'
     )
 
     isPlatform "x86" && depends+=(nasm)
-    isPlatform "gl" || isPlatform "mesa" && depends+=(libgl1-mesa-dev libglu1-mesa-dev)
-    isPlatform "x11" && depends+=(libgtk2.0-dev)
+    isPlatform "gl" || isPlatform "mesa" && depends+=(mesa glu)
+    isPlatform "x11" && depends+=(gtk2)
     getDepends "${depends[@]}"
 }
 
@@ -31,14 +31,14 @@ function sources_eduke32() {
     gitPullOrClone
 
     # r6918 causes a 20+ second delay on startup on ARM devices
-    isPlatform "arm" && applyPatch "$md_data/0001-revert-r6918.patch"
+#    isPlatform "arm" && applyPatch "$md_data/0001-revert-r6918.patch"
     # r7424 gives a black skybox when r_useindexedcolortextures is 0
-    applyPatch "$md_data/0002-fix-skybox.patch"
+#    applyPatch "$md_data/0002-fix-skybox.patch"
     # r6776 breaks VC4 & GLES 2.0 devices that lack GL_RED internal
     # format support for glTexImage2D/glTexSubImage2D
-    isPlatform "gles" && applyPatch "$md_data/0003-replace-gl_red.patch"
+#    isPlatform "gles" && applyPatch "$md_data/0003-replace-gl_red.patch"
     # gcc 6.3.x compiler fix
-    applyPatch "$md_data/0004-recast-function.patch"
+#    applyPatch "$md_data/0004-recast-function.patch"
 }
 
 function build_eduke32() {
@@ -47,7 +47,7 @@ function build_eduke32() {
     [[ "$md_id" == "ionfury" ]] && params+=(FURY=1)
     ! isPlatform "x86" && params+=(NOASM=1)
     ! isPlatform "x11" && params+=(HAVE_GTK2=0)
-    ! isPlatform "gl3" && params+=(POLYMER=0)
+    ! isPlatform "gles3" && params+=(POLYMER=0)
     ! ( isPlatform "gl" || isPlatform "mesa" ) && params+=(USE_OPENGL=0)
     # r7242 requires >1GB memory allocation due to netcode changes.
     isPlatform "arm" && params+=(NETCODE=0)
@@ -116,7 +116,7 @@ function configure_eduke32() {
         # the VC4 & V3D drivers render menu splash colours incorrectly without this
         isPlatform "mesa" && iniSet "r_useindexedcolortextures" "0"
 
-        chown -R $user:$user "$config"
+        chown "$user:$user" "$config"
     fi
 }
 

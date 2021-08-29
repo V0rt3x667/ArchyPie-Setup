@@ -6,7 +6,6 @@
 
 rp_module_id="lr-xrick"
 rp_module_desc="Rick Dangerous Libretro Core"
-rp_module_help="Install the xrick data.zip to $romdir/ports/xrick/data.zip"
 rp_module_licence="GPL https://raw.githubusercontent.com/libretro/xrick-libretro/master/README"
 rp_module_repo="git https://github.com/libretro/xrick-libretro.git master"
 rp_module_section="opt"
@@ -27,6 +26,11 @@ function install_lr-xrick() {
         'README.md'
         'xrick_libretro.so'
     )
+}
+
+function _add_data_lr-xrick() {
+    curl -sSL "https://buildbot.libretro.com/assets/cores/Rick%20Dangerous/Rick%20Dangerous.zip" | bsdtar xvf - --strip-components=1 -C "$romdir/ports/xrick"
+    chown -R "$user:$user" "$romdir/ports/xrick"
 }
 
 function configure_lr-xrick() {

@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="cannonball"
 rp_module_desc="Cannonball - An Enhanced OutRun Engine"
@@ -17,9 +12,9 @@ rp_module_repo="git https://github.com/djyt/cannonball.git master 2b3839dd34c1b4
 rp_module_section="opt"
 
 function depends_cannonball() {
-    local depends=(cmake libsdl2-dev libboost-dev)
-    isPlatform "rpi" && depends+=(libraspberrypi-dev)
-    isPlatform "mesa" && depends+=(libgles2-mesa-dev)
+    local depends=(cmake sdl2 boost)
+    isPlatform "rpi" && depends+=(raspberrypi-firmware)
+    isPlatform "mesa" && depends+=(mesa)
     getDepends "${depends[@]}"
 }
 
@@ -39,7 +34,7 @@ function build_cannonball() {
     else
         target="sdl2gl"
     fi
-    cmake -G "Unix Makefiles" -DTARGET=$target ../cmake/
+    cmake -G "Unix Makefiles" -DTARGET=$target ../cmake/ -Wno-dev
     make clean
     make
     md_ret_require="$md_build/build/cannonball"

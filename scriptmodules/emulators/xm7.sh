@@ -47,7 +47,7 @@ function _build_uim_xm7() {
 }
 
 function _build_otf-takao_xm7() {
-    pacmanPkg otf-takao
+    pacmanPkg archy-otf-takao
 }
 
 function _build_libagar_xm7() {

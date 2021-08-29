@@ -1,34 +1,29 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dxx-rebirth"
-rp_module_desc="DXX-Rebirth (Descent & Descent 2) source port"
+rp_module_desc="DXX-Rebirth - Descent & Descent 2 Source Port"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/COPYING.txt"
-rp_module_repo="git https://github.com/dxx-rebirth/dxx-rebirth master :_get_commit_dxx-rebirth"
+rp_module_repo="git https://github.com/dxx-rebirth/dxx-rebirth"
 rp_module_section="opt"
 rp_module_flags="!mali"
 
-function _get_commit_dxx-rebirth() {
-    local commit="15bd145d"
-    # latest code requires gcc 7+
-    compareVersions "$__gcc_version" lt 7 && commit="a1b3a86c"
-    echo "$commit"
-}
+#function _get_commit_dxx-rebirth() {
+#    local commit="15bd145d"
+#    # latest code requires gcc 7+
+#    compareVersions "$__gcc_version" lt 7 && commit="a1b3a86c"
+#    echo "$commit"
+#}
 
 function depends_dxx-rebirth() {
-    local depends=(libpng-dev libphysfs-dev scons)
+    local depends=(libpng physfs scons)
     if isPlatform "videocore"; then
-        depends+=(libraspberrypi-dev libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev)
+        depends+=(raspberrypi-firmware sdl sdl_mixer sdl_image)
     else
-        depends+=(libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev libsdl2-mixer-dev libsdl2-image-dev)
+        depends+=(mesa glu sdl2 sdl2_mixer sdl2_image unzip)
     fi
 
     getDepends "${depends[@]}"
@@ -36,6 +31,7 @@ function depends_dxx-rebirth() {
 
 function sources_dxx-rebirth() {
     gitPullOrClone
+    sed -ie "/^PREFIX =/s|$md_inst|/usr/|" "$md_build/SConstruct"
 }
 
 function build_dxx-rebirth() {

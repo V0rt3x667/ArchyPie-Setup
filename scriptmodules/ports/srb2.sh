@@ -1,39 +1,50 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="srb2"
-rp_module_desc="Sonic Robo Blast 2 - 3D Sonic the Hedgehog fan-game built using a modified version of the Doom Legacy source port of Doom"
+rp_module_desc="Sonic Robo Blast 2 - 3D Sonic the Hedgehog Fangame"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/STJr/SRB2/master/LICENSE"
-rp_module_repo="git https://github.com/STJr/SRB2.git SRB2_release_2.2.2"
+rp_module_repo="git https://github.com/STJr/SRB2.git :_get_branch_srb2"
 rp_module_section="exp"
 
+function _get_branch_srb2() {
+    download https://api.github.com/repos/STJr/SRB2/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_srb2() {
-    local depends=(cmake libsdl2-dev libsdl2-mixer-dev libgme-dev libpng-dev)
-    compareVersions "$__os_debian_ver" gt 9 && depends+=(libopenmpt-dev)
+    local depends=(
+        'cmake'
+        'libgme'
+        'libpng'
+        'sdl2'
+        'sdl2_mixer'
+    )
     getDepends "${depends[@]}"
 }
 
 function sources_srb2() {
+    local ver
+    local ver2
+    ver="$(_get_branch_srb2)"
+    ver2="${ver//./}"
+
     gitPullOrClone
-    downloadAndExtract "$__archive_url/srb2-assets.tar.gz" "$md_build"
+    downloadAndExtract "https://github.com/STJr/SRB2/releases/download/$ver/SRB2-v${ver2##*_}-Full.zip" "$md_build/assets/installer"
 }
 
 function build_srb2() {
     mkdir build
     cd build
 
-    # Disable OpenMPT on Debian Stretch and old, its version is too old
-    local extra
-    compareVersions "$__os_debian_ver" lt 10 && extra="-DSRB2_CONFIG_HAVE_OPENMPT=Off"
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$md_inst" $extra
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DSRB2_ASSET_HASHED="srb2.pk3;player.dta;music.dta;zones.pk3;patch.pk3" \
+        -Wno-dev
+    make clean
     make
     md_ret_require="$md_build/build/bin/lsdlsrb2"
 }

@@ -1,45 +1,57 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="openbor"
-rp_module_desc="OpenBOR - Beat 'em Up Game Engine"
+rp_module_desc="OpenBOR - Beat 'Em Up Game Engine"
 rp_module_help="OpenBOR games need to be extracted to function properly. Place your pak files in $romdir/ports/openbor and then run $rootdir/ports/openbor/extract.sh. When the script is done, your original pak files will be found in $romdir/ports/openbor/originals and can be deleted."
-rp_module_licence="BSD https://raw.githubusercontent.com/rofl0r/openbor/master/LICENSE"
-rp_module_repo="git https://github.com/rofl0r/openbor.git master"
+rp_module_licence="BSD https://raw.githubusercontent.com/DCurrent/openbor/master/LICENSE"
+rp_module_repo="git https://github.com/DCurrent/openbor.git master"
 rp_module_section="exp"
-rp_module_flags="sdl1 !mali !x11"
+rp_module_flags="sdl2 !mali"
 
 function depends_openbor() {
-    getDepends libsdl1.2-dev libsdl-gfx1.2-dev libogg-dev libvorbisidec-dev libvorbis-dev libpng-dev zlib1g-dev
+    local depends=(
+        'libogg'
+        'libpng'
+        'libvorbis'
+        'libvpx'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_openbor() {
     gitPullOrClone
+    # Fix Locale Warning
+    sed 's|en_US.UTF-8|C|g' -i "$md_build/engine/version.sh"
+    # Disable Abort On Warnings & Errors
+    sed 's|-Werror||g' -i "$md_build/engine/Makefile"
 }
 
 function build_openbor() {
-    local params=()
+    local params=(SDKPATH=/usr LNXDEV=/usr/bin BUILD_LINUX=1 GCC_TARGET="$CARCH")
     ! isPlatform "x11" && params+=(NO_GL=1)
+
+    cd "$md_build/engine"
+    ./version.sh
     make clean
     make "${params[@]}"
-    cd "$md_build/tools/borpak/"
-    ./build-linux.sh
-    md_ret_require="$md_build/OpenBOR"
+
+    cd "$md_build/tools/borpak/source"
+    chmod a+x ./build.sh
+    ./build.sh lin
+    md_ret_require="$md_build/engine/OpenBOR"
 }
 
 function install_openbor() {
     md_ret_files=(
-       'OpenBOR'
-       'tools/borpak/borpak'
-       'tools/unpack.sh'
+       'engine/OpenBOR'
+       'tools/borpak/scripts/packer'
+       'tools/borpak/scripts/paxplode'
+       'tools/borpak/source/borpak'
     )
 }
 
@@ -64,13 +76,13 @@ BORROMDIR="$romdir/ports/$md_id"
 mkdir \$BORROMDIR/original/
 mkdir \$BORROMDIR/original/borpak/
 mv \$BORROMDIR/*.pak \$BORROMDIR/original/
-cp \$PORTDIR/unpack.sh \$BORROMDIR/original/
+cp \$PORTDIR/paxplode.sh \$BORROMDIR/original/
 cp \$PORTDIR/borpak \$BORROMDIR/original/borpak/
 cd \$BORROMDIR/original/
 for i in *.pak
 do
   CURRENTFILE=\`basename "\$i" .pak\`
-  ./unpack.sh "\$i"
+  ./paxplode "\$i"
   mkdir "\$CURRENTFILE"
   mv data/ "\$CURRENTFILE"/
   mv "\$CURRENTFILE"/ ../

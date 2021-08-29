@@ -1,31 +1,54 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="openttd"
-rp_module_desc="Open Source Simulator Based On Transport Tycoon Deluxe"
+rp_module_desc="OpenTTD - Game Engine for Transport Tycoon Deluxe"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/OpenTTD/OpenTTD/master/COPYING.md"
+rp_module_repo="git https://github.com/OpenTTD/OpenTTD.git :_get_branch_openttd"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="sdl2 !mali"
 
-function _update_hook_openttd() {
-    # to show as installed in retropie-setup 4.x
-    hasPackage openttd && mkdir -p "$md_inst"
+function _get_branch_openttd() {
+    download https://api.github.com/repos/OpenTTD/OpenTTD/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
 }
 
-function install_bin_openttd() {
-    aptInstall openttd
+function depends_openttd() {
+    local depends=(
+        'cmake'
+        'doxygen'
+        'fluidsynth'
+        'fontconfig'
+        'freetype2'
+        'icu'
+        'libpng'
+        'lzo'
+        'ninja'
+        'sdl2'
+        'zlib'
+    )
 }
 
-function remove_openttd() {
-    aptRemove openttd
+function sources_openttd() {
+    gitPullOrClone
+    sed -i '/sse/d;/SSE/d' "$md_build/CMakeLists.txt"
+}
+
+function build_openttd() {
+    mkdir build
+    cd build
+    cmake .. \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=$md_inst \
+        -Wno-dev
+    ninja
+}
+
+function install_openttd() {
+    ninja -C build install
 }
 
 function configure_openttd() {
@@ -39,6 +62,4 @@ function configure_openttd() {
     for dir in .config .local/share; do
         moveConfigDir "$home/$dir/openttd" "$md_conf_root/openttd"
     done
-
-    moveConfigDir "$home/.local/openttd" "$md_conf_root/openttd"
 }

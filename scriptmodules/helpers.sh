@@ -192,10 +192,6 @@ function pacmanPkg() {
     PKGBUILD="$1"
     for pkg in $PKGBUILD; do
         su -l "$user" -c 'cd '"$scriptdir/pkgbuilds/$pkg"' && \
-        BUILDDIR='"$md_build"' \
-        PKGDEST='"$md_build/$pkg"' \
-        SRCDEST='"$md_build/$pkg"' \
-        SRCPKGDEST='"$md_build/$pkg"' \
         PACKAGER="archypie.project <archrgs.project@gmail.com>" \
         makepkg -csi --noconfirm'
     done

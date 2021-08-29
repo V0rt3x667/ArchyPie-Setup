@@ -1,53 +1,48 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="cdogs-sdl"
-rp_module_desc="C-Dogs SDL - Classic overhead run-and-gun game"
+rp_module_desc="C-Dogs SDL - Classic Overhead Run-and-Gun Game"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/cxong/cdogs-sdl/master/COPYING"
-rp_module_repo="git https://github.com/cxong/cdogs-sdl.git 0.7.2"
+rp_module_repo="git https://github.com/cxong/cdogs-sdl.git :_get_branch_cdogs-sdl"
 rp_module_section="exp"
 rp_module_flags="sdl1 !mali"
 
+function _get_branch_cdogs-sdl() {
+    download https://api.github.com/repos/cxong/cdogs-sdl/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_cdogs-sdl() {
-    getDepends cmake libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev
+    getDepends cmake sdl2 sdl2_image sdl2_mixer ninja
 }
 
 function sources_cdogs-sdl() {
     gitPullOrClone
+    sed 's| -Werror||' -i "$md_build/CMakeLists.txt"
 }
 
 function build_cdogs-sdl() {
-    cmake . -DCMAKE_INSTALL_PREFIX="$md_inst" -DCDOGS_DATA_DIR="$md_inst/"
-    make
+    cmake . \
+        -GNinja \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCDOGS_DATA_DIR="$md_inst"
+    ninja
     md_ret_require="$md_build/src/cdogs-sdl"
 }
 
 function install_cdogs-sdl() {
-    md_ret_files=(
-        'data'
-        'dogfights'
-        'graphics'
-        'missions'
-        'music'
-        'sounds'
-        'COPYING'
-        'src/cdogs-sdl'
-        'src/cdogs-sdl-editor'
-    )
+    ninja install   
 }
 
 function configure_cdogs-sdl() {
-    addPort "$md_id" "cdogs-sdl" "C-Dogs SDL" "pushd $md_inst; $md_inst/cdogs-sdl; popd"
+    addPort "$md_id" "cdogs-sdl" "C-Dogs SDL" "pushd $md_inst; $md_inst/bin/cdogs-sdl --fullscreen; popd"
 
     [[ "$md_mode" == "remove" ]] && return
+    
+    curl -sSL https://cxong.github.io/cdogs-sdl/missionpack.zip | bsdtar xvf - --strip-components=1 -C "$md_inst"
 
     isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
 
