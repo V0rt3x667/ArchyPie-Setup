@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="esthemes"
-rp_module_desc="Install themes for Emulation Station"
+rp_module_desc="Install Themes for Emulation Station"
 rp_module_section="config"
 
 function depends_esthemes() {

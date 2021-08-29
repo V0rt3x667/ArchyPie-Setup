@@ -14,6 +14,6 @@ function gui_resetromdirs() {
     mkUserDir "$biosdir"
     chown -R $user:$user "$romdir"
     chown -R $user:$user "$biosdir"
-    chmod -R ug+rwX "$romdir"
-    chmod -R ug+rwX "$biosdir"
+    chmod -R ug+rwx "$romdir"
+    chmod -R ug+rwx "$biosdir"
 }

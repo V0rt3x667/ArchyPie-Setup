@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="moonlight"
-rp_module_desc="Moonlight Embedded - an open source gamestream client for embedded systems"
+rp_module_desc="Moonlight Embedded - Open-source Gamestream Client for Embedded Systems"
 rp_module_help="ROM Extensions: .ml\n\nCopy your moonlight launch configurations to $romdir/steam\n\nDon't forget to first pair with your remote host before using moonlight. You can use the configuration menu for pairing/unpairing to/from a remote machine."
 rp_module_licence="GPL3 https://raw.githubusercontent.com/irtimmer/moonlight-embedded/master/LICENSE"
 rp_module_repo="git https://github.com/irtimmer/moonlight-embedded.git master"
@@ -62,18 +57,14 @@ function _bfmt_moonlight() {
 function depends_moonlight() {
     # ref: https://github.com/irtimmer/moonlight-embedded/wiki/Compilation#debian-raspbian--osmc
     local depends=(
-        libssl-dev libopus-dev libasound2-dev libudev-dev
-        libavahi-client-dev libcurl4-openssl-dev libevdev-dev
-        libexpat1-dev libpulse-dev libenet-dev uuid-dev cmake
+        openssl libopus alsa-lib curl libpulse enet uuid cmake
     )
 
     # for remote host autodiscovery features
-    depends+=(avahi-daemon libnss-mdns)
+    depends+=(avahi mdns)
 
     # platform-specific dependencies
-    isPlatform "rpi" && depends+=(libraspberrypi-dev)
-    isPlatform "osmc" && depends+=(rbp-userland-dev-osmc)
-    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
+    isPlatform "rpi" && depends+=(raspberrypi-firmware)
 
     # install selected dependencies
     getDepends "${depends[@]}"

@@ -34,9 +34,9 @@ function _get_connect_mode() {
 
 function depends_bluetooth() {
     local depends=(bluez dbus-python python-gobject bluez-tools)
-    if [[ "$__os_id" == "Raspbian" ]]; then
-        depends+=(bluez raspberrypi-sys-mods)
-    fi
+#    if [[ "$__os_id" == "Raspbian" ]]; then
+#        depends+=(bluez raspberrypi-sys-mods)
+#    fi
     getDepends "${depends[@]}"
 }
 

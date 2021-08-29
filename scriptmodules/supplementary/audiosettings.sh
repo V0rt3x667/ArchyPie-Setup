@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="audiosettings"
-rp_module_desc="Configure audio settings"
+rp_module_desc="Configure Audio Settings"
 rp_module_section="config"
 rp_module_flags="!all rpi"
 

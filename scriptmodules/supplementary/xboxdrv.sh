@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="xboxdrv"
-rp_module_desc="Xbox / Xbox 360 gamepad driver"
+rp_module_desc="xboxdrv - Xbox & Xbox 360 Gamepad Driver"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/zerojay/xboxdrv/stable/COPYING"
 rp_module_repo="git https://github.com/zerojay/xboxdrv.git stable"
 rp_module_section="driver"

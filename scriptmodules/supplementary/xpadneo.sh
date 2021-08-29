@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="xpadneo"
-rp_module_desc="Advanced Linux driver for Xbox One wireless gamepads"
+rp_module_desc="xpadneo - Advanced Linux Driver for Xbox One Wireless Gamepads"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/atar-axis/xpadneo/master/LICENSE"
 rp_module_repo="git https://github.com/atar-axis/xpadneo.git v0.9.1"
 rp_module_section="driver"
@@ -21,7 +16,7 @@ function _version_xpadneo() {
 }
 
 function depends_xpadneo() {
-    local depends=(dkms rsync LINUX-HEADERS)
+    local depends=(dkms rsync linux-headers dkms bluez bluez-utils)
     getDepends "${depends[@]}"
 }
 

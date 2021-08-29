@@ -11,7 +11,7 @@ rp_module_repo="git https://github.com/RetroPie/retropie-splashscreens.git maste
 rp_module_flags="noinstclean !all rpi !osmc !xbian !aarch64"
 
 function _update_hook_splashscreen() {
-    # make sure splashscreen is always up to date if updating just RetroPie-Setup
+    # make sure splashscreen is always up to date if updating just ArchyPie-Setup
     if rp_isInstalled "$md_id"; then
         install_bin_splashscreen
         configure_splashscreen

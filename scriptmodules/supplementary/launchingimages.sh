@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="launchingimages"
-rp_module_desc="Generate runcommand launching images based on emulationstation themes."
-rp_module_help="A runcommand launching image is displayed while loading a game, with this tool you can automatically create some cool images based on a chosen emulationstation theme you have on your system."
+rp_module_desc="Generate runcommand Launching Images Based on Emulation Station Themes"
+rp_module_help="A runcommand launching image is displayed while loading a game, with this tool you can automatically create some cool images based on a chosen Emulation Station theme you have on your system."
 rp_module_repo="git https://github.com/meleu/generate-launching-images.git master"
 rp_module_section="exp"
 rp_module_flags="noinstclean"

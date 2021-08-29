@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="autostart"
-rp_module_desc="Auto-start Emulation Station / Kodi on boot"
+rp_module_desc="Auto-start Emulation Station or Kodi on Boot"
 rp_module_section="config"
 
 function _update_hook_autostart() {
@@ -51,11 +51,11 @@ function enable_autostart() {
         mkUserDir "$home/.config/autostart"
         ln -sf "/usr/local/share/applications/archypie.desktop" "$home/.config/autostart/"
     else
-        if [[ "$__os_id" == "Raspbian" ]]; then
-            # remove any old autologin.conf - we use raspi-config now
-            rm -f /etc/systemd/system/getty@tty1.service.d/autologin.conf
-            raspi-config nonint do_boot_behaviour B2
-        elif [[ "$(cat /proc/1/comm)" == "systemd" ]]; then
+#        if [[ "$__os_id" == "Raspbian" ]]; then
+#            # remove any old autologin.conf - we use raspi-config now
+#            rm -f /etc/systemd/system/getty@tty1.service.d/autologin.conf
+#            raspi-config nonint do_boot_behaviour B2
+        if [[ "$(cat /proc/1/comm)" == "systemd" ]]; then
             mkdir -p /etc/systemd/system/getty@tty1.service.d/
             cat >/etc/systemd/system/getty@tty1.service.d/autologin.conf <<_EOF_
 [Service]
@@ -74,14 +74,14 @@ function disable_autostart() {
     if isPlatform "x11"; then
         rm "$home/.config/autostart/archypie.desktop"
     else
-        if [[ "$__os_id" == "Raspbian" ]]; then
-            if [[ "$__chroot" -eq 1 ]]; then
-                systemctl set-default graphical.target
-                ln -fs /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
-            else
-                raspi-config nonint do_boot_behaviour "$login_type"
-            fi
-        elif [[ "$(cat /proc/1/comm)" == "systemd" ]]; then
+#        if [[ "$__os_id" == "Raspbian" ]]; then
+#            if [[ "$__chroot" -eq 1 ]]; then
+#                systemctl set-default graphical.target
+#                ln -fs /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+#            else
+#                raspi-config nonint do_boot_behaviour "$login_type"
+#            fi
+        if [[ "$(cat /proc/1/comm)" == "systemd" ]]; then
             rm -f /etc/systemd/system/getty@tty1.service.d/autologin.conf
             systemctl set-default graphical.target
             systemctl enable lightdm.service
@@ -109,20 +109,20 @@ function gui_autostart() {
             fi
         else
             options=(
-                1 "Start Emulation Station at boot"
-                2 "Start Kodi at boot (exit for Emulation Station)"
-                E "Manually edit $configdir/all/autostart.sh"
+                1 "Start Emulation Station at Boot"
+                2 "Start Kodi at Boot (Exit for Emulation Station)"
+                E "Manually Edit $configdir/all/autostart.sh"
             )
-            if [[ "$__os_id" == "Raspbian" ]]; then
-                options+=(
-                    CL "Boot to text console (require login)"
-                    CA "Boot to text console (auto login as $user)"
-                )
-            fi
-            options+=(DL "Boot to desktop (require login)")
-            if [[ "$__os_id" == "Raspbian" ]]; then
-                options+=(DA "Boot to desktop (auto login as $user)")
-            fi
+#            if [[ "$__os_id" == "Raspbian" ]]; then
+#                options+=(
+#                    CL "Boot to text console (require login)"
+#                    CA "Boot to text console (auto login as $user)"
+#                )
+#            fi
+            options+=(DL "Boot to Desktop (Require Login)")
+#            if [[ "$__os_id" == "Raspbian" ]]; then
+#                options+=(DA "Boot to Desktop (auto login as $user)")
+#            fi
         fi
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         if [[ -n "$choice" ]]; then

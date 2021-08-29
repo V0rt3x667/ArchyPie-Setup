@@ -60,11 +60,11 @@ function gui_samba() {
     while true; do
         local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
         local options=(
-            1 "Install ArchyPie Samba shares"
-            2 "Remove ArchyPie Samba shares"
-            3 "Manually edit /etc/samba/smb.conf"
-            4 "Restart Samba service"
-            5 "Remove Samba + configuration"
+            1 "Install ArchyPie Samba Shares"
+            2 "Remove ArchyPie Samba Shares"
+            3 "Manually Edit /etc/samba/smb.conf"
+            4 "Restart Samba Service"
+            5 "Remove Samba & Configuration"
         )
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         if [[ -n "$choice" ]]; then
@@ -72,11 +72,11 @@ function gui_samba() {
                 1)
                     rp_callModule "$md_id" depends
                     rp_callModule "$md_id" install_shares
-                    printMsgs "dialog" "Installed and enabled shares"
+                    printMsgs "dialog" "Installed and Enabled Shares"
                     ;;
                 2)
                     rp_callModule "$md_id" remove_shares
-                    printMsgs "dialog" "Removed shares"
+                    printMsgs "dialog" "Removed Shares"
                     ;;
                 3)
                     editFile /etc/samba/smb.conf
@@ -86,7 +86,7 @@ function gui_samba() {
                     ;;
                 5)
                     rp_callModule "$md_id" depends remove
-                    printMsgs "dialog" "Removed Samba service"
+                    printMsgs "dialog" "Removed Samba Service"
                     ;;
             esac
         else

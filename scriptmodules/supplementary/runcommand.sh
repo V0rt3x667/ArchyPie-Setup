@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="runcommand"
-rp_module_desc="The 'runcommand' launch script - needed for launching the emulators from the frontend"
+rp_module_desc="The 'runcommand' Launch Script - Launches Emulators from the Frontend"
 rp_module_section="core"
 rp_module_flags="nonet"
 
@@ -20,9 +20,10 @@ function _update_hook_runcommand() {
 
 function depends_runcommand() {
     local depends=()
-    isPlatform "rpi" && depends+=(libraspberrypi-bin)
-    isPlatform "rpi" || isPlatform "kms" && depends+=(fbi fbset)
+    isPlatform "rpi" && depends+=(raspberrypi-firmware)
+    isPlatform "rpi" || isPlatform "kms" && depends+=(fbida fbset)
     isPlatform "x11" && depends+=(feh)
+    isPlatform "kms" && depends+=(libdrm)
     getDepends "${depends[@]}"
 }
 
@@ -44,11 +45,6 @@ function install_bin_runcommand() {
         dialog --create-rc "$configdir/all/runcommand-launch-dialog.cfg"
         chown $user:$user "$configdir/all/runcommand-launch-dialog.cfg"
     fi
-
-#    # needed for KMS modesetting (debian buster or later only)
-#    if compareVersions "$__os_debian_ver" ge 10; then
-#        rp_installModule "mesa-drm" "_autoupdate_"
-#    fi
 
     md_ret_require="$md_inst/runcommand.sh"
 }

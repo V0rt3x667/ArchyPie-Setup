@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="scraper"
 rp_module_desc="Scraper for EmulationStation by Steven Selph"
@@ -17,7 +12,7 @@ rp_module_section="opt"
 rp_module_flags="nobin"
 
 function depends_scraper() {
-    rp_callModule golang install_bin
+    getDepends go
 }
 
 function sources_scraper() {
@@ -136,7 +131,7 @@ function scrape_scraper() {
         params+=(-append)
     fi
 
-    # trap ctrl+c and return if pressed (rather than exiting retropie-setup etc)
+    # trap ctrl+c and return if pressed (rather than exiting archypie-setup etc)
     trap 'trap 2; return 1' INT
     sudo -u $user "$md_inst/scraper" ${params[@]}
     trap 2
@@ -195,7 +190,7 @@ function _load_config_scraper() {
 
 function gui_scraper() {
     if pgrep "emulationstatio" >/dev/null; then
-        printMsgs "dialog" "This scraper must not be run while Emulation Station is running or the scraped data will be overwritten. \n\nPlease quit from Emulation Station, and run RetroPie-Setup from the terminal"
+        printMsgs "dialog" "This scraper must not be run while Emulation Station is running or the scraped data will be overwritten. \n\nPlease quit from Emulation Station, and run ArchyPie-Setup from the terminal"
         return
     fi
 

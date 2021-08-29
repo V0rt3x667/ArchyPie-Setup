@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="backends"
-rp_module_desc="Configure display/driver backends for emulators"
+rp_module_desc="Configure Display & Driver Backends for Emulators"
 rp_module_section="config"
 rp_module_flags="!mali !x11"
 
@@ -99,7 +99,7 @@ function gui_configure_backends() {
         if [[ -n "$choice" ]]; then
             if [[ "$choice" == "x11" ]] && ( ! hasPackage "xorg" || ! hasPackage "matchbox-window-manager" ); then
                 if dialog --defaultno --yesno "To use the X11/Xorg backend, some additional packages are needed (xorg / matchbox-window-manager) - do you want to continue?" 22 76 2>&1 >/dev/tty; then
-                    pacmanInstall xorg-server && pacmanPkg matchbox-window-manager
+                    pacmanInstall xorg-server && pacmanPkg archy-matchbox-window-manager
                 else
                     continue
                 fi
@@ -114,6 +114,3 @@ function gui_configure_backends() {
         break
     done
 }
-
-
-

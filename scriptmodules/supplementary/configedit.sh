@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="configedit"
-rp_module_desc="Edit ArchyPie/RetroArch configurations"
+rp_module_desc="Edit ArchyPie & RetroArch configurations"
 rp_module_section="config"
 
 function _video_fullscreen_configedit() {
@@ -226,8 +226,8 @@ function advanced_configedit() {
         'input_overlay_enable true false'
         "input_overlay _file_ *.cfg $rootdir/emulators/retroarch/overlays"
         "audio_driver $audio_opts"
-        'video_driver gl dispmanx sdl2 vg vulkan'
-        'menu_driver rgui ozone xmb'
+        'video_driver gl dispmanx sdl2 vg vulkan glcore gl1'
+        'menu_driver rgui ozone xmb glui ozone'
         'video_fullscreen_x _string_'
         'video_fullscreen_y _string_'
         'video_frame_delay _string_'
@@ -246,7 +246,7 @@ function advanced_configedit() {
         'fps_show true false'
         'input_overlay_opacity _string_'
         'input_overlay_scale _string_'
-        'input_joypad_driver udev sdl2 linuxraw'
+        'input_joypad_driver udev sdl2 linuxraw hid'
         'game_specific_options true false'
         'input_player1_joypad_index _string_'
         'input_player2_joypad_index _string_'

@@ -1,29 +1,27 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="pegasus-fe"
-rp_module_desc="Pegasus: A cross platform, customizable graphical frontend (latest alpha release)"
+rp_module_desc="Pegasus - A Cross Platform Graphical Frontend (Latest Alpha Release)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/mmatyas/pegasus-frontend/master/LICENSE.md"
 rp_module_section="exp"
 rp_module_flags="!mali frontend"
 
 function depends_pegasus-fe() {
     local depends=(
-        fontconfig
-        gstreamer1.0-alsa
-        gstreamer1.0-libav
-        gstreamer1.0-plugins-good
-        jq
-        libsdl2-dev
-        policykit-1
+        'polkit'
+        'qt5-declarative'
+        'qt5-gamepad'
+        'qt5-graphicaleffects'
+        'qt5-imageformats'
+        'qt5-multimedia'
+        'qt5-quickcontrols'
+        'qt5-svg'
+        'qt5-tools'
+        'sdl2'
     )
 
     getDepends "${depends[@]}"

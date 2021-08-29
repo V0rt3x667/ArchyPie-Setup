@@ -16,8 +16,8 @@ function depends_virtualgamepad() {
 }
 
 function remove_virtualgamepad() {
-  pm2 stop main
-  pm2 delete main
+    pm2 stop main
+    pm2 delete main
 }
 
 function sources_virtualgamepad() {

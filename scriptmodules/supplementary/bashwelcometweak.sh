@@ -1,22 +1,17 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="bashwelcometweak"
-rp_module_desc="Bash Welcome Tweak (shows additional system info on login)"
+rp_module_desc="Bash Welcome Tweak (Shows Additional System Info on Login)"
 rp_module_section="config"
 
 function install_bashwelcometweak() {
     remove_bashwelcometweak
     cat >> "$home/.bashrc" <<\_EOF_
-# RETROPIE PROFILE START
+# ARCHYPIE PROFILE START
 
 function getIPAddress() {
     local ip_route
@@ -27,7 +22,7 @@ function getIPAddress() {
     [[ -n "$ip_route" ]] && grep -oP "src \K[^\s]+" <<< "$ip_route"
 }
 
-function retropie_welcome() {
+function archypie_welcome() {
     local upSeconds="$(/usr/bin/cut -d. -f1 /proc/uptime)"
     local secs=$((upSeconds%60))
     local mins=$((upSeconds/60%60))
@@ -81,14 +76,14 @@ function retropie_welcome() {
 
     local logo=(
         "${fgred}   .***.   "
-        "${fgred}   ***${bfgwht}*${fgred}*   "
+        "${fgred}   ***${bfgwht}*${fgblue}*   "
         "${fgred}   \`***'   "
         "${bfgwht}    |*|    "
         "${bfgwht}    |*|    "
-        "${bfgred}  ..${bfgwht}|*|${bfgred}..  "
-        "${bfgred}.*** ${bfgwht}*${bfgred} ***."
-        "${bfgred}*******${fggrn}@@${bfgred}**"
-        "${fgred}\`*${bfgred}****${bfgylw}@@${bfgred}*${fgred}*'"
+        "${bfgred}  ..${bfgwht}|*|${bfgblue}..  "
+        "${bfgred}.*** ${bfgwht}*${bfgblue} ***."
+        "${bfgred}*******${fggrn}@@${bfgblue}**"
+        "${fgred}\`*${bfgblue}****${bfgylw}@@${bfgblue}*${fgblue}*'"
         "${fgred} \`*******'${fgrst} "
         "${fgred}   \`\"\"\"'${fgrst}   "
         )
@@ -126,7 +121,7 @@ function retropie_welcome() {
                 out+="Temperature........: CPU: ${cpuTempC}°C/${cpuTempF}°F GPU: ${gpuTempC}°C/${gpuTempF}°F"
                 ;;
             10)
-                out+="${fgwht}The RetroPie Project, https://retropie.org.uk"
+                out+="${fgwht}The ArchyPie Project"
                 ;;
         esac
         out+="${rst}\n"
@@ -134,15 +129,15 @@ function retropie_welcome() {
     echo -e "\n$out"
 }
 
-retropie_welcome
-# RETROPIE PROFILE END
+archypie_welcome
+# ARCHYPIE PROFILE END
 _EOF_
 
 
 }
 
 function remove_bashwelcometweak() {
-    sed -i '/RETROPIE PROFILE START/,/RETROPIE PROFILE END/d' "$home/.bashrc"
+    sed -i '/ARCHYPIE PROFILE START/,/ARCHYPIE PROFILE END/d' "$home/.bashrc"
 }
 
 function gui_bashwelcometweak() {

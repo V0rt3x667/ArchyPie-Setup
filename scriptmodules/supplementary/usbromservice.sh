@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="usbromservice"
 rp_module_desc="USB ROM Service"
-rp_module_section="opt"
+rp_module_section="opt !all"
 
 function _get_ver_usbromservice() {
     echo 0.0.24
@@ -23,7 +18,7 @@ function _update_hook_usbromservice() {
 }
 
 function depends_usbromservice() {
-    local depends=(rsync ntfs-3g exfat-fuse)
+    local depends=(rsync ntfs-3g exfat-utils)
     if ! hasPackage usbmount $(_get_ver_usbromservice); then
         depends+=(debhelper devscripts pmount lockfile-progs)
         getDepends "${depends[@]}"

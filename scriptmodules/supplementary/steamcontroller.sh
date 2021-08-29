@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-# This file is part of The RetroPie Project
+# This file is part of the ArchyPie project.
 #
-# The RetroPie Project is the legal property of its developers, whose names are
-# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
-#
-# See the LICENSE.md file at the top-level directory of this distribution and
-# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
-#
+# Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="steamcontroller"
 rp_module_desc="Standalone Steam Controller Driver"
@@ -15,10 +10,10 @@ rp_module_help="Steam Controller Driver from https://github.com/ynsta/steamcontr
 rp_module_licence="MIT https://raw.githubusercontent.com/ynsta/steamcontroller/master/LICENSE"
 rp_module_repo="git https://github.com/ynsta/steamcontroller.git master"
 rp_module_section="driver"
-rp_module_flags="noinstclean"
+rp_module_flags="noinstclean !all"
 
 function depends_steamcontroller() {
-    getDepends virtualenv python3-dev
+    getDepends python-virtualenv python
 }
 
 function sources_steamcontroller() {
@@ -29,10 +24,10 @@ function install_steamcontroller() {
     cd "$md_inst"
     chown -R "$user:$user"  "$md_inst"
     sudo -u $user bash -c "\
-        virtualenv -p python3 --no-site-packages \"$md_inst\"; \
+        virtualenv -p python --no-site-packages \"$md_inst\"; \
         source bin/activate; \
-        pip3 install libusb1; \
-        python3 setup.py install; \
+        pip install libusb1; \
+        python setup.py install; \
     "
 }
 
