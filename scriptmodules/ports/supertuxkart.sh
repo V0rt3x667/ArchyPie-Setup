@@ -8,7 +8,7 @@ rp_module_id="supertuxkart"
 rp_module_desc="SuperTuxKart - 3D Kart Racing Game Featuring Tux & Friends"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/supertuxkart/stk-code/master/COPYING"
 rp_module_repo="git https://github.com/supertuxkart/stk-code.git master"
-rp_module_section="ports"
+rp_module_section="opt"
 
 function depends_supertuxkart() {
     local depends=(

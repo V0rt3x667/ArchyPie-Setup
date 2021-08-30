@@ -9,7 +9,7 @@ rp_module_desc="Citra - Nintendo 3DS Emulator"
 rp_module_help="ROM Extensions: .3ds .cci .cxi .app .3dsx\n\nCopy Your Nintendo 3DS Games to $romdir/3ds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/citra-emu/citra/master/license.txt"
 rp_module_repo="git https://github.com/libretro/citra.git master"
-rp_module_section="emulators"
+rp_module_section="main"
 rp_module_flags="!all 64bit"
 
 function depends_citra() {

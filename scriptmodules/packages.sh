@@ -267,6 +267,7 @@ function rp_callModule() {
         sources)
             action="Getting sources for"
             mkdir -p "$md_build"
+            chown -R "$user:$user" "$md_build"
             pushd "$md_build"
             pushed=$?
             ;;

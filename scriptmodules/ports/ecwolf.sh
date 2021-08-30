@@ -9,7 +9,7 @@ rp_module_desc="ECWolf - Advanced Source Port for Wolfenstein 3D, Spear of Desti
 rp_module_licence="GPL2 https://bitbucket.org/ecwolf/ecwolf/raw/5065aaefe055bff5a8bb8396f7f2ca5f2e2cab27/docs/license-gpl.txt"
 rp_module_help="Copy your Wolfenstein 3D, Spear of Destiny & Super 3D Noah's Ark Game Files to $romdir/ports/wolf3d/"
 rp_module_repo="git https://bitbucket.org/ecwolf/ecwolf.git master"
-rp_module_section="opts"
+rp_module_section="opt"
 rp_module_flags=""
 
 function depends_ecwolf() {

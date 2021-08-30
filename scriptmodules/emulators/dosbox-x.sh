@@ -9,7 +9,7 @@ rp_module_desc="DOSBox-X - MS-DOS\x86 Emulator Includes Additional Patches & Fea
 rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy Your DOS Games to $romdir/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/joncampbell123/dosbox-x/master/COPYING"
 rp_module_repo="git https://github.com/joncampbell123/dosbox-x.git :_get_branch_dosbox-x"
-rp_module_section="emulators"
+rp_module_section="main"
 
 function _get_branch_dosbox-x() {
     download https://api.github.com/repos/joncampbell123/dosbox-x/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
