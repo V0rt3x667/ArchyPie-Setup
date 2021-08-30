@@ -187,7 +187,7 @@ function build_mupen64plus() {
     params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On" "-DCMAKE_CXX_FLAGS=${CXXFLAGS} -fpermissive" "-Wno-dev")
     isPlatform "neon" && params+=("-DNEON_OPT=On")
     isPlatform "mesa" && params+=("-DMESA=On" "-DEGL=On")
-    isPlatform "vero4k" && params+=("-DVERO4K=On")
+    #isPlatform "vero4k" && params+=("-DVERO4K=On")
     isPlatform "armv8" && params+=("-DCRC_ARMV8=On")
     isPlatform "mali" && params+=("-DVERO4K=On" "-DCRC_OPT=On" "-DEGL=On")
     isPlatform "x86" && params+=("-DCRC_OPT=On" "-DX86_OPT=ON")

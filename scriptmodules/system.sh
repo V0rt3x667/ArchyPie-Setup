@@ -404,9 +404,6 @@ function get_platform() {
             "Rockchip (Device Tree)")
                 __platform="tinker"
                 ;;
-            Vero4K|Vero4KPlus)
-                __platform="vero4k"
-                ;;
             "Allwinner sun8i Family")
                 __platform="armv7-mali"
                 ;;
@@ -623,9 +620,3 @@ function platform_armv7-mali() {
 function platform_imx6() {
     cpu_armv7 "cortex-a9"
 }
-
-#function platform_vero4k() {
-#    cpu_armv7 "cortex-a7"
-#    __default_cflags="-I/opt/vero3/include -L/opt/vero3/lib"
-#    __platform_flags+=(mali gles)
-#}

@@ -33,6 +33,8 @@ configdir="$rootdir/configs"
 scriptdir="$(dirname "$0")"
 scriptdir="$(cd "$scriptdir" && pwd)"
 
+pkgdir="$scriptdir/pkgbuilds"
+
 __logdir="$scriptdir/logs"
 __tmpdir="$scriptdir/tmp"
 __builddir="$__tmpdir/build"

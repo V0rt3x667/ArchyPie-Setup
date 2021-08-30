@@ -68,7 +68,7 @@ function install_opensurge() {
     mv libsurgescript.so.0.5.5 "$md_inst/bin/libsurgescript.so"
 }    
 
-function configure_rgs-pt-opensurge() {
+function configure_opensurge() {
     addPort "$md_id" "opensurge" "Open Surge" "$md_inst/opensurge --fullscreen"
 
     moveConfigDir "$home/.config/opensurge2d" "$md_conf_root/opensurge"

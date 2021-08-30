@@ -12,7 +12,7 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function _get_branch_yquake2() {
-    download https://api.github.com/repos/yquake2/yquake2/latest - | grep -m 1 tag_name | cut -d\" -f4
+    download https://api.github.com/repos/yquake2/yquake2/tags - | grep -m 1 name | cut -d\" -f4
 }
 
 function depends_yquake2() {
@@ -61,17 +61,17 @@ function build_yquake2() {
         make clean
         make
     done
-    md_ret_require="$md_build/build/release/quake2"
+    md_ret_require="$md_build/release/quake2"
 }
 
 function install_yquake2() {
     md_ret_files=(
-        'build/release/baseq2'
-        'build/release/q2ded'
-        'build/release/quake2'
-        'build/release/ref_gl1.so'
-        'build/release/ref_gl3.so'
-        'build/release/ref_soft.so'
+        'release/baseq2'
+        'release/q2ded'
+        'release/quake2'
+        'release/ref_gl1.so'
+        'release/ref_gl3.so'
+        'release/ref_soft.so'
         'LICENSE'
         'README.md'
     )

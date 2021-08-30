@@ -32,23 +32,19 @@ function sources_openbor() {
 }
 
 function build_openbor() {
-    local params=(SDKPATH=/usr LNXDEV=/usr/bin BUILD_LINUX=1 GCC_TARGET="$CARCH")
-    ! isPlatform "x11" && params+=(NO_GL=1)
-
     cd "$md_build/engine"
     ./version.sh
-    make clean
-    make "${params[@]}"
+    ./build.sh 4
 
     cd "$md_build/tools/borpak/source"
     chmod a+x ./build.sh
     ./build.sh lin
-    md_ret_require="$md_build/engine/OpenBOR"
+    md_ret_require="$md_build/engine/releases/LINUX/OpenBOR/OpenBOR"
 }
 
 function install_openbor() {
     md_ret_files=(
-       'engine/OpenBOR'
+       'engine/releases/LINUX/OpenBOR/OpenBOR'
        'tools/borpak/scripts/packer'
        'tools/borpak/scripts/paxplode'
        'tools/borpak/source/borpak'

@@ -190,8 +190,12 @@ function pacmanRemove() {
 ## @brief Calls makepkg -csi --noconfirm --needed with the PKGBUILD provided.
 function pacmanPkg() {
     PKGBUILD="$1"
-    for pkg in $PKGBUILD; do
-        su -l "$user" -c 'cd '"$scriptdir/pkgbuilds/$pkg"' && \
+    for pkg in "${PKGBUILD[@]}"; do
+        su -l "$user" -c 'cd '"$pkgdir/$pkg"' && \
+        BUILDDIR='"/tmp"' \
+        PKGDEST='"$scriptdir/archive/$pkg"' \
+        SRCDEST='"/tmp/$pkg"' \
+        SRCPKGDEST='"/tmp/$pkg"' \
         PACKAGER="archypie.project <archrgs.project@gmail.com>" \
         makepkg -csi --noconfirm'
     done

@@ -7,16 +7,9 @@
 rp_module_id="dxx-rebirth"
 rp_module_desc="DXX-Rebirth - Descent & Descent 2 Source Port"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/COPYING.txt"
-rp_module_repo="git https://github.com/dxx-rebirth/dxx-rebirth"
+rp_module_repo="git https://github.com/dxx-rebirth/dxx-rebirth.git master"
 rp_module_section="opt"
 rp_module_flags="!mali"
-
-#function _get_commit_dxx-rebirth() {
-#    local commit="15bd145d"
-#    # latest code requires gcc 7+
-#    compareVersions "$__gcc_version" lt 7 && commit="a1b3a86c"
-#    echo "$commit"
-#}
 
 function depends_dxx-rebirth() {
     local depends=(libpng physfs scons)

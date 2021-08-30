@@ -27,7 +27,7 @@ function install_lr-2048() {
     )
 }
 
-function configure_rgs-lr-2048() {
+function configure_lr-2048() {
     setConfigRoot "ports"
     ensureSystemretroconfig "ports/2048"
 
