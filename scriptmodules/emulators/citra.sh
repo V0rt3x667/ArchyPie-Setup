@@ -14,12 +14,11 @@ rp_module_flags="!all 64bit"
 
 function depends_citra() {
     local depends=(
-        'ffmpeg'
-        'qt5-multimedia'
-        'sdl2'
         'cmake'
         'doxygen'
-        'libc++'
+        'ffmpeg'
+        'libfdk-aac'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -29,34 +28,32 @@ function sources_citra() {
 }
 
 function build_citra() {
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
+        -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -DFMT_USE_USER_DEFINED_LITERALS=0" \
+        -GNinja \
+        -Bbuild \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DUSE_SYSTEM_CURL=ON \
         -DENABLE_SDL2=ON \
-        -DENABLE_QT=ON \
+        -DENABLE_QT=OFF \
         -DENABLE_WEB_SERVICE=OFF \
         -DCITRA_USE_BUNDLED_SDL2=OFF \
-        -DCITRA_USE_BUNDLED_QT=OFF \
-        -DENABLE_FFMPEG_AUDIO_DECODER=ON
-    make clean
-    make
-    md_ret_require="$md_build/build/citra"
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/bin/citra"
 }
 
 function install_citra() {
-    cd build
-    make install
+    ninja -C build install/strip
 }
 
 function configure_citra() {
     mkRomDir "3ds"
 
     addEmulator 1 "$md_id" "3ds" "$md_inst/bin/citra -f %ROM%"
-    addEmulator 0 "$md_id-gui" "3ds" "$md_inst/bin/citra-qt -f %ROM%"
+    #addEmulator 0 "$md_id-gui" "3ds" "$md_inst/bin/citra-qt -f %ROM%"
 
     addSystem "3ds"
 }

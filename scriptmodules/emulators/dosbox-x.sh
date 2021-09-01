@@ -32,9 +32,7 @@ function build_dosbox-x() {
         --disable-debug \
         --enable-avcodec
     make
-    md_ret_require=(
-        "$md_build/dosbox"
-    )
+    md_ret_require=("$md_build/src/dosbox-x")
 }
 
 function install_dosbox-x() {
