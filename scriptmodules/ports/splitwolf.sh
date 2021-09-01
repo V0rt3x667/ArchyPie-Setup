@@ -45,7 +45,6 @@ function add_games_splitwolf() {
         ['vswap.wl1']="SplitWolf - Wolfenstein 3D (Shareware)"
         ['vswap.wl6']="SplitWolf - Wolfenstein 3D"
     )
-
     add_ports_wolf4sdl "$md_inst/bin/splitwolf.sh %ROM%" "splitwolf"
 }
 

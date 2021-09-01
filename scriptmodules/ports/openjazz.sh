@@ -42,7 +42,7 @@ function _game_data_openjazz() {
 }
 
 function configure_openjazz() {
-    addPort "$md_id" "$md_id" "Jazz Jackrabbit" "$md_inst/bin/OpenJazz -f DATAPATH $romdir/ports/jazz"
+    addPort "$md_id" "$md_id" "Jazz Jackrabbit" "$md_inst/OpenJazz -f DATAPATH $romdir/ports/jazz"
 
     mkRomDir "ports/jazz"
 

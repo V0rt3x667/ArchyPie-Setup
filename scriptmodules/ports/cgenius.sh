@@ -29,24 +29,23 @@ function sources_cgenius() {
 }
 
 function build_cgenius() {
-    mkdir build
-    cd build
-    cmake .. \
-        -DUSE_SDL2=yes \
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DNOTYPESAVE=on \
-        -DUSE_BOOST=no
-    make clean
-    make
+        -DAPPDIR="$md_inst" \
+        -DNOTYPESAVE=on
+    ninja -C build
     md_ret_require="$md_build/build/src/CGeniusExe"
 }
 
 function install_cgenius() {
-    make install
+    ninja -C build install/strip
 }
 
 function configure_cgenius() {
-    addPort "$md_id" "cgenius" "Commander Genius" "pushd $md_inst; ./CGeniusExe; popd"
+    addPort "$md_id" "cgenius" "Commander Genius" "$md_inst/CGeniusExe dir=%ROM%"
 
     mkRomDir "ports/$md_id"
 

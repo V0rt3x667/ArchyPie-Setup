@@ -67,7 +67,11 @@ function configure_love() {
 
     mkRomDir "love"
 
-    addEmulator 1 "$md_id" "love" "$md_inst/bin/love %ROM%"
+    if [[ "$md_id" == love-0.10.2 ]]; then
+        addEmulator 0 "$md_id" "love" "$md_inst/bin/love %ROM%"
+    else
+        addEmulator 1 "$md_id" "love" "$md_inst/bin/love %ROM%"
+    fi
     addSystem "love"
 
     [[ "$md_mode" == "install" ]] && game_data_love

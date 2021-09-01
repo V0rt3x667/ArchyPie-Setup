@@ -16,7 +16,14 @@ function _get_branch_cdogs-sdl() {
 }
 
 function depends_cdogs-sdl() {
-    getDepends cmake sdl2 sdl2_image sdl2_mixer ninja
+    local depends=(
+        'cmake'
+        'ninja'
+        'sdl2'
+        'sdl2_image'
+        'sdl2_mixer'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_cdogs-sdl() {
@@ -27,18 +34,30 @@ function sources_cdogs-sdl() {
 function build_cdogs-sdl() {
     cmake . \
         -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCDOGS_DATA_DIR="$md_inst"
+        -DCDOGS_DATA_DIR="$md_inst/" \
+        -Wno-dev
     ninja
     md_ret_require="$md_build/src/cdogs-sdl"
 }
 
 function install_cdogs-sdl() {
-    ninja install   
+    md_ret_files=(        
+        'src/cdogs-sdl'
+        'src/cdogs-sdl-editor'
+        'data'
+        'doc'
+        'dogfights'
+        'graphics'
+        'missions'
+        'music'
+        'sounds'
+    )  
 }
 
 function configure_cdogs-sdl() {
-    addPort "$md_id" "cdogs-sdl" "C-Dogs SDL" "pushd $md_inst; $md_inst/bin/cdogs-sdl --fullscreen; popd"
+    addPort "$md_id" "cdogs-sdl" "C-Dogs SDL" "$md_inst/cdogs-sdl --fullscreen"
 
     [[ "$md_mode" == "remove" ]] && return
     

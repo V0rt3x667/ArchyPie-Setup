@@ -87,6 +87,7 @@ function configure_fs-uae() {
 
     mkUserDir "$md_conf_root/amiga"
 
+    moveConfigDir "$home/.local/share/fs-uae" "$md_conf_root/amiga/$md_id"
     moveConfigDir "$home/.config/fs-uae" "$md_conf_root/amiga/$md_id"
 
     # copy default config file

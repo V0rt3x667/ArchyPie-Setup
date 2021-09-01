@@ -43,6 +43,8 @@ function build_openttd() {
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=$md_inst \
+        -DCMAKE_INSTALL_BINDIR="." \
+        -DCMAKE_INSTALL_DATADIR="data" \
         -Wno-dev
     ninja
 }
@@ -52,7 +54,7 @@ function install_openttd() {
 }
 
 function configure_openttd() {
-    addPort "$md_id" "openttd" "OpenTTD" "openttd"
+    addPort "$md_id" "openttd" "OpenTTD" "$md_inst/openttd"
 
     [[ "$md_mode" == "remove" ]] && return
 

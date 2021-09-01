@@ -7,7 +7,7 @@
 rp_module_id="micropolis"
 rp_module_desc="Micropolis - Open Source City Building Game"
 rp_module_licence="GPL3 https://www.donhopkins.com/home/micropolis/#license"
-rp_module_repo="file https://www.donhopkins.com/home/micropolis/micropolis-activity-source.tgz"
+rp_module_repo="file https://git.zerfleddert.de/micropolis/micropolis-activity-source.tgz"
 rp_module_section="opt"
 rp_module_flags="!mali"
 
@@ -23,22 +23,33 @@ function depends_micropolis() {
 
 function sources_micropolis() {
     downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
-    applyPatch "$md_data/01_fix_build_issues.patch"
+    download "https://git.zerfleddert.de/micropolis/micropolis_git.patch" "$md_build"
+    applyPatch "$md_build/micropolis_git.patch"
 }
 
 function build_micropolis() {
     make -C src clean
     make -C src
+    cp src/sim/sim res
     md_ret_require="$md_build/src/sim/sim"
 }
 
 function install_micropolis() {
-    cp src/sim/sim res/sim
-    make -C src PREFIX="$md_inst" LIBEXECDIR="$md_inst/lib" install
+    md_ret_files=(        
+        'activity'
+        'cities'
+        'images'
+        'manual'
+        'res'
+        'README'
+        'COPYING'
+        'Micropolis'
+        'micropolisactivity.py'
+    )
 }
 
 function configure_micropolis() {
-    local binary="$md_inst/bin/micropolis"
+    local binary="$md_inst/Micropolis"
     ! isPlatform "x11" && binary="XINIT:$md_inst/micropolis.sh"
 
     addPort "$md_id" "micropolis" "Micropolis" "$binary"

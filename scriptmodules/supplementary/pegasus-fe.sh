@@ -12,6 +12,7 @@ rp_module_flags="!mali frontend"
 
 function depends_pegasus-fe() {
     local depends=(
+        'jq'
         'polkit'
         'qt5-declarative'
         'qt5-gamepad'
@@ -23,7 +24,6 @@ function depends_pegasus-fe() {
         'qt5-tools'
         'sdl2'
     )
-
     getDepends "${depends[@]}"
 }
 

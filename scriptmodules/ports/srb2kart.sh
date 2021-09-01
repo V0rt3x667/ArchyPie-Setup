@@ -15,9 +15,14 @@ function _get_branch_srb2kart() {
 }
 
 function depends_srb2kart() {
-    local depends=(cmake sdl2 sdl2_mixer libgme libpng)
+    local depends=(
+        'cmake'
+        'libgme'
+        'libpng'
+        'sdl2_mixer'
+        'sdl2'
+    )
     isPlatform x86 && depends+=(yasm)
-
     getDepends "${depends[@]}"
 }
 
@@ -28,28 +33,25 @@ function sources_srb2kart() {
     ver="$(_get_branch_srb2kart)"
     downloadAndExtract "https://github.com/STJr/Kart-Public/releases/download/$ver/srb2kart-${ver//./}-Installer.exe" "$md_build/assets/installer" 
     cd "$md_build/assets/installer"
-    rm *.bat *.dat *.dll *.exe *.txt
+    rm ./*.bat ./*.dat ./*.dll ./*.exe ./*.txt
 }
 
 function build_srb2kart() {
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
         -GNinja \
+        -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst"
-    ninja
+    ninja -C build
     md_ret_require="$md_build/build/bin/srb2kart"
 }
 
 function install_srb2kart() {
-    ninja -C build install
-    # copy and dereference, so we get a srb2kart binary rather than a symlink to srb2kart-1.3 version
-    #cp -L "$md_inst/srb2kart" "$md_inst/srb2kart"
+    ninja -C build install/strip
 }
 
 function configure_srb2kart() {
-  addPort "$md_id" "srb2kart" "Sonic Robo Blast 2 Kart" "pushd $md_inst; srb2kart; popd"
+  addPort "$md_id" "srb2kart" "Sonic Robo Blast 2 Kart" "$md_inst/srb2kart"
 
   moveConfigDir "$home/.srb2kart" "$md_conf_root/srb2kart"
 }

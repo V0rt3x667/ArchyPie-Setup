@@ -48,6 +48,8 @@ function configure_bombermaaan() {
 
     isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
 
+    moveConfigDir "$home/.Bombermaaan" "$md_conf_root/bombermaaan"
+
     local file="$romdir/ports/Bombermaaan.sh"
     cat >"$file" << _EOF_
 #!/bin/bash

@@ -13,13 +13,13 @@ rp_module_flags="!mali"
 
 function depends_uqm() {
     local depends=(
+        'imagemagick'
         'libglvnd'
         'libmikmod' 
         'libogg'
         'libvorbis' 
         'openal'
         'sdl_image'
-        'imagemagick'
     )
     isPlatform "gl" || isPlatform "mesa" && depends+=(mesa)
     isPlatform "kms" && depends+=(xorg-server)
@@ -28,7 +28,6 @@ function depends_uqm() {
 
 function sources_uqm() {
     downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
-
     local ver="0.8.0"
     local url="https://sourceforge.net/projects/sc2/files/UQM/0.8"
     local file=(
@@ -38,9 +37,9 @@ function sources_uqm() {
     )
     for f in "${file[@]}"; do
         if [[ $f == uqm-$ver-content.uqm ]]; then
-            download "$url/$f" "$md_build/content/packages"
+            curl --create-dirs -sSL "$url/$f" --output "$md_build/content/packages/$f"
         else 
-            download "$url/$f" "$md_build/content/addons"
+            curl --create-dirs -sSL "$url/$f" --output "$md_build/content/addons/$f"
         fi
     done
 }
@@ -77,7 +76,7 @@ function install_uqm() {
 
 function configure_uqm() {
     local binary="$md_inst/uqm"
-    local params=("-f" "--contentdir=$md_inst/content/packages" "--addondir=$md_inst/content/addons")
+    local params=("-f" "--contentdir=$md_inst/content/packages/" "--addondir=$md_inst/content/addons/")
     if isPlatform "kms"; then
         binary="XINIT:$md_inst/$binary"
         # OpenGL mode must be also be enabled for high resolution support
