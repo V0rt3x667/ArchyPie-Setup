@@ -55,7 +55,7 @@ function _game_data_ecwolf() {
     dir="$romdir/ports/wolf3d"
 
     ##Change Filename Characters to Lowercase
-    find $romdir/ports/wolf3d/ -depth -exec perl-rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
+    find "$romdir/ports/wolf3d/" -depth -exec perl-rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
 
     if [[ ! -f "$dir/vswap.wl6" && ! -f "$dir/vswap.wl1" ]]; then
         cd "$__tmpdir"
@@ -93,7 +93,7 @@ function _add_games_ecwolf(){
     done
 }
 
-function _add_games_ecwolf() {
+function add_games_ecwolf() {
     _add_games_ecwolf "$md_inst/bin/ecwolf"
 }
 
@@ -112,7 +112,7 @@ function configure_ecwolf() {
     iniSet "Vid_Vsync" "1;"
 
     _game_data_ecwolf
-    _add_games_ecwolf
+    add_games_ecwolf
 
     chown -R "$user:$user" "$romdir/ports/wolf3d"
 }

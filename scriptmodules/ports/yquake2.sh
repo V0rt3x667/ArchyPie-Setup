@@ -138,8 +138,9 @@ function configure_yquake2() {
     fi
 
     mkRomDir "ports/quake2"
-
+    
     moveConfigDir "$home/.yq2" "$md_conf_root/quake2/yquake2"
+    chown -R "$user:$user" "$md_conf_root/quake2"
 
     [[ "$md_mode" == "install" ]] && game_data_yquake2
     add_games_yquake2 "$md_inst/quake2 -datadir $romdir/ports/quake2 ${params[*]} +set game %ROM%"

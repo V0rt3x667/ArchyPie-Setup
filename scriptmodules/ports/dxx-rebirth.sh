@@ -115,7 +115,7 @@ function configure_dxx-rebirth() {
     local ver
     local name="Descent Rebirth"
     for ver in 1 2; do
-        [[ "$ver" -eq 2 ]] && name="Descent 2 Rebirth"
+        [[ "$ver" -eq 2 ]] && name="Descent II Rebirth"
         addPort "$md_id" "descent${ver}" "$name" "$md_inst/d${ver}x-rebirth -hogdir $romdir/ports/descent${ver}"
 
         # skip folder / config work on removal

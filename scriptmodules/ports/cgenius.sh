@@ -28,6 +28,30 @@ function sources_cgenius() {
     gitPullOrClone
 }
 
+function _add_games_cgenius(){
+    local cmd="$1"
+    local game
+    local path="$romdir/ports/cgenius"
+    declare -A games=(
+        ['keen1']="Keen 1: Marooned on Mars (Invasion of the Vorticons)"
+        ['keen2']="Keen 2: The Earth Explodes (Invasion of the Vorticons)"
+        ['keen3']="Keen 3: Keen Must Die! (Invasion of the Vorticons)"
+        ['keen3.5']="Keen Dreams (Lost Episode)"
+        ['keen4']="Keen 4: Secret of the Oracle (Goodbye, Galaxy!)"
+        ['keen5']="Keen 5: The Armageddon Machine (Goodbye, Galaxy!)"
+        ['keen6']="Keen 6: Aliens Ate My Baby Sitter! (Goodbye, Galaxy!)"
+    )
+    for game in "${!games[@]}"; do
+        if [[ -d "$path/$game" ]]; then
+            addPort "$md_id" "cgenius" "${games[$game]}" "$cmd dir=games/$game"
+        fi
+    done
+}
+
+function add_games_cgenius() {
+    _add_games_cgenius "$md_inst/CGeniusExe"
+}
+
 function build_cgenius() {
     cmake . \
         -Bbuild \
@@ -45,10 +69,13 @@ function install_cgenius() {
 }
 
 function configure_cgenius() {
-    addPort "$md_id" "cgenius" "Commander Genius" "$md_inst/CGeniusExe dir=%ROM%"
-
+    addPort "$md_id" "cgenius" "Keen: Launch Commander Genius GUI" "$md_inst/CGeniusExe"
     mkRomDir "ports/$md_id"
 
     moveConfigDir "$home/.CommanderGenius"  "$md_conf_root/$md_id"
     moveConfigDir "$md_conf_root/$md_id/games"  "$romdir/ports/$md_id"
+
+    [[ "$md_mode" == "install" ]]
+
+    add_games_cgenius
 }
