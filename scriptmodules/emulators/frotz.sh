@@ -18,17 +18,17 @@ function _get_branch_frotz() {
 
 function depends_frotz() {
     local depends=(
-        libao
-        libmodplug
-        libsamplerate
-        libsndfile
-        libvorbis
-        freetype2
-        libjpeg-turbo
-        libpng
-        sdl2
-        sdl2_mixer
-        zlib
+        'freetype2'
+        'libao'
+        'libjpeg-turbo'
+        'libmodplug'
+        'libpng'
+        'libsamplerate'
+        'libsndfile'
+        'libvorbis'
+        'sdl2_mixer'
+        'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
@@ -57,7 +57,7 @@ function game_data_frotz() {
             rm -rf "$temp"
         done
         rm -rf "$temp"
-        chown -R $user:$user "$romdir/zmachine"
+        chown -R "$user:$user" "$romdir/zmachine"
     fi
 }
 

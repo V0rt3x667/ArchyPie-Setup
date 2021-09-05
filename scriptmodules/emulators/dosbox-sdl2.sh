@@ -6,14 +6,20 @@
 
 rp_module_id="dosbox-sdl2"
 rp_module_desc="DOSBox r4250 Enhanced Fork - MS-DOS Emulator"
-rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy your DOS games to $romdir/pc"
+rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy Your DOS Games to: $romdir/pc"
 rp_module_licence="GPL2 https://sourceforge.net/p/dosbox/code-0/HEAD/tree/dosbox/trunk/COPYING"
 rp_module_repo="git https://github.com/duganchen/dosbox.git master"
 rp_module_section="exp"
 rp_module_flags="sdl2"
 
 function depends_dosbox-sdl2() {
-    local depends=(sdl2 sdl2_net fluidsynth soundfont-fluid glew)
+    local depends=(
+        'fluidsynth'
+        'glew'
+        'sdl2_net'
+        'sdl2'
+        'soundfont-fluid'
+    )
     depends_dosbox "${depends[@]}"
 }
 
@@ -21,7 +27,7 @@ function sources_dosbox-sdl2() {
     gitPullOrClone
     # use custom config filename & path to allow coexistence with regular dosbox
     sed -i "src/misc/cross.cpp" -e 's/~\/.dosbox/~\/.'$md_id'/g' \
-       -e 's/DEFAULT_CONFIG_FILE "dosbox-"/DEFAULT_CONFIG_FILE "'$md_id'-"/g'
+        -e 's/DEFAULT_CONFIG_FILE "dosbox-"/DEFAULT_CONFIG_FILE "'$md_id'-"/g'
 }
 
 function build_dosbox-sdl2() {
