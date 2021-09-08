@@ -12,7 +12,16 @@ rp_module_section="opt"
 rp_module_flags="sdl2 !mali"
 
 function depends_smw() {
-    getDepends cmake enet sdl2 sdl2_mixer sdl2_image
+    local depends=(
+        'cmake'
+        'enet'
+        'ninja'
+        'sdl2'
+        'sdl2_mixer'
+        'sdl2_image'
+        'yaml-cpp'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_smw() {
@@ -20,19 +29,22 @@ function sources_smw() {
 }
 
 function build_smw() {
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
+        -GNinja \
+        -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst"
-    make clean
-    make
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DBUILD_STATIC_LIBS=Off \
+        -DSMW_BINDIR="$md_inst" \
+        -DSMW_DATADIR="$md_inst/data"
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/Binaries/Release/smw"
 }
 
 function install_smw() {
-    cd build
-    make install
+    ninja -C build install/strip
+    chmod a+x "$md_inst"/{smw,smw-leveledit,smw-worldedit}
 }
 
 function configure_smw() {

@@ -45,11 +45,11 @@ function configure_ioquake3() {
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
 
     addPort "$md_id" "quake3" "Quake III Arena" "$md_inst/ioquake3.$(_arch_ioquake3) ${launcher[*]}"
-    addPort "$md_id" "quake3" "Quake III Team Arena" "$md_inst/ioq3ded.$(_arch_ioquake3) ${launcher[*]}"
-
+    
     mkRomDir "ports/quake3"
 
-    moveConfigDir "$md_inst/baseq3" "$romdir/ports/quake3"
+    moveConfigDir "$md_inst/baseq3" "$romdir/ports/quake3/baseq3"
+    moveConfigDir "$md_inst/missionpack" "$romdir/ports/quake3/missionpack"
     moveConfigDir "$home/.q3a" "$md_conf_root/ioquake3"
 
     [[ "$md_mode" == "install" ]] && game_data_quake3

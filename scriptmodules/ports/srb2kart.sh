@@ -31,9 +31,8 @@ function sources_srb2kart() {
 
     local ver
     ver="$(_get_branch_srb2kart)"
-    downloadAndExtract "https://github.com/STJr/Kart-Public/releases/download/$ver/srb2kart-${ver//./}-Installer.exe" "$md_build/assets/installer" 
-    cd "$md_build/assets/installer"
-    rm ./*.bat ./*.dat ./*.dll ./*.exe ./*.txt
+    downloadAndExtract "https://github.com/STJr/Kart-Public/releases/download/$ver/srb2kart-${ver//./}-Installer.exe" "$md_build/assets/installer"
+    rm "$md_build"/assets/installer/{*.bat,*.dat,*.dll,*.exe,*.txt}
 }
 
 function build_srb2kart() {
@@ -41,13 +40,15 @@ function build_srb2kart() {
         -GNinja \
         -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst"
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -Wno-dev
     ninja -C build
     md_ret_require="$md_build/build/bin/srb2kart"
 }
 
 function install_srb2kart() {
     ninja -C build install/strip
+    chmod -R 755 "$md_build/mdls"
 }
 
 function configure_srb2kart() {

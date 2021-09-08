@@ -36,7 +36,7 @@ function build_dosbox-x() {
 }
 
 function install_dosbox-x() {
-    make DESTDIR="$md_inst" install
+    make install
 }
 
 function configure_dosbox-x() {

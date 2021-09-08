@@ -35,7 +35,7 @@ function sources_raze() {
 function build_raze() {
     _build_zmusic_gzdoom
     cd "$md_build"
-    LDFLAGS+=" -Wl,-rpath='$md_inst'"
+    LDFLAGS+="-Wl,-rpath='$md_inst'"
     cmake . \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
@@ -65,9 +65,7 @@ function install_raze() {
 
 function _add_games_raze() {
     local cmd="$1"
-    local file="$romdir/ports/${game}"
     local game
-    local grp="${game#*/}"
 
     declare -A games=(
         ['blood/blood.rff']="Blood"
@@ -90,8 +88,10 @@ function _add_games_raze() {
     )
 
     for game in "${!games[@]}"; do
+        local file="$romdir/ports/$game"
+        local grp="${game#*/}"
         # Add Games Which Do Not Require Additional Parameters
-        if [[ "${game}" != blood/cryptic.ini && "${game}" != redneck/game66.con && -f "$file" ]]; then
+        if [[ "$game" != blood/cryptic.ini && "$game" != redneck/game66.con && -f "$file" ]]; then
             addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd -iwad $grp"
         # Add Blood: Cryptic Passage
         elif [[ "${game}" == blood/cryptic.ini && -f "$file" ]]; then

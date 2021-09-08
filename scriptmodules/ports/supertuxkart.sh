@@ -32,22 +32,24 @@ function depends_supertuxkart() {
         'openssl'
         'sdl2'
         'sqlite'
+        'subversion'
         'zlib'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_supertuxkart() {
-    gitPullOrClone
+    gitPullOrClone "$md_build/stk-code"
+    svn checkout https://svn.code.sf.net/p/supertuxkart/code/stk-assets "$md_build/stk-assets"
 }
 
 function build_supertuxkart() {
     cmake . \
+        -Sstk-code \
         -GNinja \
         -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCHECK_ASSETS=Off \
         -DBUILD_RECORDER=0 \
         -Wno-dev
     ninja -C build

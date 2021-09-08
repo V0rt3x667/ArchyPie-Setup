@@ -16,7 +16,7 @@ function depends_giana() {
 
 function install_bin_giana() {
     if isPlatform "x86"; then
-        downloadAndExtract "http://www.retroguru.com/gianas-return/gianas-return-v.latest-linux.tar.gz" "$md_inst"
+        downloadAndExtract "http://www.retroguru.com/gianas-return/gianas-return-v.latest-linux.tar.gz" "$md_inst" --strip-components 1
     else
         downloadAndExtract "http://www.retroguru.com/gianas-return/gianas-return-v.latest-raspberrypi.zip" "$md_inst"
         patchVendorGraphics "$md_inst/giana_rpi"

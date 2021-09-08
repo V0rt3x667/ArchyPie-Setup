@@ -42,6 +42,7 @@ function sources_uqm() {
             curl --create-dirs -sSL "$url/$f" --output "$md_build/content/addons/$f"
         fi
     done
+    chmod -R 755 "$md_build/content"
 }
 
 function build_uqm() {
@@ -76,11 +77,13 @@ function install_uqm() {
 
 function configure_uqm() {
     local binary="$md_inst/uqm"
-    local params=("-f" "--contentdir=$md_inst/content/packages/" "--addondir=$md_inst/content/addons/")
+    local params=("-f" "--contentdir=$md_inst/content" "--addondir=$md_inst/content")
     if isPlatform "kms"; then
         binary="XINIT:$md_inst/$binary"
         # OpenGL mode must be also be enabled for high resolution support
         params+=("-o" "-r %XRES%x%YRES%")
+    elif isPlatform "gl"; then
+        params+=("-o")
     fi
     moveConfigDir "$home/.uqm" "$md_conf_root/uqm"
     addPort "$md_id" "uqm" "Ur-Quan Masters" "$binary ${params[*]}"

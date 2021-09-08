@@ -136,11 +136,15 @@ fi
 [[ -n "\$DISPLAY" ]] && params+=(-fullscreen)
 
 midi_synth start
-"$md_inst/bin/dosbox" "\${params[@]}"
+if [[ "$md_id" == "dosbox-x" ]]; then
+    "$md_inst/bin/dosbox-x" "\${params[@]}"
+else
+    "$md_inst/bin/dosbox" "\${params[@]}"
+fi    
 midi_synth stop
 _EOF_
     chmod +x "$romdir/pc/$launcher_name"
-    chown $user:$user "$romdir/pc/$launcher_name"
+    chown "$user:$user" "$romdir/pc/$launcher_name"
 
     if [[ "$md_id" == "dosbox" || "$md_id" == "dosbox-sdl2" ]]; then
         local config_path=$(su "$user" -c "\"$md_inst/bin/dosbox\" -printconf")

@@ -54,7 +54,7 @@ function _build_zmusic_gzdoom() {
 function build_gzdoom() {
     _build_zmusic_gzdoom
     cd "$md_build"
-    LDFLAGS+=" -Wl,-rpath='$md_inst'"
+    LDFLAGS+="-Wl,-rpath='$md_inst'"
     cmake . \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
