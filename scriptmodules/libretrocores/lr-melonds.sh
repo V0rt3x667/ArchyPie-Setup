@@ -11,11 +11,17 @@ rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/melonDS/maste
 rp_module_repo="git https://github.com/libretro/melonDS.git master"
 rp_module_section="opt"
 
+function depends_lr-melonds() {
+    getDepends gcc10 libslirp
+}
+
 function sources_lr-melonds() {
     gitPullOrClone
 }
 
 function build_lr-melonds() {
+    export CC=gcc-10
+    export CXX=g++-10
     make clean
     make
     md_ret_require="$md_build/melonds_libretro.so"

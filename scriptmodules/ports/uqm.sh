@@ -6,10 +6,9 @@
 
 rp_module_id="uqm"
 rp_module_desc="The Ur-Quan Masters - Star Control 2 Port"
-rp_module_licence="GPL2 https://sourceforge.net/p/sc2/uqm/ci/v0.8.0-1/tree/sc2/COPYING"
+rp_module_licence="GPL2 https://sourceforce.net/p/sc2/uqm/ci/master/tree/sc2/COPYING?format=raw"
 rp_module_repo="file https://sourceforge.net/projects/sc2/files/UQM/0.8/uqm-0.8.0-src.tgz"
 rp_module_section="opt"
-rp_module_flags="!mali"
 
 function depends_uqm() {
     local depends=(
@@ -19,10 +18,9 @@ function depends_uqm() {
         'libogg'
         'libvorbis' 
         'openal'
-        'sdl_image'
+        'sdl2_image'
+        'zlib'
     )
-    isPlatform "gl" || isPlatform "mesa" && depends+=(mesa)
-    isPlatform "kms" && depends+=(xorg-server)
     getDepends "${depends[@]}"
 }
 
@@ -46,45 +44,20 @@ function sources_uqm() {
 }
 
 function build_uqm() {
-    local file="$md_build/config.state"
-    cat >"$file" << _EOF_
-CHOICE_debug_VALUE='nodebug'
-CHOICE_graphics_VALUE='opengl'
-CHOICE_sound_VALUE='mixsdl'
-CHOICE_mikmod_VALUE='external'
-CHOICE_ovcodec_VALUE='standard'
-CHOICE_netplay_VALUE='full'
-CHOICE_joystick_VALUE='enabled'
-CHOICE_ioformat_VALUE='stdio_zip'
-CHOICE_accel_VALUE='asm'
-CHOICE_threadlib_VALUE='sdl'
-INPUT_install_prefix_VALUE='$md_inst'
-INPUT_install_bindir_VALUE='$prefix'
-INPUT_install_libdir_VALUE='$prefix'
-INPUT_install_sharedir_VALUE='$prefix'
-_EOF_
-
-    ./build.sh uqm reprocess_config && ./build.sh uqm
+    ./build.sh uqm clean
+    echo "\n" | CHOICE_debug_VALUE="nodebug" INPUT_install_prefix_VALUE="$md_inst" ./build.sh uqm config
+    ./build.sh uqm
     md_ret_require="$md_build/uqm"
 }
 
 function install_uqm() {
-    md_ret_files=(
-        'uqm'
-        'content'
-    )
+    ./build.sh uqm install
 }
 
 function configure_uqm() {
-    local binary="$md_inst/uqm"
-    local params=("-f" "--contentdir=$md_inst/content" "--addondir=$md_inst/content")
-    if isPlatform "kms"; then
-        binary="XINIT:$md_inst/$binary"
-        # OpenGL mode must be also be enabled for high resolution support
-        params+=("-o" "-r %XRES%x%YRES%")
-    elif isPlatform "gl"; then
-        params+=("-o")
-    fi
+    addPort "$md_id" "uqm" "Ur-quan Masters" "$md_inst/bin/uqm -f"
+
+    [[ "$md_mode" == "remove" ]] && return
+
     moveConfigDir "$home/.uqm" "$md_conf_root/uqm"
-    addPort "$md_id" "uqm" "Ur-Quan Masters" "$binary ${params[*]}"
 }
