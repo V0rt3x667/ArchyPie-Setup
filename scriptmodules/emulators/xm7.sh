@@ -33,21 +33,17 @@ function depends_xm7() {
 
 function sources_xm7() {
     gitPullOrClone
-    # needs libx11 to link
+    # libx11 needs to be Linked
     applyPatch "$md_data/01_fix_build.diff"
 
+    # Agar
     mkdir -p "$md_build/agar"
     downloadAndExtract "http://stable.hypertriton.com/agar/agar-1.5.0.tar.gz" "$md_build/agar" --strip-components 1
     # _BSD_SOURCE is deprecated and will throw an error during configure
     sed -i "s/_BSD_SOURCE/_DEFAULT_SOURCE/g" "$md_build/agar/configure"
-}
 
-function _build_uim_xm7() {
-    pacmanPkg archy-uim
-}
-
-function _build_otf-takao_xm7() {
-    pacmanPkg archy-otf-takao
+    # Install UIM
+    pacman -U "https://archive.archlinux.org/packages/u/uim/uim-1.8.8-5-x86_64.pkg.tar.zst" --noconfirm --needed
 }
 
 function _build_libagar_xm7() {
@@ -66,19 +62,20 @@ _EOF_
         --disable-shared \
         --prefix="$md_build/libagar" \
         --enable-freetype="$md_build/agar"
-    make -j1 depend all install
+    make depend all install
 }
 
 function build_xm7() {
-    _build_uim_xm7
-    _build_otf-takao_xm7
     _build_libagar_xm7
 
-    mkdir $md_build/linux-sdl/build
-    cd $md_build/linux-sdl/build
-    export CC="gcc-10" CXX="g++-10" 
-    cmake .. \
-        -DCMAKE_CXX_FLAGS="-DSHAREDIR='\"${md_inst}/share/xm7\"'" \
+    cd "$md_build"
+    cmake . \
+        -Slinux-sdl \
+        -Blinux-sdl/build \
+        -GNinja \
+        -DCMAKE_C_COMPILER="gcc-10" \
+        -DCMAKE_CXX_COMPILER="g++-10" \
+        -DCMAKE_CXX_FLAGS="-DSHAREDIR='\"$md_inst/share/xm7\"'" \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
         -DUSE_OPENCL=No \
@@ -86,13 +83,12 @@ function build_xm7() {
         -DWITH_LIBAGAR_PREFIX="$md_build/libagar" \
         -DWITH_AGAR_STATIC=yes \
         -Wno-dev
-    make
-    md_ret_require="$md_build/linux-sdl/build/sdl/xm7"
+    ninja -C linux-sdl/build
+    md_ret_require="linux-sdl/build/sdl/xm7"
 }
 
 function install_xm7() {
-    cd linux-sdl/build
-    make install
+    ninja -C linux-sdl/build install/strip
 }
 
 function configure_xm7() {

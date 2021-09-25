@@ -14,10 +14,14 @@ rp_module_flags="!all 64bit"
 
 function depends_citra() {
     local depends=(
+        'clang'
         'cmake'
         'doxygen'
         'ffmpeg'
-        'libfdk-aac'
+        'fmt'
+        'libc++'
+        'ninja'
+        'qt5-multimedia'
         'sdl2'
     )
     getDepends "${depends[@]}"
@@ -29,17 +33,20 @@ function sources_citra() {
 
 function build_citra() {
     cmake . \
-        -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -DFMT_USE_USER_DEFINED_LITERALS=0" \
         -GNinja \
         -Bbuild \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_CXX_FLAGS="${CXXFLAGS} -stdlib=libc++" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DENABLE_SDL2=ON \
         -DENABLE_QT=OFF \
         -DENABLE_WEB_SERVICE=OFF \
         -DCITRA_USE_BUNDLED_SDL2=OFF \
-        -Wno-dev
+        -Wno-dev \
+        -Wno-error
     ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/bin/citra"
@@ -53,6 +60,7 @@ function configure_citra() {
     mkRomDir "3ds"
 
     addEmulator 1 "$md_id" "3ds" "$md_inst/bin/citra -f %ROM%"
+    # QT GUI does not build with GCC11, 10 or Clang
     #addEmulator 0 "$md_id-gui" "3ds" "$md_inst/bin/citra-qt -f %ROM%"
 
     addSystem "3ds"

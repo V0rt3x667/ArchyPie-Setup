@@ -14,9 +14,11 @@ rp_module_flags="!all x86"
 
 function depends_pcsx2() {
     local depends=(
+        'clang'
         'cmake'
         'fmt'
         'libaio'
+        'ninja'
         'png++'
         'portaudio'
         'sdl2'
@@ -31,10 +33,10 @@ function sources_pcsx2() {
 }
 
 function build_pcsx2() {
-    mkdir build
-    cd build
-    cmake .. \
-        -DCMAKE_INSTALL_PREFIX="md_inst" \
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_C_COMPILER=clang \
         -DCMAKE_CXX_COMPILER=clang++ \
@@ -43,24 +45,25 @@ function build_pcsx2() {
         -DDISABLE_BUILD_DATE=ON \
         -DDISABLE_PCSX2_WRAPPER=ON \
         -DSDL2_API=ON \
-        -DREBUILD_SHADER=ON \
         -DUSE_VTUNE=OFF \
         -DUSE_SYSTEM_YAML=OFF \
+        -DPACKAGE_MODE=ON \
         -DXDG_STD=ON \
         -DwxWidgets_CONFIG_EXECUTABLE=/usr/bin/wx-config-gtk3 \
         -Wno-dev
-    make clean
-    make
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/pcsx2/PCSX2"
 }
 
 function install_pcsx2() {
-    cd build
-    make install
+    ninja -C build  install/strip
 }
 
 function configure_pcsx2() {
     mkRomDir "ps2"
+    moveConfigDir "$home/.config/PCSX2" "$md_conf_root/ps2"
+    ln -sf "$md_conf_root/ps2/bios" "$biosdir/ps2"
     # Windowed option
     addEmulator 0 "$md_id" "ps2" "$md_inst/bin/PCSX2 %ROM% --windowed"
     # Fullscreen option with no gui (default, because we can close with `Esc` key, easy to map for gamepads)

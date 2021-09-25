@@ -191,13 +191,12 @@ function pacmanRemove() {
 function pacmanPkg() {
     PKGBUILD="$1"
     for pkg in "${PKGBUILD[@]}"; do
-        su -l "$user" -c 'cd '"$pkgdir/$pkg"' && \
+        su -m "$user" -c 'cd '"$pkgdir/$pkg"' && \
         BUILDDIR='"$md_build"' \
-        PKGDEST='"/var/cache/pacman/pkg"' \
         SRCDEST='"$md_build"' \
         SRCPKGDEST='"$md_build"' \
         PACKAGER="archypie.project <archrgs.project@gmail.com>" \
-        makepkg -csi --noconfirm'
+        makepkg -csi --noconfirm --needed'
     done
 }
 
