@@ -77,6 +77,7 @@ function configure_rpcs3() {
     ln -snf "$romdir/ps3" "$md_conf_root/ps3/dev_hdd0"
 
     addEmulator 1 "$md_id" "ps3" "$md_inst/bin/rpcs3 %ROM%"
+    addEmulator 0 "$md_id-nogui" "ps3" "$md_inst/bin/rpcs3 %ROM% --nogui"
 
     addSystem "ps3"
 }
