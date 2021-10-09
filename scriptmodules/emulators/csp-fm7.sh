@@ -8,9 +8,14 @@ rp_module_id="csp-fm7"
 rp_module_desc="CSP-FM7 - Fujitsu FM-8, FM-7, 77AV, 77AV40, 77AV40EX & 77AV40SX Emulator"
 rp_module_help="ROM Extensions: .d77 .t77 .d88 .2d \n\nCopy Your FM-7 Games to: $romdir/fm7\n\nCopy Your BIOS File(s) to: $biosdir/fm7\n\n  DICROM.ROM\n  EXTSUB.ROM\n  FBASIC30.ROM\n  INITIATE.ROM\n  KANJI1.ROM\n  KANJI2.ROM\n  SUBSYS_A.ROM\n  SUBSYS_B.ROM\n  SUBSYSCG.ROM\n  SUBSYS_C.ROM\n  fddseek.wav\n  relayoff.wav\n  relay_on.wav"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/Artanejp/common_source_project-fm7/master/README.en.md"
-rp_module_repo="git https://github.com/Artanejp/common_source_project-fm7.git master"
+rp_module_repo="git https://github.com/Artanejp/common_source_project-fm7.git :_get_branch_csp-fm7"
 rp_module_section="exp"
 rp_module_flags="!all 64bit"
+
+function _get_branch_csp-fm7() {
+    download https://api.github.com/repos/Artanejp/common_source_project-fm7/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 
 function depends_csp-fm7() {
     local depends=(
@@ -48,31 +53,31 @@ function sources_csp-fm7() {
 }
 
 function build_csp-fm7() {
-    mkdir "$md_build/source/build"
-    cd "$md_build/source/build"
-
-    export CXXFLAGS+=" -ffile-prefix-map=\"$PWD\"=."
-    export LDFLAGS+=" -Wl,-rpath='${_installdir%/}/lib'"
-    cmake .. \
+    cmake . \
+        -Ssource \
+        -Bsource/build \
+        -GNinja \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -Wno-dev
-    make clean
-    make
+    ninja -C source/build clean
+    ninja -C source/build
     md_ret_require=(
-        "$md_build/source/build/emufm8"
-        "$md_build/source/build/emufm7"
-        "$md_build/source/build/emufm77av"
-        "$md_build/source/build/emufm77av40"
-        "$md_build/source/build/emufm77av40ex"
-        "$md_build/source/build/emufm77av40sx"
+        "source/build/emufm8"
+        "source/build/emufm7"
+        "source/build/emufm77av"
+        "source/build/emufm77av40"
+        "source/build/emufm77av40ex"
+        "source/build/emufm77av40sx"
     )
 }
 
 function install_csp-fm7() {
-    cd "$md_build/source/build"
-    make install
+    ninja -C source/build install/strip
 }
 
 function configure_csp-fm7() {

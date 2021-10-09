@@ -36,7 +36,7 @@ function depends_fs-uae() {
 }
 
 function _sources_libcapsimage_fs-uae() {
-    gitPullOrClone "$md_build" "https://github.com/FrodeSolheim/capsimg.git"
+    gitPullOrClone "$md_build/capsimg" "https://github.com/FrodeSolheim/capsimg.git"
 }
 
 function sources_fs-uae() {
@@ -52,7 +52,7 @@ function _build_libcapsimage_fs-uae() {
     make clean
     make
     mv libcapsimage.so.5.1 capsimg.so
-    md_ret_require="$md_build/capsimg/CAPSImg/capsimage.so"
+    md_ret_require="$md_build/capsimg/CAPSImg/capsimg.so"
 }
 
 function build_fs-uae() {
@@ -67,7 +67,7 @@ function build_fs-uae() {
 
 function _install_libcapsimage_fs-uae() {
     cd "$md_build/capsimg/CAPSImg"
-    cp capsimage.so "$md_inst/bin/"
+    cp capsimg.so "$md_inst/bin/"
 }
 
 function install_fs-uae() {

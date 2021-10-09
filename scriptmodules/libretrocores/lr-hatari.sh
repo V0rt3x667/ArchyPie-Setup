@@ -27,7 +27,7 @@ function build_lr-hatari() {
     cd "$md_build"
     CFLAGS+=" -D__cdecl='' -DENABLE_SDL2 -DHAVE_CAPSIMAGE=1 -DCAPSIMAGE_VERSION=5" \
     LDFLAGS+=" -Wl,-rpath='$md_inst/lib/'" \
-    CAPSIMG_LDFLAGS="-L./lib -l:libcapsimage.so.5.1" \
+    CAPSIMG_LDFLAGS=" -L./lib -l:libcapsimage.so.5.1" \
     make -f Makefile.libretro
 
     md_ret_require="$md_build/hatari_libretro.so"

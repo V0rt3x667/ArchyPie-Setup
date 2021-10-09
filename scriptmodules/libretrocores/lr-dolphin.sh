@@ -67,8 +67,9 @@ function configure_lr-dolphin() {
     ensureSystemretroconfig "gc"
     ensureSystemretroconfig "wii"
 
-    mkdir $biosdir/dolphin-emu
-    ln -sf $md_inst/Sys $biosdir/dolphin-emu/
+    mkUserDir "$biosdir/dolphin-emu"
+    
+    ln -sfv "$md_inst/Sys" "$biosdir/dolphin-emu/Sys" 
 
     addEmulator 0 "$md_id" "gc" "$md_inst/dolphin_libretro.so"
     addEmulator 0 "$md_id" "wii" "$md_inst/dolphin_libretro.so"

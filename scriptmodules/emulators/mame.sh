@@ -62,7 +62,7 @@ function build_mame() {
     export LDFLAGS+=" -L${PWD}/lib"
 
     # Compile MAME
-    local params=(NOWERROR=1 ARCHOPTS=-flifetime-dse=1 PYTHON_EXECUTABLE=python OPTIMIZE=2)
+    local params=(NOWERROR=1 PYTHON_EXECUTABLE=python OPTIMIZE=2)
     make "${params[@]}" CC="clang" CXX="clang++"
     strip mame
 

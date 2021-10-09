@@ -48,7 +48,7 @@ function build_hatari() {
     cd "$md_build"
     rm -f CMakeCache.txt
     # add $md_inst to library search path for loading capsimage library
-    LDFLAGS+="-Wl,-rpath='$md_inst'" \
+    LDFLAGS+=" -Wl,-rpath='$md_inst'" \
         cmake . \
         -DCMAKE_SKIP_RPATH=ON \
         -DCMAKE_INSTALL_PREFIX:PATH="$md_inst" \

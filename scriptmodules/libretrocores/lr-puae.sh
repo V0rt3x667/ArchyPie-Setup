@@ -13,6 +13,7 @@ rp_module_section="opt"
 
 function sources_lr-puae() {
     gitPullOrClone
+    _sources_libcapsimage_fs-uae
 }
 
 function build_lr-puae() {
@@ -26,7 +27,8 @@ function install_lr-puae() {
     md_ret_files=(
         'puae_libretro.so'
         'README.md'
-        'capsimg/CAPSImg/capsimage.so'
+        'sources/uae_data'
+        'capsimg/CAPSImg/capsimg.so'
     )
 }
 

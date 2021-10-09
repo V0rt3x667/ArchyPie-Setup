@@ -44,7 +44,7 @@ function sources_scummvm() {
         'https://github.com/scummvm/scummvm/pull/2915.patch'
     )
     for patch in "${patches[@]}"; do
-        download "$patch" "$md_build" | applyPatch "${patch##*/}"
+        download "$patch" "$md_build" | applyPatch "$md_build/${patch##*/}"
     done
 }
 

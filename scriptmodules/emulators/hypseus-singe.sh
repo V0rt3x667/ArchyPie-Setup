@@ -73,6 +73,7 @@ function configure_hypseus-singe() {
         'vldp_dl'
     )
     for dir in "${dirs[@]}"; do
+        mkRomDir daphne
         mkRomDir "daphne/$dir"
     done
 

@@ -7,22 +7,27 @@
 rp_module_id="supertux"
 rp_module_desc="SuperTux - Classic 2D Jump'n'Run Sidescroller Game"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/SuperTux/supertux/master/LICENSE.txt"
-rp_module_repo="git https://github.com/SuperTux/supertux.git :_get_branch_supertux"
+rp_module_repo="git https://github.com/SuperTux/supertux.git master"
 rp_module_section="opt"
 rp_module_flags="!mali"
 
-function _get_branch_supertux() {
-    download https://api.github.com/repos/SuperTux/supertux/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
-}
+#function _get_branch_supertux() {
+#    download https://api.github.com/repos/SuperTux/supertux/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+#}
 
 function depends_supertux() {
     local depends=(
         'boost'
+        'boost-libs'
+        'clang'
         'cmake'
+        'curl'
+        'freetype2'
         'glew'
         'libraqm'
         'libvorbis'
         'mesa'
+        'ninja'
         'openal'
         'optipng'
         'physfs'
@@ -33,24 +38,27 @@ function depends_supertux() {
 
 function sources_supertux() {
     gitPullOrClone
-    applyPatch "$md_data/01_fix_build.patch"
 }
 
 function build_supertux() {
     cmake . \
         -Bbuild \
-        -DCMAKE_BUILD_TYPE=Release \
+        -GNinja \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DINSTALL_SUBDIR_BIN=bin \
         -DUSE_SYSTEM_PHYSFS=ON \
         -Wno-dev
-    make -C build clean
-    make -C build
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/supertux2"
 }
 
 function install_supertux() {
-    make -C build install/strip
+    ninja -C build install/strip
 }
 
 function configure_supertux() {

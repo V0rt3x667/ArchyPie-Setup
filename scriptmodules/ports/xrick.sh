@@ -35,7 +35,7 @@ function install_xrick() {
 }
 
 function configure_xrick() {
-    addPort "$md_id" "xrick" "XRick" "$md_inst/xrick.sh -fullscreen" "$romdir/ports/xrick/data.zip"
+    addPort "$md_id" "xrick" "XRick" "$md_inst/xrick.sh -fullscreen"
 
     [[ "$md_mode" == "remove" ]] && return
 
@@ -43,8 +43,8 @@ function configure_xrick() {
     isPlatform "dispmanx" && ! isPlatform "videocore" && setBackend "$md_id" "dispmanx"
 
     _add_data_lr-xrick
-    
-    ln -sf "$romdir/ports/xrick/data.zip" "$md_inst/data.zip"
+
+    ln -sf "$biosdir/data.zip" "$md_inst/data.zip"
 
     local file="$md_inst/xrick.sh"
     cat >"$file" << _EOF_

@@ -6,7 +6,7 @@
 
 rp_module_id="raze"
 rp_module_desc="Raze - Build Engine Port"
-rp_module_help="ROM Extensions: .grp\n\nCopy Your .grp files to $romdir/ports/{blood,duke3d,exhumed,redneck,sw,wh}"
+rp_module_help="ROM Extensions: .grp\n\nCopy Your .grp Files to:\n$romdir/ports/blood\n$romdir/ports/duke3d\n$romdir/ports/exhumed\n$romdir/ports/nam\n$romdir/ports/redneck\n$romdir/ports/sw\n$romdir/ports/ww2gi"
 rp_module_licence="NONCOM: https://raw.githubusercontent.com/coelckers/Raze/master/build-doc/buildlic.txt"
 rp_module_repo="git https://github.com/coelckers/raze.git :_get_branch_raze"
 rp_module_section="opt"
@@ -18,10 +18,12 @@ function _get_branch_raze() {
 function depends_raze() {
     depends=(
         'alsa-lib'
+        'clang'
         'cmake'
         'fluidsynth'
         'gtk3'
         'libjpeg-turbo'
+        'ninja'
         'openal'
         'sdl2'
     )
@@ -34,26 +36,33 @@ function sources_raze() {
 
 function build_raze() {
     _build_zmusic_gzdoom
+
     cd "$md_build"
-    LDFLAGS+="-Wl,-rpath='$md_inst'"
+    LDFLAGS+=" -Wl,-rpath='$md_inst'"
     cmake . \
-        -DCMAKE_BUILD_TYPE=Release \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DINSTALL_PK3_PATH="$md_inst" \
         -DDYN_GTK=OFF \
         -DDYN_OPENAL=OFF \
         -DZMUSIC_INCLUDE_DIR="$md_build/zmusic/include" \
-        -DZMUSIC_LIBRARIES="$md_build/zmusic/source/libzmusic.so"
-    make clean
-    make
-    md_ret_require="$md_build/raze"
+        -DZMUSIC_LIBRARIES="$md_build/zmusic/source/libzmusic.so" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/raze"
 }
 
 function install_raze() {
     md_ret_files=(
-        'raze'
-        'raze.pk3'
-        'soundfonts'
+        'build/raze'
+        'build/raze.pk3'
+        'soundfont'
         'package/common/gamecontrollerdb.txt'
         'package/common/gpl-2.0.txt'
         'package/common/buildlic.txt'

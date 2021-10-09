@@ -21,9 +21,10 @@ function sources_quasi88() {
 }
 
 function build_quasi88() {
+    make X11_VERSION= SDL_VERSION=1 clean
     make \
-        LDFLAGS=${LDFLAGS} \
-        X11_VERSION=1 \
+        LDFLAGS="${LDFLAGS}" \
+        X11_VERSION= \
         SDL_VERSION=1 \
         ARCH=linux \
         SOUND_SDL=1 \

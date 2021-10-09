@@ -63,7 +63,7 @@ function install_pcsx2() {
 function configure_pcsx2() {
     mkRomDir "ps2"
     moveConfigDir "$home/.config/PCSX2" "$md_conf_root/ps2"
-    ln -sf "$md_conf_root/ps2/bios" "$biosdir/ps2"
+    ln -sf "$md_conf_root/ps2/bios/" "$biosdir/ps2"
     # Windowed option
     addEmulator 0 "$md_id" "ps2" "$md_inst/bin/PCSX2 %ROM% --windowed"
     # Fullscreen option with no gui (default, because we can close with `Esc` key, easy to map for gamepads)
