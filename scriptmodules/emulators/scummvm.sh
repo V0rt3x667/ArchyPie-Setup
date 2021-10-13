@@ -8,7 +8,7 @@ rp_module_id="scummvm"
 rp_module_desc="ScummVM - Virtual Machine for Graphical Point-and-Click Adventure Games"
 rp_module_help="Copy your ScummVM games to $romdir/scummvm"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/scummvm/scummvm/master/COPYING"
-rp_module_repo="git https://github.com/scummvm/scummvm.git v2.2.0"
+rp_module_repo="git https://github.com/scummvm/scummvm.git v2.5.0"
 rp_module_section="opt"
 rp_module_flags="sdl2"
 
@@ -37,15 +37,6 @@ function depends_scummvm() {
 
 function sources_scummvm() {
     gitPullOrClone
-    local patches=(
-        'https://github.com/scummvm/scummvm/pull/2729.patch'
-        'https://github.com/scummvm/scummvm/commit/a3bc5d64b8c4041326c8a214c47f9a206fb8b693.patch'
-        'https://github.com/scummvm/scummvm/commit/6ef406ac20a68f53e66bb98a0c9842dc9553da07.patch'
-        'https://github.com/scummvm/scummvm/pull/2915.patch'
-    )
-    for patch in "${patches[@]}"; do
-        download "$patch" "$md_build" | applyPatch "$md_build/${patch##*/}"
-    done
 }
 
 function build_scummvm() {
@@ -94,7 +85,7 @@ function configure_scummvm() {
 #!/bin/bash
 game="\$1"
 pushd "$romdir/scummvm" >/dev/null
-$md_inst/bin/scummvm --fullscreen --joystick=0 --extrapath="$md_inst/extra" \$game
+$md_inst/bin/scummvm --fullscreen --joystick=0 --extrapath="$md_inst/extra" "\$game"
 while read id desc; do
     echo "\$desc" > "$romdir/scummvm/\$id.svm"
 done < <($md_inst/bin/scummvm --list-targets | tail -n +3)

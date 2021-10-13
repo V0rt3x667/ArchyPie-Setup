@@ -116,6 +116,7 @@ function conf_build_vars() {
     # add our cpu and optimisation flags
     __default_cflags+=" $__cpu_flags $__opt_flags"
     __default_cxxflags+=" $__cpu_flags $__opt_flags"
+    __default_asflags+=" $__cpu_flags"
 
     # if not overridden by user, configure our compiler flags
     [[ -z "$__cflags" ]] && __cflags="$__default_cflags"
@@ -123,12 +124,6 @@ function conf_build_vars() {
     [[ -z "$__asflags" ]] && __asflags="$__default_asflags"
     [[ -z "$__makeflags" ]] && __makeflags="$__default_makeflags"
     [[ -z "$__ldflags" ]] && __ldflags="$__default_ldflags"
-
-    # workaround for GCC ABI incompatibility with threaded armv7+ C++ apps built
-    # on Raspbian's armv6 userland https://github.com/raspberrypi/firmware/issues/491
-#    if [[ "$__os_id" == "Raspbian" ]] && compareVersions $__gcc_version lt 5; then
-#        __cxxflags+=" -U__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2"
-#    fi
 
     # export our compiler flags so all child processes can see them
     export CFLAGS="$__cflags"
@@ -322,11 +317,6 @@ function get_archypie_depends() {
     if ! getDepends "${depends[@]}"; then
         fatalError "Unable to install packages required by $0 - ${md_ret_errors[@]}"
     fi
-
-#    # make sure we don't have xserver-xorg-legacy installed as it breaks launching x11 apps from ES
-#    if ! isPlatform "x11" && hasPackage "xserver-xorg-legacy"; then
-#        pacmanRemove xserver-xorg-legacy
-#    fi
 }
 
 function get_rpi_video() {
@@ -351,10 +341,6 @@ function get_rpi_video() {
     else
         __platform_flags+=(videocore dispmanx)
     fi
-
-    # delete legacy pkgconfig that conflicts with Mesa (may be installed via rpi-update)
-    # see: https://github.com/raspberrypi/userland/pull/585
-#    rm -rf $pkgconfig/{egl.pc,glesv2.pc,vg.pc}
 
     # set pkgconfig path for vendor libraries
     export PKG_CONFIG_PATH="$pkgconfig"

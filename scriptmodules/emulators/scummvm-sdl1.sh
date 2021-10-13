@@ -5,10 +5,10 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="scummvm-sdl1"
-rp_module_desc="ScummVM Legacy SDL1 Version"
+rp_module_desc="ScummVM - Legacy SDL1 Version"
 rp_module_help="Copy your ScummVM games to $romdir/scummvm"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/scummvm/scummvm/master/COPYING"
-rp_module_repo="git https://github.com/scummvm/scummvm.git v2.2.0"
+rp_module_repo="git https://github.com/scummvm/scummvm.git v2.5.0"
 rp_module_section="opt"
 rp_module_flags="sdl1 !mali !x11"
 
@@ -39,6 +39,6 @@ function install_scummvm-sdl1() {
 
 function configure_scummvm-sdl1() {
     # use dispmanx by default on rpi with fkms
-    isPlatform "dispmanx" && ! isPlatform "videocore" && setBackend "$md_id" "dispmmanx"
+    isPlatform "dispmanx" && ! isPlatform "videocore" && setBackend "$md_id" "dispmanx"
     configure_scummvm
 }

@@ -14,17 +14,18 @@ rp_module_flags="!all 64bit"
 
 function depends_lr-dolphin() {
     local depends=(
-        'gcc10'
         'bluez-libs'
+        'cmake'
         'enet'
         'ffmpeg'
+        'gcc10'
         'lzo'
         'mbedtls'
         'miniupnpc'
+        'minizip'
         'pugixml'
         'qt5-base'
         'sfml'
-        'cmake'
     )
     getDepends "${depends[@]}"
 }
@@ -68,8 +69,9 @@ function configure_lr-dolphin() {
     ensureSystemretroconfig "wii"
 
     mkUserDir "$biosdir/dolphin-emu"
-    
-    ln -sfv "$md_inst/Sys" "$biosdir/dolphin-emu/Sys" 
+
+    cp -r "$md_inst/Sys" "$biosdir/dolphin-emu"
+    chown -R "$user:$user" "$biosdir/dolphin-emu"
 
     addEmulator 0 "$md_id" "gc" "$md_inst/dolphin_libretro.so"
     addEmulator 0 "$md_id" "wii" "$md_inst/dolphin_libretro.so"

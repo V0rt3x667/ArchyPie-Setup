@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="configedit"
-rp_module_desc="Edit ArchyPie & RetroArch configurations"
+rp_module_desc="Edit ArchyPie & RetroArch Configurations"
 rp_module_section="config"
 
 function _video_fullscreen_configedit() {
@@ -171,10 +171,10 @@ function basic_configedit() {
         'input_overlay_enable true false'
         "input_overlay _file_ *.cfg $rootdir/emulators/retroarch/overlays"
         '_function_ _joypad_index_configedit'
-        'input_player1_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player2_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player3_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player4_analog_dpad_mode _id_ disabled left-stick right-stick'
+        'input_player1_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player2_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player3_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player4_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
     )
 
     local ini_titles=(
@@ -201,10 +201,10 @@ function basic_configedit() {
         'Load input overlay on startup. Other overlays can still be loaded later in runtime.'
         'Input overlay to use (default none)'
         'Manual selection of joypad order'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
     )
 
     iniFileEditor " = " '"' "$config"
@@ -227,7 +227,7 @@ function advanced_configedit() {
         "input_overlay _file_ *.cfg $rootdir/emulators/retroarch/overlays"
         "audio_driver $audio_opts"
         'video_driver gl dispmanx sdl2 vg vulkan glcore gl1'
-        'menu_driver rgui ozone xmb glui ozone'
+        'menu_driver rgui xmb glui ozone'
         'video_fullscreen_x _string_'
         'video_fullscreen_y _string_'
         'video_frame_delay _string_'
@@ -256,14 +256,14 @@ function advanced_configedit() {
         'input_player6_joypad_index _string_'
         'input_player7_joypad_index _string_'
         'input_player8_joypad_index _string_'
-        'input_player1_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player2_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player3_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player4_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player5_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player6_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player7_analog_dpad_mode _id_ disabled left-stick right-stick'
-        'input_player8_analog_dpad_mode _id_ disabled left-stick right-stick'
+        'input_player1_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player2_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player3_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player4_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player5_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player6_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player7_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
+        'input_player8_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
 
     )
 
@@ -305,14 +305,14 @@ function advanced_configedit() {
         'Manual selection of joypad order'
         'Manual selection of joypad order'
         'Manual selection of joypad order'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
-        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
+        'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
 
     )
 

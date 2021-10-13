@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch - Frontend to the Libretro Cores - Required by all lr-* Emulators"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/libretro/RetroArch.git v1.9.7"
+rp_module_repo="git https://github.com/libretro/RetroArch.git v1.9.11"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -33,19 +33,7 @@ function depends_retroarch() {
     isPlatform "mesa" && depends+=('libx11' 'libxcb')
     isPlatform "mali" && depends+=('mali-utgard-meson-libgl-fb')
     isPlatform "x11" && depends+=('libx11' 'libxcb' 'libxrandr' 'vulkan-headers' 'wayland' 'wayland-protocols')
-#    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc zlib1g-dev libfreetype6-dev)
     isPlatform "kms" && depends+=('mesa')
-
-#    if compareVersions "$__os_debian_ver" ge 9; then
-#        depends+=(libavcodec-dev libavformat-dev libavdevice-dev)
-#    fi
-
-#    # only install nvidia-cg-toolkit if it is available (as the non-free repo may not be enabled)
-#    if isPlatform "x86"; then
-#        if [[ -n "$(apt-cache search --names-only nvidia-cg-toolkit)" ]]; then
-#            depends+=(nvidia-cg-toolkit)
-#        fi
-#    fi
 
     getDepends "${depends[@]}"
 }
@@ -53,7 +41,7 @@ function depends_retroarch() {
 function sources_retroarch() {
     gitPullOrClone
     applyPatch "$md_data/01_disable_search.diff"
-    applyPatch "$md_data/02_shader_path_config_enable.diff"
+    #applyPatch "$md_data/02_shader_path_config_enable.diff"
     applyPatch "$md_data/03_revert_default_save_paths.diff"
 }
 
@@ -77,15 +65,14 @@ function build_retroarch() {
         params+=(--disable-pulse)
         ! isPlatform "mesa" && params+=(--disable-x11)
     fi
-#    if compareVersions "$__os_debian_ver" lt 9; then
-#        params+=(--disable-ffmpeg)
-#    fi
+
     isPlatform "gles" && params+=(--enable-opengles)
     if isPlatform "gles3"; then
         params+=(--enable-opengles3)
         isPlatform "gles31" && params+=(--enable-opengles3_1)
         isPlatform "gles32" && params+=(--enable-opengles3_2)
     fi
+
     isPlatform "rpi" && isPlatform "mesa" && params+=(--disable-videocore)
     # Temporarily block dispmanx support for fkms until upstream support is fixed
     isPlatform "dispmanx" && ! isPlatform "kms" && params+=(--enable-dispmanx --disable-opengl1)
@@ -95,7 +82,6 @@ function build_retroarch() {
     isPlatform "neon" && params+=(--enable-neon)
     isPlatform "x11" && params+=(--enable-vulkan)
     ! isPlatform "x11" && params+=(--disable-vulkan --disable-wayland)
-#    isPlatform "vero4k" && params+=(--enable-mali_fbdev --with-opengles_libs='-L/opt/vero3/lib')
     ./configure --prefix="$md_inst" "${params[@]}"
     make clean
     make
@@ -395,7 +381,6 @@ function gui_retroarch() {
                 options=(1 "Install/Update $name" 2 "Uninstall $name" )
                 cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for $dir" 12 40 06)
                 choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-
                 case "$choice" in
                     1)
                         "update_${name}_retroarch"
@@ -407,7 +392,6 @@ function gui_retroarch() {
                     *)
                         continue
                         ;;
-
                 esac
                 ;;
             4)

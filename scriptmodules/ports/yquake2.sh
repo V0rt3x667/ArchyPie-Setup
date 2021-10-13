@@ -43,11 +43,6 @@ function sources_yquake2() {
 }
 
 function build_yquake2() {
-    cmake . \
-        -Bbuild \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DSYSTEMWIDE_SUPPORT=OFF
     make clean
     make
 
@@ -97,8 +92,9 @@ function add_games_yquake2() {
     )
 
     local game
-    local pak="$romdir/ports/quake2/$game.pak"
+    local pak
     for game in "${!games[@]}"; do
+        pak="$romdir/ports/quake2/$game.pak"
         if [[ -f "$pak" ]]; then
             addPort "$md_id" "quake2" "${games[$game]}" "$cmd" "${game%%/*}"
         fi
@@ -106,26 +102,23 @@ function add_games_yquake2() {
 }
 
 function game_data_yquake2() {
-    local unwanted
-
     if [[ ! -f "$romdir/ports/quake2/baseq2/pak1.pak" && ! -f "$romdir/ports/quake2/baseq2/pak0.pak" ]]; then
         # get shareware game data
         downloadAndExtract "https://deponie.yamagi.org/quake2/idstuff/q2-314-demo-x86.exe" "$romdir/ports/quake2/baseq2" -j -LL
+        # remove files that are likely to cause conflicts or unwanted default settings
+        local unwanted
+        for unwanted in $(find "$romdir/ports/quake2" -maxdepth 2 -name "*.so" -o -name "*.cfg" -o -name "*.dll" -o -name "*.exe"); do
+            rm -f "$unwanted"
+        done
     fi
-
-    # remove files that are likely to cause conflicts or unwanted default settings
-    for unwanted in $(find "$romdir/ports/quake2" -maxdepth 2 -name "*.so" -o -name "*.cfg" -o -name "*.dll" -o -name "*.exe"); do
-        rm -f "$unwanted"
-    done
 
     chown -R $user:$user "$romdir/ports/quake2"
 }
 
-
 function configure_yquake2() {
     local params=()
 
-    if isPlatform "gles3"; then
+    if isPlatform "gl3"; then
         params+=("+set vid_renderer gl3")
     elif isPlatform "gl" || isPlatform "mesa"; then
         params+=("+set vid_renderer gl1")
@@ -138,9 +131,8 @@ function configure_yquake2() {
     fi
 
     mkRomDir "ports/quake2"
-    
+
     moveConfigDir "$home/.yq2" "$md_conf_root/quake2/yquake2"
-    chown -R "$user:$user" "$md_conf_root/quake2"
 
     [[ "$md_mode" == "install" ]] && game_data_yquake2
     add_games_yquake2 "$md_inst/quake2 -datadir $romdir/ports/quake2 ${params[*]} +set game %ROM%"

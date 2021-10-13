@@ -59,7 +59,9 @@ function build_cgenius() {
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DAPPDIR="$md_inst" \
-        -DNOTYPESAVE=on
+        -DNOTYPESAVE=on \
+		-DBUILD_COSMOS=1 \
+		-Wno-dev
     ninja -C build
     md_ret_require="$md_build/build/src/CGeniusExe"
 }
