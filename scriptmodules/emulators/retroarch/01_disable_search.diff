@@ -1,6 +1,6 @@
 --- a/retroarch.c	2021-10-11 01:21:53.000000000 
 +++ b/retroarch.c	2021-10-11 00:25:41.000000000 
-@@ -1062,13 +1062,14 @@
+@@ -1000,13 +1000,14 @@
        case MENU_ACTION_SELECT:
           if (cbs && cbs->action_select)
              ret = cbs->action_select(entry->path,
