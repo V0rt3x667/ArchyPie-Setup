@@ -21,6 +21,7 @@ src/
 tmp/
 logs/
 .vscode/
+ext/*
 
 #Exceptions
 !libagar.tar.zst
