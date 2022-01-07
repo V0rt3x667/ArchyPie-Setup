@@ -5,10 +5,10 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="advmame"
-rp_module_desc="AdvanceMAME v3.9 - Arcade Emulator"
+rp_module_desc="AdvanceMAME - Arcade Emulator"
 rp_module_help="ROM Extension: .zip\n\nCopy your AdvanceMAME roms to either $romdir/mame-advmame or\n$romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/amadvance/advancemame/master/COPYING"
-rp_module_repo="git https://github.com/amadvance/advancemame v3.9"
+rp_module_repo="git https://github.com/amadvance/advancemame master"
 rp_module_section="opt"
 rp_module_flags="sdl2 sdl1-videocore"
 
@@ -33,21 +33,17 @@ function depends_advmame() {
 
 function sources_advmame() {
     gitPullOrClone
-    # Fix build errors due new gcc 10\11 default for -fno-common
-    for line in 290 855 856; do
-        sed -i -e "${line}s/^/extern /" src/drivers/cavepgm.c
-    done
 }
 
 function build_advmame() {
     local params=()
     if isPlatform "videocore"; then
-        params+=(--enable-sdl1 --disable-sdl2 --enable-vc)
+        params+=(--enable-sdl --disable-sdl2 --enable-vc)
     else
-        params+=(--enable-sdl2 --disable-sdl1 --disable-vc)
+        params+=(--enable-sdl2 --disable-sdl --disable-vc)
     fi
-    NO_CONFIGURE=1 ./autogen.sh
-    ./configure CFLAGS="$CFLAGS -fno-strict-aliasing -fno-strict-overflow -fsigned-char -fno-stack-protector" --prefix="$md_inst" "${params[@]}"
+    ./autogen.sh
+    ./configure CFLAGS="$CFLAGS -fno-stack-protector" --prefix="$md_inst" "${params[@]}"
     make clean
     make
     md_ret_require="$md_build/advmame"

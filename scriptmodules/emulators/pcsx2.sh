@@ -53,11 +53,11 @@ function build_pcsx2() {
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="$md_build/build/pcsx2/PCSX2"
+    md_ret_require="$md_build/build/pcsx2/pcsx2"
 }
 
 function install_pcsx2() {
-    ninja -C build  install/strip
+    ninja -C build install/strip
 }
 
 function configure_pcsx2() {
@@ -65,8 +65,8 @@ function configure_pcsx2() {
     moveConfigDir "$home/.config/PCSX2" "$md_conf_root/ps2"
     ln -svf "$md_conf_root/ps2/bios/" "$biosdir/ps2"
     # Windowed option
-    addEmulator 0 "$md_id" "ps2" "$md_inst/bin/PCSX2 %ROM% --windowed"
+    addEmulator 0 "$md_id" "ps2" "$md_inst/bin/pcsx2 %ROM% --windowed"
     # Fullscreen option with no gui (default, because we can close with `Esc` key, easy to map for gamepads)
-    addEmulator 1 "$md_id-nogui" "ps2" "$md_inst/bin/PCSX2 %ROM% --fullscreen --nogui"
+    addEmulator 1 "$md_id-nogui" "ps2" "$md_inst/bin/pcsx2 %ROM% --fullscreen --nogui"
     addSystem "ps2"
 }

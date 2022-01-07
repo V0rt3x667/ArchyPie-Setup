@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch - Frontend to the Libretro Cores - Required by all lr-* Emulators"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/libretro/RetroArch.git v1.9.12"
+rp_module_repo="git https://github.com/RetroPie/RetroArch.git retropie-v1.9.14"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -17,14 +17,14 @@ function depends_retroarch() {
         'libass'
         'libcaca'
         'libusb'
-        'libxinerama'
-        'mbedtls'
-        'miniupnpc'
-        'openal'
         'libxext'
+        'libxinerama'
         'libxkbcommon'
         'libxv'
         'libxxf86vm'
+        'mbedtls'
+        'miniupnpc'
+        'openal'
         'systemd-libs'
     )
 
@@ -40,9 +40,6 @@ function depends_retroarch() {
 
 function sources_retroarch() {
     gitPullOrClone
-    applyPatch "$md_data/01_disable_search.diff"
-    #applyPatch "$md_data/02_shader_path_config_enable.diff"
-    applyPatch "$md_data/03_revert_default_save_paths.diff"
 }
 
 function build_retroarch() {
@@ -90,19 +87,16 @@ function build_retroarch() {
 
 function install_retroarch() {
     make install
-    md_ret_files=(
-        'retroarch.cfg'
-    )
+    md_ret_files=('retroarch.cfg')
 }
 
 function update_shaders_retroarch() {
     local dir="$configdir/all/retroarch/shaders"
-    local branch=""
-    # remove if not git repository for fresh checkout
-    [[ ! -d "$dir/.git" ]] && rm -rf "$dir"
-        if isPlatform "rpi"; then
-        branch="rpi"
-        gitPullOrClone "$dir" https://github.com/RetroPie/common-shaders.git "$branch"
+
+    if isPlatform "rpi"; then
+        # remove if not git repository for fresh checkout
+        [[ ! -d "$dir/retropie/.git" ]] && rm -rf "$dir/retropie"
+        gitPullOrClone "$dir/retropie" https://github.com/RetroPie/common-shaders.git "rpi"
         chown -R $user:$user "$dir"
     else
         local shadersystem
@@ -110,12 +104,8 @@ function update_shaders_retroarch() {
             # remove if not git repository for fresh checkout
             [[ ! -d "$dir/$shadersystem/.git" ]] && rm -rf "$dir/$shadersystem"
             gitPullOrClone "$dir/$shadersystem" "https://github.com/libretro/$shadersystem-shaders.git" "$branch"
-            chown -R $user:$user "$dir/$shadersystem"
+            chown -R $user:$user "$dir"
         done
-        # remove if not git repository for fresh checkout
-        [[ ! -d "$dir/retropie/.git" ]] && rm -rf "$dir/retropie"
-        gitPullOrClone "$dir/retropie" https://github.com/RetroPie/common-shaders.git "rpi"
-        chown -R $user:$user "$dir/retropie"
     fi
 }
 
@@ -368,12 +358,19 @@ function hotkey_retroarch() {
 
 function gui_retroarch() {
     while true; do
-        local names=(shaders overlays assets)
-        local dirs=(shaders overlay assets)
+        local names=(overlays assets)
+        local dirs=(overlay assets)
         local options=()
         local name
         local dir
         local i=1
+        if isPlatform "rpi"; then
+            names+=(shaders-retropie)
+            dirs+=(shaders/retropie)
+        else
+            names+=(shaders-glsl shaders-slang)
+            dirs+=(shaders/glsl shaders/slang)
+        fi
         for name in "${names[@]}"; do
             if [[ -d "$configdir/all/retroarch/${dirs[i-1]}/.git" ]]; then
                 options+=("$i" "Manage $name (installed)")

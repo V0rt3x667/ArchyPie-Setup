@@ -17,6 +17,7 @@ function _get_branch_srb2() {
 function depends_srb2() {
     local depends=(
         'cmake'
+		'curl'
         'libgme'
         'libpng'
         'sdl2'

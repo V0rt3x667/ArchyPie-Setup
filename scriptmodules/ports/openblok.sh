@@ -12,7 +12,7 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function depends_openblok() {
-    getDepends cmake sdl2 sdl2_image sdl2_mixer sdl2_ttf
+    getDepends cmake gettext sdl2 sdl2_image sdl2_mixer sdl2_ttf
 }
 
 function sources_openblok() {

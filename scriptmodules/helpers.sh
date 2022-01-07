@@ -404,9 +404,11 @@ function gitPullOrClone() {
     fi
     [[ -z "$repo" ]] && return 1
     [[ -z "$branch" ]] && branch="master"
-    if [[ -z "$depth" && "$__persistent_repos" -ne 1 && -z "$commit" ]]; then
-        depth=1
-    else
+
+    # if no depth is provided default to shallow clone (depth 1)
+    [[ -z "$depth" ]] && depth=1
+    # if we are using persistent repos or checking out a specific commit, don't shallow clone
+    if [[ "$__persistent_repos" -eq 1 || -n "$commit" ]]; then
         depth=0
     fi
 
@@ -418,14 +420,24 @@ function gitPullOrClone() {
 
     if [[ -d "$dir/.git" ]]; then
         pushd "$dir" > /dev/null
+        # if we are using persistent repos, fetch the latest remote changes and clean the source so
+        # any patches can be re-applied as needed.
+        if [[ "$__persistent_repos" -eq 1 ]]; then
+            runCmd git fetch
+            runCmd git reset --hard
+            runCmd git clean -f -d
+        fi
         runCmd git checkout "$branch"
-        runCmd git pull --ff-only
-        runCmd git submodule update --init --recursive
+        # only try to pull if we are on a tracking branch
+        if [[ -n "$(git config --get branch.$branch.merge)" ]]; then
+            runCmd git pull --ff-only
+            runCmd git submodule update --init --recursive
+        fi
         popd > /dev/null
     else
         local git="git clone --recursive"
         if [[ "$depth" -gt 0 ]]; then
-            git+=" --depth $depth"
+            git+=" --depth $depth --shallow-submodules"
         fi
         git+=" --branch $branch"
         printMsgs "console" "$git \"$repo\" \"$dir\""
@@ -566,15 +578,14 @@ function diffFiles() {
 }
 
 ## @fn compareVersions()
-## @param version first version to compare
-## @param operator operator to use (lt le eq ne ge gt)
+## @param version firstversion to compare
 ## @brief version second version to compare
-## @retval 0 if the comparison was true
-## @retval 1 if the comparison was false
+## @retval 0 if the comparison is eq
+## @retval 1 if the comparison is gt
+## @retval -1 if the comparison is lt
 function compareVersions() {
-    if $(vercmp "$1" "$3") -"$2" 0 >/dev/null; then
-        return $?
-    fi
+    vercmp "$1" "$2" >/dev/null
+    return $?
 }
 
 ## @fn dirIsEmpty()
@@ -931,7 +942,7 @@ function setESSystem() {
 ## @fn ensureSystemretroconfig()
 ## @param system system to create retroarch.cfg for
 ## @param shader set a default shader to use (deprecated)
-## @brief Creates a default retroarch.cfg for specified system in `/opt/archypie/configs/$system/retroarch.cfg`.
+## @brief Creates a default retroarch.cfg for specifiedsystem in `/opt/archypie/configs/$system/retroarch.cfg`.
 function ensureSystemretroconfig() {
     # don't do any config work on module removal
     [[ "$md_mode" == "remove" ]] && return
@@ -1530,7 +1541,7 @@ function delEmulator() {
 ## @param mode dkms operation type
 ## @module_name name of dkms module
 ## @module_ver version of dkms module
-## Helper function to manage DKMS modules installed by archypie
+## Helper function to manage DKMS modules installed by ArchyPie
 function dkmsManager() {
     local mode="$1"
     local module_name="$2"

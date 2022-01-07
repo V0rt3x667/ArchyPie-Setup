@@ -7,7 +7,7 @@
 rp_module_id="emulationstation"
 rp_module_desc="EmulationStation - Frontend used by ArchyPie for launching emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
-rp_module_repo="git https://github.com/RetroPie/EmulationStation.git master"
+rp_module_repo="git https://github.com/RetroPie/EmulationStation.git v2.10.1"
 rp_module_section="core"
 rp_module_flags="frontend"
 
@@ -124,9 +124,17 @@ function _add_rom_emulationstation() {
 }
 
 function depends_emulationstation() {
-    local depends=('freeimage' 'freetype2' 'curl' 'cmake' 'sdl2' 'libsm' 'rapidjson' 'vlc')
+    local depends=(
+        'cmake'
+        'curl'
+        'freeimage'
+        'freetype2'
+        'libsm'
+        'rapidjson'
+        'sdl2'
+        'vlc'
+    )
 
-    #compareVersions "$__os_debian_ver" gt 8 && depends+=(rapidjson-dev)
     isPlatform "x11" && depends+=('gnome-terminal' 'mesa-demos')
     if isPlatform "rpi" && isPlatform "32bit"; then
         depends+=(omxplayer-git)
@@ -134,24 +142,13 @@ function depends_emulationstation() {
     getDepends "${depends[@]}"
 }
 
-#function _get_branch_emulationstation() {
-#    if [[ -z "$branch" ]]; then
-#        if compareVersions "$__os_debian_ver" gt 8; then
-#            branch="stable"
-#        else
-#            branch="v2.7.6"
-#        fi
-#    fi
-#    echo "$branch"
-#}
-
 function sources_emulationstation() {
     gitPullOrClone
     applyPatch "$md_data/01_disable_hidapi_drivers.patch"
 }
 
 function build_emulationstation() {
-    local params=(-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/)
+    local params=(-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/ -Wno-dev)
     if isPlatform "rpi"; then
         params+=(-DRPI=On)
         # use OpenGL on RPI/KMS for now

@@ -22,7 +22,7 @@ function build_lr-tyrquake() {
 
 function install_lr-tyrquake() {
     md_ret_files=(
-        'gnu.txt'
+        'LICENSE.txt'
         'readme-id.txt'
         'readme.txt'
         'tyrquake_libretro.so'
@@ -30,15 +30,15 @@ function install_lr-tyrquake() {
 }
 
 function game_data_lr-tyrquake() {
-    getDepends lhasa
     if [[ ! -f "$romdir/ports/quake/id1/pak0.pak" ]]; then
+        getDepends lhasa
         mkUserDir "$romdir/ports"
         mkUserDir "$romdir/ports/quake"
         local temp="$(mktemp -d)"
         # download / unpack / install quake shareware files
         downloadAndExtract "$__archive_url/quake106.zip" "$temp"
         pushd "$temp"
-        lha ef resource.1
+        lhasa ef resource.1
         cp -rf id1 "$romdir/ports/quake/"
         popd
         rm -rf "$temp"

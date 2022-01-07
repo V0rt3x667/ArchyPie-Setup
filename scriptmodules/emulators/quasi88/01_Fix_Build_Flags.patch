@@ -1,16 +1,7 @@
 --- a/Makefile	2013-02-19 14:54:03.000000000 +0000
-+++ b/Makefile	2020-11-04 16:05:34.664570000 +0000
-@@ -356,7 +356,7 @@
- #	C++ ¥³¥ó¥Ñ¥¤¥é¤ò»È¤¦¾ì¹ç¡¢´Ä¶­¤Ë¤è¤Ã¤Æ¤Ï $(CXX) ¤È¤¹¤ëÉ¬Í×¤¬
- #	¤¢¤ë¤«¤â¤·¤ì¤Þ¤»¤ó¡£
- 
--LD	= $(CC) -Wl,-s
-+LD	= $(CC) -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now
- # LD	= $(CXX) -Wl,-s
- 
- 
++++ b/Makefile	2017-01-29 04:51:05.264262542 +0000
 @@ -512,7 +512,7 @@
- # SDL¥Ð¡¼¥¸¥ç¥ó¤Ç¤ÎÀßÄê
+ # SDL???????¦Ø¦~
  
  CFLAGS += -Isrc/FUNIX -Isrc/SDL `$(SDL_CONFIG) --cflags`
 -LIBS   +=                       `$(SDL_CONFIG) --libs`
@@ -27,8 +18,8 @@
  
  $(PROGRAM):	$(OBJECTS)
  		$(LD) $(OBJECTS) $(LIBS) -o $(PROGRAM) 
---- a/src/fmgen/psg.cpp	2003-09-05 16:06:43.000000000 +0100
-+++ b/src/fmgen/psg.cpp	2020-11-04 16:25:22.559538178 +0000
+--- a/src/fmgen/psg.cpp	2017-02-04 19:37:09.236638871 +0000
++++ b/src/fmgen/psg.cpp	2017-02-04 19:37:13.368626054 +0000
 @@ -118,7 +118,7 @@
  		2,2, 2,0, 2,1, 2,3, 1,1, 1,3, 1,2, 1,0,
  	};
@@ -37,4 +28,3 @@
 +	static uint8 table3[4] = {  0,  1, (uint8)-1,  0 };
  
  	uint* ptr = enveloptable[0];
- 

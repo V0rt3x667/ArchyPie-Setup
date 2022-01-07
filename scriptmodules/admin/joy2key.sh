@@ -9,17 +9,18 @@ rp_module_desc="Provides joystick to keyboard conversion for navigation of Archy
 rp_module_section="core"
 
 function _update_hook_joy2key() {
-    # make sure joy2key is always updated when updating archypie-setup
-    rp_isInstalled "$md_id" && install_bin_joy2key
+    # make sure joy2key is always updated when updating retropie-setup
+    rp_isInstalled "$md_id" && rp_callModule "$md_id"
 }
 
 function depends_joy2key() {
+    getDepends pip python-wheel python-urwid
     pip install -U git+https://github.com/marcusva/py-sdl2.git
 }
 
 function install_bin_joy2key() {
     local file
-    for file in "joy2key.py" "joy2key_sdl.py"; do
+    for file in "joy2key.py" "joy2key_sdl.py" "osk.py"; do
         cp "$md_data/$file" "$md_inst/"
         chmod +x "$md_inst/$file"
         python -m compileall "$md_inst/$file"
