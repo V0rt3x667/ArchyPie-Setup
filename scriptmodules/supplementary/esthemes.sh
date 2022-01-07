@@ -23,6 +23,7 @@ function _has_pixel_pos_esthemes() {
     # emulationstation launch script will exit if run as root
     local es_ver="$(sudo -u $user /usr/bin/emulationstation --help | grep -oP "Version \K[^,]+")"
     # if emulationstation is newer than 2.10, enable pixel based themes
+    compareVersions "$es_ver" "2.10"
     if [[ $? == 0 || $? == -1 ]]; then
         pixel_pos=1
     else

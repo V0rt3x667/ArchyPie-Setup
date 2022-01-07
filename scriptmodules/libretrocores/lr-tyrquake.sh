@@ -38,7 +38,7 @@ function game_data_lr-tyrquake() {
         # download / unpack / install quake shareware files
         downloadAndExtract "$__archive_url/quake106.zip" "$temp"
         pushd "$temp"
-        lhasa ef resource.1
+        lha ef resource.1
         cp -rf id1 "$romdir/ports/quake/"
         popd
         rm -rf "$temp"

@@ -9,7 +9,7 @@ rp_module_desc="Provides joystick to keyboard conversion for navigation of Archy
 rp_module_section="core"
 
 function _update_hook_joy2key() {
-    # make sure joy2key is always updated when updating retropie-setup
+    # make sure joy2key is always updated when updating archypie-setup
     rp_isInstalled "$md_id" && rp_callModule "$md_id"
 }
 
