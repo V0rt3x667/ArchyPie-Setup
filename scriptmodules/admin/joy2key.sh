@@ -14,7 +14,7 @@ function _update_hook_joy2key() {
 }
 
 function depends_joy2key() {
-    getDepends pip python-wheel python-urwid
+    getDepends python-pip python-wheel python-urwid
     pip install -U git+https://github.com/marcusva/py-sdl2.git
 }
 
