@@ -23,8 +23,8 @@ function _get_branch_hypseus() {
 function depends_hypseus() {
     local depends=(
         'libvorbis'
-		'libogg'
-		'libmpeg2'
+        'libogg'
+        'libmpeg2'
         'sdl2'
         'sdl2_image'
         'sdl2_ttf'
