@@ -42,7 +42,7 @@ function build_citra() {
         -DCMAKE_CXX_FLAGS="${CXXFLAGS} -stdlib=libc++" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DENABLE_SDL2=ON \
-        -DENABLE_QT=OFF \
+        -DENABLE_QT=ON \
         -DENABLE_WEB_SERVICE=OFF \
         -DCITRA_USE_BUNDLED_SDL2=OFF \
         -Wno-dev \
@@ -60,8 +60,7 @@ function configure_citra() {
     mkRomDir "3ds"
 
     addEmulator 1 "$md_id" "3ds" "$md_inst/bin/citra -f %ROM%"
-    # QT GUI does not build with GCC11, 10 or Clang
-    #addEmulator 0 "$md_id-gui" "3ds" "$md_inst/bin/citra-qt -f %ROM%"
+    addEmulator 0 "$md_id-gui" "3ds" "$md_inst/bin/citra-qt -f %ROM%"
 
     addSystem "3ds"
 }

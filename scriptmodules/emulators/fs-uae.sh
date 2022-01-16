@@ -8,8 +8,8 @@ rp_module_id="fs-uae"
 rp_module_desc="FS-UAE - Commodore Amiga 500, 500+, 600, 1200, CDTV & CD32 Emulator"
 rp_module_help="ROM Extension: .adf .adz .dms .ipf .zip .lha .iso .cue .bin\n\nCopy Your Amiga Games to $romdir/amiga\n\nCopy Your CD32 Games to $romdir/cd32\n\nCopy Your CDTV Games to $romdir/cdtv\n\nCopy a required BIOS file (e.g. kick13.rom) to $biosdir."
 rp_module_licence="GPL2 https://raw.githubusercontent.com/FrodeSolheim/fs-uae/master/COPYING"
-rp_module_repo="file https://fs-uae.net/stable/3.0.5/fs-uae-3.0.5.tar.gz"
-rp_module_section="exp"
+rp_module_repo="git https://github.com/FrodeSolheim/fs-uae.git v3.1.66"
+rp_module_section="main"
 rp_module_flags="!all !arm x11"
 
 function depends_fs-uae() {
@@ -36,11 +36,11 @@ function depends_fs-uae() {
 }
 
 function _sources_libcapsimage_fs-uae() {
-    gitPullOrClone "$md_build/capsimg" "https://github.com/FrodeSolheim/capsimg.git"
+    gitPullOrClone "$md_build/capsimg" "https://github.com/FrodeSolheim/capsimg.git" "v5.1.2"
 }
 
 function sources_fs-uae() {
-    downloadAndExtract "$md_repo_url" "$md_build" --strip-components=1
+    gitPullOrClone
     _sources_libcapsimage_fs-uae
 }
 
@@ -59,9 +59,10 @@ function build_fs-uae() {
     _build_libcapsimage_fs-uae
 
     cd "$md_build"
+    ./bootstrap
     ./configure --prefix="$md_inst"
     make clean
-    make CXXFLAGS+="-std=gnu++14 -fpermissive"
+    make
     md_ret_require="$md_build/fs-uae"
 }
 

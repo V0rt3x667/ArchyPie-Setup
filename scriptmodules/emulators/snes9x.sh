@@ -34,6 +34,7 @@ function sources_snes9x() {
 function build_snes9x() {
     cd unix
     CXXFLAGS+=" -I/usr/include/glslang"
+    autoconf
     ./configure \
         --prefix="$md_inst" \
         --enable-netplay
