@@ -21,14 +21,14 @@ function depends_alephone() {
         'boost'
         'ffmpeg'
         'glu'
+        'icoutils'
         'libmad'
         'libvorbis'
+        'mesa'
         'sdl2_image'
         'sdl2_net'
         'sdl2_ttf'
         'zziplib'
-        'icoutils'
-        'mesa'
     )
     getDepends "${depends[@]}"
 }

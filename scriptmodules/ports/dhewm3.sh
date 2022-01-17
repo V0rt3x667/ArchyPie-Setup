@@ -21,6 +21,7 @@ function depends_dhewm3() {
         'curl'
         'libjpeg'
         'libvorbis'
+        'ninja'
         'openal'
         'sdl2'
     )
@@ -32,32 +33,24 @@ function sources_dhewm3() {
 }
 
 function build_dhewm3() {
-    mkdir build
-    cd build
-
     LDFLAGS+=" -Wl,-rpath='$md_inst'"
-    cmake ../neo \
+    cmake . \
+        -GNinja \
+        -Bbuild \
+        -Sneo \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DREPRODUCIBLE_BUILD=1 \
         -DD3XP=1 \
         -DDEDICATED=1 \
         -Wno-dev
-    make clean
-    make
+    ninja -C build
     md_ret_require="$md_build/build/dhewm3"
 }
 
 function install_dhewm3() {
-    cd build
-    make install
-
-#    md_ret_files=(
-#        'build/dhewm3'
-#        'build/dhewm3ded'
-#        'build/base.so'
-#        'build/d3xp.so'
-#    )
+    ninja -C build install/strip
 }
 
 function _game_data_dhewm3() {

@@ -8,9 +8,13 @@ rp_module_id="ags"
 rp_module_desc="Adventure Game Studio - Adventure Game Engine"
 rp_module_help="ROM Extension: .exe\n\nCopy your Adventure Game Studio roms to $romdir/ags"
 rp_module_licence="OTHER https://raw.githubusercontent.com/adventuregamestudio/ags/master/License.txt"
-rp_module_repo="git https://github.com/adventuregamestudio/ags.git v.3.5.1.10"
+rp_module_repo="git https://github.com/adventuregamestudio/ags.git :_get_branch_ags"
 rp_module_section="opt"
 rp_module_flags="!mali"
+
+function _get_branch_ags() {
+    download https://api.github.com/repos/adventuregamestudio/ags/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
 
 function depends_ags() {
     local depends=(
@@ -21,6 +25,7 @@ function depends_ags() {
         'libtheora'
         'libvorbis'
         'libxxf86vm'
+        'ninja'
         'xorg-server'
     )
     getDepends "${depends[@]}"
@@ -31,23 +36,19 @@ function sources_ags() {
 }
 
 function build_ags() {
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
+        -GNinja \
+        -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -Wno-dev
-    make clean
-    make
-
-#    make -C Engine clean
-#    make -C Engine
+    ninja -C build
     md_ret_require="$md_build/build/ags"
 }
 
 function install_ags() {
-    cd build
-    make install
+    ninja -C build install/strip
 }
 
 function configure_ags() {

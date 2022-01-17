@@ -169,7 +169,7 @@ function pacmanUpdate() {
 
 ## @fn pacmanInstall()
 ## @param packages package / space separated list of packages to install
-## @brief Calls apt-get install with the packages provided.
+## @brief Calls pacman -S with the packages provided.
 function pacmanInstall() {
     pacmanUpdate
     pacman -S "$@" --noconfirm --needed
@@ -178,26 +178,11 @@ function pacmanInstall() {
 
 ## @fn pacmanRemove()
 ## @param packages package / space separated list of packages to install
-## @brief Calls apt-get remove with the packages provided.
+## @brief Calls pacman -Rs with the packages provided.
 function pacmanRemove() {
     pacmanUpdate
     pacman -Rs "$@" --noconfirm
     return $?
-}
-
-## @fn pacmanPkg()
-## @param PKGBUILD to build and install
-## @brief Calls makepkg -csi --noconfirm --needed with the PKGBUILD provided.
-function pacmanPkg() {
-    PKGBUILD="$1"
-    for pkg in "${PKGBUILD[@]}"; do
-        su -m "$user" -c 'cd '"$pkgdir/$pkg"' && \
-        BUILDDIR='"$md_build"' \
-        SRCDEST='"$md_build"' \
-        SRCPKGDEST='"$md_build"' \
-        PACKAGER="archypie.project <archrgs.project@gmail.com>" \
-        makepkg -csi --noconfirm --needed'
-    done
 }
 
 function _mapPackage() {

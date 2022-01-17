@@ -8,7 +8,7 @@ rp_module_id="love"
 rp_module_desc="Love - 2D Game Engine for Lua"
 rp_module_help="Copy your Love games to $romdir/love"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/love2d/love/master/license.txt"
-rp_module_repo="git https://github.com/love2d/love master"
+rp_module_repo="git https://github.com/love2d/love 11.4"
 rp_module_section="opt"
 rp_module_flags="!aarch64"
 
@@ -34,13 +34,7 @@ function build_love() {
     ./platform/unix/automagic
     local params=(--prefix="$md_inst")
 
-    # workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65612 on gcc 5.x+
-    if isPlatform "x86"; then
-        CXXFLAGS+=" -lgcc_s -lgcc" ./configure "${params[@]}"
-    else
-        ./configure "${params[@]}"
-    fi
-
+    ./configure "${params[@]}"
     make clean
     make
     md_ret_require="$md_build/src/love"

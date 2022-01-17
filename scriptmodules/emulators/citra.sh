@@ -6,21 +6,22 @@
 
 rp_module_id="citra"
 rp_module_desc="Citra - Nintendo 3DS Emulator"
-rp_module_help="ROM Extensions: .3ds .cci .cxi .app .3dsx\n\nCopy Your Nintendo 3DS Games to $romdir/3ds"
+rp_module_help="ROM Extensions: .3ds .3dsx .app .axf .cci .cxi .elf\n\nCopy Your Decrypted Nintendo 3DS Games to $romdir/3ds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/citra-emu/citra/master/license.txt"
-rp_module_repo="git https://github.com/libretro/citra.git master"
+rp_module_repo="git https://github.com/citra-emu/citra master"
 rp_module_section="main"
 rp_module_flags="!all 64bit"
 
 function depends_citra() {
     local depends=(
-        'clang'
+        'boost'
         'cmake'
         'doxygen'
         'ffmpeg'
         'fmt'
-        'libc++'
+        'libfdk-aac'
         'ninja'
+        'qt5-base'
         'qt5-multimedia'
         'sdl2'
     )
@@ -35,21 +36,14 @@ function build_citra() {
     cmake . \
         -GNinja \
         -Bbuild \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
-        -DCMAKE_CXX_FLAGS="${CXXFLAGS} -stdlib=libc++" \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DENABLE_SDL2=ON \
-        -DENABLE_QT=ON \
-        -DENABLE_WEB_SERVICE=OFF \
+        -DENABLE_FFMPEG_AUDIO_DECODER=ON \
         -DCITRA_USE_BUNDLED_SDL2=OFF \
-        -Wno-dev \
-        -Wno-error
-    ninja -C build clean
+        -Wno-dev
     ninja -C build
-    md_ret_require="$md_build/build/bin/citra"
+    md_ret_require="$md_build/build/bin/Release/citra"
 }
 
 function install_citra() {
@@ -58,6 +52,8 @@ function install_citra() {
 
 function configure_citra() {
     mkRomDir "3ds"
+
+    moveConfigDir "$home/.local/share/citra-emu" "$md_conf_root/3ds/citra"
 
     addEmulator 1 "$md_id" "3ds" "$md_inst/bin/citra -f %ROM%"
     addEmulator 0 "$md_id-gui" "3ds" "$md_inst/bin/citra-qt -f %ROM%"
