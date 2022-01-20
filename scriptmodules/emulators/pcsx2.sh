@@ -6,15 +6,14 @@
 
 rp_module_id="pcsx2"
 rp_module_desc="PCSX2 - Sony PlayStation 2 Emulator"
-rp_module_help="ROM Extensions: .bin .iso .img .mdf .z .z2 .bz2 .cso .ima .gz\n\nCopy your PS2 roms to $romdir/ps2\n\nCopy the required BIOS file to $biosdir"
+rp_module_help="ROM Extensions: .bin .bz2 .cso .gz .ima .img .iso .mdf .z .z2\n\nCopy Your PS2 ROMs to: $romdir/ps2\n\nCopy the required BIOS file to: $biosdir"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/PCSX2/pcsx2/master/COPYING.GPLv3"
-rp_module_repo="git https://github.com/PCSX2/pcsx2.git master"
-rp_module_section="exp"
+rp_module_repo="git https://github.com/PCSX2/pcsx2 master"
+rp_module_section="main"
 rp_module_flags="!all x86"
 
 function depends_pcsx2() {
     local depends=(
-        'clang'
         'cmake'
         'fmt'
         'libaio'
@@ -38,8 +37,6 @@ function build_pcsx2() {
         -GNinja \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DENABLE_TESTS=OFF \
         -DDISABLE_BUILD_DATE=ON \
@@ -51,7 +48,6 @@ function build_pcsx2() {
         -DXDG_STD=ON \
         -DwxWidgets_CONFIG_EXECUTABLE=/usr/bin/wx-config-gtk3 \
         -Wno-dev
-    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/pcsx2/pcsx2"
 }

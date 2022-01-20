@@ -6,7 +6,7 @@
 
 rp_module_id="citra"
 rp_module_desc="Citra - Nintendo 3DS Emulator"
-rp_module_help="ROM Extensions: .3ds .3dsx .app .axf .cci .cxi .elf\n\nCopy Your Decrypted Nintendo 3DS Games to $romdir/3ds"
+rp_module_help="ROM Extensions: .3ds .3dsx .app .axf .cci .cxi .elf\n\nCopy Your Decrypted Nintendo 3DS ROMs to: $romdir/3ds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/citra-emu/citra/master/license.txt"
 rp_module_repo="git https://github.com/citra-emu/citra master"
 rp_module_section="main"

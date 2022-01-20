@@ -6,24 +6,25 @@
 
 rp_module_id="dolphin"
 rp_module_desc="Dolphin - Nintendo Gamecube, Wii & Triforce Emulator"
-rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy your Gamecube roms to $romdir/gc and Wii roms to $romdir/wii"
+rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy Your Gamecube ROMs to: $romdir/gc and Wii ROMs to $romdir/wii"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dolphin-emu/dolphin/master/COPYING"
-rp_module_repo="git https://github.com/dolphin-emu/dolphin.git master"
+rp_module_repo="git https://github.com/dolphin-emu/dolphin master"
 rp_module_section="exp"
 rp_module_flags="!all 64bit"
 
 function depends_dolphin() {
     local depends=(
         'bluez-libs'
+        'cmake'
         'enet'
         'ffmpeg'
         'lzo'
         'mbedtls'
         'miniupnpc'
+        'ninja'
         'pugixml'
         'qt5-base'
         'sfml'
-        'cmake'
     )
     getDepends "${depends[@]}"
 }
@@ -33,20 +34,20 @@ function sources_dolphin() {
 }
 
 function build_dolphin() {
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DUSE_SHARED_ENET=ON
-    make clean
-    make
+        -DUSE_SHARED_ENET=ON \
+        -Wno-dev
+    ninja -C build
     md_ret_require="$md_build/build/Binaries/dolphin-emu"
 }
 
 function install_dolphin() {
-    cd build
-    make install
+    ninja -C build install/strip
 }
 
 function configure_dolphin() {

@@ -6,7 +6,7 @@
 
 rp_module_id="dosbox-staging"
 rp_module_desc="DOSBox-Staging - MS-DOS x86 Emulator"
-rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy your DOS games to $romdir/pc"
+rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy Your DOS Games to: $romdir/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dosbox-staging/dosbox-staging/master/COPYING"
 rp_module_repo="git https://github.com/dosbox-staging/dosbox-staging.git :_get_branch_dosbox-staging"
 rp_module_section="exp"
@@ -17,7 +17,20 @@ function _get_branch_dosbox-staging() {
 }
 
 function depends_dosbox-staging() {
-    getDepends cmake alsa-lib fluidsynth ncurses opusfile libpng sdl2 sdl2_net meson ninja gzip
+    local depends=(
+        'alsa-lib'
+        'cmake'
+        'fluidsynth'
+        'gzip'
+        'libpng'
+        'meson'
+        'ncurses'
+        'ninja'
+        'opusfile'
+        'sdl2'
+        'sdl2_net'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_dosbox-staging() {
@@ -26,11 +39,6 @@ function sources_dosbox-staging() {
 
 function build_dosbox-staging() {
     local params=(-Dbuildtype=release -Ddefault_library=static --prefix="$md_inst")
-
-    # Fluidsynth (static)
-#    cd "$md_build/contrib/static-fluidsynth"
-#    make
-#    export PKG_CONFIG_PATH="${md_build}/contrib/static-fluidsynth/fluidsynth/build"
 
     cd "$md_build"
     meson setup "${params[@]}" build

@@ -12,30 +12,22 @@ rp_module_repo="git https://github.com/stardot/b-em master"
 rp_module_section="main"
 rp_module_flags=""
 
+function depends_b-em() {
+    local depends=(
+        'allegro'
+        'zlib'
+    )
+    getDepends "${depends[@]}"
+}
+
+
 function sources_b-em() {
     gitPullOrClone
-    downloadAndExtract "https://github.com/liballeg/allegro5/archive/refs/tags/5.2.7.0.tar.gz" "$md_build/allegro" --strip-components 1
 }
-
-function _build_allegro_b-em() {
-    # Build Allegro From Source.
-    # The Official Arch Linux Package is Missing allegro_native_dialog.h and liballegro_dialog.so.
-    mkdir "$md_build/allegro/build"
-    cd "$md_build/allegro/build"
-    cmake .. \
-        -DCMAKE_INSTALL_PREFIX="" \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON
-    make DESTDIR="$md_build/allegro-5" install
-}
-
 
 function build_b-em() {
-    _build_allegro_b-em
-
-    cd "$md_build"
-    export CFLAGS="${CFLAGS} -ffile-prefix-map=\"$PWD\"=. -I$md_build/allegro-5/include"
-    export LDFLAGS="${LDFLAGS} -Wl,-L$md_build/allegro-5/lib,-rpath='$md_inst/lib'"
+    export CFLAGS="${CFLAGS} -ffile-prefix-map=\"$PWD\"=."
+    export LDFLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'"
     ./autogen.sh
     ./configure --prefix="$md_inst"
     make clean
@@ -60,7 +52,7 @@ function install_b-em() {
 function configure_b-em() {
     mkRomDir "bbcmicro"
 
-    moveConfigDir "$home/.config/b-em" "$md_conf_root/bbcmicro"
+    moveConfigDir "$home/.config/b-em" "$md_conf_root/bbcmicro/b-em"
 
     addEmulator 1 "$md_id-modelb" "bbcmicro" "$md_inst/b-em %ROM% -m3 -autoboot"
     addEmulator 0 "$md_id-modela" "bbcmicro" "$md_inst/b-em %ROM% -m0 -autoboot"
