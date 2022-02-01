@@ -6,7 +6,7 @@
 
 rp_module_id="openbor"
 rp_module_desc="OpenBOR - Beat 'Em Up Game Engine"
-rp_module_help="OpenBOR games need to be extracted to function properly. Place your pak files in $romdir/ports/openbor and then run $rootdir/ports/openbor/extract.sh. When the script is done, your original pak files will be found in $romdir/ports/openbor/originals and can be deleted."
+rp_module_help="Copy your .pak files to: $romdir/ports/openbor"
 rp_module_licence="BSD https://raw.githubusercontent.com/DCurrent/openbor/master/LICENSE"
 rp_module_repo="git https://github.com/DCurrent/openbor.git master"
 rp_module_section="exp"
@@ -45,8 +45,6 @@ function build_openbor() {
 function install_openbor() {
     md_ret_files=(
        'engine/releases/LINUX/OpenBOR/OpenBOR'
-       'tools/borpak/scripts/packer'
-       'tools/borpak/scripts/paxplode'
        'tools/borpak/source/borpak'
     )
 }
@@ -60,7 +58,7 @@ function configure_openbor() {
     cat >"$md_inst/openbor.sh" << _EOF_
 #!/bin/bash
 pushd "$md_inst"
-./OpenBOR "\$@"
+./OpenBOR -fullscreen -keepaspectratio "\$@"
 popd
 _EOF_
     chmod +x "$md_inst/openbor.sh"
@@ -72,13 +70,12 @@ BORROMDIR="$romdir/ports/$md_id"
 mkdir \$BORROMDIR/original/
 mkdir \$BORROMDIR/original/borpak/
 mv \$BORROMDIR/*.pak \$BORROMDIR/original/
-cp \$PORTDIR/paxplode.sh \$BORROMDIR/original/
 cp \$PORTDIR/borpak \$BORROMDIR/original/borpak/
 cd \$BORROMDIR/original/
 for i in *.pak
 do
   CURRENTFILE=\`basename "\$i" .pak\`
-  ./paxplode "\$i"
+  \$BORROMDIR/original/borpak/borpak "\$i"
   mkdir "\$CURRENTFILE"
   mv data/ "\$CURRENTFILE"/
   mv "\$CURRENTFILE"/ ../

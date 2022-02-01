@@ -43,28 +43,28 @@ function build_duckstation() {
         -Wno-dev
     ninja -C build
     md_ret_require=(
-        'bin/duckstation-nogui'
-        'bin/duckstation-qt'
+        'build/bin/duckstation-nogui'
+        'build/bin/duckstation-qt'
     )
 }
 
 function install_duckstation() {
-    ninja -C build install/strip
-    # md_ret_files=(
-    #     'build/bin/duckstation-nogui' 
-    #     'build/bin/duckstation-qt'
-    #     'build/bin/database'
-    #     'build/bin/inputprofiles'
-    #     'build/bin/resources'
-    #     'build/bin/shaders'
-    #     'build/bin/translations'
-    # )
+    md_ret_files=(
+        'build/bin/duckstation-nogui' 
+        'build/bin/duckstation-qt'
+        'build/bin/database'
+        'build/bin/inputprofiles'
+        'build/bin/resources'
+        'build/bin/shaders'
+        'build/bin/translations'
+    )
 }
 
 function configure_duckstation() {
   mkRomDir "psx"
 
   moveConfigDir "$home/.local/share/duckstation" "$md_conf_root/psx"
+  
   mkUserDir "$md_conf_root/psx/bios"
 
   local bios

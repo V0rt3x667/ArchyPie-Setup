@@ -13,7 +13,16 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function depends_hatari() {
-    getDepends sdl2 zlib libpng cmake readline portaudio
+    local depends=(
+        'cmake'
+        'libpng'
+        'ninja'
+        'portaudio'
+        'readline'
+        'sdl2'
+        'zlib'
+    )
+    getDepends "${depends[@]}" 
 }
 
 function _sources_libcapsimage_hatari() {
@@ -43,31 +52,30 @@ function _build_libcapsimage_hatari() {
 
 function build_hatari() {
     _build_libcapsimage_hatari
-
+    
     # build hatari
     cd "$md_build"
-    rm -f CMakeCache.txt
-    # add $md_inst to library search path for loading capsimage library
-    LDFLAGS+=" -Wl,-rpath='$md_inst'" \
-        cmake . \
-        -DCMAKE_SKIP_RPATH=ON \
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX:PATH="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -DCAPSIMAGE_INCLUDE_DIR="$md_build/src/includes" \
         -DCAPSIMAGE_LIBRARY="$md_build/lib/libcapsimage.so.5.1" \
-        -DENABLE_SDL2:BOOL=1
-    make clean
-    make
-    md_ret_require="$md_build/src/hatari"
+        -Wno-dev
+    ninja -C build
+    md_ret_require="$md_build/build/src/hatari"
 }
 
 function _install_libcapsimage_hatari() {
-    cp "$md_build/lib/libcapsimage.so.5.1" "$md_inst"
-    cd "$md_inst"
-    ln -sf libcapsimage.so.5.1 libcapsimage.so.5
+    cp "$md_build/lib/libcapsimage.so.5.1" "$md_inst/lib"
+    ln -sf "$md_inst/lib/libcapsimage.so.5.1" "$md_inst/lib/libcapsimage.so.5"
 }
 
 function install_hatari() {
-    make install
+    ninja -C build install/strip
     _install_libcapsimage_hatari
 }
 
@@ -89,7 +97,6 @@ function configure_hatari() {
 
     [[ "$md_mode" == "remove" ]] && return
 
-    # move any old configs to new location
     moveConfigDir "$home/.hatari" "$md_conf_root/atarist"
 
     ln -sf "$biosdir/tos.img" "$md_inst/share/hatari/tos.img"

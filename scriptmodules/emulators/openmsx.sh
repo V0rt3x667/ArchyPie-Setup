@@ -12,15 +12,6 @@ rp_module_repo="git https://github.com/openMSX/openMSX.git :_get_branch_openmsx"
 rp_module_section="opt"
 rp_module_flags=""
 
-#function _get_commit_openmsx() {
-#    local commit
-#    # latest code requires at least GCC 8.3 (Debian Buster) for full C++17 support
-#    compareVersions $__gcc_version lt 8 && commit="c8d90e70"
-#    # for GCC before 7, build from an earlier commit, before C++17 support was added
-#    compareVersions $__gcc_version lt 7 && commit="5ee25b62"
-#    echo "$commit"
-#}
-
 function _get_branch_openmsx() {
     download https://api.github.com/repos/openMSX/openMSX/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
 }
@@ -30,12 +21,11 @@ function depends_openmsx() {
         'alsa-lib' 
         'libtheora' 
         'libvorbis' 
+        'python'
         'sdl2_ttf' 
         'tcl'
-        'python'
     )
     isPlatform "x11" && depends+=('glew')
-
     getDepends "${depends[@]}"
 }
 

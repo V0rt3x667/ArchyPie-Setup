@@ -17,7 +17,13 @@ function _get_branch_simcoupe() {
 }
 
 function depends_simcoupe() {
-    getDepends cmake sdl2 zlib bzip2
+    local depends=(
+        'bzip2'
+        'cmake'
+        'sdl2'
+        'zlib'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_simcoupe() {
@@ -26,16 +32,18 @@ function sources_simcoupe() {
 
 function build_simcoupe() {
     cmake . \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -Wno-dev
-    make clean
-    make
-    md_ret_require="$md_build/simcoupe"
+    ninja -C build
+    md_ret_require="$md_build/build/simcoupe"
 }
 
 function install_simcoupe() {
-    make install
+    ninja -C build install/strip
 }
 
 function configure_simcoupe() {

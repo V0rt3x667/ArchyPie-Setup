@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch - Frontend to the Libretro Cores - Required by all lr-* Emulators"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/RetroPie/RetroArch.git retropie-v1.9.14"
+rp_module_repo="git https://github.com/RetroPie/RetroArch.git retropie-v1.10.0"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -69,7 +69,6 @@ function build_retroarch() {
         isPlatform "gles31" && params+=(--enable-opengles3_1)
         isPlatform "gles32" && params+=(--enable-opengles3_2)
     fi
-
     isPlatform "rpi" && isPlatform "mesa" && params+=(--disable-videocore)
     # Temporarily block dispmanx support for fkms until upstream support is fixed
     isPlatform "dispmanx" && ! isPlatform "kms" && params+=(--enable-dispmanx --disable-opengl1)
@@ -392,6 +391,7 @@ function gui_retroarch() {
                 options=(1 "Install/Update $name" 2 "Uninstall $name" )
                 cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for $dir" 12 40 06)
                 choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+
                 case "$choice" in
                     1)
                         "update_${name}_retroarch"
@@ -403,6 +403,7 @@ function gui_retroarch() {
                     *)
                         continue
                         ;;
+
                 esac
                 ;;
             4)

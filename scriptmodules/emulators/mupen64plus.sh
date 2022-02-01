@@ -55,18 +55,6 @@ function _get_repos_mupen64plus() {
             'mupen64plus mupen64plus-rsp-z64 master'
         )
     fi
-
-#    local commit=""
-#    # GLideN64 now requires cmake 3.9 so use an older commit as a workaround for systems with older cmake (pre buster).
-#    # Test using "apt-cache madison" as this code could be called when cmake isn't yet installed but correct version
-#    # is available - eg via update check with builder module which removes dependencies after building.
-#    # Multiple versions may be available, so grab the versions via cut, sort by version, take the latest from the top
-#    # and pipe to xargs to strip whitespace
-#    local cmake_ver=$(apt-cache madison cmake | cut -d\| -f2 | sort --version-sort | head -1 | xargs)
-#    if compareVersions "$cmake_ver" lt 3.9; then
-#        commit="8a9d52b41b33d853445f0779dd2b9f5ec4ecdda8"
-#    fi
-#    repos+=("gonetz GLideN64 master $commit")
     repos+=('gonetz GLideN64 master')
 
     local repo
@@ -144,11 +132,6 @@ function sources_mupen64plus() {
         gitPullOrClone "$md_build/${repo[1]}" https://github.com/${repo[0]}/${repo[1]} ${repo[2]} ${repo[3]}
     done < <(_get_repos_mupen64plus)
 
-#    if isPlatform "videocore"; then
-#        # workaround for shader cache crash issue on Raspbian stretch. See: https://github.com/gonetz/GLideN64/issues/1665
-#        applyPatch "$md_data/0001-GLideN64-use-emplace.patch"
-#    fi
-
     local config_version=$(grep -oP '(?<=CONFIG_VERSION_CURRENT ).+?(?=U)' GLideN64/src/Config.h)
     echo "$config_version" > "$md_build/GLideN64_config_version.ini"
 }
@@ -187,7 +170,6 @@ function build_mupen64plus() {
     params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On" "-DCMAKE_CXX_FLAGS=${CXXFLAGS} -fpermissive" "-Wno-dev")
     isPlatform "neon" && params+=("-DNEON_OPT=On")
     isPlatform "mesa" && params+=("-DMESA=On" "-DEGL=On")
-    #isPlatform "vero4k" && params+=("-DVERO4K=On")
     isPlatform "armv8" && params+=("-DCRC_ARMV8=On")
     isPlatform "mali" && params+=("-DVERO4K=On" "-DCRC_OPT=On" "-DEGL=On")
     isPlatform "x86" && params+=("-DCRC_OPT=On" "-DX86_OPT=ON")

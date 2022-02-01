@@ -16,7 +16,7 @@ function _get_branch_oricutron() {
 }
 
 function depends_oricutron() {
-    local depends=('cmake' 'sdl2')
+    local depends=('cmake' 'ninja' 'sdl2')
     isPlatform "x11" && depends+=('gtk3')
     getDepends "${depends[@]}"
 }
@@ -26,20 +26,14 @@ function sources_oricutron() {
 }
 
 function build_oricutron() {
-#    make clean
-#    if isPlatform "rpi" || isPlatform "mali"; then
-#        make PLATFORM=rpi SDL_LIB=sdl2
-#    else
-#        make SDL_LIB=sdl2
-#    fi
-
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_TYPE="Release"
-    make clean
-    make 
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -Wno-dev
+    ninja -C build
     md_ret_require="$md_build/build/Oricutron"
 }
 

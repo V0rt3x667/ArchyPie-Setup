@@ -22,14 +22,14 @@ function _get_branch_hypseus() {
 
 function depends_hypseus() {
     local depends=(
-        'libvorbis'
-        'libogg'
+        'cmake'
         'libmpeg2'
+        'libogg'
+        'libvorbis'
         'sdl2'
         'sdl2_image'
         'sdl2_ttf'
         'zlib'
-        'cmake'
     )
     getDepends "${depends[@]}"
 }

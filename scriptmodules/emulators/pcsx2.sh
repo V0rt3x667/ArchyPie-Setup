@@ -35,8 +35,8 @@ function build_pcsx2() {
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DENABLE_TESTS=OFF \
         -DDISABLE_BUILD_DATE=ON \
