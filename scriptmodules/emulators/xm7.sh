@@ -25,7 +25,6 @@ function depends_xm7() {
         'libtool'
         'libx11'
         'libxinerama'
-        'sdl'
         'sdl_mixer'
     )
     getDepends "${depends[@]}"
@@ -68,27 +67,27 @@ _EOF_
 function build_xm7() {
     _build_libagar_xm7
 
-    cd "$md_build"
+    cd "$md_build/linux-sdl"
     cmake . \
-        -Slinux-sdl \
-        -Blinux-sdl/build \
-        -GNinja \
+        -Bbuild \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCMAKE_C_COMPILER="gcc-10" \
         -DCMAKE_CXX_COMPILER="g++-10" \
         -DCMAKE_CXX_FLAGS="-DSHAREDIR='\"$md_inst/share/xm7\"'" \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_TYPE=Release \
         -DUSE_OPENCL=No \
         -DUSE_OPENGL=No \
         -DWITH_LIBAGAR_PREFIX="$md_build/libagar" \
         -DWITH_AGAR_STATIC=yes \
         -Wno-dev
-    ninja -C linux-sdl/build
-    md_ret_require="linux-sdl/build/sdl/xm7"
+    make -C build
+    md_ret_require="$md_build/linux-sdl/build/sdl/xm7"
 }
 
 function install_xm7() {
-    ninja -C linux-sdl/build install/strip
+    cd "$md_build/linux-sdl/build"
+    make install
 }
 
 function configure_xm7() {

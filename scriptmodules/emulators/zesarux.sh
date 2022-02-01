@@ -8,20 +8,26 @@ rp_module_id="zesarux"
 rp_module_desc="ZEsarUX - Sinclair Zx80, Zx81, Z88, Zx Spectrum 16, 48, 128, +2, +2A & ZX-Uno Emulator"
 rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk .zip\n\nCopy your ZX Spectrum games to $romdir/zxspectrum"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/chernandezba/zesarux/master/src/LICENSE"
-rp_module_repo="git https://github.com/chernandezba/zesarux.git 9.1"
+rp_module_repo="git https://github.com/chernandezba/zesarux.git :_get_branch_zesarux"
 rp_module_section="opt"
 rp_module_flags="sdl2 sdl1-videocore"
 
+function _get_branch_zesarux() {
+    download https://api.github.com/repos/chernandezba/zesarux/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_zesarux() {
-    local depends=(openssl alsa-lib)
-    isPlatform "x11" && depends+=(libpulse)
-
+    local depends=(
+        'aalib'
+        'alsa-lib'
+        'openssl'
+    )
+    isPlatform "x11" && depends+=('libpulse' 'libxxf86vm')
     if isPlatform "videocore"; then
-        depends+=(sdl)
+        depends+=('sdl')
     else
-        depends+=(sdl2)
+        depends+=('sdl2')
     fi
-
     getDepends "${depends[@]}"
 }
 
@@ -36,7 +42,14 @@ function build_zesarux() {
     ! isPlatform "videocore" && params+=(--enable-sdl2)
 
     cd src
-    ./configure --prefix "$md_inst" "${params[@]}" --enable-ssl
+    ./configure \
+        --prefix "$md_inst" \
+        --disable-caca \
+        --enable-ssl \
+        --enable-memptr \
+        --enable-visualmem \
+        --enable-cpustats \
+        "${params[@]}"
     make clean
     make
     md_ret_require="$md_build/src/zesarux"

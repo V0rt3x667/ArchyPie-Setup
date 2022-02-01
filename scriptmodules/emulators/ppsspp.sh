@@ -68,14 +68,11 @@ function build_ppsspp() {
         "${params[@]}" \
         -Wno-dev
     ninja -C build
-    md_ret_require="$md_build/ppsspp/PPSSPPSDL"
+    md_ret_require="$md_build/build/PPSSPPSDL"
 }
 
 function install_ppsspp() {
-    md_ret_files=(
-        'ppsspp/assets'
-        'ppsspp/PPSSPPSDL'
-    )
+    ninja -C build install/strip
 }
 
 function configure_ppsspp() {
@@ -89,6 +86,6 @@ function configure_ppsspp() {
     mkUserDir "$md_conf_root/psp/PSP"
     ln -snf "$romdir/psp" "$md_conf_root/psp/PSP/GAME"
 
-    addEmulator 0 "$md_id" "psp" "pushd $md_inst; $md_inst/PPSSPPSDL ${extra_params[*]} %ROM%; popd"
+    addEmulator 0 "$md_id" "psp" "pushd $md_inst; $md_inst/bin/PPSSPPSDL ${extra_params[*]} %ROM%; popd"
     addSystem "psp"
 }

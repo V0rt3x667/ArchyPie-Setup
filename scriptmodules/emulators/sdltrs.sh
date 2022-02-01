@@ -6,14 +6,22 @@
 
 rp_module_id="sdltrs"
 rp_module_desc="SDLTRS - Radio Shack TRS-80 Model 1, 3, 4 & 4P Emulator"
-rp_module_help="ROM Extension: .dsk\n\nCopy your TRS-80 games to $romdir/trs-80\n\nCopy the required BIOS file level2.rom, level3.rom, level4.rom or level4p.rom to $biosdir"
+rp_module_help="ROM Extension: .dsk\n\nCopy your TRS-80 games to: $romdir/trs-80\n\nCopy the required BIOS file level2.rom, level3.rom, level4.rom or level4p.rom to $biosdir"
 rp_module_section="exp"
 rp_module_licence="BSD https://gitlab.com/jengun/sdltrs/-/raw/master/LICENSE"
-rp_module_repo="git https://gitlab.com/jengun/sdltrs.git sdl2"
+rp_module_repo="git https://gitlab.com/jengun/sdltrs.git :_get_branch_sdltrs"
 rp_module_flags=""
 
+function _get_branch_sdltrs() {
+    download https://gitlab.com/api/v4/projects/12284576/releases - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_sdltrs() {
-    getDepends sdl2 readline
+    local depends=(
+        'readline'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_sdltrs() {
@@ -21,19 +29,19 @@ function sources_sdltrs() {
 }
 
 function build_sdltrs() {
-    NO_CONFIGURE=1 ./autogen.sh
-    ./configure --prefix="$md_inst"
-    make clean
-    make
-    md_ret_require="$md_build/sdl2trs"
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -Wno-dev
+    ninja -C build
+    md_ret_require="$md_build/build/sdltrs"
 }
 
 function install_sdltrs() {
-    md_ret_files=(
-        'sdl2trs'
-        'README.md'
-        'LICENSE'
-    )
+    ninja -C build install/strip
 }
 
 function configure_sdltrs() {
@@ -41,10 +49,10 @@ function configure_sdltrs() {
     mkRomDir "trs-80"
 
     common_args="-fullscreen -nomousepointer -showled"
-    addEmulator 1 "$md_id-model1" "trs-80" "$md_inst/sdl2trs $common_args -m1 -romfile $biosdir/level2.rom -disk0 %ROM%"
-    addEmulator 0 "$md_id-model3" "trs-80" "$md_inst/sdl2trs $common_args -m3 -romfile3 $biosdir/level3.rom -disk0 %ROM%"
-    addEmulator 0 "$md_id-model4" "trs-80" "$md_inst/sdl2trs $common_args -m4 -romfile3 $biosdir/level4.rom -disk0 %ROM%"
-    addEmulator 0 "$md_id-model4p" "trs-80" "$md_inst/sdl2trs $common_args -m4p -romfile4p $biosdir/level4p.rom -disk0 %ROM%"
+    addEmulator 1 "$md_id-model1" "trs-80" "$md_inst/bin/sdltrs $common_args -m1 -romfile $biosdir/level2.rom -disk0 %ROM%"
+    addEmulator 0 "$md_id-model3" "trs-80" "$md_inst/bin/sdltrs $common_args -m3 -romfile3 $biosdir/level3.rom -disk0 %ROM%"
+    addEmulator 0 "$md_id-model4" "trs-80" "$md_inst/bin/sdltrs $common_args -m4 -romfile3 $biosdir/level4.rom -disk0 %ROM%"
+    addEmulator 0 "$md_id-model4p" "trs-80" "$md_inst/bin/sdltrs $common_args -m4p -romfile4p $biosdir/level4p.rom -disk0 %ROM%"
     addSystem "trs-80"
 
     [[ "$md_mode" == "remove" ]] && return

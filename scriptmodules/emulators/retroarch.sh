@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch - Frontend to the Libretro Cores - Required by all lr-* Emulators"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/RetroPie/RetroArch.git retropie-v1.10.0"
+rp_module_repo="git https://github.com/RetroPie/RetroArch retropie-v1.10.0"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -48,8 +48,8 @@ function build_retroarch() {
         --disable-al \
         --disable-qt \
         --disable-builtinflac \
+        --disable-builtinglslang \
         --disable-builtinmbedtls \
-        --disable-builtinminiupnpc \
         --disable-builtinzlib \
         --disable-cg \
         --disable-jack \

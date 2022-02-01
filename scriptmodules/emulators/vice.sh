@@ -7,10 +7,14 @@
 rp_module_id="vice"
 rp_module_desc="VICE - Commodore C64, C64DTV, C128, VIC20, PET, PLUS4 & CBM-II Emulator"
 rp_module_help="ROM Extensions: .crt .d64 .g64 .prg .t64 .tap .x64 .zip .vsf\n\nCopy your Commodore 64 games to $romdir/c64"
-rp_module_licence="GPL2 http://svn.code.sf.net/p/vice-emu/code/trunk/vice/COPYING"
-rp_module_repo="svn svn://svn.code.sf.net/p/vice-emu/code/tags/v3.5/vice - HEAD"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/VICE-Team/svn-mirror/main/vice/COPYING"
+rp_module_repo="git https://github.com/VICE-Team/svn-mirror.git :_get_branch_vice"
 rp_module_section="opt"
 rp_module_flags=""
+
+function _get_branch_vice() {
+    download https://api.github.com/repos/VICE-Team/svn-mirror/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
 
 function depends_vice() {
     local depends=(
@@ -28,7 +32,6 @@ function depends_vice() {
         'portaudio'
         'sdl2'
         'sdl2_image'
-        'subversion'
         'xa'
     )
     isPlatform "x11" && depends+=('libpulse')
@@ -36,10 +39,11 @@ function depends_vice() {
 }
 
 function sources_vice() {
-    svn checkout "$md_repo_url" "$md_build"
+    gitPullOrClone
 }
 
 function build_vice() {
+    cd "$md_build/vice"
     local params=(
         --disable-pdf-docs
         --enable-ethernet
@@ -54,10 +58,11 @@ function build_vice() {
     ./configure --prefix="$md_inst" "${params[@]}"
     make clean
     make
-    md_ret_require="$md_build/src/x64"
+    md_ret_require="$md_build/vice/src/x64"
 }
 
 function install_vice() {
+    cd "$md_build/vice"
     make install
 }
 
