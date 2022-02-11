@@ -33,6 +33,6 @@ function configure_lr-stella2014() {
     mkRomDir "atari2600"
     ensureSystemretroconfig "atari2600"
 
-    addEmulator 0 "$md_id" "atari2600" "$md_inst/stella2014_libretro.so"
+    addEmulator 1 "$md_id" "atari2600" "$md_inst/stella2014_libretro.so"
     addSystem "atari2600"
 }

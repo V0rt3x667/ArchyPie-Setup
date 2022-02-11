@@ -294,25 +294,25 @@ function get_os_version() {
 
 function get_archypie_depends() {
     local depends=(
-        base-devel
-        ca-certificates
-        curl
-        dialog
-        git
-        gnupg
-        perl-rename
-        python
-        python-pip
-        python-pyudev
-        python-six
-        subversion
-        unzip
-        xmlstarlet
+        'base-devel'
+        'ca-certificates'
+        'curl'
+        'dialog'
+        'git'
+        'gnupg'
+        'perl-rename'
+        'python'
+        'python-pip'
+        'python-pyudev'
+        'python-six'
+        'subversion'
+        'unzip'
+        'xmlstarlet'
     )
 
-    [[ -n "$DISTCC_HOSTS" ]] && depends+=(distcc)
+    [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')
 
-    [[ "$__use_ccache" -eq 1 ]] && depends+=(ccache)
+    [[ "$__use_ccache" -eq 1 ]] && depends+=('ccache')
 
     if ! getDepends "${depends[@]}"; then
         fatalError "Unable to install packages required by $0 - ${md_ret_errors[@]}"

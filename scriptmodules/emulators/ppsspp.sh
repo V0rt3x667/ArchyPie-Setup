@@ -20,6 +20,7 @@ function depends_ppsspp() {
     local depends=(
         'cmake'
         'libzip'
+        'ninja'
         'sdl2'
         'snappy'
         'zlib'
@@ -34,6 +35,7 @@ function sources_ppsspp() {
 }
 
 function build_ppsspp() {
+    local ppsspp_binary="PPSSPPSDL"
     rm -rf CMakeCache.txt CMakeFiles
     local params=()
 #    if isPlatform "videocore"; then
@@ -68,7 +70,7 @@ function build_ppsspp() {
         "${params[@]}" \
         -Wno-dev
     ninja -C build
-    md_ret_require="$md_build/build/PPSSPPSDL"
+    md_ret_require="$md_build/build/$ppsspp_binary"
 }
 
 function install_ppsspp() {
@@ -77,7 +79,7 @@ function install_ppsspp() {
 
 function configure_ppsspp() {
     local extra_params=()
-    if ! isPlatform "x11"; then
+    if isPlatform "x11"; then
         extra_params+=(--fullscreen)
     fi
 

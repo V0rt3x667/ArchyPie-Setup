@@ -13,11 +13,10 @@ rp_module_section="opt"
 function depends_eduke32() {
     local depends=(
         'flac' 
-        'libvorbis'
-        'libpng'
-        'libvpx'
         'freepats-general-midi'
-        'sdl2'
+        'libpng'
+        'libvorbis'
+        'libvpx'
         'sdl2_mixer'
     )
 
@@ -38,7 +37,9 @@ function sources_eduke32() {
     # format support for glTexImage2D/glTexSubImage2D
 #    isPlatform "gles" && applyPatch "$md_data/0003-replace-gl_red.patch"
     # gcc 6.3.x compiler fix
-#    applyPatch "$md_data/0004-recast-function.patch"
+    applyPatch "$md_data/0004-recast-function.patch"
+    # cherry-picked commit fixing a game bug in E1M4 (shrinker ray stuck)
+    applyPatch "$md_data/0005-e1m4-shrinker-bug.patch"
 }
 
 function build_eduke32() {
@@ -47,7 +48,7 @@ function build_eduke32() {
     [[ "$md_id" == "ionfury" ]] && params+=(FURY=1)
     ! isPlatform "x86" && params+=(NOASM=1)
     ! isPlatform "x11" && params+=(HAVE_GTK2=0)
-    ! isPlatform "gles3" && params+=(POLYMER=0)
+    ! isPlatform "gl3" && params+=(POLYMER=0)
     ! ( isPlatform "gl" || isPlatform "mesa" ) && params+=(USE_OPENGL=0)
     # r7242 requires >1GB memory allocation due to netcode changes.
     isPlatform "arm" && params+=(NETCODE=0)
@@ -116,7 +117,7 @@ function configure_eduke32() {
         # the VC4 & V3D drivers render menu splash colours incorrectly without this
         isPlatform "mesa" && iniSet "r_useindexedcolortextures" "0"
 
-        chown "$user:$user" "$config"
+        chown -R $user:$user "$config"
     fi
 }
 
@@ -146,7 +147,7 @@ function add_games_eduke32() {
         game_args="game$game[2]"
 
         if [[ -d "$romdir/ports/$portname/${!game_path}" ]]; then
-           addPort "$md_id" "$portname" "${!game_launcher}" "${binary}.sh %ROM%" "-j$romdir/ports/$portname/${game0[1]} -j$romdir/ports/$portname/${!game_path} ${!game_args}"
+           addPort "$md_id" "$portname" "${!game_launcher}" "pushd $md_conf_root/$portname; ${binary}.sh %ROM%; popd" "-j$romdir/ports/$portname/${game0[1]} -j$romdir/ports/$portname/${!game_path} ${!game_args}"
         fi
     done
 

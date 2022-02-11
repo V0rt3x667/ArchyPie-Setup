@@ -65,7 +65,7 @@ function configure_frotz() {
     mkRomDir "zmachine"
 
     # CON: to stop runcommand from redirecting stdout to log
-    addEmulator 1 "$md_id" "zmachine" "CON:pushd $romdir/zmachine; $md_inst/bin/sfrotz %ROM%; popd"
+    addEmulator 1 "$md_id" "zmachine" "CON:pushd $romdir/zmachine; $md_inst/bin/sfrotz -F %ROM%; popd"
     addSystem "zmachine"
 
     [[ "$md_mode" == "install" ]] && game_data_frotz

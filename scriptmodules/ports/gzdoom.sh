@@ -15,6 +15,10 @@ function _get_branch_gzdoom() {
     download https://api.github.com/repos/coelckers/gzdoom/releases - | grep -m 1 tag_name | cut -d\" -f4
 }
 
+function _get_branch_zmusic() {
+    download https://api.github.com/repos/coelckers/zmusic/tags - | grep -m 1 name | cut -d\" -f4
+}
+
 function depends_gzdoom() {
     depends=(
         'alsa-lib'
@@ -32,56 +36,67 @@ function sources_gzdoom() {
     gitPullOrClone
 }
 
-function _sources_zmusic_gzdoom() {
-    gitPullOrClone "$md_build/zmusic" "https://github.com/coelckers/ZMusic" "1.1.8"
+function _sources_zmusic() {
+    tag="$(_get_branch_zmusic)"
+    gitPullOrClone "$md_build/zmusic" "https://github.com/coelckers/ZMusic" "$tag"
     sed 's/\/sounds/\/soundfonts/g' -i "$md_build/zmusic/source/mididevices/music_fluidsynth_mididevice.cpp"
 }
 
-function _build_zmusic_gzdoom() {
-    _sources_zmusic_gzdoom
+function _build_zmusic() {
+    _sources_zmusic
+
     cd "$md_build/zmusic"
     cmake . \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DDYN_FLUIDSYNTH=OFF \
         -DDYN_MPG123=OFF \
-        -DDYN_SNDFILE=OFF
-    make clean
-    make
+        -DDYN_SNDFILE=OFF \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/zmusic/source/libzmusic.so"
 }
 
 function build_gzdoom() {
-    _build_zmusic_gzdoom
+    _build_zmusic
+
     cd "$md_build"
-    LDFLAGS+=" -Wl,-rpath='$md_inst'"
     cmake . \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -DDYN_GTK=OFF \
         -DDYN_OPENAL=OFF \
         -DZMUSIC_INCLUDE_DIR="$md_build/zmusic/include" \
-        -DZMUSIC_LIBRARIES="$md_build/zmusic/source/libzmusic.so"
-    make clean
-    make
-    md_ret_require="$md_build/gzdoom"
+        -DZMUSIC_LIBRARIES="$md_build/zmusic/build/source/libzmusic.so" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/gzdoom"
 }
 
 function install_gzdoom() {
     md_ret_files=(
-        'gzdoom'
-        'gzdoom.pk3'
-        'brightmaps.pk3'
-        'game_support.pk3'
-        'game_widescreen_gfx.pk3'
-        'lights.pk3'
+        'build/brightmaps.pk3'
         'docs'
-        'soundfonts'
-        'fm_banks'
+        'build/fm_banks'
+        'build/game_support.pk3'
+        'build/game_widescreen_gfx.pk3'
+        'build/gzdoom'
+        'build/gzdoom.pk3'
+        'build/lights.pk3'
+        'build/soundfonts'
     )
-    cd zmusic/source
-    mv libzmusic.so.1.1.8 "$md_inst/libzmusic.so"
-    mv libzmusiclite.so.1.1.8 "$md_inst/libzmusiclite.so"
+    mkdir "$md_inst/lib"
+    mv $md_build/zmusic/build/source/libzmusic.so* "$md_inst/lib"
+    mv $md_build/zmusic/build/source/libzmusiclite.so* "$md_inst/lib"
 }
 
 function _add_games_gzdoom() {

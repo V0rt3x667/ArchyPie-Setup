@@ -21,7 +21,9 @@ function depends_ecwolf() {
         'libjpeg'
         'libmodplug'
         'libvorbis'
+        'ninja'
         'opusfile'
+        'perl-rename'
         'sdl2_mixer'
         'sdl2_net'
     )
@@ -33,20 +35,20 @@ function sources_ecwolf() {
 }
 
 function build_ecwolf() {
-    mkdir build
-    cd build
-    cmake .. \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+    cmake . \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DGPL=OFF
-    make clean
-    make
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DGPL=OFF \
+        -Wno-dev
+    ninja -C build
     md_ret_require="$md_build/build/ecwolf"
 }
 
 function install_ecwolf() {
-    cd build
-    make install
+    ninja -C build install/strip
     mv "$md_inst/games" "$md_inst/bin"
 }
 

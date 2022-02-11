@@ -42,8 +42,8 @@ function build_dxx-rebirth() {
     scons -c
     scons "${params[@]}" -j$__jobs
     md_ret_require=(
-        "$md_build/d1x-rebirth/d1x-rebirth"
-        "$md_build/d2x-rebirth/d2x-rebirth"
+        "$md_build/build/d1x-rebirth/d1x-rebirth"
+        "$md_build/build/d2x-rebirth/d2x-rebirth"
     )
 }
 
@@ -58,11 +58,11 @@ function install_dxx-rebirth() {
         'COPYING.txt'
         'GPL-3.txt'
         'd1x-rebirth/README.RPi'
-        'd1x-rebirth/d1x-rebirth'
+        'build/d1x-rebirth/d1x-rebirth'
         'd1x-rebirth/d1x.ini'
         'd1x-rebirth/D1X-INSTALL.txt'
         'd1x-rebirth/D1X-RELEASE-NOTES.txt'
-        'd2x-rebirth/d2x-rebirth'
+        'build/d2x-rebirth/d2x-rebirth'
         'd2x-rebirth/d2x.ini'
         'd2x-rebirth/D2X-INSTALL.txt'
         'd2x-rebirth/D2X-RELEASE-NOTES.txt'

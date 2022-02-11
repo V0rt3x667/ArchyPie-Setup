@@ -168,6 +168,7 @@ function basic_configedit() {
         '_function_ _video_fullscreen_configedit'
         'video_shader_enable true false'
         "video_shader _file_ *.*p $rootdir/emulators/retroarch/shader"
+        'input_auto_game_focus _id_ off on detect'
         'input_overlay_enable true false'
         "input_overlay _file_ *.cfg $rootdir/emulators/retroarch/overlays"
         '_function_ _joypad_index_configedit'
@@ -183,6 +184,7 @@ function basic_configedit() {
         'Render Resolution'
         'Video Shader Enable'
         "Video Shader File"
+        'Auto Enable "Game Focus" Mode'
         'Overlay Enable'
         'Overlay File'
         'Choose joypad order'
@@ -198,6 +200,7 @@ function basic_configedit() {
         'Configure the resolution to render the emulator output at - for better performance on full HD displays choose a lower resolution and it will be upscaled in hardware'
         'Load video_shader on startup. Other shaders can still be loaded later in runtime.'
         'Video shader to use (default none)'
+        'Controls the automatic loading of "Game Focus" mode when starting a game.'
         'Load input overlay on startup. Other overlays can still be loaded later in runtime.'
         'Input overlay to use (default none)'
         'Manual selection of joypad order'

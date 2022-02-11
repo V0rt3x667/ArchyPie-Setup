@@ -8,8 +8,8 @@ rp_module_id="lr-stella"
 rp_module_desc="Atari 2600 Libretro Core"
 rp_module_help="ROM Extensions: .a26 .bin .rom .zip .gz\n\nCopy Your Atari 2600 ROMs to $romdir/atari2600"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/stella-emu/stella/master/License.txt"
-rp_module_repo="git https://github.com/stella-emu/stella master"
-rp_module_section="opt"
+rp_module_repo="git https://github.com/stella-emu/stella.git master"
+rp_module_section="exp"
 
 function sources_lr-stella() {
     gitPullOrClone
@@ -32,9 +32,8 @@ function install_lr-stella() {
 
 function configure_lr-stella() {
     mkRomDir "atari2600"
-
     ensureSystemretroconfig "atari2600"
 
-    addEmulator 1 "$md_id" "atari2600" "$md_inst/stella_libretro.so"
+    addEmulator 0 "$md_id" "atari2600" "$md_inst/stella_libretro.so"
     addSystem "atari2600"
 }
