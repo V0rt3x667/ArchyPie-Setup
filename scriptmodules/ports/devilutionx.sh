@@ -17,15 +17,12 @@ function _get_branch_devilutionx() {
 
 function depends_devilutionx() {
     local depends=(
-        'clang'
         'cmake'
         'fmt'
         'gettext'
         'libpng'
         'libsodium'
         'ninja'
-        'sdl2'
-        'sdl2_mixer'
         'sdl2_ttf'
     )
     getDepends "${depends[@]}"
@@ -39,18 +36,15 @@ function build_devilutionx() {
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -Wno-dev
-    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/devilutionx"
 }
 
 function install_devilutionx() {
-    cd build
-    ninja install/strip
+    ninja -C build install/strip
 }
 
 function configure_devilutionx() {

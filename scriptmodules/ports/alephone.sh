@@ -70,13 +70,13 @@ function _game_data_alephone() {
     mv "$romdir/ports/alephone/data-marathon-infinity-master" "$romdir/ports/alephone/Marathon Infinity"
   fi
 
-  chown -R "$user:$user" "$romdir/ports/alephone"
+    chown -R $user:$user "$romdir/ports/$md_id"
 }
 
 function configure_alephone() {
-    addPort "$md_id" "marathon" "Aleph One Engine - Marathon" "'$md_inst/bin/alephone' '$romdir/ports/$md_id/Marathon/'"
-    addPort "$md_id" "marathon2" "Aleph One Engine - Marathon 2" "'$md_inst/bin/alephone' '$romdir/ports/$md_id/Marathon 2/'"
-    addPort "$md_id" "marathoninfinity" "Aleph One Engine - Marathon Infinity" "'$md_inst/bin/alephone' '$romdir/ports/$md_id/Marathon Infinity/'"
+    addPort "$md_id" "alephone" "Aleph One Engine - Marathon" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon/"
+    addPort "$md_id" "alephone" "Aleph One Engine - Marathon 2" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon 2/"
+    addPort "$md_id" "alephone" "Aleph One Engine - Marathon Infinity" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon Infinity/"
 
     mkRomDir "ports/$md_id"
 
@@ -88,5 +88,5 @@ function configure_alephone() {
         chown $user:$user "$md_conf_root/alephone"
     fi
 
-    [[ "$md_mode" == "install" ]] && _game_data_alephone
+    [[ "$md_mode" == "install" ]] && game_data_alephone
 }

@@ -14,7 +14,7 @@ function connect() {
     local line
     local mac
     local conn
-    while read line; do
+    while read -r line; do
         if [[ "$line" =~ ^(.+)\ \((.+)\)$ ]]; then
             mac="${BASH_REMATCH[2]}"
             conn=$(bt-device -i "$mac" | grep "Connected:" | tail -c 2 2>/dev/null)

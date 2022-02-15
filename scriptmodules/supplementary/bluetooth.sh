@@ -9,6 +9,7 @@ rp_module_desc="Configure Bluetooth Devices"
 rp_module_section="config"
 
 function _update_hook_bluetooth() {
+    rp_installModule "bluez-hcitool" "_autoupdate_"
     # fix config location
     [[ -f "$configdir/bluetooth.cfg" ]] && mv "$configdir/bluetooth.cfg" "$configdir/all/bluetooth.cfg"
     local mode="$(_get_connect_mode)"
@@ -33,7 +34,14 @@ function _get_connect_mode() {
 }
 
 function depends_bluetooth() {
-    local depends=(bluez dbus-python python-gobject bluez-tools)
+    local depends=(
+        'bluez'
+        'bluez-plugins'
+        'bluez-tools'
+        'bluez-utils'
+        'dbus-python'
+        'python-gobject'
+    )
 #    if [[ "$__os_id" == "Raspbian" ]]; then
 #        depends+=(bluez raspberrypi-sys-mods)
 #    fi
@@ -108,7 +116,7 @@ function list_available_bluetooth() {
     else
         while read; read mac; read name; do
             found+=(["$mac"]="$name")
-        done < <(hcitool scan --flush | tail -n +2 | sed 's/\t/\n/g')
+        done < <($md_inst/supplementary/bluez-hcitool/hcitool scan --flush | tail -n +2 | sed 's/\t/\n/g')
     fi
 
     # display any found addresses that are not already paired
@@ -301,7 +309,7 @@ function pair_bluetooth() {
                 ;;
         esac
     # read from bluez-simple-agent buffered line by line
-    done < <(stdbuf -oL $(get_script_bluetooth bluez-simple-agent) -c "$mode" hci0 "$mac" <&3)
+    done < <(stdbuf -oL $($md_data/bluez-simple-agent) -c "$mode" hci0 "$mac" <&3)
     exec 3>&-
     rm -f "$fifo"
 
