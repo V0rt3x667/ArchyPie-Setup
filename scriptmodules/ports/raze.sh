@@ -1,4 +1,4 @@
-#!/usr/bin/bash -x
+#!/usr/bin/bash
 
 # This file is part of the ArchyPie project.
 #
@@ -10,6 +10,7 @@ rp_module_help="ROM Extensions: .grp\n\nCopy Your .grp Files to:\n$romdir/ports/
 rp_module_licence="NONCOM: https://raw.githubusercontent.com/coelckers/Raze/master/build-doc/buildlic.txt"
 rp_module_repo="git https://github.com/coelckers/raze.git :_get_branch_raze"
 rp_module_section="opt"
+rp_module_flags="!all x86 64bit"
 
 function _get_branch_raze() {
     download https://api.github.com/repos/coelckers/raze/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
@@ -18,7 +19,6 @@ function _get_branch_raze() {
 function depends_raze() {
     depends=(
         'alsa-lib'
-        'clang'
         'cmake'
         'fluidsynth'
         'gtk3'
@@ -35,23 +35,21 @@ function sources_raze() {
 }
 
 function build_raze() {
-    _build_zmusic_gzdoom
+    _build_zmusic
 
     cd "$md_build"
-    LDFLAGS+=" -Wl,-rpath='$md_inst'"
     cmake . \
         -Bbuild \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -DINSTALL_PK3_PATH="$md_inst" \
         -DDYN_GTK=OFF \
         -DDYN_OPENAL=OFF \
         -DZMUSIC_INCLUDE_DIR="$md_build/zmusic/include" \
-        -DZMUSIC_LIBRARIES="$md_build/zmusic/source/libzmusic.so" \
+        -DZMUSIC_LIBRARIES="$md_build/zmusic/build/source/libzmusic.so" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -68,8 +66,8 @@ function install_raze() {
         'package/common/buildlic.txt'
     )
     cd zmusic/source
-    mv libzmusic.so.1.1.8 "$md_inst/libzmusic.so"
-    mv libzmusiclite.so.1.1.8 "$md_inst/libzmusiclite.so"
+    mv $md_build/zmusic/build/source/libzmusic.so* "$md_inst/lib"
+    mv $md_build/zmusic/build/source/libzmusiclite.so* "$md_inst/lib"
 }
 
 function _add_games_raze() {
