@@ -7,7 +7,7 @@
 rp_module_id="emulationstation"
 rp_module_desc="EmulationStation - Frontend used by ArchyPie for launching emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
-rp_module_repo="git https://github.com/RetroPie/EmulationStation.git v2.10.1"
+rp_module_repo="git https://github.com/RetroPie/EmulationStation.git v2.10.2"
 rp_module_section="core"
 rp_module_flags="frontend"
 
@@ -144,7 +144,6 @@ function depends_emulationstation() {
 
 function sources_emulationstation() {
     gitPullOrClone
-    applyPatch "$md_data/01_disable_hidapi_drivers.patch"
 }
 
 function build_emulationstation() {
