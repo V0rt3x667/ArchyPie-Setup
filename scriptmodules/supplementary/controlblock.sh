@@ -13,7 +13,7 @@ rp_module_section="driver"
 rp_module_flags="noinstclean !all rpi"
 
 function depends_controlblock() {
-    local depends=(cmake doxygen)
+    local depends=(cmake doxygen gpiod-utils)
     isPlatform "rpi" && depends+=(raspberrypi-firmware)
 
     getDepends "${depends[@]}"
