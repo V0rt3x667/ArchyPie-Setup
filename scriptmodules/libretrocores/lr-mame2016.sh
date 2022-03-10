@@ -10,10 +10,10 @@ rp_module_help="ROM Extension: .zip\n\nCopy your MAME roms to either $romdir/mam
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame2016-libretro/master/LICENSE.md"
 rp_module_repo="git https://github.com/libretro/mame2016-libretro.git master"
 rp_module_section="exp"
-rp_module_flags="!all arm !armv6"
+rp_module_flags=""
 
 function depends_lr-mame2016() {
-    local depends=('python2' 'zlib')
+    local depends=('python' 'zlib')
     getDepends "${depends[@]}"
 }
 
@@ -23,7 +23,7 @@ function sources_lr-mame2016() {
 
 function build_lr-mame2016() {
     rpSwap on 1200
-    local params=($(_get_params_lr-mame) SUBTARGET=arcade PYTHON_EXECUTABLE=python2)
+    local params=($(_get_params_lr-mame) SUBTARGET=arcade PYTHON_EXECUTABLE=python)
     make -f Makefile.libretro clean
     make -f Makefile.libretro "${params[@]}"
     rpSwap off
