@@ -11,11 +11,6 @@ rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/FBNeo/maste
 rp_module_repo="git https://github.com/libretro/FBNeo.git master"
 rp_module_section="main armv6=opt"
 
-function depends_lr-fbneo() {
-    local depends=('clang')
-    getDepends "${depends[@]}"
-}
-
 function sources_lr-fbneo() {
     gitPullOrClone
 }
