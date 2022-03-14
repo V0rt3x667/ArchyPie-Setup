@@ -26,10 +26,8 @@ function build_lr-fbneo() {
     isPlatform "arm" && params+=(USE_CYCLONE=1)
     isPlatform "neon" && params+=(HAVE_NEON=1)
     isPlatform "x86" && isPlatform "64bit" && params+=(USE_X64_DRC=1)
-    export CC="clang" CXX="clang++"
     make clean
     make "${params[@]}"
-    export CC="gcc" CXX="g++"
     md_ret_require="$md_build/src/burner/libretro/fbneo_libretro.so"
 }
 
@@ -70,30 +68,35 @@ function configure_lr-fbneo() {
     addEmulator 0 "$md_id-ngpc" "ngpc" "$md_inst/fbneo_libretro.so --subsystem ngp"
     addEmulator 0 "$md_id-chf" "channelf" "$md_inst/fbneo_libretro.so --subsystem chf"
 
-    addSystem "arcade"
-    addSystem "neogeo"
-    addSystem "fba"
+    local systems=(
+        "arcade"
+        "neogeo"
+        "fba"
+        "pcengine"
+        "gamegear"
+        "mastersystem"
+        "megadrive"
+        "sg-1000"
+        "coleco"
+        "msx"
+        "zxspectrum"
+        "fds"
+        "nes"
+        "ngp"
+        "ngpc"
+        "channelf"
+    )
 
-    addSystem "pcengine"
-    addSystem "gamegear"
-    addSystem "mastersystem"
-    addSystem "megadrive"
-    addSystem "sg-1000"
-    addSystem "coleco"
-    addSystem "msx"
-    addSystem "zxspectrum"
-    addSystem "fds"
-    addSystem "nes"
-    addSystem "ngp"
-    addSystem "ngpc"
-    addSystem "channelf"
+    local system
+    for system in "${systems[@]}"; do
+        addSystem "$system"
+    done
 
     [[ "$md_mode" == "remove" ]] && return
 
-    local dir
-    for dir in arcade fba neogeo; do
-        mkRomDir "$dir"
-        ensureSystemretroconfig "$dir"
+    for system in "${systems[@]}"; do
+        mkRomDir "$system"
+        ensureSystemretroconfig "$system"
     done
 
     # Create directories for all support files
