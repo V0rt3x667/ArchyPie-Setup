@@ -7,9 +7,9 @@
 rp_module_id="lr-swanstation"
 rp_module_desc="Sony Playstation Libretro Core"
 rp_module_help="ROM Extensions: .exe .cue .bin .chd .psf .m3u .pbp\n\nCopy your PlayStation roms to $romdir/psx\n\nCopy compatble BIOS files to $biosdir"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/kivutar/swanstation/master/LICENSE"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/swanstation/main/LICENSE"
 rp_module_section="exp"
-rp_module_repo="git https://github.com/kivutar/swanstation master"
+rp_module_repo="git https://github.com/libretro/swanstation.git main"
 rp_module_flags="!all arm !armv6 aarch64 64bit"
 
 function sources_lr-swanstation() {
@@ -18,7 +18,8 @@ function sources_lr-swanstation() {
 
 function build_lr-swanstation() {
     cmake . \
-        -DBUILD_LIBRETRO_CORE="On"
+        -DBUILD_LIBRETRO_CORE="On" \
+        -Wno-dev
     make clean
     make
     md_ret_require="$md_build/swanstation_libretro.so"
@@ -41,8 +42,6 @@ function configure_lr-swanstation() {
     # e.g. Gran Turismo 2 (Arcade) race start
     isPlatform "rpi4" && setRetroArchCoreOption "swanstation_GPU.Renderer" "Software"
 
-    # dynarec segfaults without redirecting stdin from </dev/null
     addEmulator 0 "$md_id" "psx" "$md_inst/swanstation_libretro.so" 
-    #</dev/null"
     addSystem "psx"
 }
