@@ -23,6 +23,7 @@ function depends_dosbox-staging() {
         'fluidsynth'
         'gzip'
         'libpng'
+        'libslirp'
         'meson'
         'ncurses'
         'ninja'
@@ -38,7 +39,7 @@ function sources_dosbox-staging() {
 }
 
 function build_dosbox-staging() {
-    local params=(-Dbuildtype=release -Ddefault_library=static --prefix="$md_inst")
+    local params=(-Dbuildtype=release -Dtry_static_libs=mt32emu --prefix="$md_inst")
 
     cd "$md_build"
     meson setup "${params[@]}" build
