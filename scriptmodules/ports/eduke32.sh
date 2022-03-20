@@ -28,22 +28,10 @@ function depends_eduke32() {
 
 function sources_eduke32() {
     gitPullOrClone
-
-    # r6918 causes a 20+ second delay on startup on ARM devices
-#    isPlatform "arm" && applyPatch "$md_data/0001-revert-r6918.patch"
-    # r7424 gives a black skybox when r_useindexedcolortextures is 0
-#    applyPatch "$md_data/0002-fix-skybox.patch"
-    # r6776 breaks VC4 & GLES 2.0 devices that lack GL_RED internal
-    # format support for glTexImage2D/glTexSubImage2D
-#    isPlatform "gles" && applyPatch "$md_data/0003-replace-gl_red.patch"
-    # gcc 6.3.x compiler fix
-    applyPatch "$md_data/0004-recast-function.patch"
-    # cherry-picked commit fixing a game bug in E1M4 (shrinker ray stuck)
-    applyPatch "$md_data/0005-e1m4-shrinker-bug.patch"
 }
 
 function build_eduke32() {
-    local params=(LTO=0 SDL_TARGET=2)
+    local params=(LTO=1 SDL_TARGET=2 SDL_STATIC=0)
 
     [[ "$md_id" == "ionfury" ]] && params+=(FURY=1)
     ! isPlatform "x86" && params+=(NOASM=1)
@@ -54,7 +42,7 @@ function build_eduke32() {
     isPlatform "arm" && params+=(NETCODE=0)
 
     make veryclean
-    CFLAGS+=" -DSDL_USEFOLDER" make "${params[@]}"
+    make "${params[@]}"
 
     if [[ "$md_id" == "ionfury" ]]; then
         md_ret_require="$md_build/fury"
