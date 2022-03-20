@@ -74,7 +74,7 @@ function configure_archypiemenu()
         'Configure audio settings. Choose default of auto, 3.5mm jack, or HDMI. Mixer controls, and apply default settings.'
         'Register and connect to Bluetooth devices. Unregister and remove devices, and display registered and connected devices.'
         'Change common RetroArch options, and manually edit RetroArch configs, global configs, and non-RetroArch configs.'
-        'Install, uninstall, or update EmulationStation themes. Most themes can be previewed at https://archypie.org.uk/docs/Themes/.'
+        'Install, uninstall, or update EmulationStation themes. Most themes can be previewed at https://retropie.org.uk/docs/Themes/.'
         'Basic ASCII file manager for Linux allowing you to browse, copy, delete, and move files.'
         'Change user password, boot options, internationalization, camera, add your Pi to Rastrack, overclock, overscan, memory split, SSH and more.'
         'Launches the RetroArch GUI so you can change RetroArch options. Note: Changes will not be saved unless you have enabled the "Save Configuration On Exit" option.'
@@ -133,7 +133,7 @@ function launch_archypiemenu() {
             joy2keyStop
             cp "$configdir/all/retroarch.cfg" "$configdir/all/retroarch.cfg.bak"
             chown $user:$user "$configdir/all/retroarch.cfg.bak"
-            su $user -c "\"$emudir/retroarch/bin/retroarch\" --menu --config \"$configdir/all/retroarch.cfg\""
+            su $user -c "XDG_RUNTIME_DIR=/run/user/$SUDO_UID \"$emudir/retroarch/bin/retroarch\" --menu --config \"$configdir/all/retroarch.cfg\""
             iniConfig " = " '"' "$configdir/all/retroarch.cfg"
             iniSet "config_save_on_exit" "false"
             ;;
