@@ -55,9 +55,11 @@ function install_caprice32() {
 }
 
 function configure_caprice32() {
-    moveConfigDir "$home/.config/caprice32" "$md_conf_root/amstradcpc"
+    params=('-a CPC_F1 -a run"disc')
 
-    addEmulator 1 "$md_id" "amstradcpc" "$md_inst/cap32 %ROM% -a CAT"
+    moveConfigDir "$home/.config/caprice32" "$md_conf_root/amstradcpc"
+    
+    addEmulator 1 "$md_id" "amstradcpc" "$md_inst/cap32 %ROM% ${params[*]}"
     addSystem "amstradcpc"
 
     [[ "$md_mode" == "remove" ]] && return
