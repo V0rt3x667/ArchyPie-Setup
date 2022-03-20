@@ -18,7 +18,6 @@ function depends_lr-dolphin() {
         'cmake'
         'enet'
         'ffmpeg'
-        'gcc10'
         'lzo'
         'mbedtls'
         'miniupnpc'
@@ -35,22 +34,18 @@ function sources_lr-dolphin() {
 }
 
 function build_lr-dolphin() {
-    mkdir build
-    cd build
-    export CC="gcc-10" CXX="g++-10"
-    cmake .. \
-        -DLIBRETRO_STATIC=1 \
+    cmake . \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DENABLE_LTO=ON \
-        -DENABLE_NOGUI=OFF \
-        -DENABLE_QT=OFF \
-        -DENABLE_TESTS=OFF \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DLIBRETRO=ON \
-        -DUSE_SHARED_ENET=ON \
+        -DLIBRETRO_STATIC=1 \
+        -DENABLE_LTO=ON \
         -Wno-dev
-    make clean
-    make
-    export CC="gcc" CXX="g++"
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/dolphin_libretro.so"
 }
 
