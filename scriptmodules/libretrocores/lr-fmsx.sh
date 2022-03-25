@@ -42,6 +42,6 @@ function configure_lr-fmsx() {
     [[ "$md_mode" == "remove" ]] && return
 
     # Copy BIOS files to $biosdir
-    cp $md_inst/ROMS/{*.ROM,*.FNT,*.SHA} "$biosdir/"
+    cp $md_inst/ROMs/{*.ROM,*.FNT,*.SHA} "$biosdir/"
     chown $user:$user $biosdir/{*.ROM,*.FNT,*.SHA}
 }
