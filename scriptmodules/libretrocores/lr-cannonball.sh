@@ -40,16 +40,16 @@ function configure_lr-cannonball() {
 
     addPort "$md_id" "cannonball" "Cannonball - OutRun Engine" "$md_inst/cannonball_libretro.so" "$romdir/ports/cannonball/outrun.game"
 
-    moveConfigFile "config.xml" "$md_conf_root/$md_id/config.xml"
-    moveConfigFile "hiscores.xml" "$md_conf_root/$md_id/hiscores.xml"
+    moveConfigFile "config.xml" "$md_conf_root/cannonball/config.xml"
+    moveConfigFile "hiscores.xml" "$md_conf_root/cannonball/hiscores.xml"
 
     [[ "$md_mode" == "remove" ]] && return
 
-    copyDefaultConfig "$md_inst/config.xml.def" "$md_conf_root/$md_id/config.xml"
+    copyDefaultConfig "$md_inst/config.xml.def" "$md_conf_root/cannonball/config.xml"
 
-    cp -v roms.txt "$romdir/ports/$md_id/"
+    cp -v roms.txt "$romdir/ports/cannonball/"
 
-    chown -R $user:$user "$romdir/ports/$md_id" "$md_conf_root/$md_id"
+    chown -R $user:$user "$romdir/ports/cannonball" "$md_conf_root/cannonball"
 
-    ln -snf "$romdir/ports/$md_id" "$md_inst/roms"
+    ln -snf "$romdir/ports/cannonball" "$md_inst/roms"
 }
