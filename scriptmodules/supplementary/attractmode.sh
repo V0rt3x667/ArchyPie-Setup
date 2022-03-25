@@ -131,25 +131,9 @@ function depends_attractmode() {
 
 function sources_attractmode() {
     gitPullOrClone
-    isPlatform "rpi" && gitPullOrClone "$md_build/sfml-pi" "https://github.com/mickelson/sfml-pi"
-}
-
-function _build_sfml_attractmode() {
-    local params
-    cd sfml-pi
-
-    isPlatform "videocore" && params="-DSFML_RPI=1 -DEGL_INCLUDE_DIR=/opt/vc/include -DEGL_LIBRARY=/opt/vc/lib/libbrcmEGL.so -DGLES_INCLUDE_DIR=/opt/vc/include -DGLES_LIBRARY=/opt/vc/lib/libbrcmGLESv2.so"
-    isPlatform "kms" && params="-DSFML_DRM=1"
-    cmake . -DCMAKE_INSTALL_PREFIX="$md_inst/sfml" $params
-    make clean
-    make
 }
 
 function build_attractmode() {
-    if isPlatform "rpi"; then
-        _build_sfml_attractmode
-    fi
-
     make clean
     local params=(prefix="$md_inst")
     isPlatform "videocore" && params+=(USE_GLES=1 EXTRA_CFLAGS="$CFLAGS -I$md_build/sfml-pi/include -L$md_build/sfml-pi/lib")
@@ -160,11 +144,11 @@ function build_attractmode() {
 
     # remove example configs
     rm -rf "$md_build/attract/config/emulators/"*
+
     md_ret_require="$md_build/attract"
 }
 
 function install_attractmode() {
-    make -C sfml-pi install
     mkdir -p "$md_inst"/{bin,share,share/attract}
     cp -v $md_build/attract "$md_inst/bin/"
     cp -Rv $md_build/config/* "$md_inst/share/attract"
