@@ -19,6 +19,7 @@ function _get_branch_dosbox-staging() {
 function depends_dosbox-staging() {
     local depends=(
         'alsa-lib'
+        'alsa-utils'
         'cmake'
         'fluidsynth'
         'gzip'
