@@ -12,7 +12,12 @@ rp_module_section="opt"
 rp_module_flags="sdl2"
 
 function depends_wolf4sdl() {
-    getDepends sdl2 sdl2_mixer perl-rename
+     local depends=(
+        'perl-rename'
+        'sdl2'
+        'sdl2_mixer'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_wolf4sdl() {
