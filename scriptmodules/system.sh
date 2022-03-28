@@ -300,7 +300,6 @@ function get_archypie_depends() {
         'dialog'
         'git'
         'gnupg'
-        'perl-rename'
         'python'
         'python-pip'
         'python-pyudev'
