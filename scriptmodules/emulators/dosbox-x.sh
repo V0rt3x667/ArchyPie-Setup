@@ -16,7 +16,20 @@ function _get_branch_dosbox-x() {
 }
 
 function depends_dosbox-x() {
-    getDepends fluidsynth libxkbfile libpng libxrandr mesa ffmpeg physfs glu libpcap libslirp
+    local depends=(
+        'alsa-utils'
+        'ffmpeg'
+        'fluidsynth'
+        'glu'
+        'libpcap'
+        'libpng'
+        'libslirp'
+        'libxkbfile'
+        'libxrandr'
+        'mesa'
+        'physfs'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_dosbox-x() {

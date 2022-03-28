@@ -13,9 +13,15 @@ rp_module_section="opt"
 rp_module_flags="sdl1 !mali"
 
 function depends_dosbox() {
-    local depends=(alsa-lib libpng zlib "$@")
-    [[ "$md_id" == "dosbox" ]] && depends+=(sdl sdl_net sdl_sound)
-    isPlatform "rpi" && depends+=(timidity++ )
+    local depends=(
+        'alsa-lib'
+        'alsa-utils'
+        'libpng'
+        'zlib'
+        "$@"
+    )
+    [[ "$md_id" == "dosbox" ]] && depends+=('sdl' 'sdl_net' 'sdl_sound')
+    isPlatform "rpi" && depends+=('timidity++')
     getDepends "${depends[@]}"
 }
 
