@@ -17,7 +17,7 @@ function _get_branch_raze() {
 }
 
 function depends_raze() {
-    depends=(
+    local depends=(
         'alsa-lib'
         'cmake'
         'fluidsynth'
@@ -32,6 +32,7 @@ function depends_raze() {
 
 function sources_raze() {
     gitPullOrClone
+    applyPatch "$md_data/01_fix_file_paths.patch"
 }
 
 function build_raze() {
@@ -45,7 +46,7 @@ function build_raze() {
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
-        -DINSTALL_PK3_PATH="$md_inst" \
+        -DINSTALL_PK3_PATH="$md_inst/bin" \
         -DDYN_GTK=OFF \
         -DDYN_OPENAL=OFF \
         -DZMUSIC_INCLUDE_DIR="$md_build/zmusic/include" \
@@ -57,17 +58,15 @@ function build_raze() {
 }
 
 function install_raze() {
-    md_ret_files=(
-        'build/raze'
-        'build/raze.pk3'
-        'soundfont'
-        'package/common/gamecontrollerdb.txt'
-        'package/common/gpl-2.0.txt'
-        'package/common/buildlic.txt'
-    )
-    cd zmusic/source
-    mv $md_build/zmusic/build/source/libzmusic.so* "$md_inst/lib"
-    mv $md_build/zmusic/build/source/libzmusiclite.so* "$md_inst/lib"
+    ninja -C build install/strip
+    
+    mkdir "$md_inst/lib"
+    mkdir "$md_inst/soundfonts"
+    
+    mv ./soundfont/raze.sf2 "$md_inst/soundfonts/raze.sf2"
+    mv ./package/common/gamecontrollerdb.txt "$md_inst/bin"
+    mv "$md_build"/zmusic/build/source/libzmusic.so* "$md_inst/lib"
+    mv "$md_build"/zmusic/build/source/libzmusiclite.so* "$md_inst/lib"
 }
 
 function _add_games_raze() {
@@ -76,22 +75,22 @@ function _add_games_raze() {
 
     declare -A games=(
         ['blood/blood.rff']="Blood"
-        ['blood/cryptic.ini']="Blood - Cryptic Passage"
+        ['blood/cryptic.ini']="Blood: Cryptic Passage"
         ['duke3d/duke3d.grp']="Duke Nukem 3D"
-        ['duke3d/dukedc.grp']="Duke Nukem 3D - Duke It Out in D.C."
-        ['duke3d/vacation.grp']="Duke Nukem 3D - Duke Caribbean - Life's a Beach"
-        ['duke3d/nwinter.grp']="Duke Nukem 3D - Duke - Nuclear Winter"
+        ['duke3d/dukedc.grp']="Duke Nukem 3D: Duke It Out in D.C."
+        ['duke3d/vacation.grp']="Duke Nukem 3D: Duke Caribbean: Life's a Beach"
+        ['duke3d/nwinter.grp']="Duke Nukem 3D: Duke: Nuclear Winter"
         ['exhumed/stuff.dat']="Exhumed (AKA PowerSlave)"
         ['nam/nam.grp']="NAM (AKA Napalm)"
         ['nam/napalm.grp']="Napalm (AKA NAM)"
         ['redneck/redneck.grp']="Redneck Rampage"
-        ['redneck/game66.con']="Redneck Rampage - Suckin' Grits on Route 66"
-        ['redneckrides/redneck.grp']="Redneck Rampage - Redneck Rampage Rides Again"
+        ['redneck/game66.con']="Redneck Rampage: Suckin' Grits on Route 66"
+        ['redneckrides/redneck.grp']="Redneck Rampage II: Redneck Rampage Rides Again"
         ['shadow/sw.grp']="Shadow Warrior"
-        ['shadow/td.grp']="Shadow Warrior - Twin Dragon"
-        ['shadow/wt.grp']="Shadow Warrior - Wanton Destruction"
+        ['shadow/td.grp']="Shadow Warrior: Twin Dragon"
+        ['shadow/wt.grp']="Shadow Warrior: Wanton Destruction"
         ['ww2gi/ww2gi.grp']="World War II GI"
-        ['ww2gi/platoonl.dat']="World War II GI - Platoon Leader"
+        ['ww2gi/platoonl.dat']="World War II GI: Platoon Leader"
     )
 
     for game in "${!games[@]}"; do
@@ -126,5 +125,5 @@ function configure_raze() {
     done
     moveConfigDir "$home/.config/raze" "$md_conf_root/raze"
 
-    [[ "$md_mode" == "install" ]] && _add_games_raze "$md_inst/raze +vid_renderer 1 +vid_fullscreen 1"
+    [[ "$md_mode" == "install" ]] && _add_games_raze "$md_inst/bin/raze +vid_renderer 1 +vid_fullscreen 1"
 }

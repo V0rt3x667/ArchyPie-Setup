@@ -1,0 +1,92 @@
+--- a/source/core/gameconfigfile.cpp	2022-03-28 13:40:01.873857000 +0100
++++ b/source/core/gameconfigfile.cpp	2022-03-28 17:13:50.185071723 +0100
+@@ -96,24 +96,26 @@
+ 		SetValueForKey ("Path", "$PROGDIR", true);
+ 		SetValueForKey ("Path", "$PROGDIR/*", true);
+ #else
+-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+-		SetValueForKey ("Path", "$HOME/" GAME_DIR "/*", true);
+ 		// Arch Linux likes them in /usr/share/raze
+ 		// Debian likes them in /usr/share/games/raze
+ 		// I assume other distributions don't do anything radically different
+-		SetValueForKey ("Path", "/opt/raze", true);
+-		SetValueForKey ("Path", "/usr/share/games/raze", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
+-		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
+-		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
+-		SetValueForKey ("Path", "/usr/share/games/nblood", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
+-		SetValueForKey("Path", "/usr/share/games/jfsw", true);
+-		SetValueForKey("Path", "/usr/local/share/games/jfsw", true);
+-		SetValueForKey("Path", "/usr/share/games/voidsw", true);
+-		SetValueForKey("Path", "/usr/local/share/games/voidsw", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/duke3d/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/exhumed", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/exhumed/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/nam", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/nam/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi/*", true);
++		SetValueForKey("Path", "/usr/share/raze", true);
+ 
+ #endif
+ 		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
+@@ -132,14 +134,23 @@
+ 		SetValueForKey ("Path", "$PROGDIR", true);
+ 		SetValueForKey ("Path", "$GAMEDIR", true);
+ #else
+-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+-		SetValueForKey ("Path", SHARE_DIR, true);
+-		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
+-		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
+-		SetValueForKey ("Path", "/usr/share/games/nblood", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/duke3d/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/exhumed", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/exhumed/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/nam", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/nam/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi/*", true);
++		SetValueForKey("Path", "/usr/share/raze", true);
+ #endif
+ 	}
+ 
+@@ -155,11 +166,10 @@
+ #elif !defined(__unix__)
+ 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
+ #else
+-		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/" GAME_DIR "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/games/" GAME_DIR "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/" GAME_DIR "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/games/" GAME_DIR "/soundfonts", true);
++		SetValueForKey("Path", ".", true);
++		SetValueForKey("Path", "./*", true);
++		SetValueForKey("Path", "/usr/share/soundfonts", true);
++		SetValueForKey("Path", "/usr/share/raze/soundfonts", true);
+ #endif
+ 	}
+ 
