@@ -51,20 +51,20 @@ function _add_games_lr-prboom() {
     declare -A games=(
         ['doom.wad']="Doom"
         ['doom1.wad']="Doom (Shareware)"
-        ['doomu.wad']="Doom - The Ultimate Doom"
-        ['tnt.wad']="Final Doom - TNT:Evilution"
-        ['plutonia.wad']="Final Doom - The Plutonia Experiment"
-        ['doom2.wad']="Doom II - Hell on Earth"
-        ['masterlevels.wad']="Doom II - Master Levels"
-        ['freedoom1.wad']="Freedoom - Phase I"
-        ['freedoom2.wad']="Freedoom - Phase II"
+        ['doomu.wad']="Doom: The Ultimate Doom"
+        ['tnt.wad']="Final Doom: TNT: Evilution"
+        ['plutonia.wad']="Final Doom: The Plutonia Experiment"
+        ['doom2.wad']="Doom II: Hell on Earth"
+        ['masterlevels.wad']="Doom II: Master Levels"
+        ['freedoom1.wad']="Freedoom: Phase I"
+        ['freedoom2.wad']="Freedoom: Phase II"
     )
 
     if [[ "$md_id" =~ "zdoom" ]]; then
         games+=(
-            ['heretic.wad']="Heretic - Shadow of the Serpent Riders"
-            ['hexen.wad']="Hexen - Beyond Heretic"
-            ['hexdd.wad']="Hexen - Deathkings of the Dark Citadel"
+            ['heretic.wad']="Heretic: Shadow of the Serpent Riders"
+            ['hexen.wad']="Hexen: Beyond Heretic"
+            ['hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
             ['chex.wad']="Chex Quest"
             ['chex2.wad']="Chex Quest 2"
             ['chex3.wad']="Chex Quest 3"
