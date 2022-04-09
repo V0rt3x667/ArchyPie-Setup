@@ -18,7 +18,7 @@ function _get_branch_dosbox-x() {
 function depends_dosbox-x() {
     local depends=(
         'alsa-utils'
-        'ffmpeg'
+        'ffmpeg4.4'
         'fluidsynth'
         'glu'
         'libpcap'
@@ -34,16 +34,18 @@ function depends_dosbox-x() {
 
 function sources_dosbox-x() {
     gitPullOrClone
+    sed -i 's|"$LIBS -lavcodec -lavformat -lavutil -lswscale "`pkg-config libavcodec --libs`|`pkg-config libavcodec libavformat libavutil libswscale libswresample --libs`"$LIBS"|' configure.ac
 }
 
 function build_dosbox-x() {
     ./autogen.sh
-    ./configure \
+    PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig" ./configure \
         --prefix="$md_inst" \
         --enable-sdl2 \
         --enable-core-inline \
         --disable-debug \
         --enable-avcodec
+    make clean
     make
     md_ret_require=("$md_build/src/dosbox-x")
 }
