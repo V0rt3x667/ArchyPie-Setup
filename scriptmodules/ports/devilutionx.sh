@@ -33,6 +33,7 @@ function sources_devilutionx() {
 }
 
 function build_devilutionx() {
+    local ver 
     ver=$(_get_branch_devilutionx)
     cmake . \
         -Bbuild \
@@ -74,7 +75,6 @@ function _add_games_devilutionx() {
 
     for game in "${!games[@]}"; do
         local file="$romdir/ports/$game"
-        local grp="${game#*/}"
         if [[ "$game" == diablo/diabat.mpq && -f "$file" ]]; then
             addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd --diablo"
         elif [[ "${game}" == diablo/hellfire.mpq && -f "$file" ]]; then
