@@ -50,8 +50,10 @@ function build_supertuxkart() {
         -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DBUILD_RECORDER=0 \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/bin/supertuxkart"
 }
