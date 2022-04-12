@@ -1,14 +1,37 @@
---- a/source/core/gameconfigfile.cpp	2022-03-28 13:40:01.873857000 +0100
-+++ b/source/core/gameconfigfile.cpp	2022-03-28 17:13:50.185071723 +0100
-@@ -96,24 +96,26 @@
- 		SetValueForKey ("Path", "$PROGDIR", true);
- 		SetValueForKey ("Path", "$PROGDIR/*", true);
- #else
+--- a/source/core/gameconfigfile.cpp	2022-01-30 09:08:23.000000000 
++++ b/source/core/gameconfigfile.cpp	2022-04-12 21:03:24.000000000 
+@@ -73,97 +73,54 @@
+ 	ChangePathName (pathname);
+ 
+ 	// Set default IWAD search paths if none present
+ 	if (!SetSection ("GameSearch.Directories"))
+ 	{
+ 		SetSection ("GameSearch.Directories", true);
+-		SetValueForKey ("Path", ".", true);
+-		SetValueForKey ("Path", "./*", true);
+-#ifdef __APPLE__
+-		SetValueForKey ("Path", user_docs + "/*", true);
+-		SetValueForKey ("Path", user_app_support + "/EDuke32", true);
+-		SetValueForKey ("Path", user_app_support + "/JFDuke32", true);
+-		SetValueForKey ("Path", user_app_support + "/NBlood", true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", "$PROGDIR/*", true);
+-		SetValueForKey ("Path", local_app_support + "/EDuke32", true);
+-		SetValueForKey ("Path", local_app_support + "/JFDuke32", true);
+-		SetValueForKey ("Path", local_app_support + "/NBlood", true);
+-		SetValueForKey("Path", local_app_support + "/JFSW", true);
+-		SetValueForKey("Path", local_app_support + "/VoidSW", true);
+-		SetValueForKey("Path", local_app_support + "/Raze/*", true);
+-
+-#elif !defined(__unix__)
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", "$PROGDIR/*", true);
+-#else
 -		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
 -		SetValueForKey ("Path", "$HOME/" GAME_DIR "/*", true);
- 		// Arch Linux likes them in /usr/share/raze
- 		// Debian likes them in /usr/share/games/raze
- 		// I assume other distributions don't do anything radically different
+-		// Arch Linux likes them in /usr/share/raze
+-		// Debian likes them in /usr/share/games/raze
+-		// I assume other distributions don't do anything radically different
 -		SetValueForKey ("Path", "/opt/raze", true);
 -		SetValueForKey ("Path", "/usr/share/games/raze", true);
 -		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
@@ -22,6 +45,9 @@
 -		SetValueForKey("Path", "/usr/local/share/games/jfsw", true);
 -		SetValueForKey("Path", "/usr/share/games/voidsw", true);
 -		SetValueForKey("Path", "/usr/local/share/games/voidsw", true);
+-
+-#endif
+-		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood/*", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
@@ -32,20 +58,25 @@
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/nam/*", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck/*", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain/*", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/shadow", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/shadow/*", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi/*", true);
-+		SetValueForKey("Path", "/usr/share/raze", true);
+ 	}
  
- #endif
- 		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
-@@ -132,14 +134,23 @@
- 		SetValueForKey ("Path", "$PROGDIR", true);
- 		SetValueForKey ("Path", "$GAMEDIR", true);
- #else
+ 	// Set default search paths if none present
+ 	if (!SetSection ("FileSearch.Directories"))
+ 	{
+ 		SetSection ("FileSearch.Directories", true);
+-#ifdef __APPLE__
+-		SetValueForKey ("Path", user_docs, true);
+-		SetValueForKey ("Path", user_app_support, true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", local_app_support, true);
+-#elif !defined(__unix__)
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", "$GAMEDIR", true);
+-#else
 -		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
 -		SetValueForKey ("Path", SHARE_DIR, true);
 -		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
@@ -54,6 +85,7 @@
 -		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 -		SetValueForKey ("Path", "/usr/share/games/nblood", true);
 -		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
+-#endif
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/blood/*", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
@@ -64,29 +96,36 @@
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/nam/*", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/redneck/*", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/rrragain/*", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw", true);
-+		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/sw/*", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/shadow", true);
++		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/shadow/*", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi", true);
 +		SetValueForKey("Path", "$HOME/ArchyPie/roms/ports/ww2gi/*", true);
-+		SetValueForKey("Path", "/usr/share/raze", true);
- #endif
  	}
  
-@@ -155,11 +166,10 @@
- #elif !defined(__unix__)
- 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
- #else
+ 	// Set default search paths if none present
+ 	if (!SetSection("SoundfontSearch.Directories"))
+ 	{
+-		SetSection("SoundfontSearch.Directories", true);
+-#ifdef __APPLE__
+-		SetValueForKey("Path", user_docs + "/soundfonts", true);
+-		SetValueForKey("Path", user_app_support + "/soundfonts", true);
+-		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
+-		SetValueForKey("Path", local_app_support + "/soundfonts", true);
+-#elif !defined(__unix__)
+-		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
+-#else
 -		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
 -		SetValueForKey("Path", "/usr/local/share/" GAME_DIR "/soundfonts", true);
 -		SetValueForKey("Path", "/usr/local/share/games/" GAME_DIR "/soundfonts", true);
 -		SetValueForKey("Path", "/usr/share/" GAME_DIR "/soundfonts", true);
 -		SetValueForKey("Path", "/usr/share/games/" GAME_DIR "/soundfonts", true);
-+		SetValueForKey("Path", ".", true);
-+		SetValueForKey("Path", "./*", true);
+-#endif
++		SetSection ("SoundfontSearch.Directories", true);
++		SetValueForKey("Path", "$PROGDIR", true);
 +		SetValueForKey("Path", "/usr/share/soundfonts", true);
-+		SetValueForKey("Path", "/usr/share/raze/soundfonts", true);
- #endif
  	}
  
+ 	// Add some self-documentation.
+ 	SetSectionNote("GameSearch.Directories",
+ 		"# These are the directories to automatically search for game data.\n"
+ 		"# Each directory should be on a separate line, preceded by Path=\n");

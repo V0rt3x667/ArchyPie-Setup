@@ -6,7 +6,7 @@
 
 rp_module_id="raze"
 rp_module_desc="Raze - Build Engine Port"
-rp_module_help="ROM Extensions: .grp\n\nCopy Your .grp Files to:\n$romdir/ports/blood\n$romdir/ports/duke3d\n$romdir/ports/exhumed\n$romdir/ports/nam\n$romdir/ports/redneck\n$romdir/ports/sw\n$romdir/ports/ww2gi"
+rp_module_help="ROM Extensions: .grp\n\nCopy Game Files To:\n$romdir/ports/blood\n$romdir/ports/duke3d\n$romdir/ports/exhumed\n$romdir/ports/nam\n$romdir/ports/redneck\n$romdir/ports/shadow\n$romdir/ports/ww2gi"
 rp_module_licence="NONCOM: https://raw.githubusercontent.com/coelckers/Raze/master/build-doc/buildlic.txt"
 rp_module_repo="git https://github.com/coelckers/raze.git :_get_branch_raze"
 rp_module_section="opt"
@@ -46,7 +46,7 @@ function build_raze() {
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
-        -DINSTALL_PK3_PATH="$md_inst/bin" \
+        -DINSTALL_PK3_PATH="$md_inst" \
         -DDYN_GTK=OFF \
         -DDYN_OPENAL=OFF \
         -DZMUSIC_INCLUDE_DIR="$md_build/zmusic/include" \
@@ -58,55 +58,62 @@ function build_raze() {
 }
 
 function install_raze() {
-    ninja -C build install/strip
-    
-    mkdir "$md_inst/lib"
-    mkdir "$md_inst/soundfonts"
-    
-    mv ./soundfont/raze.sf2 "$md_inst/soundfonts/raze.sf2"
-    mv ./package/common/gamecontrollerdb.txt "$md_inst/bin"
-    mv "$md_build"/zmusic/build/source/libzmusic.so* "$md_inst/lib"
-    mv "$md_build"/zmusic/build/source/libzmusiclite.so* "$md_inst/lib"
+    md_ret_files=(
+        'build/raze.pk3'
+        'build/raze'
+        'package/common/buildlic.txt'
+        'package/common/gamecontrollerdb.txt'
+        'package/common/gpl-2.0.txt'
+        'soundfont/raze.sf2'
+    )
+    install -Dm644 "$md_build"/zmusic/build/source/libzmusic* -t "$md_inst/lib"
 }
 
 function _add_games_raze() {
-    local cmd="$1"
+    local binary="$1"
     local game
+    local game_args
+    local game_launcher
+    local game_path
+    local game_portname
+    local num_games=16
 
-    declare -A games=(
-        ['blood/blood.rff']="Blood"
-        ['blood/cryptic.ini']="Blood: Cryptic Passage"
-        ['duke3d/duke3d.grp']="Duke Nukem 3D"
-        ['duke3d/dukedc.grp']="Duke Nukem 3D: Duke It Out in D.C."
-        ['duke3d/vacation.grp']="Duke Nukem 3D: Duke Caribbean: Life's a Beach"
-        ['duke3d/nwinter.grp']="Duke Nukem 3D: Duke: Nuclear Winter"
-        ['exhumed/stuff.dat']="Exhumed (AKA PowerSlave)"
-        ['nam/nam.grp']="NAM (AKA Napalm)"
-        ['nam/napalm.grp']="Napalm (AKA NAM)"
-        ['redneck/redneck.grp']="Redneck Rampage"
-        ['redneck/game66.con']="Redneck Rampage: Suckin' Grits on Route 66"
-        ['redneckrides/redneck.grp']="Redneck Rampage II: Redneck Rampage Rides Again"
-        ['shadow/sw.grp']="Shadow Warrior"
-        ['shadow/td.grp']="Shadow Warrior: Twin Dragon"
-        ['shadow/wt.grp']="Shadow Warrior: Wanton Destruction"
-        ['ww2gi/ww2gi.grp']="World War II GI"
-        ['ww2gi/platoonl.dat']="World War II GI: Platoon Leader"
-    )
+    local game0=('Blood' 'blood' '-iwad blood.rff')
+    local game1=('Blood: Cryptic Passage' 'blood' '-cryptic')
+    local game2=('Duke Nukem 3D' 'duke3d' '-addon 0')
+    local game3=('Duke Nukem 3D: Duke It Out In D.C.' 'duke3d' '-addon 1')
+    local game4=('Duke Nukem 3D: Duke: Nuclear Winter' 'duke3d' '-addon 2')
+    local game5=('Duke Nukem 3D: Duke Caribbean: Life'\''s a Beach' 'duke3d' '-addon 3')
+    local game6=('Exhumed-PowerSlave' 'exhumed' '-iwad stuff.dat')
+    local game7=('Napalm' 'nam' '-napalm')
+    local game8=('NAM' 'nam' '-nam')
+    local game9=('Redneck Rampage' 'redneck' '-iwad redneck.grp')
+    local game10=('Redneck Rampage: Suckin'\'' Grits on Route 66' 'redneck' '-route66')
+    local game11=('Redneck Rampage: Redneck Rampage Rides Again' 'redneck' '-iwad rides.grp')
+    local game12=('Shadow Warrior' 'shadow' '-iwad sw.grp')
+    local game13=('Shadow Warrior: Twin Dragon' 'shadow' '-iwad td.grp')
+    local game14=('Shadow Warrior: Wanton Destruction' 'shadow' '-iwad wt.grp')
+    local game15=('World War II GI' 'ww2gi' '-ww2gi')
+    local game16=('World War II GI: Platoon Leader' 'ww2gi' '-iwad platoonl.dat')
 
-    for game in "${!games[@]}"; do
-        local file="$romdir/ports/$game"
-        local grp="${game#*/}"
-        # Add Games Which Do Not Require Additional Parameters
-        if [[ "$game" != blood/cryptic.ini && "$game" != redneck/game66.con && -f "$file" ]]; then
-            addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd -iwad $grp"
-        # Add Blood: Cryptic Passage
-        elif [[ "${game}" == blood/cryptic.ini && -f "$file" ]]; then
-            addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd -cryptic"
-        # Add Redneck Rampage: Suckin' Grits on Route 66
-        elif [[ "${game}" == redneck/game66.con && -f "$file" ]]; then
-            addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd -route66"
+    for ((game=0;game<=num_games;game++)); do
+        game_launcher="game$game[0]"
+        game_portname="game$game[1]"
+        game_path="game$game[1]"
+        game_args="game$game[2]"
+        if [[ -d "$romdir/ports/${!game_path}" ]]; then
+           addPort "$md_id" "${!game_portname}" "${!game_launcher}" "${binary}.sh %ROM%" "${!game_args}"
         fi
     done
+
+    if [[ "$md_mode" == "install" ]]; then
+        # we need to use a dumb launcher script to strip quotes from runcommand's generated arguments
+        cat > "${binary}.sh" << _EOF_
+#!/bin/bash
+$md_inst/raze +vid_renderer 1 +vid_fullscreen 1 \$*
+_EOF_
+        chmod +x "${binary}.sh"
+    fi
 }
 
 function configure_raze() {
@@ -116,14 +123,12 @@ function configure_raze() {
         'exhumed'
         'nam'
         'redneck'
-        'redneckrides'
         'shadow'
         'ww2gi' 
     )
     for d in "${dir[@]}"; do
         mkRomDir "ports/$d"
     done
-    moveConfigDir "$home/.config/raze" "$md_conf_root/raze"
 
-    [[ "$md_mode" == "install" ]] && _add_games_raze "$md_inst/bin/raze +vid_renderer 1 +vid_fullscreen 1"
+    [[ "$md_mode" == "install" ]] && _add_games_raze "$md_inst/raze"
 }

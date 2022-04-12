@@ -19,10 +19,9 @@ function depends_eduke32() {
         'libvpx'
         'sdl2_mixer'
     )
-
-    isPlatform "x86" && depends+=(nasm)
-    isPlatform "gl" || isPlatform "mesa" && depends+=(mesa glu)
-    isPlatform "x11" && depends+=(gtk2)
+    isPlatform "x86" && depends+=('nasm')
+    isPlatform "gl" || isPlatform "mesa" && depends+=('mesa' 'glu')
+    isPlatform "x11" && depends+=('gtk2')
     getDepends "${depends[@]}"
 }
 
@@ -38,8 +37,6 @@ function build_eduke32() {
     ! isPlatform "x11" && params+=(HAVE_GTK2=0)
     ! isPlatform "gl3" && params+=(POLYMER=0)
     ! ( isPlatform "gl" || isPlatform "mesa" ) && params+=(USE_OPENGL=0)
-    # r7242 requires >1GB memory allocation due to netcode changes.
-    isPlatform "arm" && params+=(NETCODE=0)
 
     make veryclean
     make "${params[@]}"
@@ -88,10 +85,7 @@ function configure_eduke32() {
     mkRomDir "ports/$portname"
     moveConfigDir "$home/.config/$appname" "$md_conf_root/$portname"
 
-    add_games_eduke32 "$portname" "$md_inst/$appname"
-
-    # remove old launch script
-    rm -f "$romdir/ports/Duke3D Shareware.sh"
+    _add_games_eduke32 "$md_inst/$appname"
 
     if [[ "$md_mode" == "install" ]]; then
         game_data_eduke32
@@ -105,16 +99,15 @@ function configure_eduke32() {
         # the VC4 & V3D drivers render menu splash colours incorrectly without this
         isPlatform "mesa" && iniSet "r_useindexedcolortextures" "0"
 
-        chown -R $user:$user "$config"
+        chown -R "$user:$user" "$config"
     fi
 }
 
-function add_games_eduke32() {
-    local portname="$1"
-    local binary="$2"
+function _add_games_eduke32() {
+    local binary="$1"
     local game
     local game_args
-    local game_path
+    local game_portname
     local game_launcher
     local num_games=4
 
@@ -122,20 +115,20 @@ function add_games_eduke32() {
         num_games=0
         local game0=('Ion Fury' '' '')
     else
-        local game0=('Duke Nukem 3D' '' '-addon 0')
-        local game1=('Duke Nukem 3D - Duke It Out In DC' 'addons/dc' '-addon 1')
-        local game2=('Duke Nukem 3D - Nuclear Winter' 'addons/nw' '-addon 2')
-        local game3=('Duke Nukem 3D - Caribbean - Lifes A Beach' 'addons/vacation' '-addon 3')
-        local game4=('NAM' 'addons/nam' '-nam')
+        local game0=('Duke Nukem 3D' 'duke3d' '-addon 0')
+        local game1=('Duke Nukem 3D: Duke It Out In D.C.' 'duke3d' '-addon 1')
+        local game2=('Duke Nukem 3D: Duke: Nuclear Winter' 'duke3d' '-addon 2')
+        local game3=('Duke Nukem 3D: Duke Caribbean: Life'\''s a Beach' 'duke3d' '-addon 3')
+        local game4=('NAM' 'nam' '-nam')
     fi
 
     for ((game=0;game<=num_games;game++)); do
         game_launcher="game$game[0]"
-        game_path="game$game[1]"
+        game_portname="game$game[1]"
         game_args="game$game[2]"
 
-        if [[ -d "$romdir/ports/$portname/${!game_path}" ]]; then
-           addPort "$md_id" "$portname" "${!game_launcher}" "pushd $md_conf_root/$portname; ${binary}.sh %ROM%; popd" "-j$romdir/ports/$portname/${game0[1]} -j$romdir/ports/$portname/${!game_path} ${!game_args}"
+        if [[ -d "$romdir/ports/${!game_portname}" ]]; then
+           addPort "$md_id" "${!game_portname}" "${!game_launcher}" "pushd $md_conf_root/${!game_portname}; ${binary}.sh %ROM%; popd" "-j$romdir/ports/${!game_portname} ${!game_args}"
         fi
     done
 
@@ -146,7 +139,6 @@ function add_games_eduke32() {
 # HACK: force vsync for RPI Mesa driver for now
 VC4_DEBUG=always_sync $binary \$*
 _EOF_
-
         chmod +x "${binary}.sh"
     fi
 }
