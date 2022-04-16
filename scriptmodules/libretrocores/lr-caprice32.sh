@@ -22,9 +22,7 @@ function build_lr-caprice32() {
 }
 
 function install_lr-caprice32() {
-    md_ret_files=(
-        'cap32_libretro.so'
-    )
+    md_ret_files=('cap32_libretro.so')
 }
 
 function configure_lr-caprice32() {
