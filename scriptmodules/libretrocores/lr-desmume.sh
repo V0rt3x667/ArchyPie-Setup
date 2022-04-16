@@ -30,7 +30,7 @@ function sources_lr-desmume() {
 function build_lr-desmume() {
     cd desmume/src/frontend/libretro
     make clean
-    make $(_params_lr-desmume)
+    make "$(_params_lr-desmume)"
     md_ret_require="$md_build/desmume/src/frontend/libretro/desmume_libretro.so"
 }
 
