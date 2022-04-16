@@ -10,17 +10,14 @@ rp_module_help="ROM Extensions: .3ds .3dsx .app .cci .cxi\n\nCopy Your Nintendo 
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/citra/master/license.txt"
 rp_module_repo="git https://github.com/libretro/citra.git master"
 rp_module_section="opt"
-rp_module_flags="!all"
+rp_module_flags=""
 
 function depends_lr-citra() {
-        local depends=(
+    local depends=(
         'boost'
-        'clang'
-        'cmake'
         'ffmpeg'
         'fmt'
-        'libfdk-aac'
-        'ninja'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -30,27 +27,13 @@ function sources_lr-citra() {
 }
 
 function build_lr-citra() {
-    cmake . \
-        -Bbuild \
-        -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DENABLE_LIBRETRO=ON \
-        -DCMAKE_C_COMPILER="clang" \
-        -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_CXX_FLAGS="${CXXFLAGS} -DFMT_USE_USER_DEFINED_LITERALS=0 -fbracket-depth=649 -fno-lto" \
-        -DUSE_SYSTEM_BOOST="ON" \
-        -DENABLE_QT=OFF \
-        -DENABLE_SDL2=OFF \
-        -DENABLE_WEB_SERVICE=OFF \
-        -Wno-dev
-    ninja -C build
-    md_ret_require="build/src/citra_libretro/citra_libretro.so"
+    make HAVE_FFMPEG_STATIC=0 clean
+    make HAVE_FFMPEG_STATIC=0
+    md_ret_require="$md_build/citra_libretro.so"
 }
 
 function install_lr-citra() {
-    md_ret_files=('build/src/citra_libretro/citra_libretro.so')
+    md_ret_files=('citra_libretro.so')
 }
 
 function configure_lr-citra() {
