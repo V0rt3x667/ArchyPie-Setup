@@ -1,0 +1,58 @@
+--- a/gfx/video_shader_parse.c
++++ b/gfx/video_shader_parse.c
+@@ -2314,8 +2314,10 @@
+          if (string_is_empty(special_name))
+             break;
+ 
+-         fill_pathname_join(s, shader_directory, special_name, len);
+-         strlcat(s, video_shader_get_preset_extension(types[i]), len);
++         if (strcmp(special_name, "config")!=0) {
++            fill_pathname_join(s, shader_directory, special_name, len);
++            strlcat(s, video_shader_get_preset_extension(types[i]), len);
++         }
+       }
+ 
+       if (path_is_valid(s))
+
+--- a/configuration.c
++++ b/configuration.c
+@@ -1520,6 +1520,8 @@
+          settings->paths.directory_resampler, false, NULL, true);
+    SETTING_PATH("video_shader_dir",
+          settings->paths.directory_video_shader, true, NULL, true);
++   SETTING_PATH("video_shader",
++         settings->paths.path_shader, false, NULL, true);
+    SETTING_PATH("video_filter_dir",
+          settings->paths.directory_video_filter, true, NULL, true);
+    SETTING_PATH("core_assets_directory",
+@@ -2713,6 +2715,7 @@
+    *settings->paths.directory_menu_config = '\0';
+ #endif
+    *settings->paths.directory_video_shader = '\0';
++   *settings->paths.path_shader = '\0';
+    *settings->paths.directory_video_filter = '\0';
+    *settings->paths.directory_audio_filter = '\0';
+ 
+@@ -4962,6 +4965,10 @@
+ 
+       for (i = 0; i < (unsigned)path_settings_size; i++)
+       {
++         /* blacklist 'video_shader', better handled by shader presets */
++         if (string_is_equal(path_settings[i].ident, "video_shader"))
++             continue;
++
+          if (!string_is_equal(path_settings[i].ptr, path_overrides[i].ptr))
+             config_set_path(conf, path_overrides[i].ident,
+                   path_overrides[i].ptr);
+
+--- a/configuration.h
++++ b/configuration.h
+@@ -495,6 +495,7 @@
+       char path_cheat_settings[PATH_MAX_LENGTH];
+       char path_font[PATH_MAX_LENGTH];
+       char path_rgui_theme_preset[PATH_MAX_LENGTH];
++      char path_shader[PATH_MAX_LENGTH];
+ 
+       char directory_audio_filter[PATH_MAX_LENGTH];
+       char directory_autoconfig[PATH_MAX_LENGTH];
+

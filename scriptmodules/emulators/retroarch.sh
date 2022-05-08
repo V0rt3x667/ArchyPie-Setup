@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch - Frontend to the Libretro Cores - Required by all lr-* Emulators"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/RetroPie/RetroArch retropie-v1.10.0"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.10.3"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -40,6 +40,14 @@ function depends_retroarch() {
 
 function sources_retroarch() {
     gitPullOrClone
+    local patch=(
+        '01_disable_search.patch'
+        '02_revert_default_paths.patch'
+        '03_add_video_shader_parameter.patch'
+    )
+    for p in ${patch[@]}; do
+        applyPatch "$md_data/$p"
+    done
 }
 
 function build_retroarch() {
@@ -89,23 +97,28 @@ function install_retroarch() {
     md_ret_files=('retroarch.cfg')
 }
 
-function update_shaders_retroarch() {
+function update_shaders-retropie_retroarch() {
     local dir="$configdir/all/retroarch/shaders"
+    # remove if not git repository for fresh checkout
+    [[ ! -d "$dir/retropie/.git" ]] && rm -rf "$dir/retropie"
+    gitPullOrClone "$dir/retropie" https://github.com/RetroPie/common-shaders.git
+    chown -R "$user:$user" "$dir"
+}
 
-    if isPlatform "rpi"; then
-        # remove if not git repository for fresh checkout
-        [[ ! -d "$dir/retropie/.git" ]] && rm -rf "$dir/retropie"
-        gitPullOrClone "$dir/retropie" https://github.com/RetroPie/common-shaders.git "rpi"
-        chown -R $user:$user "$dir"
-    else
-        local shadersystem
-        for shadersystem in "glsl" "slang"; do
-            # remove if not git repository for fresh checkout
-            [[ ! -d "$dir/$shadersystem/.git" ]] && rm -rf "$dir/$shadersystem"
-            gitPullOrClone "$dir/$shadersystem" "https://github.com/libretro/$shadersystem-shaders.git" "$branch"
-            chown -R $user:$user "$dir"
-        done
-    fi
+function update_shaders-glsl_retroarch() {
+    local dir="$configdir/all/retroarch/shaders"
+    # remove if not git repository for fresh checkout
+    [[ ! -d "$dir/glsl/.git" ]] && rm -rf "$dir/glsl"
+    gitPullOrClone "$dir/glsl" https://github.com/libretro/glsl-shaders.git
+    chown -R "$user:$user" "$dir"
+}
+
+function update_shaders-slang_retroarch() {
+    local dir="$configdir/all/retroarch/shaders"
+    # remove if not git repository for fresh checkout
+    [[ ! -d "$dir/slang/.git" ]] && rm -rf "$dir/slang"
+    gitPullOrClone "$dir/slang" https://github.com/libretro/slang-shaders.git
+    chown -R "$user:$user" "$dir"
 }
 
 function update_overlays_retroarch() {
@@ -113,7 +126,7 @@ function update_overlays_retroarch() {
     # remove if not a git repository for fresh checkout
     [[ ! -d "$dir/.git" ]] && rm -rf "$dir"
     gitPullOrClone "$dir" https://github.com/libretro/common-overlays.git
-    chown -R $user:$user "$dir"
+    chown -R "$user:$user" "$dir"
 }
 
 function update_joypad_autoconfigs_retroarch() {
@@ -126,23 +139,7 @@ function update_assets_retroarch() {
     # remove if not a git repository for fresh checkout
     [[ ! -d "$dir/.git" ]] && rm -rf "$dir"
     gitPullOrClone "$dir" https://github.com/libretro/retroarch-assets.git
-    chown -R $user:$user "$dir"
-}
-
-function install_minimal_assets_retroarch() {
-    local dir="$configdir/all/retroarch/assets"
-    [[ -d "$dir/.git" ]] && return
-    [[ ! -d "$dir" ]] && mkUserDir "$dir"
-    downloadAndExtract "$__binary_base_url/retroarch-minimal-assets.tar.gz" "$dir"
-    chown -R $user:$user "$dir"
-}
-
-function _package_minimal_assets_retroarch() {
-    gitPullOrClone "$md_build/assets" https://github.com/libretro/retroarch-assets.git
-    mkdir -p "$__tmpdir/archives"
-    local archive="$__tmpdir/archives/retroarch-minimal-assets.tar.gz"
-    rm -f "$archive"
-    tar cvzf "$archive" -C "$md_build/assets" ozone menu_widgets xmb/monochrome
+    chown -R "$user:$user" "$dir"
 }
 
 function configure_retroarch() {
@@ -160,12 +157,6 @@ function configure_retroarch() {
     moveConfigDir "$md_inst/assets" "$configdir/all/retroarch/assets"
     moveConfigDir "$md_inst/overlays" "$configdir/all/retroarch/overlay"
     moveConfigDir "$md_inst/shader" "$configdir/all/retroarch/shaders"
-
-    # install shaders by default
-    update_shaders_retroarch
-
-    # install minimal assets
-    install_minimal_assets_retroarch
 
     # install joypad autoconfig presets
     update_joypad_autoconfigs_retroarch
@@ -357,18 +348,18 @@ function hotkey_retroarch() {
 
 function gui_retroarch() {
     while true; do
-        local names=(overlays assets)
-        local dirs=(overlay assets)
+        local names=('overlays' 'assets')
+        local dirs=('overlay' 'assets')
         local options=()
         local name
         local dir
         local i=1
         if isPlatform "rpi"; then
-            names+=(shaders-retropie)
-            dirs+=(shaders/retropie)
+            names+=('shaders-retropie')
+            dirs+=('shaders/retropie')
         else
-            names+=(shaders-glsl shaders-slang)
-            dirs+=(shaders/glsl shaders/slang)
+            names+=('shaders-glsl' 'shaders-slang')
+            dirs+=('shaders/glsl' 'shaders/slang')
         fi
         for name in "${names[@]}"; do
             if [[ -d "$configdir/all/retroarch/${dirs[i-1]}/.git" ]]; then
@@ -379,13 +370,13 @@ function gui_retroarch() {
             ((i++))
         done
         options+=(
-            4 "Configure keyboard for use with RetroArch"
-            5 "Configure keyboard hotkey behaviour for RetroArch"
+            6 "Configure keyboard for use with RetroArch"
+            7 "Configure keyboard hotkey behaviour for RetroArch"
         )
         local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         case "$choice" in
-            1|2|3)
+            1|2|3|4|5)
                 name="${names[choice-1]}"
                 dir="${dirs[choice-1]}"
                 options=(1 "Install/Update $name" 2 "Uninstall $name" )
@@ -398,7 +389,7 @@ function gui_retroarch() {
                         ;;
                     2)
                         rm -rf "$configdir/all/retroarch/$dir"
-                        [[ "$dir" == "assets" ]] && install_xmb_monochrome_assets_retroarch
+                        #[[ "$dir" == "assets" ]] && install_xmb_monochrome_assets_retroarch
                         ;;
                     *)
                         continue
@@ -406,10 +397,10 @@ function gui_retroarch() {
 
                 esac
                 ;;
-            4)
+            6)
                 keyboard_retroarch
                 ;;
-            5)
+            7)
                 hotkey_retroarch
                 ;;
             *)
