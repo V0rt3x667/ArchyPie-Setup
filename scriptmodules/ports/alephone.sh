@@ -52,25 +52,22 @@ function install_alephone() {
 }
 
 function _game_data_alephone() {
-  local release_url
-  release_url="https://github.com/Aleph-One-Marathon"
+  local version="$(_get_branch_alephone)"
+  local release_url="https://github.com/Aleph-One-Marathon/alephone/releases/download/release-$version"
 
-  if [[ ! -f "$romdir/ports/alephone/Marathon/Shapes.shps" ]]; then
-    downloadAndExtract "$release_url/data-marathon/archive/master.zip" "$romdir/ports/alephone"
-    mv "$romdir/ports/alephone/data-marathon-master" "$romdir/ports/alephone/Marathon"
-  fi
+    if [[ ! -f "$romdir/ports/$md_id/Marathon/Shapes.shps" ]]; then
+        downloadAndExtract "$release_url/Marathon-$version-Data.zip" "$romdir/ports/$md_id"
+    fi
 
-  if [[ ! -f "$romdir/ports/alephone/Marathon 2/Shapes.shpA" ]]; then
-    downloadAndExtract "$release_url/data-marathon-2/archive/master.zip" "$romdir/ports/alephone"
-    mv "$romdir/ports/alephone/data-marathon-2-master" "$romdir/ports/alephone/Marathon 2"
-  fi
+    if [[ ! -f "$romdir/ports/$md_id/Marathon 2/Shapes.shpA" ]]; then
+        downloadAndExtract "$release_url/Marathon2-$version-Data.zip" "$romdir/ports/$md_id"
+    fi
 
-  if [[ ! -f "$romdir/ports/alephone/Marathon Infinity/Shapes.shpA" ]]; then
-    downloadAndExtract "$release_url/data-marathon-infinity/archive/master.zip" "$romdir/ports/alephone"
-    mv "$romdir/ports/alephone/data-marathon-infinity-master" "$romdir/ports/alephone/Marathon Infinity"
-  fi
+    if [[ ! -f "$romdir/ports/$md_id/Marathon Infinity/Shapes.shpA" ]]; then
+        downloadAndExtract "$release_url/MarathonInfinity-$version-Data.zip" "$romdir/ports/$md_id"
+    fi
 
-    chown -R $user:$user "$romdir/ports/$md_id"
+    chown -R "$user:$user" "$romdir/ports/$md_id"
 }
 
 function configure_alephone() {
