@@ -52,11 +52,11 @@ function _add_system_attractmode() {
     iniSet "artwork snap" "$path/$snap"
     iniSet "artwork wheel" "$path/wheel"
 
-    chown $user:$user "$config"
+    chown "$user:$user" "$config"
 
     # if no gameslist, generate one
     if [[ ! -f "$attract_dir/romlists/$fullname.txt" ]]; then
-        sudo -u $user attract --build-romlist "$fullname" -o "$fullname"
+        sudo -u "$user" attract --build-romlist "$fullname" -o "$fullname"
     fi
 
     local config="$attract_dir/attract.cfg"
@@ -68,7 +68,7 @@ display${tab}$fullname
 ${tab}layout               Basic
 ${tab}romlist              $fullname
 _EOF_
-        chown $user:$user "$config"
+        chown "$user:$user" "$config"
     fi
 }
 
@@ -118,14 +118,13 @@ function _add_rom_attractmode() {
     fi
 
     echo "$path;$name;$system_fullname;;;;;;;;;;;;;;" >>"$config"
-    chown $user:$user "$config"
+    chown "$user:$user" "$config"
 }
 
 function depends_attractmode() {
-    local depends=('cmake' 'ffmpeg' 'libarchive' 'libxinerama')
+    local depends=('cmake' 'ffmpeg' 'libarchive' 'libxinerama' 'sfml')
     isPlatform "videocore" && depends+=('libraspberrypi-firmware')
     isPlatform "kms" && depends+=('mesa' 'libglvnd' 'glu' 'libdrm')
-    isPlatform "x11" && depends+=('sfml')
     getDepends "${depends[@]}"
 }
 
@@ -136,22 +135,22 @@ function sources_attractmode() {
 function build_attractmode() {
     make clean
     local params=(prefix="$md_inst")
-    isPlatform "videocore" && params+=(USE_GLES=1 EXTRA_CFLAGS="$CFLAGS -I$md_build/sfml-pi/include -L$md_build/sfml-pi/lib")
-    isPlatform "kms" && params+=(USE_DRM=1 EXTRA_CFLAGS="$CFLAGS -I$md_build/sfml-pi/include -L$md_build/sfml-pi/lib")
+    isPlatform "videocore" && params+=(USE_GLES=1)
+    isPlatform "kms" && params+=(USE_DRM=1)
     isPlatform "rpi" && params+=(USE_MMAL=1)
     isPlatform "x11" && params+=(FE_HWACCEL_VAAPI=1 FE_HWACCEL_VDPAU=1)
     make "${params[@]}"
 
     # remove example configs
-    rm -rf "$md_build/attract/config/emulators/"*
+    rm -rf "$md_build/attract/config/emulators/ "*
 
     md_ret_require="$md_build/attract"
 }
 
 function install_attractmode() {
     mkdir -p "$md_inst"/{bin,share,share/attract}
-    cp -v $md_build/attract "$md_inst/bin/"
-    cp -Rv $md_build/config/* "$md_inst/share/attract"
+    cp -v "$md_build/attract" "$md_inst/bin/"
+    cp -Rv "$md_build/config/ "* "$md_inst/share/attract"
 }
 
 function remove_attractmode() {
@@ -172,17 +171,7 @@ function configure_attractmode() {
     mkUserDir "$md_conf_root/all/attractmode/emulators"
     cat >/usr/bin/attract <<_EOF_
 #!/bin/bash
-MODETEST=/opt/archypie/supplementary/mesa-drm/modetest
-if [[ -z "\$DISPLAY" && -f "\$MODETEST" && ! "\$1" =~ build-romlist ]]; then
-    MODELIST="\$(\$MODETEST -r 2>/dev/null)"
-    default_mode="\$(echo "\$MODELIST" | grep -Em1 "^Mode:.*(driver|userdef).*crtc" | cut -f 2 -d ' ')"
-    default_vrefresh="\$(echo "\$MODELIST" | grep -Em1 "^Mode:.*(driver|userdef).*crtc" | cut -f 4 -d ' ')"
-    echo "Using default video mode: \$default_mode @ \$default_vrefresh"
-
-    [[ ! -z "\$default_mode" ]] && export SFML_DRM_MODE="\$default_mode"
-    [[ ! -z "\$default_vrefresh" ]] && export SFML_DRM_REFRESH="\$default_vrefresh"
-fi
-LD_LIBRARY_PATH="$md_inst/sfml/lib" "$md_inst/bin/attract" "\$@"
+"$md_inst/bin/attract" "\$@"
 _EOF_
     chmod +x "/usr/bin/attract"
 
