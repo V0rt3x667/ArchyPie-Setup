@@ -71,13 +71,13 @@ function configure_uae4all() {
     if [[ ! -h "$md_inst/kickstarts" ]]; then
         rm -f "$md_inst/kickstarts/"{kick12.rom,kick13.rom,kick20.rom,kick31.rom}
     fi
-    moveConfigDir "$md_inst/kickstarts" "$biosdir"
+    moveConfigDir "$md_inst/kickstarts" "$biosdir/amiga"
 
     rm -f "$romdir/amiga/+Start UAE4All.sh"
     if [[ "$md_mode" == "install" ]]; then
         if [[ ! -f "$biosdir/aros-amiga-m68k-ext.bin" ]]; then
             # unpack aros kickstart
-            unzip -j "aros20140110.zip" -d "$biosdir"
+            unzip -j "aros20140110.zip" -d "$biosdir/amiga"
         fi
 
         cat > "$romdir/amiga/+Start UAE4All.sh" << _EOF_

@@ -33,7 +33,7 @@ function rps_logInit() {
 
 function rps_logStart() {
     echo -e "Log started at: $(date -d @$time_start)\n"
-    echo "ArchyPie-Setup version: $__version ($(git -C "$scriptdir" log -1 --pretty=format:%h))"
+    echo "ArchyPie-Setup version: $__version ($(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:%h))"
     echo "System: $__platform ($__platform_arch) - $__os_desc - $(uname -a)"
 }
 
@@ -110,12 +110,12 @@ function updatescript_setup()
     printHeading "Fetching latest version of the ArchyPie Setup Script."
     pushd "$scriptdir" >/dev/null
     if [[ ! -d ".git" ]]; then
-        printMsgs "dialog" "Cannot find directory '.git'. Please clone the ArchyPie Setup script via 'git clone https://github.com/ArchyPie/ArchyPie-Setup.git'"
+        printMsgs "dialog" "Cannot find directory '.git'. Please clone the ArchyPie Setup script via 'git clone https://github.com/V0rt3x667/ArchyPie-Setup.git'"
         popd >/dev/null
         return 1
     fi
     local error
-    if ! error=$(su $user -c "git pull --ff-only 2>&1 >/dev/null"); then
+    if ! error=$(sudo -u "$user" git pull --ff-only 2>&1 >/dev/null); then
         printMsgs "dialog" "Update failed:\n\n$error"
         popd >/dev/null
         return 1
@@ -675,7 +675,7 @@ function gui_setup() {
     depends_setup
     local default
     while true; do
-        local commit=$(git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
+        local commit=$(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
 
         cmd=(dialog --backtitle "$__backtitle" --title "ArchyPie-Setup Script" --cancel-label "Exit" --item-help --help-button --default-item "$default" --menu "Version: $__version - Last Commit: $commit\nSystem: $__platform ($__platform_arch) - Running On: $__os_desc" 22 76 16)
         options=(
