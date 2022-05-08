@@ -17,8 +17,9 @@ function _get_branch_srb2() {
 function depends_srb2() {
     local depends=(
         'cmake'
-		'curl'
+        'curl'
         'libgme'
+        'libopenmpt'
         'libpng'
         'sdl2'
         'sdl2_mixer'
@@ -27,38 +28,38 @@ function depends_srb2() {
 }
 
 function sources_srb2() {
+    local branch
     local ver
-    local ver2
-    ver="$(_get_branch_srb2)"
-    ver2="${ver//./}"
+    branch="$(_get_branch_srb2)"
+    ver="${branch//./}"
 
     gitPullOrClone
-    downloadAndExtract "https://github.com/STJr/SRB2/releases/download/$ver/SRB2-v${ver2##*_}-Full.zip" "$md_build/assets/installer"
+    downloadAndExtract "https://github.com/STJr/SRB2/releases/download/$ver/SRB2-v${ver##*_}-Full.zip" "$md_build/assets/installer"
 }
 
 function build_srb2() {
-    mkdir build
-    cd build
-
-    cmake .. \
+    cmake . \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DSRB2_ASSET_HASHED="srb2.pk3;player.dta;music.dta;zones.pk3;patch.pk3" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DSRB2_ASSET_HASHED="srb2.pk3;player.dta;music.dta;zones.pk3" \
         -Wno-dev
-    make clean
-    make
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/bin/lsdlsrb2"
 }
 
 function install_srb2() {
     # copy and dereference, so we get a srb2 binary rather than a symlink to lsdlsrb2-version
     cp -L 'build/bin/lsdlsrb2' "$md_inst/srb2"
+
     md_ret_files=(
         'assets/installer/music.dta'
         'assets/installer/player.dta'
         'assets/installer/zones.pk3'
         'assets/installer/srb2.pk3'
-        'assets/installer/patch.pk3'
         'assets/README.txt'
         'assets/LICENSE.txt'
     )
@@ -69,3 +70,4 @@ function configure_srb2() {
 
     moveConfigDir "$home/.srb2"  "$md_conf_root/$md_id"
 }
+
