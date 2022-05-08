@@ -13,7 +13,14 @@ rp_module_section="opt"
 rp_module_flags="!all 64bit"
 
 function depends_lr-citra2018() {
-    depends_lr-citra
+    local depends=(
+        'boost'
+        'clang'
+        'ffmpeg'
+        'fmt'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_lr-citra2018() {
