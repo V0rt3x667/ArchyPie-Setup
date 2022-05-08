@@ -7,7 +7,7 @@
 rp_module_id="emulationstation"
 rp_module_desc="EmulationStation - Frontend used by ArchyPie for launching emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
-rp_module_repo="git https://github.com/RetroPie/EmulationStation.git v2.10.2"
+rp_module_repo="git https://github.com/RetroPie/EmulationStation.git v2.10.3"
 rp_module_section="core"
 rp_module_flags="frontend"
 
@@ -156,7 +156,7 @@ function build_emulationstation() {
         isPlatform "videocore" && params+=(-DUSE_GLES1=On)
     elif isPlatform "x11"; then
         local gl_ver=$(sudo -u $user glxinfo | grep -oP "OpenGL version string: \K(\d+)")
-        [[ "$gl_ver" -gt 1 ]] && params+=(-DGL=On -DUSE_OPENGL_21=On)
+        [[ "$gl_ver" -gt 1 ]] && params+=(-DGL=On)
     fi
     rpSwap on 1000
     cmake . "${params[@]}"
@@ -250,7 +250,7 @@ Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
 Name[de_DE]=ArchyPie
-Name=rpie
+Name=ArchyPie
 Comment[de_DE]=ArchyPie
 Comment=archypie
 Icon=/usr/share/icons/retropie.svg
