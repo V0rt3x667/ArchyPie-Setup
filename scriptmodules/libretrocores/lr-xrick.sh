@@ -29,8 +29,10 @@ function install_lr-xrick() {
 }
 
 function _add_data_lr-xrick() { 
-    curl -sSL "https://buildbot.libretro.com/assets/cores/Rick%20Dangerous/Rick%20Dangerous.zip" | bsdtar xvf - --strip-components=1 -C "$biosdir"
-    chown -R "$user:$user" "$biosdir/data.zip"
+    if [[ ! -f "$romdir/ports/xrick/data.zip" ]]; then
+        curl -sSL "https://buildbot.libretro.com/assets/cores/Rick%20Dangerous/Rick%20Dangerous.zip" | bsdtar xvf - --strip-components=1 -C "$biosdir"
+        chown -R "$user:$user" "$romdir/ports/xrick/data.zip"
+    fi
 }
 
 function configure_lr-xrick() {
