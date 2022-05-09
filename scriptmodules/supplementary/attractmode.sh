@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="attractmode"
-rp_module_desc="Attract Mode Emulator Frontend"
+rp_module_desc="Attract Mode - Emulator Frontend"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/mickelson/attract/master/License.txt"
 rp_module_repo="git https://github.com/mickelson/attract.git master"
 rp_module_section="exp"
@@ -142,7 +142,7 @@ function build_attractmode() {
     make "${params[@]}"
 
     # remove example configs
-    rm -rf "$md_build/attract/config/emulators/ "*
+    rm -rf "$md_build/config/emulators/"*
 
     md_ret_require="$md_build/attract"
 }
@@ -150,7 +150,7 @@ function build_attractmode() {
 function install_attractmode() {
     mkdir -p "$md_inst"/{bin,share,share/attract}
     cp -v "$md_build/attract" "$md_inst/bin/"
-    cp -Rv "$md_build/config/ "* "$md_inst/share/attract"
+    cp -Rv "$md_build/config/"* "$md_inst/share/attract"
 }
 
 function remove_attractmode() {
