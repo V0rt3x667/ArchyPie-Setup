@@ -17,9 +17,7 @@ function sources_lr-swanstation() {
 }
 
 function build_lr-swanstation() {
-    cmake . \
-        -DBUILD_LIBRETRO_CORE="On" \
-        -Wno-dev
+    cmake . -Wno-dev
     make clean
     make
     md_ret_require="$md_build/swanstation_libretro.so"
