@@ -38,7 +38,7 @@ function configure_lr-cannonball() {
     setConfigRoot "ports"
     ensureSystemretroconfig "ports/cannonball"
 
-    addPort "$md_id" "cannonball" "Cannonball - OutRun Engine" "$md_inst/cannonball_libretro.so" "$romdir/ports/cannonball/outrun.game"
+    addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "$md_inst/cannonball_libretro.so" "$romdir/ports/cannonball/outrun.game"
 
     moveConfigFile "config.xml" "$md_conf_root/cannonball/config.xml"
     moveConfigFile "hiscores.xml" "$md_conf_root/cannonball/hiscores.xml"
@@ -49,7 +49,7 @@ function configure_lr-cannonball() {
 
     cp -v roms.txt "$romdir/ports/cannonball/"
 
-    chown -R $user:$user "$romdir/ports/cannonball" "$md_conf_root/cannonball"
+    chown -R "$user:$user" "$romdir/ports/cannonball" "$md_conf_root/cannonball"
 
     ln -snf "$romdir/ports/cannonball" "$md_inst/roms"
 }

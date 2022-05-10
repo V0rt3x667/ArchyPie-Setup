@@ -52,7 +52,7 @@ function install_cannonball() {
 }
 
 function configure_cannonball() {
-    addPort "$md_id" "cannonball" "Cannonball - OutRun Engine" "pushd $md_inst; $md_inst/cannonball; popd"
+    addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "pushd $md_inst; $md_inst/cannonball; popd"
 
     mkRomDir "ports/$md_id"
 
@@ -65,7 +65,7 @@ function configure_cannonball() {
 
     cp -v roms.txt "$romdir/ports/$md_id/"
 
-    chown -R $user:$user "$romdir/ports/$md_id" "$md_conf_root/$md_id"
+    chown -R "$user:$user" "$romdir/ports/$md_id" "$md_conf_root/$md_id"
 
     ln -snf "$romdir/ports/$md_id" "$md_inst/roms"
 }
