@@ -12,7 +12,7 @@ rp_module_repo="git https://github.com/libretro/melonDS.git master"
 rp_module_section="opt"
 
 function depends_lr-melonds() {
-    getDepends gcc10 libslirp
+    getDepends libslirp
 }
 
 function sources_lr-melonds() {
@@ -20,8 +20,6 @@ function sources_lr-melonds() {
 }
 
 function build_lr-melonds() {
-    export CC=gcc-10
-    export CXX=g++-10
     make clean
     make
     md_ret_require="$md_build/melonds_libretro.so"
