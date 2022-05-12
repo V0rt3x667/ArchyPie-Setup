@@ -13,9 +13,9 @@ rp_module_section="opt"
 
 function depends_lr-sameboy() {
     local depends=(
+        'clang'
         'glibc'
         'libgl'
-        'clang'
         'libglvnd'
         'rgbds'
         'sdl2'
@@ -52,3 +52,4 @@ function configure_lr-sameboy() {
         addSystem "$system"
     done
 }
+
