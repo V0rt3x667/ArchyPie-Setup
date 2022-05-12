@@ -15,7 +15,6 @@ function install_bin_rpix86() {
     downloadAndExtract "$__archive_url/rpix86.tar.gz" "$md_inst"
     # install 4DOS.com
     downloadAndExtract "$__archive_url/4dos.zip" "$md_inst"
-    "$md_inst/rpix86"
 }
 
 function configure_rpix86() {

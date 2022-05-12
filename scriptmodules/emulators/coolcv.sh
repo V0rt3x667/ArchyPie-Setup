@@ -18,7 +18,6 @@ function depends_coolcv() {
 
 function install_bin_coolcv() {
     downloadAndExtract "$md_repo_url" "$md_inst" --strip-components 1
-    "$md_inst/coolcv_pi"
 }
 
 function configure_coolcv() {
