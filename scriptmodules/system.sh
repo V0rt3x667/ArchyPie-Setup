@@ -72,11 +72,11 @@ function conf_binary_vars() {
     # set the gpg key used by ArchyPie
     __gpg_archypie_key="retropieproject@gmail.com"
 
-    # if __gpg_signing_key is not set, set to __gpg_archypie_key
-    [[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_archypie_key"
+    # if __gpg_signing_key is not set, set to __gpg_retropie_key
+    [[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_retropie_key"
 
     # if the RetroPie public key is not installed, install it.
-    if ! gpg --list-keys "$__gpg_archypie_key" &>/dev/null; then
+    if ! gpg --list-keys "$__gpg_retropie_key" &>/dev/null; then
         gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys DC9D77FF8208FFC51D8F50CCF1B030906A3B0D31
     fi
 }
@@ -152,142 +152,6 @@ function get_os_version() {
     ##Get OS Distributor ID and Release
     __os_desc=$(lsb_release -sir)
 
-    # get os distributor id, description, release number and codename
-#    local os
-    # armbian uses a minimal shell script replacement for lsb_release with basic
-    # parameter parsing that requires the arguments split rather than using -sidrc
-#    mapfile -t os < <(lsb_release -idr)
-#    __os_id="${os[0]}"
-#    __os_desc="${os[1]}"
-#    __os_release="${os[2]}"
-#    __os_codename="${os[3]}"
-
-#    local error=""
-#    case "$__os_id" in
-#        Raspbian|Debian)
-#            # get major version (8 instead of 8.0 etc)
-#            __os_debian_ver="${__os_release%%.*}"
-
-#            # Debian unstable is not officially supported though
-#            if [[ "$__os_release" == "unstable" ]]; then
-#                __os_debian_ver=11
-#            fi
-
-#            # we still allow Raspbian 8 (jessie) to work (We show an popup in the setup module)
-#            if compareVersions "$__os_debian_ver" lt 8; then
-#                error="You need Raspbian/Debian Stretch or newer"
-#            fi
-
-#            # 64bit Raspberry Pi OS identifies as Debian, but functions (currently) as Raspbian
-#            # we will check package sources and set to Raspbian
-#            if isPlatform "aarch64" && apt-cache policy | grep -q "archive.raspberrypi.org"; then
-#                __os_id="Raspbian"
-#            fi
-
-#            # set a platform flag for osmc
-#            if grep -q "ID=osmc" /etc/os-release; then
-#                __platform_flags+=(osmc)
-#            fi
-
-#            # and for xbian
-#            if grep -q "NAME=XBian" /etc/os-release; then
-#                __platform_flags+=(xbian)
-#            fi
-
-#            # we provide binaries for RPI on Raspbian 9/10
-#            if isPlatform "rpi" && \
-#               isPlatform "32bit" && \
-#               compareVersions "$__os_debian_ver" gt 9 && compareVersions "$__os_debian_ver" lt 11; then
-#               # only set __has_binaries if not already set
-#               [[ -z "$__has_binaries" ]] && __has_binaries=1
-#            fi
-#            ;;
-#        Devuan)
-#            if isPlatform "rpi"; then
-#                error="We do not support Devuan on the Raspberry Pi. We recommend you use Raspbian to run ArchyPie."
-#            fi
-#            # devuan lsb-release version numbers don't match jessie
-#            case "$__os_codename" in
-#                jessie)
-#                    __os_debian_ver="8"
-#                    ;;
-#                ascii)
-#                    __os_debian_ver="9"
-#                    ;;
-#                beowolf)
-#                    __os_debian_ver="10"
-#                    ;;
-#                ceres)
-#                    __os_debian_ver="11"
-#                    ;;
-#            esac
-#            ;;
-#        LinuxMint|Linuxmint)
-#            if [[ "$__os_desc" != LMDE* ]]; then
-#                if compareVersions "$__os_release" lt 18; then
-#                    error="You need Linux Mint 18 or newer"
-#                elif compareVersions "$__os_release" lt 19; then
-#                    __os_ubuntu_ver="16.04"
-#                    __os_debian_ver="8"
-#                elif compareVersions "$__os_release" lt 20; then
-#                    __os_ubuntu_ver="18.04"
-#                    __os_debian_ver="10"
-#                else
-#                    __os_ubuntu_ver="20.04"
-#                    __os_debian_ver="11"
-#                fi
-#            fi
-#            ;;
-#        Ubuntu|[Nn]eon|Pop)
-#            if compareVersions "$__os_release" lt 16.04; then
-#                error="You need Ubuntu 16.04 or newer"
-#            # although ubuntu 16.04/16.10 report as being based on stretch it is before some
-#            # packages were changed - we map to version 8 to avoid issues (eg libpng-dev name)
-#            elif compareVersions "$__os_release" le 16.10; then
-#                __os_debian_ver="8"
-#            elif compareVersions "$__os_release" lt 18.04; then
-#                __os_debian_ver="9"
-#            elif compareVersions "$__os_release" lt 20.04; then
-#                __os_debian_ver="10"
-#            else
-#                __os_debian_ver="11"
-#            fi
-#            __os_ubuntu_ver="$__os_release"
-#            ;;
-#        Zorin)
-#            if compareVersions "$__os_release" lt 14; then
-#                error="You need Zorin OS 14 or newer"
-#            elif compareVersions "$__os_release" lt 14; then
-#                __os_debian_ver="8"
-#            else
-#                __os_debian_ver="9"
-#            fi
-#            __os_ubuntu_ver="$__os_release"
-#            ;;
-#        Deepin)
-#            if compareVersions "$__os_release" lt 15.5; then
-#                error="You need Deepin OS 15.5 or newer"
-#            fi
-#            __os_debian_ver="9"
-#            ;;
-#        elementary)
-#            if compareVersions "$__os_release" lt 0.4; then
-#                error="You need Elementary OS 0.4 or newer"
-#            elif compareVersions "$__os_release" eq 0.4; then
-#                __os_ubuntu_ver="16.04"
-#                __os_debian_ver="8"
-#            else
-#                __os_ubuntu_ver="18.04"
-#                __os_debian_ver="10"
-#            fi
-#            ;;
-#        *)
-#            error="Unsupported OS"
-#            ;;
-#    esac
-
-#    [[ -n "$error" ]] && fatalError "$error\n\n$(lsb_release -idrc)"
-
     # configure Raspberry Pi graphics stack
     isPlatform "rpi" && get_rpi_video
 }
@@ -352,27 +216,19 @@ function get_platform() {
             BCM*)
                 # calculated based on information from https://github.com/AndrewFromMelbourne/raspberry_pi_revision
                 local rev="0x$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
-                # if bit 23 is not set, we are on a rpi1 (bit 23 means the revision is a bitfield)
-                if [[ $((($rev >> 23) & 1)) -eq 0 ]]; then
-                    __platform="rpi1"
-                else
-                    # if bit 23 is set, get the cpu from bits 12-15
-                    local cpu=$((($rev >> 12) & 15))
-                    case $cpu in
-                        0)
-                            __platform="rpi1"
-                            ;;
-                        1)
-                            __platform="rpi2"
-                            ;;
-                        2)
-                            __platform="rpi3"
-                            ;;
-                        3)
-                            __platform="rpi4"
-                            ;;
-                    esac
-                fi
+                # get the cpu from bits 12-15
+                local cpu=$((($rev >> 12) & 15))
+                case $cpu in
+                    0)
+                        __platform="rpi2"
+                        ;;
+                    1)
+                        __platform="rpi3"
+                        ;;
+                    2)
+                        __platform="rpi4"
+                        ;;
+                esac
                 ;;
             *ODROIDC)
                 __platform="odroid-c1"
@@ -460,12 +316,6 @@ function set_platform_defaults() {
     __platform_arch=$(uname -m)
 }
 
-function cpu_arm1176() {
-    __default_cpu_flags="-mcpu=arm1176jzf-s -mfpu=vfp"
-    __platform_flags+=(arm armv6)
-    __qemu_cpu=arm1176
-}
-
 function cpu_armv7() {
     local cpu="$1"
     if [[ -n "$cpu" ]]; then
@@ -499,11 +349,6 @@ function cpu_arm_state() {
 function platform_conf_glext() {
    # required for mali-fbdev headers to define GL functions
     __default_cflags="-DGL_GLEXT_PROTOTYPES"
-}
-
-function platform_rpi1() {
-    cpu_arm1176
-    __platform_flags+=(rpi gles)
 }
 
 function platform_rpi2() {

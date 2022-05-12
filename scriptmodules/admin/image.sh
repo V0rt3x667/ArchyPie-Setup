@@ -316,7 +316,7 @@ function all_image() {
     local image
     local dist="$1"
     local make_bb="$2"
-    for platform in rpi1 rpi2 rpi4; do
+    for platform in rpi2 rpi4; do
         platform_image "$platform" "$dist" "$make_bb"
     done
     combine_json_image
@@ -338,10 +338,6 @@ function platform_image() {
 
     local image_base="retropie-${dist}-${__version}-"
     case "$platform" in
-        rpi1)
-            image_base+="rpi1_zero"
-            image_platform="RPI 1/Zero"
-            ;;
         rpi2)
             image_base+="rpi2_3_zero2w"
             image_platform="RPI 2/3/Zero 2 W"

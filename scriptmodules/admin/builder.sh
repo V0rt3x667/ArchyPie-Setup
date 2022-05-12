@@ -87,7 +87,7 @@ function chroot_build_builder() {
 
     local platform
     local platforms="$__builder_platforms"
-    [[ -z "$platforms" ]] && platforms="rpi1 rpi2 rpi4"
+    [[ -z "$platforms" ]] && platforms="rpi2 rpi4"
 
     for dist in $dists; do
         local chroot_dir="$md_build/$dist"

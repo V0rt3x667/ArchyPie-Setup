@@ -181,62 +181,62 @@ function pacmanInstall() {
 ## @brief Calls pacman -Rs with the packages provided.
 function pacmanRemove() {
     pacmanUpdate
-    pacman -Rs "$@" --noconfirm
+    pacman -Rsn "$@" --noconfirm
     return $?
 }
 
-function _mapPackage() {
-    local pkg="$1"
-    case "$pkg" in
-        libraspberrypi-bin)
-            isPlatform "osmc" && pkg="rbp-userland-osmc"
-            isPlatform "xbian" && pkg="xbian-package-firmware"
-            ;;
-        libraspberrypi-dev)
-            isPlatform "osmc" && pkg="rbp-userland-dev-osmc"
-            isPlatform "xbian" && pkg="xbian-package-firmware"
-            ;;
-        mali-fbdev)
-            isPlatform "vero4k" && pkg=""
-            ;;
-        # handle our custom package alias LINUX-HEADERS
-        LINUX-HEADERS)
-            if isPlatform "rpi"; then
-                pkg="raspberrypi-kernel-headers"
-            elif [[ -z "$__os_ubuntu_ver" ]]; then
-                pkg="linux-headers-$(uname -r)"
-            else
-                pkg="linux-headers-generic"
-            fi
-            ;;
-        # map libpng-dev to libpng12-dev for Jessie
-        libpng-dev)
-            compareVersions "$__os_debian_ver" lt 9 && pkg="libpng12-dev"
-            ;;
-        libsdl1.2-dev)
-            rp_hasModule "sdl1" && pkg="RP sdl1 $pkg"
-            ;;
-        libsdl2-dev)
-            if rp_hasModule "sdl2"; then
-                # check whether to use our own sdl2 - can be disabled to resolve issues with
-                # mixing custom 64bit sdl2 and os distributed i386 version on multiarch
-                local own_sdl2=1
-                # default to off for x11 targets due to issues with dependencies with recent
-                # Ubuntu (19.04). eg libavdevice58 requiring exactly 2.0.9 sdl2.
-                isPlatform "x11" && own_sdl2=0
-                iniConfig " = " '"' "$configdir/all/archypie.cfg"
-                iniGet "own_sdl2"
-                if [[ "$ini_value" == "1" ]]; then
-                    own_sdl2=1
-                elif [[ "$ini_value" == "0" ]]; then
-                    own_sdl2=0
-                fi
-                [[ "$own_sdl2" -eq 1 ]] && pkg="RP sdl2 $pkg"
-            fi
-            ;;
-    esac
-    echo "$pkg"
-}
+# function _mapPackage() {
+#     local pkg="$1"
+#     case "$pkg" in
+#         libraspberrypi-bin)
+#             isPlatform "osmc" && pkg="rbp-userland-osmc"
+#             isPlatform "xbian" && pkg="xbian-package-firmware"
+#             ;;
+#         libraspberrypi-dev)
+#             isPlatform "osmc" && pkg="rbp-userland-dev-osmc"
+#             isPlatform "xbian" && pkg="xbian-package-firmware"
+#             ;;
+#         mali-fbdev)
+#             isPlatform "vero4k" && pkg=""
+#             ;;
+#         # handle our custom package alias LINUX-HEADERS
+#         LINUX-HEADERS)
+#             if isPlatform "rpi"; then
+#                 pkg="raspberrypi-kernel-headers"
+#             elif [[ -z "$__os_ubuntu_ver" ]]; then
+#                 pkg="linux-headers-$(uname -r)"
+#             else
+#                 pkg="linux-headers-generic"
+#             fi
+#             ;;
+#         # map libpng-dev to libpng12-dev for Jessie
+#         libpng-dev)
+#             compareVersions "$__os_debian_ver" lt 9 && pkg="libpng12-dev"
+#             ;;
+#         libsdl1.2-dev)
+#             rp_hasModule "sdl1" && pkg="RP sdl1 $pkg"
+#             ;;
+#         libsdl2-dev)
+#             if rp_hasModule "sdl2"; then
+#                 # check whether to use our own sdl2 - can be disabled to resolve issues with
+#                 # mixing custom 64bit sdl2 and os distributed i386 version on multiarch
+#                 local own_sdl2=1
+#                 # default to off for x11 targets due to issues with dependencies with recent
+#                 # Ubuntu (19.04). eg libavdevice58 requiring exactly 2.0.9 sdl2.
+#                 isPlatform "x11" && own_sdl2=0
+#                 iniConfig " = " '"' "$configdir/all/archypie.cfg"
+#                 iniGet "own_sdl2"
+#                 if [[ "$ini_value" == "1" ]]; then
+#                     own_sdl2=1
+#                 elif [[ "$ini_value" == "0" ]]; then
+#                     own_sdl2=0
+#                 fi
+#                 [[ "$own_sdl2" -eq 1 ]] && pkg="RP sdl2 $pkg"
+#             fi
+#             ;;
+#     esac
+#     echo "$pkg"
+# }
 
 ## @fn getDepends()
 ## @param packages package / space separated list of packages to install
@@ -244,29 +244,29 @@ function _mapPackage() {
 ## @retval 0 on success
 ## @retval 1 on failure
 function getDepends() {
-    local own_pkgs=()
+#   local own_pkgs=()
     local pacman_pkgs=()
     local all_pkgs=()
     local pkg
     for pkg in "$@"; do
-        pkg=($(_mapPackage "$pkg"))
-        # manage our custom packages (pkg = "RP module_id pkg_name")
-        if [[ "${pkg[0]}" == "RP" ]]; then
-            # if removing, check if any version is installed and queue for removal via the custom module
-            if [[ "$md_mode" == "remove" ]]; then
-                if hasPackage "${pkg[2]}"; then
-                    own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(custom)")
-                fi
-            else
-                # if installing check if our version is installed and queue for installing via the custom module
-                if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
-                    own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(custom)")
-                fi
-            fi
-            continue
-        fi
+        # pkg=($(_mapPackage "$pkg"))
+        # # manage our custom packages (pkg = "RP module_id pkg_name")
+        # if [[ "${pkg[0]}" == "RP" ]]; then
+        #     # if removing, check if any version is installed and queue for removal via the custom module
+        #     if [[ "$md_mode" == "remove" ]]; then
+        #         if hasPackage "${pkg[2]}"; then
+        #             own_pkgs+=("${pkg[1]}")
+        #             all_pkgs+=("${pkg[2]}(custom)")
+        #         fi
+        #     else
+        #         # if installing check if our version is installed and queue for installing via the custom module
+        #         if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
+        #             own_pkgs+=("${pkg[1]}")
+        #             all_pkgs+=("${pkg[2]}(custom)")
+        #         fi
+        #     fi
+        #     continue
+        # fi
 
         if [[ "$md_mode" == "remove" ]]; then
             # add package to pacman_pkgs for removal if installed
@@ -281,30 +281,29 @@ function getDepends() {
                 all_pkgs+=("$pkg")
             fi
         fi
-
     done
 
-
     # return if no packages required
-    [[ ${#pacman_pkgs[@]} -eq 0 && ${#own_pkgs[@]} -eq 0 ]] && return
+    #[[ ${#pacman_pkgs[@]} -eq 0 && ${#own_pkgs[@]} -eq 0 ]] && return
+    [[ ${#pacman_pkgs[@]} ]] && return
 
-    # if we are removing, then remove packages, do an autoremove to clean up additional packages and return
+    # if we are removing, then remove packages and return
     if [[ "$md_mode" == "remove" ]]; then
         printMsgs "console" "Removing dependencies: ${all_pkgs[*]}"
         for pkg in ${own_pkgs[@]}; do
             rp_callModule "$pkg" remove
         done
-        pacman -Rs "${pacman_pkgs[@]}" --no-confirm
-        pacman -Qdtq | pacman -Rs --no-confirm
+        pacman -Rsn "${pacman_pkgs[@]}" --no-confirm
+        pacman -Qdtq | pacman -Rsn --no-confirm
         return 0
     fi
 
     printMsgs "console" "Did not find needed dependencies: ${all_pkgs[*]}. Trying to install them now."
 
     # install any custom packages
-    for pkg in ${own_pkgs[@]}; do
-       rp_callModule "$pkg" _auto_
-    done
+    #for pkg in ${own_pkgs[@]}; do
+    #   rp_callModule "$pkg" _auto_
+    #done
 
     pacmanInstall "${pacman_pkgs[@]}"
 
@@ -313,17 +312,7 @@ function getDepends() {
     # as pacman -S might fail for other reasons (eg other half installed packages)
     for pkg in ${pacman_pkgs[@]}; do
         if ! hasPackage "$pkg"; then
-            # workaround for installing samba in a chroot (fails due to failed smbd service restart)
-            # we replace the init.d script with an empty script so the install completes
-#            if [[ "$pkg" == "samba" && "$__chroot" -eq 1 ]]; then
-#                mv /etc/init.d/smbd /etc/init.d/smbd.old
-#                echo "#!/bin/sh" >/etc/init.d/smbd
-#                chmod u+x /etc/init.d/smbd
-#                apt-get -f install
-#                mv /etc/init.d/smbd.old /etc/init.d/smbd
-#            else
-                failed+=("$pkg")
-            #fi
+            failed+=("$pkg")
         fi
     done
 
@@ -1501,26 +1490,6 @@ function delEmulator() {
     fi
 
 }
-
-## @fn patchVendorGraphics()
-## @param filename file to patch
-## @details replace declared dependencies of old vendor graphics libraries with new names
-## Temporary compatibility workaround for legacy software to work on new Raspberry Pi firmwares.
-#function patchVendorGraphics() {
-#    local filename="$1"
-
-#    # patchelf is not available on Raspbian Jessie
-#    compareVersions "$__os_debian_ver" lt 9 && return
-
-#    getDepends patchelf
-#    printMsgs "console" "Applying vendor graphics patch: $filename"
-#    patchelf --replace-needed libEGL.so libbrcmEGL.so \
-#             --replace-needed libGLES_CM.so libbrcmGLESv2.so \
-#             --replace-needed libGLESv1_CM.so libbrcmGLESv2.so \
-#             --replace-needed libGLESv2.so libbrcmGLESv2.so \
-#             --replace-needed libOpenVG.so libbrcmOpenVG.so \
-#             --replace-needed libWFC.so libbrcmWFC.so "$filename"
-#}
 
 ## @fn dkmsManager()
 ## @param mode dkms operation type

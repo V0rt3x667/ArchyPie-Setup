@@ -34,17 +34,23 @@ function _get_platform_amiberry() {
         platform="c1"
     elif isPlatform "tinker"; then
         platform="tinker"
-    elif isPlatform "vero4k"; then
-        platform="vero4k"
     fi
     echo "$platform"
 }
 
 function depends_amiberry() {
-    local depends=(libpng libmpeg2 zlib libmpg123 flac libxml2 sdl2 sdl2_image sdl2_ttf)
-
-    isPlatform "dispmanx" && depends+=(libraspberrypi-firmware)
-    #isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
+    local depends=(
+        'flac'
+        'libmpeg2'
+        'libmpg123'
+        'libpng'
+        'libxml2'
+        'sdl2_image'
+        'sdl2_ttf'
+        'sdl2'
+        'zlib'
+    )
+    isPlatform "dispmanx" && depends+=('libraspberrypi-firmware')
 
     getDepends "${depends[@]}"
 }

@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .iso .bin .zip\n\nCopy your Sega Saturn roms to 
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/yabause/master/yabause/COPYING"
 rp_module_repo="git https://github.com/libretro/yabause.git master"
 rp_module_section="exp"
-rp_module_flags="!armv6"
+rp_module_flags=""
 
 function sources_lr-yabause() {
     gitPullOrClone

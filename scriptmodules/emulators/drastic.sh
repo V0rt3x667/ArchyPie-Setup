@@ -9,7 +9,7 @@ rp_module_desc="DraStic - Nintendo DS Emulator"
 rp_module_help="ROM Extensions: .nds .zip\n\nCopy your Nintendo DS roms to $romdir/nds"
 rp_module_licence="PROP"
 rp_module_section="exp"
-rp_module_flags="sdl2 !all arm !armv6 !mali"
+rp_module_flags="sdl2 !all arm !mali"
 
 function depends_drastic() {
     local depends=(ffmpeg sdl2 zlib)

@@ -8,7 +8,7 @@ rp_module_id="splashscreen"
 rp_module_desc="Configure Splashscreen"
 rp_module_section="main"
 rp_module_repo="git https://github.com/RetroPie/retropie-splashscreens.git master"
-rp_module_flags="noinstclean !all rpi !osmc !xbian !aarch64"
+rp_module_flags="noinstclean !all rpi !aarch64"
 
 function _update_hook_splashscreen() {
     # make sure splashscreen is always up to date if updating just ArchyPie-Setup

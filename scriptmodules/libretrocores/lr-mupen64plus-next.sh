@@ -37,9 +37,6 @@ function build_lr-mupen64plus-next() {
         fi
         if isPlatform "neon"; then
             params+=(HAVE_NEON=1)
-        else
-            # force disabling HAVE_NEON on armv6 as makefile sets it for all rpi targets
-            params+=(HAVE_NEON=0)
         fi
     fi
     if isPlatform "gles3"; then
@@ -51,13 +48,7 @@ function build_lr-mupen64plus-next() {
     # use a custom core name to avoid core option name clashes with lr-mupen64plus
     params+=(CORE_NAME=mupen64plus-next)
     make "${params[@]}" clean
-
-    # workaround for linkage_arm.S including some armv7 instructions without this
-    if isPlatform "armv6"; then
-        CFLAGS="$CFLAGS -DARMv5_ONLY" make "${params[@]}"
-    else
-        make "${params[@]}"
-    fi
+    make "${params[@]}"
 
     md_ret_require="$md_build/mupen64plus_next_libretro.so"
 }

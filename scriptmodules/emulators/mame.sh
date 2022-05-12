@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .zip .7z\n\nCopy your MAME roms to either $romdi
 rp_module_licence="GPL2 https://raw.githubusercontent.com/mamedev/mame/master/COPYING"
 rp_module_repo="git https://github.com/mamedev/mame.git :_get_branch_mame"
 rp_module_section="exp"
-rp_module_flags="!mali !armv6"
+rp_module_flags="!mali"
 
 function _get_branch_mame() {
     download https://api.github.com/repos/mamedev/mame/releases/latest - | grep -m 1 tag_name | cut -d\" -f4

@@ -10,7 +10,7 @@ rp_module_help="Dreamcast ROM Extensions: .cdi .gdi .chd .m3u, Naomi Atomiswave 
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/flycast/master/LICENSE"
 rp_module_repo="git https://github.com/flyinghead/flycast.git master"
 rp_module_section="opt"
-rp_module_flags="!armv6"
+rp_module_flags=""
 
 function depends_lr-flycast() {
     local depends=(libzip zlib cmake)

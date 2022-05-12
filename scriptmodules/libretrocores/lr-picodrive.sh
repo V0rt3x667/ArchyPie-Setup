@@ -18,12 +18,7 @@ function sources_lr-picodrive() {
 function build_lr-picodrive() {
     local params=()
     if isPlatform "arm"; then
-        params+=(platform=armv ARM_ASM=1 use_fame=0 use_cyclone=1 use_sh2drc=1 use_svpdrc=1)
-        if isPlatform "armv6"; then
-            params+=(use_cz80=0 use_drz80=1)
-        else
-            params+=(use_cz80=1 use_drz80=0)
-        fi
+        params+=(platform=armv ARM_ASM=1 use_fame=0 use_cyclone=1 use_sh2drc=1 use_svpdrc=1 use_cz80=1 use_drz80=0)
     elif isPlatform "aarch64"; then
         params+=(use_sh2drc=0)
     fi
@@ -46,8 +41,6 @@ function configure_lr-picodrive() {
     local def
     for system in megadrive mastersystem segacd sega32x; do
         def=0
-        # default on megadrive / mastersystem only on armv6 for performance
-        [[ "$system" =~ megadrive|mastersystem ]] && isPlatform "arm6" && def=1
         mkRomDir "$system"
         ensureSystemretroconfig "$system"
         addEmulator $def "$md_id" "$system" "$md_inst/picodrive_libretro.so"

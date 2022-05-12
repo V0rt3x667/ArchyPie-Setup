@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .gba .zip\n\nCopy your Game Boy Advance roms to 
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/vba-next/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/vba-next.git master"
 rp_module_section="main"
-rp_module_flags="!armv6"
+rp_module_flags=""
 
 function sources_lr-vba-next() {
     gitPullOrClone

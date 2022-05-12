@@ -28,10 +28,6 @@ async function fetch_commit_info() {
 
 function create_device_bars(packages) {
 	const devices = [{
-			name: 'Raspberry Pi 0/1',
-			flags: ['videocore', 'arm', 'armv6'],
-			hover: 'VideoCore + ARMv6',
-		}, {
 			name: 'Raspberry Pi 2',
 			flags: ['videocore', 'arm', 'armv7'],
 			hover: 'VideoCore + ARMv7',
@@ -94,7 +90,7 @@ function create_commit_info(commit) {
 
 function package_enabled_for(pkg, flag) {
 	const video_flag_synonyms = {
-		'videocore' : [ 'arm', 'rpi', 'rpi1', 'rpi2', 'rpi3', 'dispmanx', 'gles' ],
+		'videocore' : [ 'arm', 'rpi', 'rpi2', 'rpi3', 'dispmanx', 'gles' ],
 		'mali'     : [ 'arm' , 'gles' ],
 		'kms'      : [ 'arm' , 'rpi', 'rpi4', 'dispmanx', 'mesa' , 'gles3' ],
 		'x11'      : [ 'x86' , '64bit', 'mesa' ]
@@ -143,7 +139,6 @@ function create_section_thead() {
 	append_pkg_text_cell(thead, ['flag', 'video'], 'Mali');
 	append_pkg_text_cell(thead, ['flag', 'video'], 'DRM/KMS');
 	append_pkg_text_cell(thead, ['flag', 'video'], 'X11');
-	append_pkg_text_cell(thead, ['flag', 'cpu'], 'ARMv6');
 	append_pkg_text_cell(thead, ['flag', 'cpu'], 'ARMv7');
 	append_pkg_text_cell(thead, ['flag', 'cpu'], 'ARMv8 (32 bit)');
 	append_pkg_text_cell(thead, ['flag', 'cpu'], 'AArch64');
@@ -162,7 +157,6 @@ function create_section_row(pkg) {
 	append_pkg_flag_cell(row, 'video', package_enabled_for(pkg, 'mali'));
 	append_pkg_flag_cell(row, 'video', package_enabled_for(pkg, 'kms'));
 	append_pkg_flag_cell(row, 'video', package_enabled_for(pkg, 'x11'));
-	append_pkg_flag_cell(row, 'cpu', !pkg.flags.includes('!arm') && !pkg.flags.includes('!armv6'));
 	append_pkg_flag_cell(row, 'cpu', !pkg.flags.includes('!arm') && !pkg.flags.includes('!armv7'));
 	append_pkg_flag_cell(row, 'cpu', !pkg.flags.includes('!arm') && !pkg.flags.includes('!armv8'));
 	append_pkg_flag_cell(row, 'cpu', !pkg.flags.includes('!aarch64'));

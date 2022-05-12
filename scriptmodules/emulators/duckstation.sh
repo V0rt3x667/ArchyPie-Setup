@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .bin .cue .chd .img\n\nCopy Your PSX ROMs to: $r
 rp_module_licence="GPL3 https://raw.githubusercontent.com/stenzek/duckstation/master/LICENSE"
 rp_module_section="main"
 rp_module_repo="git https://github.com/stenzek/duckstation master"
-rp_module_flags="!all arm !armv6 aarch64 64bit"
+rp_module_flags="!all arm aarch64 64bit"
 
 function depends_duckstation() {
     local depends=(

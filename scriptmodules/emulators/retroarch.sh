@@ -189,12 +189,6 @@ function configure_retroarch() {
     isPlatform "x11" && iniSet "video_fullscreen" "true"
     isPlatform "mesa" && iniSet "video_fullscreen" "true"
 
-    # set default render resolution to 640x480 for rpi1
-    if isPlatform "videocore" && isPlatform "rpi1"; then
-        iniSet "video_fullscreen_x" "640"
-        iniSet "video_fullscreen_y" "480"
-    fi
-
     # enable hotkey ("select" button)
     iniSet "input_enable_hotkey" "nul"
     iniSet "input_exit_emulator" "escape"

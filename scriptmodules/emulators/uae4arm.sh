@@ -22,11 +22,8 @@ function sources_uae4arm() {
 
 function build_uae4arm() {
     make clean
-    if isPlatform "rpi1"; then
-        CXXFLAGS="" make PLATFORM=rpi1
-    else
-        CXXFLAGS="" make PLATFORM=rpi2
-    fi
+    CXXFLAGS="" make PLATFORM=rpi2
+    
     md_ret_require="$md_build/uae4arm"
 }
 

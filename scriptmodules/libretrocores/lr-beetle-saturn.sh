@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .chd .cue\n\nCopy your Saturn roms to $romdir/sa
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-saturn-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/beetle-saturn-libretro.git master"
 rp_module_section="exp"
-rp_module_flags="!armv6"
+rp_module_flags=""
 
 function sources_lr-beetle-saturn() {
     gitPullOrClone

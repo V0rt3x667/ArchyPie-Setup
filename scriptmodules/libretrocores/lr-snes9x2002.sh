@@ -9,7 +9,7 @@ rp_module_desc="Nintendo SNES 1.39 Libretro Core"
 rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your SNES roms to $romdir/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/snes9x2002/master/src/copyright.h"
 rp_module_repo="git https://github.com/libretro/snes9x2002.git master"
-rp_module_section="opt armv6=main"
+rp_module_section="opt"
 rp_module_flags="!all arm"
 
 function sources_lr-snes9x2002() {
@@ -33,8 +33,6 @@ function configure_lr-snes9x2002() {
     mkRomDir "snes"
     ensureSystemretroconfig "snes"
 
-    local def=0
-    isPlatform "armv6" && def=1
-    addEmulator $def "$md_id" "snes" "$md_inst/snes9x2002_libretro.so"
+    addEmulator 0 "$md_id" "snes" "$md_inst/snes9x2002_libretro.so"
     addSystem "snes"
 }

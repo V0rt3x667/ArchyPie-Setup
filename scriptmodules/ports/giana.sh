@@ -11,15 +11,14 @@ rp_module_section="opt"
 rp_module_flags="!all x86 videocore"
 
 function depends_giana() {
-    getDepends sdl sdl_mixer
+    getDepends ('sdl' 'sdl_mixer')
 }
 
 function install_bin_giana() {
     if isPlatform "x86"; then
         downloadAndExtract "http://www.retroguru.com/gianas-return/gianas-return-v.latest-linux.tar.gz" "$md_inst" --strip-components 1
     else
-        downloadAndExtract "http://www.retroguru.com/gianas-return/gianas-return-v.latest-raspberrypi.zip" "$md_inst"
-        patchVendorGraphics "$md_inst/giana_rpi"
+        downloadAndExtract "http://www.retroguru.com/gianas-return/gianas-return-v.latest-raspberrypi.zip" "$md_inst" "$md_inst/giana_rpi"
     fi
 }
 

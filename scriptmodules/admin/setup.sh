@@ -78,14 +78,6 @@ function depends_setup() {
         printMsgs "dialog" "WARNING: 64bit support on the Raspberry Pi is not yet officially supported, although the main emulator package selection should work ok."
     fi
 
-    if [[ "$__os_debian_ver" -eq 8 ]]; then
-        printMsgs "dialog" "Raspbian/Debian Jessie and versions of Ubuntu below 18.04 are no longer supported.\n\nPlease install ArchyPie from a fresh image (or if running Ubuntu, upgrade your OS)."
-    fi
-
-    if [[ "$__os_debian_ver" -eq 9 ]] && [[ "$__os_id" == "Raspbian" ]]; then
-        printMsgs "dialog" "Your version of ArchyPie which is based on Raspbian Stretch is no longer supported.\n\nWe recommend you install the latest ArchyPie image.\n\nPre-built binaries are now disabled for your system. You can still update packages from source, but due to the age of Raspbian Stretch we can't guarantee all software included will work."
-    fi
-
     # make sure user has the correct group permissions
     if ! isPlatform "x11"; then
         local group

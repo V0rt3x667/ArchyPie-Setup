@@ -27,11 +27,7 @@ function sources_lr-dosbox-svn() {
 function build_lr-dosbox-svn() {
     local params=()
     if isPlatform "arm"; then
-        if isPlatform "armv6"; then
-            params+="WITH_DYNAREC=oldarm"
-        else
-            params+="WITH_DYNAREC=arm"
-        fi
+        params+="WITH_DYNAREC=arm"
     fi
     make -C libretro -f Makefile.libretro clean
     make -C libretro -f Makefile.libretro "${params[@]}"

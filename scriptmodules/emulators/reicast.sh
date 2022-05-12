@@ -10,15 +10,12 @@ rp_module_help="ROM Extensions: .cdi .chd .gdi\n\nCopy your Dreamcast roms to $r
 rp_module_licence="GPL2 https://raw.githubusercontent.com/reicast/reicast-emulator/master/LICENSE"
 rp_module_repo="git https://github.com/reicast/reicast-emulator.git master"
 rp_module_section="opt"
-rp_module_flags="!armv6"
+rp_module_flags=""
 
 function depends_reicast() {
     local depends=(sdl2 python python-evdev alsa-oss python-setuptools libevdev libpulse libao alsa-lib systemd)
-#    isPlatform "vero4k" && depends+=(vero3-userland-dev-osmc)
     isPlatform "mesa" && depends+=(libglvnd)
     getDepends "${depends[@]}"
-#    isPlatform "vero4k" && pip3 install wheel
-#    pip3 install evdev
 }
 
 function sources_reicast() {

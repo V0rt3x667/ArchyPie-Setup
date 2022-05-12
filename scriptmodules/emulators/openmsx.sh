@@ -100,16 +100,6 @@ function _default_settings_openmsx() {
     <setting id="save_settings_on_exit">false</setting>
 _EOF_
 
-    if isPlatform "armv6" ; then
-       IFS= read -r -d '' body <<_EOF_
-    <setting id="scale_factor">1</setting>
-    <setting id="horizontal_stretch">320</setting>
-    <setting id="resampler">fast</setting>
-    <setting id="scanline">0</setting>
-    <setting id="maxframeskip">5</setting>
-_EOF_
-    fi
-
     ! isPlatform "x86" && conf_reverse="    <setting id=\"auto_enable_reverse\">off</setting\n"
     echo -e "${header}${body}${conf_reverse}  </settings>\n</settings>"
 }

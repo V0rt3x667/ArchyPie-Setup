@@ -44,12 +44,8 @@ function build_dosbox() {
     if isPlatform "arm"; then
         # enable dynamic recompilation for armv4
         sed -i 's|/\* #undef C_DYNREC \*/|#define C_DYNREC 1|' config.h
-        if isPlatform "armv6"; then
-            sed -i 's/C_TARGETCPU.*/C_TARGETCPU ARMV4LE/g' config.h
-        else
-            sed -i 's/C_TARGETCPU.*/C_TARGETCPU ARMV7LE/g' config.h
-            sed -i 's|/\* #undef C_UNALIGNED_MEMORY \*/|#define C_UNALIGNED_MEMORY 1|' config.h
-        fi
+        sed -i 's/C_TARGETCPU.*/C_TARGETCPU ARMV7LE/g' config.h
+        sed -i 's|/\* #undef C_UNALIGNED_MEMORY \*/|#define C_UNALIGNED_MEMORY 1|' config.h
     fi
     make clean
     make

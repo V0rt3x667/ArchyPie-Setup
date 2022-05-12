@@ -130,7 +130,6 @@ _EOF_
     
     if isPlatform "arm"; then
         iniSet "SidEngine" "0"
-        isPlatform "armv6" && iniSet "SoundSampleRate" "22050"
     fi
 
     if isPlatform "x11" || isPlatform "kms"; then

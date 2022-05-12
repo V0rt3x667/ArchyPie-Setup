@@ -9,7 +9,7 @@ rp_module_desc="Nintendo Entertainment System Libretro Core"
 rp_module_help="ROM Extensions: .nes .zip\n\nCopy your NES roms to $romdir/nes"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/QuickNES_Core/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/QuickNES_Core.git master"
-rp_module_section="opt armv6=main"
+rp_module_section="opt"
 
 function sources_lr-quicknes() {
     gitPullOrClone
@@ -31,9 +31,6 @@ function configure_lr-quicknes() {
     mkRomDir "nes"
     ensureSystemretroconfig "nes"
 
-    local def=0
-    isPlatform "armv6" && def=1
-
-    addEmulator "$def" "$md_id" "nes" "$md_inst/quicknes_libretro.so"
+    addEmulator 0 "$md_id" "nes" "$md_inst/quicknes_libretro.so"
     addSystem "nes"
 }

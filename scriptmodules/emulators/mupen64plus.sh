@@ -111,8 +111,8 @@ function _pkg_info_mupen64plus() {
             ;;
         check)
             local ret=0
-            while read repo; do
-                repo=($repo)
+            while read -r repo; do
+                repo=("$repo")
                 out=$(rp_getRemoteRepoHash git https://github.com/${repo[0]}/${repo[1]} ${repo[2]})
                 if [[ -z "$out" ]]; then
                     printMsgs "console" "$id repository failed - https://github.com/${repo[0]}/${repo[1]} ${repo[2]}"
@@ -125,10 +125,9 @@ function _pkg_info_mupen64plus() {
 }
 
 function sources_mupen64plus() {
-    local commit
     local repo
-    while read repo; do
-        repo=($repo)
+    while read -r repo; do
+        repo=("$repo")
         gitPullOrClone "$md_build/${repo[1]}" https://github.com/${repo[0]}/${repo[1]} ${repo[2]} ${repo[3]}
     done < <(_get_repos_mupen64plus)
 
@@ -144,7 +143,6 @@ function build_mupen64plus() {
     for dir in *; do
         if [[ -f "$dir/projects/unix/Makefile" ]]; then
             params=()
-            isPlatform "rpi1" && params+=("VFP=1" "VFP_HARD=1")
             isPlatform "videocore" || [[ "$dir" == "mupen64plus-audio-omx" ]] && params+=("VC=1")
             if isPlatform "mesa" || isPlatform "mali"; then
                 params+=("USE_GLES=1")
@@ -152,7 +150,6 @@ function build_mupen64plus() {
             isPlatform "neon" && params+=("NEON=1")
             isPlatform "x11" && params+=("OSD=1" "PIE=1")
             isPlatform "x86" && params+=("SSE=SSE2")
-            isPlatform "armv6" && params+=("HOST_CPU=armv6")
             isPlatform "armv7" && params+=("HOST_CPU=armv7")
             isPlatform "aarch64" && params+=("HOST_CPU=aarch64")
 
@@ -224,7 +221,6 @@ function install_mupen64plus() {
             isPlatform "neon" && params+=("NEON=1")
             isPlatform "x11" && params+=("OSD=1" "PIE=1")
             isPlatform "x86" && params+=("SSE=SSE2")
-            isPlatform "armv6" && params+=("HOST_CPU=armv6")
             isPlatform "armv7" && params+=("HOST_CPU=armv7")
             isPlatform "aarch64" && params+=("HOST_CPU=aarch64")
             isPlatform "x86" && params+=("SSE=SSE2")

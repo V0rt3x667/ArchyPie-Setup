@@ -9,7 +9,7 @@ rp_module_desc="FinalBurn Neo Arcade Libretro Core"
 rp_module_help="ROM Extension: .zip\n\nCopy your FBA roms to\n$romdir/fba or\n$romdir/neogeo or\n$romdir/arcade\n\nFor NeoGeo games the neogeo.zip BIOS is required and must be placed in the same directory as your FBA roms."
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/FBNeo/master/src/license.txt"
 rp_module_repo="git https://github.com/libretro/FBNeo.git master"
-rp_module_section="main armv6=opt"
+rp_module_section="main"
 
 function sources_lr-fbneo() {
     gitPullOrClone
@@ -38,14 +38,12 @@ function install_lr-fbneo() {
 }
 
 function configure_lr-fbneo() {
-    local def=1
-    isPlatform "armv6" && def=0
     addEmulator 0 "$md_id" "arcade" "$md_inst/fbneo_libretro.so"
     addEmulator 0 "$md_id-neocd" "arcade" "$md_inst/fbneo_libretro.so --subsystem neocd"
-    addEmulator $def "$md_id" "neogeo" "$md_inst/fbneo_libretro.so"
+    addEmulator 1 "$md_id" "neogeo" "$md_inst/fbneo_libretro.so"
     addEmulator 0 "$md_id-neocd" "neogeo" "$md_inst/fbneo_libretro.so --subsystem neocd"
-    addEmulator $def "$md_id" "fba" "$md_inst/fbneo_libretro.so"
-    addEmulator 0 "$md_id-neocd" "fba" "$md_inst/fbneo_libretro.so --subsystem neocd"
+    addEmulator 0 "$md_id" "fba" "$md_inst/fbneo_libretro.so"
+    addEmulator 1 "$md_id-neocd" "fba" "$md_inst/fbneo_libretro.so --subsystem neocd"
 
     addEmulator 0 "$md_id-pce" "pcengine" "$md_inst/fbneo_libretro.so --subsystem pce"
     addEmulator 0 "$md_id-sgx" "pcengine" "$md_inst/fbneo_libretro.so --subsystem sgx"

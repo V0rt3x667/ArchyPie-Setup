@@ -123,12 +123,6 @@ function configure_advmame() {
             iniSet "device_video_output" "overlay"
             iniSet "display_aspectx" 16
             iniSet "display_aspecty" 9
-        fi
-
-        if isPlatform "armv6"; then
-            iniSet "sound_samplerate" "22050"
-            iniSet "sound_latency" "0.2"
-        else
             iniSet "sound_samplerate" "44100"
         fi
     fi

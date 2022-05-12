@@ -36,7 +36,7 @@ function configure_lr-mgba() {
     local def
     for system in gb gbc gba; do
         def=0
-        [[ "$system" == "gba" ]] && ! isPlatform "armv6" && def=1
+        [[ "$system" == "gba" ]] && def=1
         mkRomDir "$system"
         ensureSystemretroconfig "$system"
         addEmulator "$def" "$md_id" "$system" "$md_inst/mgba_libretro.so"

@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .bml .smc .sfc .zip\n\nCopy your SNES roms to $r
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/bsnes/master/LICENSE.txt"
 rp_module_repo="git https://github.com/libretro/bsnes.git master"
 rp_module_section="opt"
-rp_module_flags="!armv6"
+rp_module_flags=""
 
 function sources_lr-bsnes() {
     gitPullOrClone
