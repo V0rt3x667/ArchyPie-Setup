@@ -11,7 +11,7 @@ rp_module_section="opt"
 rp_module_flags="!all x86 videocore"
 
 function depends_giana() {
-    getDepends ('sdl' 'sdl_mixer')
+    getDepends 'sdl' 'sdl_mixer'
 }
 
 function install_bin_giana() {

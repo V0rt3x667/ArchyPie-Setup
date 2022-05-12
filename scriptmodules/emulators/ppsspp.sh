@@ -40,7 +40,6 @@ function build_ppsspp() {
     local params=()
     if isPlatform "videocore"; then
         params+=(-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/raspberry.armv7.cmake)
-    fi
     elif isPlatform "mesa"; then
         params+=(-DUSING_GLES2=ON -DUSING_EGL=OFF)
     elif isPlatform "mali"; then
