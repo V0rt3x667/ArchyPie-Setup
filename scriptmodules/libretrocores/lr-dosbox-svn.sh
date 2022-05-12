@@ -12,6 +12,14 @@ rp_module_repo="git https://github.com/libretro/dosbox-svn.git libretro"
 rp_module_section="exp"
 rp_module_flags=""
 
+function depends_lr-dosbox-svn() {
+    local depends=(
+        'sdl'
+        'sdl_net'
+    )
+    getDepends "${depends[@]}"
+}
+
 function sources_lr-dosbox-svn() {
     gitPullOrClone
 }
