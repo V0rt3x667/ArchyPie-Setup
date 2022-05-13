@@ -14,18 +14,14 @@ rp_module_flags=""
 
 function _get_params_lr-mame() {
     local params=(OSD=retro RETRO=1 NOWERROR=1 OS=linux TARGETOS=linux CONFIG=libretro NO_USE_MIDI=1 TARGET=mame PYTHON_EXECUTABLE=python)
-    isPlatform "64bit" && params+=(PTR64=1)
+    isPlatform "64bit" && params+=('PTR64=1')
     echo "${params[@]}"
 }
 
 function depends_lr-mame() {
-#    if compareVersions $__gcc_version lt 7; then
-#        md_ret_errors+=("Sorry, you need an OS with gcc 7 or newer to compile $md_id")
-#        return 1
-#    fi
-    local depends=(ffmpeg)
-    isPlatform "gles" && depends+=(libglvnd)
-    isPlatform "gl" && depends+=(glu)
+    local depends=('ffmpeg')
+    isPlatform "gles" && depends+=('libglvnd')
+    isPlatform "gl" && depends+=('glu')
     getDepends "${depends[@]}"
 }
 
@@ -34,7 +30,13 @@ function sources_lr-mame() {
 }
 
 function build_lr-mame() {
-    rpSwap on 4096
+    # More memory is required for 64bit platforms
+    if isPlatform "64bit"; then
+        rpSwap on 8192
+    else
+        rpSwap on 4096
+    fi
+
     local params=($(_get_params_lr-mame) SUBTARGET=arcade)
     make clean
     make "${params[@]}"
