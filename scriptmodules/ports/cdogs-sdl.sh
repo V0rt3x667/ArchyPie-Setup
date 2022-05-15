@@ -36,6 +36,7 @@ function build_cdogs-sdl() {
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCDOGS_DATA_DIR="$md_inst/" \
         -Wno-dev
     ninja

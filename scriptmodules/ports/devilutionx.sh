@@ -18,8 +18,10 @@ function _get_branch_devilutionx() {
 function depends_devilutionx() {
     local depends=(
         'cmake'
+        'fmt'
         'gettext'
         'libpng'
+        'libsodium'
         'ninja'
         'perl-rename'
         'sdl2'
@@ -42,8 +44,10 @@ function build_devilutionx() {
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DVERSION_NUM="$ver" \
-        -DDEVILUTIONX_SYSTEM_LIBFMT=OFF \
-        -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF \
+        -DDEVILUTIONX_SYSTEM_LIBFMT=ON \
+        -DDEVILUTIONX_SYSTEM_LIBSODIUM=ON \
+        -DBUILD_TESTING=OFF \
+        -DPIE=ON \
         -Wno-dev
     ninja -C build clean
     ninja -C build

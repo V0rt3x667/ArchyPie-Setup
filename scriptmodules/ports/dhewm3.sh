@@ -33,18 +33,19 @@ function sources_dhewm3() {
 }
 
 function build_dhewm3() {
-    LDFLAGS+=" -Wl,-rpath='$md_inst'"
     cmake . \
+        -Sneo \
         -GNinja \
         -Bbuild \
-        -Sneo \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -DREPRODUCIBLE_BUILD=1 \
         -DD3XP=1 \
         -DDEDICATED=1 \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/dhewm3"
 }
@@ -74,7 +75,7 @@ function _add_games_dhewm3() {
     declare -A games=(
         ['base/pak000']="Doom III"
         ['demo/demo00']="Doom III (Demo)"
-        ['d3xp/pak000']="Doom III - Resurrection of Evil"
+        ['d3xp/pak000']="Doom III: Resurrection of Evil"
     )
     for game in "${!games[@]}"; do
         pak="$romdir/ports/doom3/$game.pk4"

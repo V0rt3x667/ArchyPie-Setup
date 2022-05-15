@@ -15,6 +15,7 @@ function depends_cannonball() {
     local depends=(
         'boost'
         'cmake'
+        'ninja'
         'sdl2'
     )
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
@@ -28,34 +29,39 @@ function sources_cannonball() {
 
 function build_cannonball() {
     local target
-    mkdir build
-    cd build
-    if isPlatform "videocore"; then
-        target="sdl2gles_rpi"
-    elif isPlatform "gles"; then
-        target="sdl2gles"
+    if isPlatform "rpi4"; then
+        target="pi4-opengles.cmake"
     else
-        target="sdl2gl"
+        target="linux.cmake"
     fi
-    cmake -G "Unix Makefiles" -DTARGET=$target ../cmake/ -Wno-dev
-    make clean
-    make
+    
+    cmake . \
+        -Scmake \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DTARGET="$target" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/cannonball"
 }
 
 function install_cannonball() {
     md_ret_files=(
         'build/cannonball'
-        'roms/roms.txt'
+        'res/gamecontrollerdb.txt'
     )
 
     mkdir -p "$md_inst/res"
     cp -v res/*.bin "$md_inst/res/"
-    cp -v res/config_sdl2.xml "$md_inst/config.xml.def"
+    cp -v res/config.xml "$md_inst/config.xml.def"
 }
 
 function configure_cannonball() {
-    addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "pushd $md_inst; $md_inst/cannonball; popd"
+    addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "$md_inst/cannonball"
 
     mkRomDir "ports/$md_id"
 
@@ -66,7 +72,7 @@ function configure_cannonball() {
 
     copyDefaultConfig "$md_inst/config.xml.def" "$md_conf_root/$md_id/config.xml"
 
-    cp -v roms.txt "$romdir/ports/$md_id/"
+    cp -v "$md_build/roms/roms.txt" "$romdir/ports/$md_id/"
 
     chown -R "$user:$user" "$romdir/ports/$md_id" "$md_conf_root/$md_id"
 

@@ -18,13 +18,12 @@ function _get_branch_alephone() {
 
 function depends_alephone() {
     local depends=(
-        'boost'
-        'ffmpeg'
+        'boost-libs'
+        'ffmpeg4.4'
         'glu'
-        'icoutils'
         'libmad'
         'libvorbis'
-        'mesa'
+        'sdl2'
         'sdl2_image'
         'sdl2_net'
         'sdl2_ttf'
@@ -41,7 +40,7 @@ function build_alephone() {
     params=(--prefix="$md_inst")
     isPlatform "arm" && params+=(--with-boost-libdir=/usr/lib/arm-linux-gnueabihf)
     ./autogen.sh
-    ./configure "${params[@]}"
+    PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig" ./configure "${params[@]}"
     make clean
     make
     md_ret_require="$md_build/Source_Files/alephone"
@@ -53,27 +52,27 @@ function install_alephone() {
 
 function _game_data_alephone() {
   local version="$(_get_branch_alephone)"
-  local release_url="https://github.com/Aleph-One-Marathon/alephone/releases/download/release-$version"
+  local release_url="https://github.com/Aleph-One-Marathon/alephone/releases/download/$version"
 
     if [[ ! -f "$romdir/ports/$md_id/Marathon/Shapes.shps" ]]; then
-        downloadAndExtract "$release_url/Marathon-$version-Data.zip" "$romdir/ports/$md_id"
+        downloadAndExtract "$release_url/Marathon-${version/release-/}-Data.zip" "$romdir/ports/$md_id"
     fi
 
     if [[ ! -f "$romdir/ports/$md_id/Marathon 2/Shapes.shpA" ]]; then
-        downloadAndExtract "$release_url/Marathon2-$version-Data.zip" "$romdir/ports/$md_id"
+        downloadAndExtract "$release_url/Marathon2-${version/release-/}-Data.zip" "$romdir/ports/$md_id"
     fi
 
     if [[ ! -f "$romdir/ports/$md_id/Marathon Infinity/Shapes.shpA" ]]; then
-        downloadAndExtract "$release_url/MarathonInfinity-$version-Data.zip" "$romdir/ports/$md_id"
+        downloadAndExtract "$release_url/MarathonInfinity-${version/release-/}-Data.zip" "$romdir/ports/$md_id"
     fi
 
     chown -R "$user:$user" "$romdir/ports/$md_id"
 }
 
 function configure_alephone() {
-    addPort "$md_id" "alephone" "Aleph One Engine - Marathon" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon/"
-    addPort "$md_id" "alephone" "Aleph One Engine - Marathon 2" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon 2/"
-    addPort "$md_id" "alephone" "Aleph One Engine - Marathon Infinity" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon Infinity/"
+    addPort "$md_id" "alephone" "Aleph One Engine: Marathon" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon/"
+    addPort "$md_id" "alephone" "Aleph One Engine: Marathon 2" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon 2/"
+    addPort "$md_id" "alephone" "Aleph One Engine: Marathon Infinity" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon Infinity/"
 
     mkRomDir "ports/$md_id"
 
@@ -82,8 +81,8 @@ function configure_alephone() {
     if [[ -d "/alephone" ]]; then
         cp -R /alephone "$md_conf_root/"
         rm -rf /alephone
-        chown $user:$user "$md_conf_root/alephone"
+        chown "$user:$user" "$md_conf_root/alephone"
     fi
 
-    [[ "$md_mode" == "install" ]] && game_data_alephone
+    [[ "$md_mode" == "install" ]] && _game_data_alephone
 }

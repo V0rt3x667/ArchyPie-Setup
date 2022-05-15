@@ -17,7 +17,9 @@ function _get_branch_abuse() {
 
 function depends_abuse() {
     local depends=(
-        'cmake'     
+        'cmake'
+        'ninja'
+        'sdl2'
         'sdl2_ttf'
     )
     getDepends "${depends[@]}"
@@ -30,14 +32,16 @@ function sources_abuse() {
 }
 
 function build_abuse() {
-    mkdir build
-    cd build
-    cmake .. \
-        -DCMAKE_BUILD_TYPE=Release \
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DSDL2_MIXER_INCLUDE_DIR="/usr/include/SDL2" \
         -Wno-dev
-    make clean
-    make
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/src/abuse"
 }
 
