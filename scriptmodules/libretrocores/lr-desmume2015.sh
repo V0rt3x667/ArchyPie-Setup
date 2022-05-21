@@ -20,16 +20,13 @@ function sources_lr-desmume2015() {
 }
 
 function build_lr-desmume2015() {
-    cd desmume
-    make clean
-    make $(_params_lr-desmume)
+    make -C desmume clean
+    make -C desmume $(_params_lr-desmume)
     md_ret_require="$md_build/desmume/desmume2015_libretro.so"
 }
 
 function install_lr-desmume2015() {
-    md_ret_files=(
-        'desmume/desmume2015_libretro.so'
-    )
+    md_ret_files=('desmume/desmume2015_libretro.so')
 }
 
 function configure_lr-desmume2015() {

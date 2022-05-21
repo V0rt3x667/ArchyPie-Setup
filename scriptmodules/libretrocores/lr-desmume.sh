@@ -19,7 +19,10 @@ function _params_lr-desmume() {
 }
 
 function depends_lr-desmume() {
-    local depends=('libpcap' 'mesa')
+    local depends=(
+        'libpcap'
+        'mesa'
+    )
     getDepends "${depends[@]}"
 }
 
@@ -28,16 +31,13 @@ function sources_lr-desmume() {
 }
 
 function build_lr-desmume() {
-    cd desmume/src/frontend/libretro
-    make clean
-    make "$(_params_lr-desmume)"
+    make -C desmume/src/frontend/libretro clean
+    make -C desmume/src/frontend/libretro -f Makefile.libretro "$(_params_lr-desmume)"
     md_ret_require="$md_build/desmume/src/frontend/libretro/desmume_libretro.so"
 }
 
 function install_lr-desmume() {
-    md_ret_files=(
-        'desmume/src/frontend/libretro/desmume_libretro.so'
-    )
+    md_ret_files=('desmume/src/frontend/libretro/desmume_libretro.so')
 }
 
 function configure_lr-desmume() {
