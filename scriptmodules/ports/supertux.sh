@@ -31,6 +31,7 @@ function depends_supertux() {
         'optipng'
         'physfs'
         'sdl2_image'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }

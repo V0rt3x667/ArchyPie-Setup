@@ -12,12 +12,18 @@ rp_module_section="opt"
 rp_module_flags="sdl1 !mali"
 
 function depends_xrick() {
-    getDepends sdl sdl_mixer sdl_image zlib
+    local depends=(
+        'sdl_image'
+        'sdl_mixer'
+        'sdl'
+        'zlib'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_xrick() {
     gitPullOrClone
-    # Append ArchLinux Build Flags & Add -fcommon To Allow Building Under GCC11
+    # Append ArchLinux Build Flags & Add -fcommon To Allow Building Under GCC12
     sed "s|CFLAGS=|CFLAGS+=-fcommon |;s|LDFLAGS=|LDFLAGS+=|" -i "$md_build/Makefile"
 }
 

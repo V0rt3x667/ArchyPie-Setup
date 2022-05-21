@@ -34,6 +34,7 @@ function depends_gzdoom() {
 
 function sources_gzdoom() {
     gitPullOrClone
+    _sources_zmusic
 }
 
 function _sources_zmusic() {
@@ -43,11 +44,9 @@ function _sources_zmusic() {
 }
 
 function _build_zmusic() {
-    _sources_zmusic
-
-    cd "$md_build/zmusic"
     cmake . \
-        -Bbuild \
+        -Szmusic \
+        -Bzmusic \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
@@ -56,15 +55,13 @@ function _build_zmusic() {
         -DDYN_MPG123=OFF \
         -DDYN_SNDFILE=OFF \
         -Wno-dev
-    ninja -C build clean
-    ninja -C build
+    ninja -C zmusic clean
+    ninja -C zmusic
     md_ret_require="$md_build/zmusic/source/libzmusic.so"
 }
 
 function build_gzdoom() {
     _build_zmusic
-
-    cd "$md_build"
     cmake . \
         -Bbuild \
         -GNinja \
@@ -75,7 +72,7 @@ function build_gzdoom() {
         -DDYN_GTK=OFF \
         -DDYN_OPENAL=OFF \
         -DZMUSIC_INCLUDE_DIR="$md_build/zmusic/include" \
-        -DZMUSIC_LIBRARIES="$md_build/zmusic/build/source/libzmusic.so" \
+        -DZMUSIC_LIBRARIES="$md_build/zmusic/source/libzmusic.so" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -94,9 +91,8 @@ function install_gzdoom() {
         'build/lights.pk3'
         'build/soundfonts'
     )
-    mkdir "$md_inst/lib"
-    mv $md_build/zmusic/build/source/libzmusic.so* "$md_inst/lib"
-    mv $md_build/zmusic/build/source/libzmusiclite.so* "$md_inst/lib"
+    install -Dm644 "$md_build"/zmusic/build/source/libzmusic.so* -t "$md_inst/lib"
+    install -Dm644 "$md_build"/zmusic/build/source/libzmusiclite.so* -t "$md_inst/lib"
 }
 
 function _add_games_gzdoom() {

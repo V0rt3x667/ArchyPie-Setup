@@ -13,7 +13,11 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function depends_openjazz() {
-    getDepends sdl sdl_net
+    local depends=(
+        'sdl_net'
+        'sdl'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_openjazz() {
@@ -28,8 +32,8 @@ function build_openjazz() {
 
 function install_openjazz() {
     md_ret_files=(
-        'OpenJazz'
         'openjazz.000'
+        'OpenJazz'
         'README.md'
     )
 }
@@ -47,8 +51,6 @@ function configure_openjazz() {
     mkRomDir "ports/jazz"
 
     moveConfigDir "$home/.openjazz" "$md_conf_root/openjazz"
-
-#  moveConfigFile "$home/openjazz.cfg" "$md_conf_root/openjazz/openjazz.cfg"
 
     [[ "$md_mode" == "install" ]] && _game_data_openjazz
 }

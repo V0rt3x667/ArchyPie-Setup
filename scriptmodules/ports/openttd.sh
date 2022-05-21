@@ -29,6 +29,7 @@ function depends_openttd() {
         'sdl2'
         'zlib'
     )
+    getDepends "${depends[@]}"
 }
 
 function sources_openttd() {
@@ -37,20 +38,22 @@ function sources_openttd() {
 }
 
 function build_openttd() {
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
         -GNinja \
+        -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=$md_inst \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCMAKE_INSTALL_BINDIR="." \
         -DCMAKE_INSTALL_DATADIR="data" \
         -Wno-dev
-    ninja
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/openttd"
 }
 
 function install_openttd() {
-    ninja -C build install
+    ninja -C build install/strip
 }
 
 function configure_openttd() {

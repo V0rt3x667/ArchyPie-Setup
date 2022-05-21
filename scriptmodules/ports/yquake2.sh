@@ -30,69 +30,67 @@ function depends_yquake2() {
 }
 
 function sources_yquake2() {
-    gitPullOrClone
     local url="https://github.com/yquake2"
-    local repo=(
+    local repos=(
         'ctf'
         'rogue'
         'xatrix'
+        'yquake2'
     )
-    for r in "${repo[@]}"; do
-        gitPullOrClone "$md_build/$r" "$url/$r"
+    for repo in "${repos[@]}"; do
+        if [[ "$repo" == yquake2 ]]; then
+            gitPullOrClone "$md_build/$repo"
+        else
+            gitPullOrClone "$md_build/$repo" "$url/$repo"
+        fi
     done
 }
 
 function build_yquake2() {
-    make clean
-    make
-
-    local dir=(
+    local dirs=(
         'ctf'
         'rogue'
         'xatrix'
+        'yquake2'
     )
-    for d in "${dir[@]}"; do
-        cd "$md_build/$d"
-        make clean
-        make
+    for dir in "${dirs[@]}"; do
+        make -C "$md_build/$dir" clean
+        make -C "$md_build/$dir"
     done
-    md_ret_require="$md_build/release/quake2"
+    md_ret_require="$md_build/yquake2/release/quake2"
 }
 
 function install_yquake2() {
     md_ret_files=(
-        'release/baseq2'
-        'release/q2ded'
-        'release/quake2'
-        'release/ref_gl1.so'
-        'release/ref_gl3.so'
-        'release/ref_soft.so'
-        'LICENSE'
-        'README.md'
+        'yquake2/release/baseq2'
+        'yquake2/release/q2ded'
+        'yquake2/release/quake2'
+        'yquake2/release/ref_gl1.so'
+        'yquake2/release/ref_gl3.so'
+        'yquake2/release/ref_soft.so'
+        'yquake2/LICENSE'
+        'yquake2/README.md'
     )
-    local dir=(
+    local dirs=(
         'ctf'
         'rogue'
         'xatrix'
     )
-    for d in "${dir[@]}"; do
-         mkdir "$md_inst/$d"
-         cd "$md_build/$d/release"
-         cp game.so "$md_inst/$d" 
+    for dir in "${dirs[@]}"; do
+        install -Dm644 "$md_build/$dir/release/game.so" -t "$md_inst/$dir"
     done
 }
 
-function add_games_yquake2() {
+function _add_games_yquake2() {
     local cmd="$1"
-    declare -A games=(
-        ['baseq2/pak0']="Quake II"
-        ['xatrix/pak0']="Quake II - Mission Pack 1 - The Reckoning"
-        ['rogue/pak0']="Quake II - Mission Pack 2 - Ground Zero"
-        ['ctf/pak0']="Quake II - Third Wave Capture The Flag"
-    )
-
     local game
     local pak
+    declare -A games=(
+        ['baseq2/pak0']="Quake II"
+        ['xatrix/pak0']="Quake II: Mission Pack 1: The Reckoning"
+        ['rogue/pak0']="Quake II: Mission Pack 2: Ground Zero"
+        ['ctf/pak0']="Quake II: Third Wave Capture The Flag"
+    )
     for game in "${!games[@]}"; do
         pak="$romdir/ports/quake2/$game.pak"
         if [[ -f "$pak" ]]; then
@@ -101,7 +99,7 @@ function add_games_yquake2() {
     done
 }
 
-function game_data_yquake2() {
+function _game_data_yquake2() {
     if [[ ! -f "$romdir/ports/quake2/baseq2/pak1.pak" && ! -f "$romdir/ports/quake2/baseq2/pak0.pak" ]]; then
         # get shareware game data
         downloadAndExtract "https://deponie.yamagi.org/quake2/idstuff/q2-314-demo-x86.exe" "$romdir/ports/quake2/baseq2" -j -LL
@@ -112,7 +110,7 @@ function game_data_yquake2() {
         done
     fi
 
-    chown -R $user:$user "$romdir/ports/quake2"
+    chown -R "$user:$user" "$romdir/ports/quake2"
 }
 
 function configure_yquake2() {
@@ -134,6 +132,7 @@ function configure_yquake2() {
 
     moveConfigDir "$home/.yq2" "$md_conf_root/quake2/yquake2"
 
-    [[ "$md_mode" == "install" ]] && game_data_yquake2
-    add_games_yquake2 "$md_inst/quake2 -datadir $romdir/ports/quake2 ${params[*]} +set game %ROM%"
+    [[ "$md_mode" == "install" ]] && _game_data_yquake2
+
+    _add_games_yquake2 "$md_inst/quake2 -datadir $romdir/ports/quake2 ${params[*]} +set game %ROM%"
 }

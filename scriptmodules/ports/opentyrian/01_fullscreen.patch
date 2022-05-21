@@ -1,0 +1,17 @@
+--- a/src/config.c	2022-03-18 08:13:57.000000000 
++++ b/src/config.c	2022-05-20 21:01:38.000000000 
+@@ -246,13 +246,13 @@
+ 
+ Config opentyrian_config;  // implicitly initialized
+ 
+ bool load_opentyrian_config( void )
+ {
+ 	// defaults
+-	fullscreen_display = -1;
++	fullscreen_display = 0;
+ 	set_scaler_by_name("Scale2x");
+ 	memcpy(keySettings, defaultKeySettings, sizeof(keySettings));
+ 	
+ 	Config *config = &opentyrian_config;
+ 	
+ 	FILE *file = dir_fopen_warn(get_user_directory(), "opentyrian.cfg", "r");

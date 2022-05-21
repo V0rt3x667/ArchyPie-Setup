@@ -17,13 +17,13 @@ function _options_cfg_file_solarus() {
 }
 
 function depends_solarus() {
-    # ref: https://gitlab.com/solarus-games/solarus/blob/dev/compilation.md
     local depends=(
         'cmake'
         'glm'
         'libmodplug'
         'libvorbis'
         'luajit'
+        'ninja'
         'openal'
         'physfs'
         'qt5-base'
@@ -31,7 +31,7 @@ function depends_solarus() {
         'sdl2_image'
         'sdl2_ttf'
     )
-    isPlatform "videocore" && depends+=(raspberrypi-firmware)
+    isPlatform "videocore" && depends+=('raspberrypi-firmware')
     getDepends "${depends[@]}"
 }
 
@@ -40,27 +40,29 @@ function sources_solarus() {
 }
 
 function build_solarus() {
-    local params=(
-        -DSOLARUS_GUI=OFF -DSOLARUS_TESTS=OFF -DSOLARUS_FILE_LOGGING=OFF
-        -DSOLARUS_LIBRARY_INSTALL_DESTINATION="$md_inst/lib"
-        -DCMAKE_INSTALL_PREFIX="$md_inst"
-        -DCMAKE_INSTALL_RPATH="$md_inst/lib"
-        -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
-    )
+    local params
     isPlatform "gles" && params+=(-DSOLARUS_GL_ES=ON)
-    rm -rf build
-    mkdir build
-    cd build
-    cmake "${params[@]}" ..
-    make
-    md_ret_require=(
-        "$md_build/build/solarus-run"
-    )
+
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
+        -DSOLARUS_GUI=OFF \
+        -DSOLARUS_TESTS=OFF \
+        -DSOLARUS_FILE_LOGGING=OFF \
+        -DSOLARUS_LIBRARY_INSTALL_DESTINATION="$md_inst/lib" \
+        "${params[@]}" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require=("$md_build/build/solarus-run")
 }
 
 function install_solarus() {
-    cd build
-    make install/strip
+    ninja -C build install/strip
 }
 
 function configure_solarus() {
@@ -133,7 +135,7 @@ function gui_solarus() {
                     else
                         iniDel "JOYPAD_DEADZONE"
                     fi
-                    chown $user:$user "$(_options_cfg_file_solarus)"
+                    chown "$user:$user" "$(_options_cfg_file_solarus)"
                 fi
                 ;;
             Q)
@@ -145,7 +147,7 @@ function gui_solarus() {
                     else
                         iniDel "QUIT_COMBO"
                     fi
-                    chown $user:$user "$(_options_cfg_file_solarus)"
+                    chown "$user:$user" "$(_options_cfg_file_solarus)"
                 fi
                 ;;
             *)

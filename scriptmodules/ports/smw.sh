@@ -16,9 +16,9 @@ function depends_smw() {
         'cmake'
         'enet'
         'ninja'
-        'sdl2'
-        'sdl2_mixer'
         'sdl2_image'
+        'sdl2_mixer'
+        'sdl2'
         'yaml-cpp'
     )
     getDepends "${depends[@]}"
@@ -30,10 +30,11 @@ function sources_smw() {
 
 function build_smw() {
     cmake . \
-        -GNinja \
         -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DBUILD_STATIC_LIBS=Off \
         -DSMW_BINDIR="$md_inst" \
         -DSMW_DATADIR="$md_inst/data"

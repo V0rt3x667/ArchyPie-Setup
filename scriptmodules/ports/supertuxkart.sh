@@ -28,6 +28,7 @@ function depends_supertuxkart() {
         'mcpp'
         'mesa'
         'mesa-libgl'
+        'ninja'
         'openal'
         'openssl'
         'sdl2'

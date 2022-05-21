@@ -19,10 +19,11 @@ function depends_srb2kart() {
         'cmake'
         'libgme'
         'libpng'
+        'ninja'
         'sdl2_mixer'
         'sdl2'
     )
-    isPlatform x86 && depends+=(yasm)
+    isPlatform x86 && depends+=('yasm')
     getDepends "${depends[@]}"
 }
 
@@ -37,18 +38,19 @@ function sources_srb2kart() {
 
 function build_srb2kart() {
     cmake . \
-        -GNinja \
         -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/bin/srb2kart"
 }
 
 function install_srb2kart() {
     ninja -C build install/strip
-    chmod -R 755 "$md_build/mdls"
 }
 
 function configure_srb2kart() {

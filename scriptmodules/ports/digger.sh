@@ -11,7 +11,13 @@ rp_module_repo="git https://github.com/proyvind/digger.git joystick"
 rp_module_section="exp"
 
 function depends_digger() {
-    getDepends cmake sdl2 zlib
+    local depends=(
+        'cmake'
+        'ninja'
+        'sdl2'
+        'zlib'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_digger() {
@@ -19,15 +25,20 @@ function sources_digger() {
 }
 
 function build_digger() {
-    cmake . -DCMAKE_INSTALL_PREFIX="$md_inst" -DCMAKE_BUILD_TYPE=Release
-    make
-    md_ret_require="$md_build/digger"
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/digger"
 }
 
 function install_digger() {
-    md_ret_files=(
-        'digger'
-    )
+    md_ret_files=('build/digger')
 }
 
 function configure_digger() {

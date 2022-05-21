@@ -34,7 +34,7 @@ function build_cannonball() {
     else
         target="linux.cmake"
     fi
-    
+
     cmake . \
         -Scmake \
         -Bbuild \
@@ -58,6 +58,7 @@ function install_cannonball() {
     mkdir -p "$md_inst/res"
     cp -v res/*.bin "$md_inst/res/"
     cp -v res/config.xml "$md_inst/config.xml.def"
+    cp -v "$md_build/roms/roms.txt" "$romdir/ports/$md_id/"
 }
 
 function configure_cannonball() {
@@ -71,8 +72,6 @@ function configure_cannonball() {
     [[ "$md_mode" == "remove" ]] && return
 
     copyDefaultConfig "$md_inst/config.xml.def" "$md_conf_root/$md_id/config.xml"
-
-    cp -v "$md_build/roms/roms.txt" "$romdir/ports/$md_id/"
 
     chown -R "$user:$user" "$romdir/ports/$md_id" "$md_conf_root/$md_id"
 

@@ -12,7 +12,10 @@ rp_module_section="opt"
 rp_module_flags="!mali"
 
 function depends_darkplaces-quake() {
-    local depends=('clang' 'sdl2' 'libjpeg-turbo')
+    local depends=(
+        'libjpeg-turbo'
+        'sdl2'
+    )
     isPlatform "videocore" && depends+=('raspberrypi-firmware')
     isPlatform "mesa" && depends+=('mesa')
     getDepends "${depends[@]}"
@@ -40,7 +43,7 @@ function build_darkplaces-quake() {
         fi
     fi
     make clean
-    make sdl-release "${params[@]}" CC="clang" CXX="clang++"
+    make sdl-release "${params[@]}"
     if isPlatform "rpi4" && [[ "$force_opengl" -eq 0 ]]; then
         mv "$md_build/darkplaces-sdl" "$md_build/darkplaces-sdl-gles"
         # revert rpi4 gles change which commented out invariant line from earlier.
@@ -62,7 +65,7 @@ function install_darkplaces-quake() {
     isPlatform "rpi4" && md_ret_files+=("darkplaces-sdl-gles")
 }
 
-function add_games_darkplaces-quake() {
+function _add_games_darkplaces-quake() {
     local params=(-basedir "$romdir/ports/quake" -game %QUAKEDIR%)
     isPlatform "kms" && params+=("+vid_vsync 1")
     if isPlatform "rpi4"; then
@@ -76,7 +79,7 @@ function configure_darkplaces-quake() {
 
     [[ "$md_mode" == "install" ]] && game_data_lr-tyrquake
 
-    add_games_darkplaces-quake
+    _add_games_darkplaces-quake
 
     moveConfigDir "$home/.darkplaces" "$md_conf_root/quake/darkplaces"
 }

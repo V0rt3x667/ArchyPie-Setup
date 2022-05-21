@@ -11,8 +11,18 @@ rp_module_repo="git https://github.com/mmatyas/openblok.git master"
 rp_module_section="exp"
 rp_module_flags=""
 
-function depends_openblok() {
-    getDepends cmake gettext sdl2 sdl2_image sdl2_mixer sdl2_ttf
+function depends_openblok() { 
+    local depends=(
+        'cmake'
+        'gcc11'
+        'gettext'
+        'ninja'
+        'sdl2_image'
+        'sdl2_mixer'
+        'sdl2_ttf'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_openblok() {
@@ -21,17 +31,22 @@ function sources_openblok() {
 
 function build_openblok() {
     cmake . \
+        -Bbuild \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DINSTALL_PORTABLE=ON \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_C_COMPILER=gcc-11 \
+        -DCMAKE_CXX_COMPILER=g++-11 \
+        -DINSTALL_PORTABLE=ON \
         -DENABLE_MP3=OFF
-    make clean
-    make
-    md_ret_require="$md_build/src/openblok"
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/src/openblok"
 }
 
 function install_openblok() {
-    make install/strip
+    ninja -C build install/strip
 }
 
 function configure_openblok() {

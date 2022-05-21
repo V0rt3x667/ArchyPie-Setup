@@ -45,8 +45,7 @@ function build_julius() {
 }
 
 function install_julius() {
-    cd build
-    ninja install/strip
+    ninja -C build install/strip
 }
 
 function configure_julius() {
@@ -54,5 +53,5 @@ function configure_julius() {
 
     moveConfigDir "$home/.config/julius" "$md_conf_root/caesar3"
 
-    addPort "$md_id" "caesar3" "caesar III" "$md_inst/bin/julius $romdir/ports/caesar3"
+    addPort "$md_id" "caesar3" "Caesar III" "$md_inst/bin/julius $romdir/ports/caesar3"
 }

@@ -70,7 +70,7 @@ function _game_data_dhewm3() {
 
 function _add_games_dhewm3() {
     local cmd="$1"
-    local dir
+    local game
     local pak
     declare -A games=(
         ['base/pak000']="Doom III"

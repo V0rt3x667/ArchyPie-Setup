@@ -13,7 +13,13 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function depends_jumpnbump() {
-    getDepends sdl2 sdl2_net sdl2_mixer zlib
+    local depends=(
+        'sdl2_mixer'
+        'sdl2_net'
+        'sdl2'
+        'zlib'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_jumpnbump() {

@@ -19,57 +19,69 @@ function _get_branch_surgescript() {
 }
 
 function depends_opensurge() {
-    getDepends allegro cmake
+    local depends=(
+        'allegro'
+        'cmake'
+        'ninja'
+    )
+    getDepends "${depends[@]}"
 }
 
-function _sources_surgescript() {
-    downloadAndExtract "https://github.com/alemart/surgescript/archive/refs/tags/$(_get_branch_surgescript).tar.gz" "$md_build/surgescript" --strip-components 1
-}
+#function _sources_surgescript() {
+#    downloadAndExtract "https://github.com/alemart/surgescript/archive/refs/tags/$(_get_branch_surgescript).tar.gz" "$md_build/surgescript" --strip-components 1
+#}
 
 function sources_opensurge() {
     gitPullOrClone
-    _sources_surgescript
+    downloadAndExtract "https://github.com/alemart/surgescript/archive/refs/tags/$(_get_branch_surgescript).tar.gz" "$md_build/surgescript" --strip-components 1
+    #_sources_surgescript
 }
 
 function _build_surgescript() {
-    cd "$md_build/surgescript"
     cmake . \
+        -Ssurgescript \
+        -Bsurgescript \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DWANT_SHARED=ON \
         -DWANT_STATIC=OFF
-    make clean
-    make
-    md_ret_require="$md_build/libsurgescript.so"
+    ninja -C surgescript clean
+    ninja -C surgescript
+    md_ret_require="$md_build/surgescript/surgescript"
 }
 
 function build_opensurge() {
     _build_surgescript
 
-    cd "$md_build"
-    LDFLAGS+=" -Wl,-rpath='$md_inst/bin'" \
     cmake . \
-        -DCMAKE_BUILD_TYPE=Release \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -DGAME_BINDIR="$md_inst/bin" \
         -DGAME_DATADIR="$md_inst/data" \
         -DDESKTOP_INSTALL="OFF" \
         -DSURGESCRIPT_INCLUDE_PATH="$md_build/surgescript/src" \
-        -DSURGESCRIPT_LIBRARY_PATH="$md_build/surgescript"
-    make clean
-    make
+        -DSURGESCRIPT_LIBRARY_PATH="$md_build/surgescript" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/opensurge"
 }
 
 function install_opensurge() {
-    cd "$md_build"
-    make install
+    ninja -C build install/strip
 
-    cd "$md_build/surgescript"
-    mv libsurgescript.so.0.5.5 "$md_inst/bin/libsurgescript.so"
-}    
+    install -Dm644 "$md_build/surgescript/libsurgescript.so.0.5.5" -t "$md_inst/lib"
+    install -Dm644 "$md_build/surgescript/surgescript" -t "$md_inst/bin"
+}
 
 function configure_opensurge() {
-    addPort "$md_id" "opensurge" "Open Surge" "$md_inst/opensurge --fullscreen"
+    addPort "$md_id" "opensurge" "Open Surge" "$md_inst/bin/opensurge --fullscreen"
 
     moveConfigDir "$home/.config/opensurge2d" "$md_conf_root/opensurge"
 }

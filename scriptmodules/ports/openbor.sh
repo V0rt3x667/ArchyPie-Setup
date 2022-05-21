@@ -50,7 +50,7 @@ function install_openbor() {
 }
 
 function configure_openbor() {
-    addPort "$md_id" "openbor" "OpenBOR - Beats of Rage Engine" "$md_inst/openbor.sh"
+    addPort "$md_id" "openbor" "OpenBOR: Beats of Rage Engine" "$md_inst/openbor.sh"
 
     mkRomDir "ports/$md_id"
     isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"

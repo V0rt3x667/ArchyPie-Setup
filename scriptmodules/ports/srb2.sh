@@ -21,8 +21,9 @@ function depends_srb2() {
         'libgme'
         'libopenmpt'
         'libpng'
-        'sdl2'
+        'ninja'
         'sdl2_mixer'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -66,8 +67,7 @@ function install_srb2() {
 }
 
 function configure_srb2() {
-    addPort "$md_id" "srb2" "Sonic Robo Blast 2" "pushd $md_inst; ./srb2; popd"
+    addPort "$md_id" "srb2" "Sonic Robo Blast 2" "$md_inst/srb2"
 
     moveConfigDir "$home/.srb2"  "$md_conf_root/$md_id"
 }
-

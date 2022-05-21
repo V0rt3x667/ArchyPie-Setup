@@ -21,6 +21,7 @@ function depends_gemrb() {
         'glew'
         'libpng'
         'libvorbis'
+        'ninja'
         'openal'
         'python'
         'sdl2'
@@ -34,17 +35,20 @@ function sources_gemrb() {
 }
 
 function build_gemrb() {
-    local params=(
-        -GNinja
-        -Bbuild
-        -DCMAKE_INSTALL_PREFIX="$md_inst"
-        -DCMAKE_BUILD_TYPE=Release
-        -DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/
-        -DSDL_BACKEND=SDL2
-        -DUSE_SDLMIXER=OFF
-    )
+    local params
     isPlatform "gl" && params+=(-DOPENGL_BACKEND=OpenGL)
-    cmake . "${params[@]}"
+    
+    cmake . \
+        -GNinja \
+        -Bbuild \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/ \
+        -DSDL_BACKEND=SDL2 \
+        -DUSE_SDLMIXER=OFF \
+        "${params[@]}" \
+        -Wno-dev
     ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/gemrb/gemrb"
@@ -164,9 +168,14 @@ CD1=$romdir/ports/planescape/data/
 CachePath=$romdir/ports/planescape/cache/
 _EOF_
 
-    chown $user:$user "$md_conf_root/baldursgate1/GemRB.cfg"
-    chown $user:$user "$md_conf_root/baldursgate2/GemRB.cfg"
-    chown $user:$user "$md_conf_root/icewind1/GemRB.cfg"
-    chown $user:$user "$md_conf_root/icewind2/GemRB.cfg"
-    chown $user:$user "$md_conf_root/planescape/GemRB.cfg"
+    local dirs=(
+        'baldursgate1'
+        'baldursgate2'
+        'icewind1'
+        'icewind2'
+        'planescape'
+    )
+    for dir in "${dirs[@]}"; do
+        chown "$user:$user" "$md_conf_root/$dir/GemRB.cfg"
+    done
 }

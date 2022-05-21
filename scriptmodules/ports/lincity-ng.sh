@@ -22,6 +22,7 @@ function depends_lincity-ng() {
         'sdl2_image'
         'sdl2_mixer'
         'sdl2_ttf'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -51,6 +52,6 @@ function configure_lincity-ng() {
     if [[ -d "/lincity-ng" ]]; then
         cp -R /lincity-ng "$md_conf_root/"
         rm -rf /lincity-ng
-        chown $user:$user "$md_conf_root/lincity-ng"
+        chown "$user:$user" "$md_conf_root/lincity-ng"
     fi
 }

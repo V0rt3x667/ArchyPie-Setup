@@ -12,7 +12,13 @@ rp_module_help="Copy data.zip from a purchased or Make and Play edition of VVVVV
 rp_module_section="exp"
 
 function depends_vvvvvv() {
-    getDepends cmake sdl2 sdl2_mixer
+        local depends=(
+        'cmake'
+        'ninja'
+        'sdl2_mixer'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_vvvvvv() {
@@ -22,18 +28,25 @@ function sources_vvvvvv() {
 }
 
 function build_vvvvvv() {
-    cmake desktop_version
     rpSwap on 1500
-    make clean
-    make
+    cmake . \
+        -Sdesktop_version \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
     rpSwap off
-    md_ret_require="$md_build/VVVVVV"
+    md_ret_require="$md_build/build/VVVVVV"
 }
 
 function install_vvvvvv() {
     md_ret_files=(
+        'build/VVVVVV'
         'LICENSE.md'
-        'VVVVVV'
     )
 }
 

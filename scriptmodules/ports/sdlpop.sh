@@ -6,12 +6,19 @@
 
 rp_module_id="sdlpop"
 rp_module_desc="SDLPoP - Open-Source Port of Prince of Persia"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/NagyD/SDLPoP/master/doc/gpl-3.0.txt"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/NagyD/SDLPoP/master/COPYING"
 rp_module_repo="git https://github.com/NagyD/SDLPoP.git master"
 rp_module_section="opt"
 
 function depends_sdlpop() {
-    getDepends sdl2 sdl2_mixer sdl2_image
+    depends=(
+        'cmake'
+        'ninja'
+        'sdl2_image'
+        'sdl2_mixer'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_sdlpop() {
@@ -19,33 +26,36 @@ function sources_sdlpop() {
 }
 
 function build_sdlpop() {
-    cd src
-    make clean
-    make PREFIX="$md_inst" LDFLAGS="$LDFLAGS"
+    cmake . \
+        -Ssrc \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -Wno-dev
+    ninja clean
+    ninja
     md_ret_require="$md_build/prince"
 }
 
 function install_sdlpop() {
     md_ret_files=(
-        'prince'
         'data'
         'doc'
+        'prince'
+        'SDLPoP.ini'
     )
-    cp -v "SDLPoP.ini" "$md_inst/SDLPoP.ini.def"
-    sed -i "s/use_correct_aspect_ratio = false/use_correct_aspect_ratio = true/" "$md_inst/SDLPoP.ini.def"
 }
 
 function configure_sdlpop() {
-    addPort "$md_id" "sdlpop" "Prince of Persia" "pushd $md_inst; $md_inst/prince full; popd"
+    addPort "$md_id" "sdlpop" "Prince of Persia" "$md_inst/prince full"
 
     [[ "$md_mode" == "remove" ]] && return
 
-    copyDefaultConfig "$md_inst/SDLPoP.ini.def" "$md_conf_root/$md_id/SDLPoP.ini"
     moveConfigFile "$md_inst/SDLPoP.ini" "$md_conf_root/$md_id/SDLPoP.ini"
-
     moveConfigFile "$md_inst/PRINCE.SAV" "$md_conf_root/$md_id/PRINCE.SAV"
     moveConfigFile "$md_inst/QUICKSAVE.SAV" "$md_conf_root/$md_id/QUICKSAVE.SAV"
     moveConfigFile "$md_inst/SDLPoP.cfg" "$md_conf_root/$md_id/SDLPoP.cfg"
 
-    chown -R $user:$user "$md_conf_root/$md_id"
+    chown -R "$user:$user" "$md_conf_root/$md_id"
 }
