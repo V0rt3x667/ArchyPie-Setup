@@ -19,6 +19,7 @@ function depends_uqm() {
         'libvorbis' 
         'openal'
         'sdl2_image'
+        'sdl2'
         'zlib'
     )
     getDepends "${depends[@]}"
@@ -28,16 +29,16 @@ function sources_uqm() {
     downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
     local ver="0.8.0"
     local url="https://sourceforge.net/projects/sc2/files/UQM/0.8"
-    local file=(
-        uqm-$ver-content.uqm
-        uqm-$ver-voice.uqm
-        uqm-$ver-3domusic.uqm
+    local files=(
+        uqm-"$ver"-content.uqm
+        uqm-"$ver"-voice.uqm
+        uqm-"$ver"-3domusic.uqm
     )
-    for f in "${file[@]}"; do
-        if [[ $f == uqm-$ver-content.uqm ]]; then
-            curl --create-dirs -sSL "$url/$f" --output "$md_build/content/packages/$f"
+    for file in "${files[@]}"; do
+        if [[ "$file" == uqm-$ver-content.uqm ]]; then
+            curl --create-dirs -sSL "$url/$file" --output "$md_build/content/packages/$file"
         else 
-            curl --create-dirs -sSL "$url/$f" --output "$md_build/content/addons/$f"
+            curl --create-dirs -sSL "$url/$file" --output "$md_build/content/addons/$file"
         fi
     done
     chmod -R 755 "$md_build/content"
@@ -45,7 +46,27 @@ function sources_uqm() {
 
 function build_uqm() {
     ./build.sh uqm clean
-    echo "\n" | CHOICE_debug_VALUE="nodebug" INPUT_install_prefix_VALUE="$md_inst" ./build.sh uqm config
+
+    local strings=(
+        CHOICE_debug_VALUE='nodebug'
+        CHOICE_graphics_VALUE='sdl2'
+        CHOICE_sound_VALUE='mixsdl'
+        CHOICE_mikmod_VALUE='internal'
+        CHOICE_ovcodec_VALUE='standard'
+        CHOICE_netplay_VALUE='full'
+        CHOICE_joystick_VALUE='enabled'
+        CHOICE_ioformat_VALUE='stdio_zip'
+        CHOICE_threadlib_VALUE='sdl'
+        INPUT_install_prefix_VALUE="$md_inst"
+        INPUT_install_bindir_VALUE="$md_inst/bin"
+        INPUT_install_libdir_VALUE="$md_inst/lib"
+        INPUT_install_sharedir_VALUE="$md_inst/share"
+    )
+    for string in "${strings[@]}"; do
+        printf "%s\n" "$string" >> "$md_build/config.state"
+    done
+
+    ./build.sh uqm reprocess_config
     ./build.sh uqm
     md_ret_require="$md_build/uqm"
 }
