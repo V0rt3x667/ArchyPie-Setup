@@ -25,6 +25,7 @@ function depends_cannonball() {
 
 function sources_cannonball() {
     gitPullOrClone
+    applyPatch "$md_data/01_set_config_path.patch"
 }
 
 function build_cannonball() {
@@ -52,28 +53,35 @@ function build_cannonball() {
 function install_cannonball() {
     md_ret_files=(
         'build/cannonball'
-        'res/gamecontrollerdb.txt'
+        'res'
     )
-
-    mkdir -p "$md_inst/res"
-    cp -v res/*.bin "$md_inst/res/"
-    cp -v res/config.xml "$md_inst/config.xml.def"
-    cp -v "$md_build/roms/roms.txt" "$romdir/ports/$md_id/"
 }
 
 function configure_cannonball() {
-    addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "$md_inst/cannonball"
+    addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "pushd $md_inst; $md_inst/cannonball; popd"
 
     mkRomDir "ports/$md_id"
+    mkUserDir "$home/.config/archypie"
 
-    moveConfigFile "config.xml" "$md_conf_root/$md_id/config.xml"
-    moveConfigFile "hiscores.xml" "$md_conf_root/$md_id/hiscores.xml"
+    moveConfigDir "$home/.config/archypie/cannonball" "$md_conf_root/$md_id"
 
     [[ "$md_mode" == "remove" ]] && return
 
-    copyDefaultConfig "$md_inst/config.xml.def" "$md_conf_root/$md_id/config.xml"
+    copyDefaultConfig "$md_inst/res/config.xml" "$md_conf_root/$md_id/config.xml"
 
-    chown -R "$user:$user" "$romdir/ports/$md_id" "$md_conf_root/$md_id"
+    install -Dm755 "$md_build/roms/roms.txt" "$romdir/ports/$md_id/"
+
+    local hiscores=(
+        'hiscores.xml'
+        'hiscores_jap.xml'
+        'hiscores_timetrial.xml'
+        'hiscores_timetrial_jap.xml'
+    )
+    for hiscore in "${hiscores[@]}"; do
+        ln -snf "$md_conf_root/$md_id/" "$md_inst/$hiscore"
+    done
 
     ln -snf "$romdir/ports/$md_id" "$md_inst/roms"
+
+    chown -R "$user:$user" "$romdir/ports/$md_id" "$md_conf_root/$md_id"
 }
