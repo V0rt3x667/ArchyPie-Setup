@@ -78,7 +78,7 @@ function configure_cannonball() {
         'hiscores_timetrial_jap.xml'
     )
     for hiscore in "${hiscores[@]}"; do
-        ln -snf "$md_conf_root/$md_id/" "$md_inst/$hiscore"
+        ln -snf "$md_conf_root/$md_id/$hiscore" "$md_inst/$hiscore"
     done
 
     ln -snf "$romdir/ports/$md_id" "$md_inst/roms"

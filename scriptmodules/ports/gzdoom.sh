@@ -91,8 +91,8 @@ function install_gzdoom() {
         'build/lights.pk3'
         'build/soundfonts'
     )
-    install -Dm644 "$md_build"/zmusic/build/source/libzmusic.so* -t "$md_inst/lib"
-    install -Dm644 "$md_build"/zmusic/build/source/libzmusiclite.so* -t "$md_inst/lib"
+    mkdir "$md_inst/lib"
+    cp -Pv "$md_build"/zmusic/source/*.so* "$md_inst/lib"
 }
 
 function _add_games_gzdoom() {
