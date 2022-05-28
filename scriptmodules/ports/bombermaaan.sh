@@ -15,7 +15,6 @@ function depends_bombermaaan() {
     local depends=(
         'cmake'
         'ninja'
-        'sdl_gfx'
         'sdl_mixer'
     )
     getDepends "${depends[@]}"
@@ -59,12 +58,6 @@ function build_bombermaaan() {
 }
 
 function install_bombermaaan() {
-    # md_ret_files=(        
-    #     'trunk/bombermaaan'
-    #     'trunk/levels'
-    #     'trunk/res/images'
-    #     'trunk/res/sounds'
-    # )
     ninja -C trunk/build install/strip
 }
 
@@ -75,14 +68,4 @@ function configure_bombermaaan() {
 
     moveConfigDir "$home/.Bombermaaan" "$md_conf_root/bombermaaan"
     moveConfigFile "$md_inst/config.xml" "$md_conf_root/bombermaaan/config.xml"
-
-#     local file="$romdir/ports/Bombermaaan.sh"
-#     cat >"$file" << _EOF_
-# #!/bin/bash
-# pushd "$md_inst"
-# "$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ bombermaaan ""
-# popd
-# _EOF_
-#     chown $user:$user "$file"
-#     chmod a+x "$file"
 }
