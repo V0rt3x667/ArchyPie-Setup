@@ -14,6 +14,7 @@ rp_module_flags="sdl1 !mali"
 function depends_bombermaaan() {
     local depends=(
         'cmake'
+        'dos2unix'
         'ninja'
         'sdl_mixer'
     )
@@ -22,6 +23,13 @@ function depends_bombermaaan() {
 
 function sources_bombermaaan() {
     gitPullOrClone
+
+    # line endings need to be converted or patching will fail.
+    find . -type f -exec dos2unix {} \;
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
+    applyPatch "$md_data/02_set_default_fullscreen.patch"
+
     # "sdl 1 classic" required, Bombermaaan will not build with sdl12-compat.
     _sources_sdl
 }
@@ -64,8 +72,9 @@ function install_bombermaaan() {
 function configure_bombermaaan() {
     addPort "$md_id" "bombermaaan" "Bombermaaan" "$md_inst/Bombermaaan"
 
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
+    mkUserDir "$home/.config/archypie"
 
-    moveConfigDir "$home/.Bombermaaan" "$md_conf_root/bombermaaan"
-    moveConfigFile "$md_inst/config.xml" "$md_conf_root/bombermaaan/config.xml"
+    moveConfigDir "$home/.config/archypie/$md_id" "$md_conf_root/$md_id"
+
+    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
 }
