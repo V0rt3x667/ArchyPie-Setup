@@ -7,59 +7,35 @@
 rp_module_id="micropolis"
 rp_module_desc="Micropolis - Open Source City Building Game"
 rp_module_licence="GPL3 https://www.donhopkins.com/home/micropolis/#license"
-rp_module_repo="file https://git.zerfleddert.de/micropolis/micropolis-activity-source.tgz"
+rp_module_repo="git https://git.zerfleddert.de/git/micropolis"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags="!all x11"
 
 function depends_micropolis() {
     local depends=(
         'inetutils'
         'libxpm'
         'sdl_mixer'
+        'sdl12-compat'
     )
-    ! isPlatform "x11" && depends+=('xorg-server') && pacmanpkg archy-matchbox-window-manager
     getDepends "${depends[@]}"
 }
 
 function sources_micropolis() {
-    downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
-    download "https://git.zerfleddert.de/micropolis/micropolis_git.patch" "$md_build"
-    applyPatch "$md_build/micropolis_git.patch"
+    gitPullOrClone
 }
 
 function build_micropolis() {
-    make -C src clean
+    make clean
     make -C src
-    cp src/sim/sim res
+    make PREFIX="$md_inst"
     md_ret_require="$md_build/src/sim/sim"
 }
 
 function install_micropolis() {
-    md_ret_files=(        
-        'activity'
-        'cities'
-        'images'
-        'manual'
-        'res'
-        'README'
-        'COPYING'
-        'Micropolis'
-        'micropolisactivity.py'
-    )
+    make PREFIX="$md_inst" install
 }
 
 function configure_micropolis() {
-    local binary="$md_inst/Micropolis"
-    ! isPlatform "x11" && binary="XINIT:$md_inst/micropolis.sh"
-
-    addPort "$md_id" "micropolis" "Micropolis" "$binary"
-
-    mkdir -p "$md_inst"
-    cat >"$md_inst/micropolis.sh" << _EOF_
-#!/bin/bash
-xset -dpms s off s noblank
-matchbox-window-manager &
-/usr/games/micropolis
-_EOF_
-    chmod +x "$md_inst/micropolis.sh"
+    addPort "$md_id" "micropolis" "$md_inst/bin/micropolis"
 }
