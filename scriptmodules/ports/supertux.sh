@@ -38,6 +38,7 @@ function depends_supertux() {
 
 function sources_supertux() {
     gitPullOrClone
+    sed '1i#include <memory>' -i external/partio_zip/zip_manager.cpp
 }
 
 function build_supertux() {
