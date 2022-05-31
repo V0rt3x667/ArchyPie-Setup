@@ -32,23 +32,23 @@ function sources_uhexen2() {
 
 function build_uhexen2() {
     # Build Hexen Game Engine
-    cd "$md_build/engine/hexen2"
+    cd "$md_build/engine/hexen2" || return
     ./build_all.sh
     # Build HexenWorld
-    cd "$md_build/engine/hexenworld"
+    cd "$md_build/engine/hexenworld" || return
     ./build.sh
     # Build Hexen Utilities
-    cd "$md_build"
+    cd "$md_build" || return
     make -C hw_utils/hwmaster
     make -C h2patch
     make -C utils/hcc
     # Build Game Code Files
-    cd "$md_build/gamecode"
-    $md_build/utils/hcc/hcc -src hc/h2 -os
-    $md_build/utils/hcc/hcc -src hc/h2 -os -name progs2.src
-    $md_build/utils/hcc/hcc -src hc/portals -os -oi -on
-    $md_build/utils/hcc/hcc -src hc/hw -os -oi -on
-    $md_build/utils/hcc/hcc -src hc/siege -os -oi -on
+    cd "$md_build/gamecode" || return
+    "$md_build/utils/hcc/hcc" -src hc/h2 -os
+    "$md_build/utils/hcc/hcc" -src hc/h2 -os -name progs2.src
+    "$md_build/utils/hcc/hcc" -src hc/portals -os -oi -on
+    "$md_build/utils/hcc/hcc" -src hc/hw -os -oi -on
+    "$md_build/utils/hcc/hcc" -src hc/siege -os -oi -on
 
     md_ret_require="$md_build/engine/hexen2/glhexen2"
 }
@@ -76,17 +76,19 @@ function install_uhexen2() {
 
 function _add_games_uhexen2() {
     local game
-    local dir="$romdir/ports/hexen2"
     declare -A games=(
-        ['pak0.pak']="Hexen II"
-        ['pak3.pak']="Hexen II - Portal of Praevus"
+        ['data1/pak0.pak']="Hexen II"
+        ['portals/pak3.pak']="Hexen II: Portal of Praevus"
     )
 
     for game in "${!games[@]}"; do
-        if [[ -f $dir/portals/pak3.pak ]]; then
-            addPort "$md_id" "hexen2" "${games[$game]}" "$md_inst/glhexen2 -f -vsync -portals" "${game%%/*}"
-        elif [[ -f $dir/data1/pak0.pak ]]; then
-            addPort "$md_id" "hexen2" "${games[$game]}" "$md_inst/glhexen2 -f -vsync" "${game%%/*}"
+        local file="$romdir/ports/hexen2/$game"
+        if [[ "$game" == portals/pak3.pak && -f "$file" ]]; then
+            addPort "$md_id-gl" "hexen2" "${games[$game]}" "$md_inst/glhexen2 -f -vsync -portals" "${game%%/*}"
+            addPort "$md_id" "hexen2" "${games[$game]}" "$md_inst/hexen2 -f -vsync -portals" "${game%%/*}"
+        elif [[ "$game" == data1/pak0.pak && -f "$file" ]]; then
+            addPort "$md_id-gl" "hexen2" "${games[$game]}" "$md_inst/glhexen2 -f -vsync" "${game%%/*}"
+            addPort "$md_id" "hexen2" "${games[$game]}" "$md_inst/hexen2 -f -vsync" "${game%%/*}"
         fi
     done
 }
