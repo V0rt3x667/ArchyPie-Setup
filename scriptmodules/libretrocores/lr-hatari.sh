@@ -25,11 +25,7 @@ function build_lr-hatari() {
     _build_libcapsimage_hatari
 
     cd "$md_build"
-    CFLAGS+=" -D__cdecl='' -DENABLE_SDL2 -DHAVE_CAPSIMAGE=1 -DCAPSIMAGE_VERSION=5" \
-    LDFLAGS+=" -Wl,-rpath='$md_inst/lib/'" \
-    CAPSIMG_LDFLAGS=" -L./lib -l:libcapsimage.so.5.1" \
-    make -f Makefile.libretro
-
+    CFLAGS+=" -D__cdecl='' -DHAVE_CAPSIMAGE=1 -DCAPSIMAGE_VERSION=5" CAPSIMG_LDFLAGS="-L./lib -l:libcapsimage.so.5.1" make -f Makefile.libretro
     md_ret_require="$md_build/hatari_libretro.so"
 }
 
@@ -44,7 +40,7 @@ function install_lr-hatari() {
 
 function configure_lr-hatari() {
     mkRomDir "atarist"
-    ensureSystemretroconfig "atarist"
+    defaultRAConfig "atarist"
 
     # move any old configs to new location
     moveConfigDir "$home/.hatari" "$md_conf_root/atarist"
@@ -53,7 +49,7 @@ function configure_lr-hatari() {
     addSystem "atarist"
 
     # add LD_LIBRARY_PATH='$md_inst' to start of launch command
-#    iniConfig " = " '"' "$configdir/atarist/emulators.cfg"
-#    iniGet "$md_id"
-#    iniSet "$md_id" "LD_LIBRARY_PATH='$md_inst' $ini_value"
+    iniConfig " = " '"' "$configdir/atarist/emulators.cfg"
+    iniGet "$md_id"
+    iniSet "$md_id" "LD_LIBRARY_PATH='$md_inst' $ini_value"
 }

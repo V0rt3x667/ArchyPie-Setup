@@ -47,7 +47,7 @@ function configure_lr-sameboy() {
     for system in gb gbc; do
         def=0
         mkRomDir "$system"
-        ensureSystemretroconfig "$system"
+        defaultRAConfig "$system"
         addEmulator "$def" "$md_id" "$system" "$md_inst/sameboy_libretro.so"
         addSystem "$system"
     done

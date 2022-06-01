@@ -32,7 +32,7 @@ function install_lr-melonds() {
 function configure_lr-melonds() {
     mkRomDir "nds"
 
-    ensureSystemretroconfig "nds"
+    defaultRAConfig "nds"
 
     addEmulator 0 "$md_id" "nds" "$md_inst/melonds_libretro.so"
     addSystem "nds"

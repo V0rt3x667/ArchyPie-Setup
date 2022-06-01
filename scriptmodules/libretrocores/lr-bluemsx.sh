@@ -31,31 +31,27 @@ function install_lr-bluemsx() {
 }
 
 function configure_lr-bluemsx() {
+    addEmulator 1 "$md_id" "msx" "$md_inst/bluemsx_libretro.so"
+    addSystem "msx"
+
+    addEmulator 1 "$md_id" "coleco" "$md_inst/bluemsx_libretro.so"
+    addSystem "coleco"
+
+    [[ "$md_mode" == "remove" ]] && return
+
     mkRomDir "msx"
-    ensureSystemretroconfig "msx"
-
-    mkRomDir "coleco"
-    ensureSystemretroconfig "coleco"
-
-    mkRomDir "msx2"
-    ensureSystemretroconfig "msx2"
+    defaultRAConfig "msx"
 
     # force colecovision system
     local core_config="$md_conf_root/coleco/retroarch-core-options.cfg"
-    iniConfig " = " '"' "$md_conf_root/coleco/retroarch.cfg"
-    iniSet "core_options_path" "$core_config"
+    iniConfig " = " '"' "$core_config"
     iniSet "bluemsx_msxtype" "ColecoVision" "$core_config"
     chown $user:$user "$core_config"
+
+    mkRomDir "coleco"
+    defaultRAConfig "coleco" "core_options_path" "$core_config"
 
     cp -rv "$md_inst/"{Databases,Machines} "$biosdir/"
     chown -R $user:$user "$biosdir/"{Databases,Machines}
 
-    addEmulator 1 "$md_id" "msx" "$md_inst/bluemsx_libretro.so"
-    addSystem "msx"
-
-    addEmulator 1 "$md_id" "msx2" "$md_inst/bluemsx_libretro.so"
-    addSystem "msx2"
-
-    addEmulator 1 "$md_id" "coleco" "$md_inst/bluemsx_libretro.so"
-    addSystem "coleco"
 }

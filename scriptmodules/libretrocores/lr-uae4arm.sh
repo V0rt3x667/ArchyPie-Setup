@@ -18,7 +18,7 @@ rp_module_section="exp"
 rp_module_flags="!all arm aarch64"
 
 function depends_lr-uae4arm() {
-    getDepends libmpg123-dev libflac-dev
+    getDepends libmpg123 libflac
 }
 
 function sources_lr-uae4arm() {
@@ -43,7 +43,7 @@ function install_lr-uae4arm() {
 
 function configure_lr-uae4arm() {
     mkRomDir "amiga"
-    ensureSystemretroconfig "amiga"
+    defaultRAConfig "amiga"
     addEmulator 1 "$md_id" "amiga" "$md_inst/uae4arm_libretro.so"
     addSystem "amiga"
 }

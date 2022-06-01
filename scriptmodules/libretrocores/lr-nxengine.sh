@@ -45,5 +45,5 @@ _EOF_
     chown $user:$user "$file"
     chmod +x "$file"
 
-    ensureSystemretroconfig "ports/cavestory"
+    defaultRAConfig "cavestory"
 }

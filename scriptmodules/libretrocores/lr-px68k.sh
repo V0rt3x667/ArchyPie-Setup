@@ -31,7 +31,7 @@ function install_lr-px68k() {
 
 function configure_lr-px68k() {
     mkRomDir "x68000"
-    ensureSystemretroconfig "x68000"
+    defaultRAConfig "x68000"
 
     mkUserDir "$biosdir/keropi"
 

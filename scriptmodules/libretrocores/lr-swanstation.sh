@@ -29,7 +29,7 @@ function install_lr-swanstation() {
 
 function configure_lr-swanstation() {
     mkRomDir "psx"
-    ensureSystemretroconfig "psx"
+    defaultRAConfig "psx"
 
     if isPlatform "gles" && ! isPlatform "gles3"; then
         # Hardware renderer not supported on GLES2 devices

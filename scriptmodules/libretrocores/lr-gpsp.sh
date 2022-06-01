@@ -37,7 +37,7 @@ function install_lr-gpsp() {
 
 function configure_lr-gpsp() {
     mkRomDir "gba"
-    ensureSystemretroconfig "gba"
+    defaultRAConfig "gba"
 
     addEmulator 0 "$md_id" "gba" "$md_inst/gpsp_libretro.so"
     addSystem "gba"

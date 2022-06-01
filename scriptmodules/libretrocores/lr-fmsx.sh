@@ -25,13 +25,13 @@ function install_lr-fmsx() {
     md_ret_files=(
         'fmsx_libretro.so'
         'README.md'
-        'fMSX/ROMs'
+        'fMSX/ROMs/CARTS.SHA'
     )
 }
 
 function configure_lr-fmsx() {
     mkRomDir "msx"
-    ensureSystemretroconfig "msx"
+    defaultRAConfig "msx"
 
     # default to MSX2+ core
     setRetroArchCoreOption "fmsx_mode" "MSX2+"
@@ -41,7 +41,7 @@ function configure_lr-fmsx() {
 
     [[ "$md_mode" == "remove" ]] && return
 
-    # Copy BIOS files to $biosdir
-    cp $md_inst/ROMs/{*.ROM,*.FNT,*.SHA} "$biosdir/"
-    chown $user:$user $biosdir/{*.ROM,*.FNT,*.SHA}
+    # Copy CARTS.SHA to $biosdir
+    cp "$md_inst/CARTS.SHA" "$biosdir/"
+    chown $user:$user "$biosdir/CARTS.SHA"
 }

@@ -60,8 +60,8 @@ function configure_lr-dolphin() {
     mkRomDir "gc"
     mkRomDir "wii"
 
-    ensureSystemretroconfig "gc"
-    ensureSystemretroconfig "wii"
+    defaultRAConfig "gc"
+    defaultRAConfig "wii"
 
     mkUserDir "$biosdir/dolphin-emu"
 

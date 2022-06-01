@@ -51,9 +51,9 @@ function _add_games_lr-tyrquake() {
     local cmd="$1"
     declare -A games=(
         ['id1']="Quake"
-        ['hipnotic']="Quake Mission Pack 1 - Scourge of Armagon"
-        ['rogue']="Quake Mission Pack 2 - Dissolution of Eternity"
-        ['dopa']="Quake Episode 5 - Dimensions of the Past"
+        ['hipnotic']="Quake Mission Pack 1: Scourge of Armagon"
+        ['rogue']="Quake Mission Pack 2: Dissolution of Eternity"
+        ['dopa']="Quake Episode 5: Dimensions of the Past"
     )
     local dir
     local pak
@@ -77,5 +77,5 @@ function configure_lr-tyrquake() {
 
     add_games_lr-tyrquake
 
-    ensureSystemretroconfig "ports/quake"
+    defaultRAConfig "quake"
 }

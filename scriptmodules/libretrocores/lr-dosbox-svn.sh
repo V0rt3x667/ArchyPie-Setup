@@ -44,7 +44,7 @@ function install_lr-dosbox-svn() {
 
 function configure_lr-dosbox-svn() {
     mkRomDir "pc"
-    ensureSystemretroconfig "pc"
+    defaultRAConfig "pc"
 
     addEmulator 0 "$md_id" "pc" "$md_inst/dosbox_svn_libretro.so"
     addSystem "pc"

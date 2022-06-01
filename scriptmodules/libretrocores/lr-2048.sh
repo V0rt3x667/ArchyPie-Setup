@@ -29,7 +29,7 @@ function install_lr-2048() {
 
 function configure_lr-2048() {
     setConfigRoot "ports"
-    ensureSystemretroconfig "ports/2048"
+    defaultRAConfig "ports/2048"
 
     addPort "$md_id" "2048" "2048" "$md_inst/2048_libretro.so"
 }

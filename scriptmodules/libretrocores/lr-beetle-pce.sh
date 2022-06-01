@@ -30,7 +30,7 @@ function install_lr-beetle-pce() {
 
 function configure_lr-beetle-pce() {
     mkRomDir "pcengine"
-    ensureSystemretroconfig "pcengine"
+    defaultRAConfig "pcengine"
 
     addEmulator 1 "$md_id" "pcengine" "$md_inst/mednafen_pce_libretro.so"
     addSystem "pcengine"

@@ -42,7 +42,7 @@ function configure_lr-scummvm() {
 
     # ensure rom dir and system retroconfig
     mkRomDir "scummvm"
-    ensureSystemretroconfig "scummvm"
+    defaultRAConfig "scummvm"
 
     # download and extract auxiliary data (theme, extra)
     downloadAndExtract "https://github.com/libretro/scummvm/raw/master/backends/platform/libretro/aux-data/scummvm.zip" "$biosdir"

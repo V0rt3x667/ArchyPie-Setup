@@ -42,7 +42,7 @@ function configure_lr-picodrive() {
     for system in megadrive mastersystem segacd sega32x; do
         def=0
         mkRomDir "$system"
-        ensureSystemretroconfig "$system"
+        defaultRAConfig "$system"
         addEmulator $def "$md_id" "$system" "$md_inst/picodrive_libretro.so"
         addSystem "$system"
     done

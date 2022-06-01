@@ -35,7 +35,7 @@ function configure_lr-genesis-plus-gx() {
     local def
     for system in gamegear mastersystem megadrive sg-1000 segacd; do
         mkRomDir "$system"
-        ensureSystemretroconfig "$system"
+        defaultRAConfig "$system"
         addEmulator 1 "$md_id" "$system" "$md_inst/genesis_plus_gx_libretro.so"
         addSystem "$system"
     done

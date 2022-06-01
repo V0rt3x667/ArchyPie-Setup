@@ -30,16 +30,21 @@ function sources_lr-play() {
 }
 
 function build_lr-play() {
-    mkdir build
-    cd build
-    cmake .. \
+    cmake . \
+        -GNinja \
+        -Bbuild \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
         -DBUILD_LIBRETRO_CORE=ON \
         -DBUILD_PLAY=OFF \
         -DBUILD_TESTS=OFF \
-        -DENABLE_AMAZON_S3=OFF
-    make clean
-    make
+        -DENABLE_AMAZON_S3=OFF \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
     md_ret_require="$md_build/build/Source/ui_libretro/play_libretro.so"
 }
 
@@ -51,10 +56,10 @@ function install_lr-play() {
 }
 
 function configure_lr-play() {
-  mkRomDir "ps2"
+    mkRomDir "ps2"
 
-  ensureSystemretroconfig "ps2"
+    defaultRAConfig "ps2"
 
-  addEmulator 0 "$md_id" "ps2" "$md_inst/play_libretro.so"
-  addSystem "ps2"
+    addEmulator 0 "$md_id" "ps2" "$md_inst/play_libretro.so"
+    addSystem "ps2"
 }

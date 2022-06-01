@@ -26,8 +26,8 @@ function depends_supertuxkart() {
         'libvpx'
         'libxkbcommon-x11'
         'mcpp'
-        'mesa'
         'mesa-libgl'
+        'mesa'
         'ninja'
         'openal'
         'openssl'
@@ -66,5 +66,5 @@ function install_supertuxkart() {
 function configure_supertuxkart() {
     addPort "$md_id" "supertuxkart" "SuperTuxKart" "$md_inst/bin/supertuxkart -f"
 
-    moveConfigDir $home/.local/share/supertuxkart "$md_conf_root/supertuxkart"
+    moveConfigDir "$home/.local/share/supertuxkart" "$md_conf_root/supertuxkart"
 }

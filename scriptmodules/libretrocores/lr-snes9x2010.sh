@@ -37,7 +37,7 @@ function install_lr-snes9x2010() {
 
 function configure_lr-snes9x2010() {
     mkRomDir "snes"
-    ensureSystemretroconfig "snes"
+    defaultRAConfig "snes"
 
     local def=0
     isPlatform "armv7" && def=1

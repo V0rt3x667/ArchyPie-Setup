@@ -13,61 +13,77 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function depends_lr-flycast() {
-    local depends=(libzip zlib cmake)
+    local depends=(zlib)
     isPlatform "videocore" && depends+=(libraspberrypi-dev)
     isPlatform "mesa" && depends+=(libgles2-mesa-dev)
-    isPlatform "x11" && depends+=(libglvnd)
     getDepends "${depends[@]}"
 }
 
 function sources_lr-flycast() {
     gitPullOrClone
+    # don't override our C/CXXFLAGS and set LDFLAGS to CFLAGS to avoid warnings on linking
+    applyPatch "$md_data/01_flags_fix.diff"
 }
 
 function build_lr-flycast() {
-    local params=("-DLIBRETRO=On -DUSE_HOST_LIBZIP=On -DCMAKE_BUILD_TYPE=Release")
+    local params=("HAVE_LTCG=0")
     local add_flags=()
-    if isPlatform "gles" && ! isPlatform "gles3" ; then
+    if isPlatform "gles"; then
         if isPlatform "videocore"; then
-            add_flags+=("-I/opt/vc/include -DLOW_END")
-            params+=("-DUSE_VIDEOCORE=On")
+            params+=(
+                "GLES=1"
+                "GL_LIB=-L/opt/vc/lib -lbrcmGLESv2")
+            add_flags+=("-I/opt/vc/include -DTARGET_NO_STENCIL -DLOW_END")
+        else
+            params+=("FORCE_GLES=1")
         fi
-        params+=("-DUSE_GLES2=On")
+        if isPlatform "gles3"; then
+            params+=("HAVE_GL3=1")
+        else
+            params+=("HAVE_GL3=0")
+        fi
     fi
-
-    isPlatform "gles3" && params+=("-DUSE_GLES=On")
-    ! isPlatform "x86" && params+=("-DUSE_VULKAN=Off")
-
-    mkdir -p build
-    cd build
-    CFLAGS="$CFLAGS ${add_flags[@]}" CXXFLAGS="$CXXFLAGS ${add_flags}" cmake "${params[@]}" ..
-    make
-    md_ret_require="$md_build/build/flycast_libretro.so"
+    isPlatform "aarch64" && params+=("WITH_DYNAREC=arm64" "HOST_CPU_FLAGS=-DTARGET_LINUX_ARMv8")
+    isPlatform "arm" && params+=("WITH_DYNAREC=arm")
+    ! isPlatform "x86" && params+=("HAVE_GENERIC_JIT=0" "HAVE_VULKAN=0")
+    make "${params[@]}" clean
+    CFLAGS+=" ${add_flags[@]}" make "${params[@]}"
+    md_ret_require="$md_build/flycast_libretro.so"
 }
 
 function install_lr-flycast() {
     md_ret_files=(
-        'build/flycast_libretro.so'
+        'flycast_libretro.so'
         'LICENSE'
-        'README.md'
     )
 }
 
 function configure_lr-flycast() {
-    mkRomDir "dreamcast"
-    ensureSystemretroconfig "dreamcast"
+    local sys
+    local systems=(dreamcast arcade)
+    local def
+    for sys in "${systems[@]}"; do
+        def=0
+        if isPlatform "kms" && [[ "$sys" == "dreamcast" ]]; then
+            def=1
+        fi
+        # segfaults on the rpi without redirecting stdin from </dev/null
+        addEmulator $def "$md_id" "$sys" "$md_inst/flycast_libretro.so </dev/null"
+        addSystem "$sys"
+    done
 
-    mkUserDir "$biosdir/dc"
+    [[ "$md_mode" == "remove" ]] && return
 
+    local params=()
     # system-specific
     if isPlatform "gl"; then
-        iniConfig " = " "" "$configdir/dreamcast/retroarch.cfg"
-        iniSet "video_shared_context" "true"
+        params+=("video_shared_context" "true")
     fi
 
-    local def=0
-    isPlatform "kms" && def=1
-    # segfaults on the rpi without redirecting stdin from </dev/null
-    addEmulator $def "$md_id" "dreamcast" "$md_inst/flycast_libretro.so </dev/null"
-    addSystem "dreamcast"
+    for sys in "${systems[@]}"; do
+        mkRomDir "$sys"
+        defaultRAConfig "$sys" "${params[@]}"
+    done
+
+    mkUserDir "$biosdir/dc"
 }

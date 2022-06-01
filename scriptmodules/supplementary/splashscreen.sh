@@ -27,8 +27,7 @@ function _video_exts_splashscreen() {
 }
 
 function depends_splashscreen() {
-#    local params=(insserv)
-    local params
+    local params=(insserv)
     isPlatform "32bit" && params+=(omxplayer-git)
     getDepends "${params[@]}"
 }
@@ -102,9 +101,6 @@ function disable_splashscreen() {
 
 function configure_splashscreen() {
     [[ "$md_mode" == "remove" ]] && return
-
-    # remove legacy service
-    #[[ -f "/etc/init.d/asplashscreen" ]] && insserv -r asplashscreen && rm -f /etc/init.d/asplashscreen
 
     disable_plymouth_splashscreen
     enable_splashscreen
@@ -192,13 +188,17 @@ function randomize_splashscreen() {
     chown $user:$user "$configdir/all/$md_id.cfg"
 
     case "$choice" in
+        0)
+            iniSet "RANDOMIZE" "disabled"
+            printMsgs "dialog" "Splashscreen randomizer disabled."
+            ;;
         1)
             iniSet "RANDOMIZE" "archypie"
-            printMsgs "dialog" "Splashscreen randomizer enabled in directory $path"
+            printMsgs "dialog" "Splashscreen randomizer enabled in directory $rootdir/supplementary/$md_id"
             ;;
         2)
             iniSet "RANDOMIZE" "custom"
-            printMsgs "dialog" "Splashscreen randomizer enabled in directory $path"
+            printMsgs "dialog" "Splashscreen randomizer enabled in directory $datadir/splashscreens"
             ;;
         3)
             iniSet "RANDOMIZE" "all"
@@ -256,8 +256,8 @@ function preview_splashscreen() {
 }
 
 function download_extra_splashscreen() {
-    gitPullOrClone "$datadir/splashscreens/archypie-extra" https://github.com/HerbFargus/retropie-splashscreens-extra
-    chown -R $user:$user "$datadir/splashscreens/archypie-extra"
+    gitPullOrClone "$datadir/splashscreens/retropie-extra" https://github.com/HerbFargus/retropie-splashscreens-extra
+    chown -R $user:$user "$datadir/splashscreens/retropie-extra"
 }
 
 function gui_splashscreen() {
@@ -268,30 +268,23 @@ function gui_splashscreen() {
     local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
     while true; do
         local enabled=0
-        local random=0
         [[ -n "$(find "/etc/systemd/system/"*".wants" -type l -name "asplashscreen.service")" ]] && enabled=1
         local options=(1 "Choose splashscreen")
         if [[ "$enabled" -eq 1 ]]; then
-            options+=(2 "Disable splashscreen on boot (Enabled)")
+            options+=(2 "Show splashscreen on boot (currently: Enabled)")
             iniConfig "=" '"' "$configdir/all/$md_id.cfg"
             iniGet "RANDOMIZE"
-            random=1
-            [[ "$ini_value" == "disabled" ]] && random=0
-            if [[ "$random" -eq 1 ]]; then
-                options+=(3 "Disable splashscreen randomizer (Enabled)")
-            else
-                options+=(3 "Enable splashscreen randomizer (Disabled)")
-            fi
+            options+=(3 "Randomizer options (currently: ${ini_value^})")
         else
-            options+=(2 "Enable splashscreen on boot (Disabled)")
+            options+=(2 "Show splashscreen on boot (currently: Disabled)")
         fi
         options+=(
             4 "Use default splashscreen"
             5 "Manually edit splashscreen list"
             6 "Append splashscreen to list (for multiple entries)"
             7 "Preview splashscreens"
-            8 "Update ArchyPie splashscreens"
-            9 "Download ArchyPie-Extra splashscreens"
+            8 "Update RetroPie splashscreens"
+            9 "Download RetroPie-Extra splashscreens"
         )
 
         iniConfig "=" '"' "$configdir/all/$md_id.cfg"
@@ -319,16 +312,13 @@ function gui_splashscreen() {
                     fi
                     ;;
                 3)
-                    if [[ "$random" -eq 1 ]]; then
-                        iniSet "RANDOMIZE" "disabled"
-                        printMsgs "dialog" "Splashscreen randomizer disabled."
-                    else
-                        randomize_splashscreen
-                    fi
+                    randomize_splashscreen
                     ;;
                 4)
+                    iniSet "RANDOMIZE" "disabled"
                     default_splashscreen
-                    printMsgs "dialog" "Splashscreen set to ArchyPie default."
+                    enable_splashscreen
+                    printMsgs "dialog" "Splashscreen set to RetroPie default."
                     ;;
                 5)
                     editFile /etc/splashscreen.list
@@ -344,7 +334,7 @@ function gui_splashscreen() {
                     ;;
                 9)
                     rp_callModule splashscreen download_extra
-                    printMsgs "dialog" "The RetroPie-Extra splashscreens have been downloaded to $datadir/splashscreens/archypie-extra"
+                    printMsgs "dialog" "The RetroPie-Extra splashscreens have been downloaded to $datadir/splashscreens/retropie-extra"
                     ;;
                 A)  
                     duration=$(dialog --title "Splashscreen duration" --clear --rangebox "Configure how many seconds the splashscreen is active" 0 60 5 100 $duration 2>&1 >/dev/tty)

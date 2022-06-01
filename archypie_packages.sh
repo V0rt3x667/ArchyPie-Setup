@@ -4,7 +4,7 @@
 #
 # Please see the LICENSE file at the top-level directory of this distribution.
 
-__version="4.8"
+__version="4.8.1"
 
 [[ "$__debug" -eq 1 ]] && set -x
 

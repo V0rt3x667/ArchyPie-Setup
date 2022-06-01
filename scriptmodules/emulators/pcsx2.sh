@@ -6,7 +6,7 @@
 
 rp_module_id="pcsx2"
 rp_module_desc="PCSX2 - Sony PlayStation 2 Emulator"
-rp_module_help="ROM Extensions: .bin .bz2 .cso .gz .ima .img .iso .mdf .z .z2\n\nCopy Your PS2 ROMs to: $romdir/ps2\n\nCopy the required BIOS file to: $biosdir"
+rp_module_help="ROM Extensions: .bin .bz2 .chd .cso .dump .gz .ima .img .iso .mdf .z .z2\n\nCopy Your PS2 ROMs to: $romdir/ps2\n\nCopy the required BIOS file to: $biosdir"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/PCSX2/pcsx2/master/COPYING.GPLv3"
 rp_module_repo="git https://github.com/PCSX2/pcsx2 master"
 rp_module_section="main"

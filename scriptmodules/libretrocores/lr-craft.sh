@@ -38,5 +38,5 @@ function configure_lr-craft() {
 
     addPort "$md_id" "craft" "Craft" "$md_inst/craft_libretro.so"
 
-    ensureSystemretroconfig "ports/craft"
+    defaultRAConfig "ports/craft"
 }

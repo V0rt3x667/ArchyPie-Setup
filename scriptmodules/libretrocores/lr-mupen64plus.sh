@@ -23,14 +23,6 @@ function depends_lr-mupen64plus() {
 
 function sources_lr-mupen64plus() {
     gitPullOrClone
-
-#    # mesa workaround; see: https://github.com/libretro/libretro-common/issues/98
-#    if hasPackage libgles2-mesa-dev 18.2 ge; then
-#        applyPatch "$md_data/0001-eliminate-conflicting-typedefs.patch"
-#    fi
-
-    # Allows GLES3 with rpi
-#    applyPatch "$md_data/0002-rpi-gles3.patch"
 }
 
 function build_lr-mupen64plus() {
@@ -68,7 +60,7 @@ function install_lr-mupen64plus() {
 
 function configure_lr-mupen64plus() {
     mkRomDir "n64"
-    ensureSystemretroconfig "n64"
+    defaultRAConfig "n64"
 
     addEmulator 0 "$md_id" "n64" "$md_inst/mupen64plus_libretro.so"
     addSystem "n64"

@@ -40,5 +40,5 @@ function configure_lr-mrboom() {
 
     addPort "$md_id" "mrboom" "Mr.Boom" "$emudir/retroarch/bin/retroarch -L $md_inst/mrboom_libretro.so --config $md_conf_root/mrboom/retroarch.cfg"
 
-    ensureSystemretroconfig "ports/mrboom"
+    defaultRAConfig "ports/mrboom"
 }

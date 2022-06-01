@@ -441,6 +441,7 @@ function rp_hasBinary() {
     local url="$(rp_getBinaryUrl $id)"
     [[ "$url" == "notest" ]] && return 0
     [[ -z "$url" ]] && return 1
+
     [[ -n "${__mod_info[$id/has_binary]}" ]] && return "${__mod_info[$id/has_binary]}"
 
     local ret=1
@@ -626,7 +627,7 @@ function rp_hasNewerModule() {
                 local vendor="${__mod_info[$id/vendor]}"
                 local repo_dir="$scriptdir"
                 [[ "$vendor" != "ArchyPie" ]] && repo_dir+="/ext/$vendor"
-                local module_date="$(git -C "$repo_dir" log -1 --format=%cI -- "${__mod_info[$id/path]}")"
+                local module_date="$(sudo -u "$user" git -C "$repo_dir" log -1 --format=%cI -- "${__mod_info[$id/path]}")"
                 if rp_dateIsNewer "$pkg_date" "$module_date"; then
                     ret=0
                 fi

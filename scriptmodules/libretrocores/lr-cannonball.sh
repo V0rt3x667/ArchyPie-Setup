@@ -36,7 +36,7 @@ function install_lr-cannonball() {
 function configure_lr-cannonball() {
     mkRomDir "ports/cannonball"
     setConfigRoot "ports"
-    ensureSystemretroconfig "ports/cannonball"
+    defaultRAConfig "ports/cannonball"
 
     addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "$md_inst/cannonball_libretro.so" "$romdir/ports/cannonball/outrun.game"
 

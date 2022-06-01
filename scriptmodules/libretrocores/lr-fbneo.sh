@@ -42,8 +42,8 @@ function configure_lr-fbneo() {
     addEmulator 0 "$md_id-neocd" "arcade" "$md_inst/fbneo_libretro.so --subsystem neocd"
     addEmulator 1 "$md_id" "neogeo" "$md_inst/fbneo_libretro.so"
     addEmulator 0 "$md_id-neocd" "neogeo" "$md_inst/fbneo_libretro.so --subsystem neocd"
-    addEmulator 0 "$md_id" "fba" "$md_inst/fbneo_libretro.so"
-    addEmulator 1 "$md_id-neocd" "fba" "$md_inst/fbneo_libretro.so --subsystem neocd"
+    addEmulator 1 "$md_id" "fba" "$md_inst/fbneo_libretro.so"
+    addEmulator 0 "$md_id-neocd" "fba" "$md_inst/fbneo_libretro.so --subsystem neocd"
 
     addEmulator 0 "$md_id-pce" "pcengine" "$md_inst/fbneo_libretro.so --subsystem pce"
     addEmulator 0 "$md_id-sgx" "pcengine" "$md_inst/fbneo_libretro.so --subsystem sgx"
@@ -89,7 +89,7 @@ function configure_lr-fbneo() {
 
     for system in "${systems[@]}"; do
         mkRomDir "$system"
-        ensureSystemretroconfig "$system"
+        defaultRAConfig "$system"
     done
 
     # Create directories for all support files

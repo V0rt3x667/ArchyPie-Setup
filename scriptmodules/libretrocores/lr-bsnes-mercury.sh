@@ -40,7 +40,7 @@ function install_lr-bsnes-mercury() {
 
 function configure_lr-bsnes-mercury() {
     mkRomDir "snes"
-    ensureSystemretroconfig "snes"
+    defaultRAConfig "snes"
 
     addEmulator 0 "$md_id" "snes" "$md_inst/bsnes_mercury_accuracy_libretro.so"
     addEmulator 0 "$md_id" "snes" "$md_inst/bsnes_mercury_balanced_libretro.so"

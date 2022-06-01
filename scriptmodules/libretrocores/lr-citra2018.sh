@@ -54,7 +54,7 @@ function install_lr-citra2018() {
 function configure_lr-citra2018() {
     mkRomDir "3ds"
 
-    ensureSystemretroconfig "3ds"
+    defaultRAConfig "3ds"
 
     addEmulator 0 "$md_id" "3ds" "$md_inst/citra2018_libretro.so"
     addSystem "3ds"
