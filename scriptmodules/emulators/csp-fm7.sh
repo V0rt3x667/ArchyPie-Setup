@@ -16,6 +16,7 @@ function depends_csp-fm7() {
     local depends=(
         'cmake'
         'ffmpeg'
+        'ninja'
         'qt5-base'
         'sdl2'
     )
@@ -24,7 +25,7 @@ function depends_csp-fm7() {
 
 function sources_csp-fm7() {
     gitPullOrClone
-    strings=(
+    local strings=(
         'include(config_fm16)'
         'include(config_fmr)'
         'include(config_fmtowns)'
@@ -49,17 +50,23 @@ function sources_csp-fm7() {
 
 function build_csp-fm7() {
     cmake . \
+        -Ssource \
         -Bsource/build \
         -GNinja \
-        -Ssource \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
+        -DLIBAV_INCLUDE_DIR="/usr/include/ffmpeg4.4" \
+        -DUSE_MOVIE_LOADER=OFF \
+        -DUSE_MOVIE_SAVER=OFF \
+        -DCSP_BUILD_WITH_CXX20=ON \
+        -DUSE_QT_6=ON \
+        -DUSE_SDL2=ON \
         -Wno-dev
+    ninja -C source/build clean
     ninja -C source/build
+
     md_ret_require=(
         "source/build/emufm8"
         "source/build/emufm7"
@@ -100,7 +107,7 @@ function configure_csp-fm7() {
         'emufm77av40ex'
         'emufm77av40sx'
     )
-    for dir in ${dirs[@]}; do
+    for dir in "${dirs[@]}"; do
         mkUserDir "$md_conf_root/fm7/$dir"
         ln -snf "$md_conf_root/fm7/$dir" "$biosdir/fm7/$dir"
     done
