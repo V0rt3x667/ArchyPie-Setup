@@ -15,9 +15,9 @@ rp_module_flags="!all 64bit"
 function depends_csp-fm7() {
     local depends=(
         'cmake'
-        'ffmpeg'
+        'ffmpeg4.4'
         'ninja'
-        'qt5-base'
+        'qt6-base'
         'sdl2'
     )
     getDepends "${depends[@]}"
