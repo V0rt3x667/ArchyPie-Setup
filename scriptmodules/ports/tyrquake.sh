@@ -11,9 +11,9 @@ rp_module_repo="git git://disenchant.net/tyrquake master"
 rp_module_section="opt"
 
 function depends_tyrquake() {
-    local depends=(sdl2)
+    local depends=('sdl2')
     if isPlatform "gl" || isPlatform "mesa"; then
-        depends+=(libglvnd)
+        depends+=('libglvnd')
     fi
 
     getDepends "${depends[@]}"
@@ -43,8 +43,8 @@ function install_tyrquake() {
     )
 }
 
-function add_games_tyrquake() {
-    local params=("-basedir $romdir/ports/quake" "-game %QUAKEDIR%")
+function _add_games_tyrquake() {
+    local params=("-basedir $romdir/ports/quake" "-game %QUAKEDIR%" "-fullscreen")
     local binary="$md_inst/bin/tyr-quake"
 
     isPlatform "kms" && params+=("-width %XRES%" "-height %YRES%" "+set vid_vsync 2")
@@ -60,7 +60,7 @@ function configure_tyrquake() {
 
     [[ "$md_mode" == "install" ]] && game_data_lr-tyrquake
 
-    add_games_tyrquake
+    _add_games_tyrquake
 
     moveConfigDir "$home/.tyrquake" "$md_conf_root/quake/tyrquake"
 }
