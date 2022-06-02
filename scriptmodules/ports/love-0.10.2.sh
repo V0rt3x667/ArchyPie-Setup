@@ -18,8 +18,9 @@ function depends_love-0.10.2() {
 
 function sources_love-0.10.2() {
     gitPullOrClone
-    # Fix for the latest version of lua
-    find "src/libraries/luasocket/libluasocket/" -type f -print0 | xargs -0 sed -i "s/luaL_reg/luaL_Reg/g"
+    # LUA_VERSION_NUM defined as 501 but requires the newer luaL_Reg named struct.
+    # adjusting the compatibility code #if to check for LUA_VERSION_NUM >= 501 fixes this.
+    sed -i "s/LUA_VERSION_NUM > 501/LUA_VERSION_NUM >= 501/" "$md_build/src/libraries/luasocket/libluasocket/lua.h"
 }
 
 function build_love-0.10.2() {
@@ -31,9 +32,14 @@ function install_love-0.10.2() {
 }
 
 function game_data_love-0.10.2() {
-    game_data_love
+    _game_data_love
 }
 
 function configure_love-0.10.2() {
-    configure_love
+    setConfigRoot ""
+
+    mkRomDir "love"
+
+    addEmulator 0 "$md_id" "love" "$md_inst/bin/love %ROM%"
+    addSystem "love"
 }
