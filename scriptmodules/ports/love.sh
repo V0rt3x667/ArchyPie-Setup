@@ -44,13 +44,13 @@ function install_love() {
     make install
 }
 
-function game_data_love() {
+function _game_data_love() {
     # get Mari0 1.6.2 (freeware game data)
     if [[ ! -f "$romdir/love/mari0.love" ]]; then
         downloadAndExtract "https://github.com/Stabyourself/mari0/archive/1.6.2.tar.gz" "$__tmpdir/mari0" --strip-components 1
-        pushd "$__tmpdir/mari0"
+        pushd "$__tmpdir/mari0" || return
         zip -qr "$romdir/love/mari0.love" .
-        popd
+        popd || return
         rm -fr "$__tmpdir/mari0"
         chown "$user:$user" "$romdir/love/mari0.love"
     fi
@@ -68,5 +68,5 @@ function configure_love() {
     fi
     addSystem "love"
 
-    [[ "$md_mode" == "install" ]] && game_data_love
+    [[ "$md_mode" == "install" ]] && _game_data_love
 }
