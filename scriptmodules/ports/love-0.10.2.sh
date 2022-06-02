@@ -18,6 +18,8 @@ function depends_love-0.10.2() {
 
 function sources_love-0.10.2() {
     gitPullOrClone
+    # Fix for the latest version of lua
+    find "src/libraries/luasocket/libluasocket/" -type f -print0 | xargs -0 sed -i "s/luaL_reg/luaL_Reg/g"
 }
 
 function build_love-0.10.2() {
