@@ -53,7 +53,7 @@ function _get_repos_mupen64plus() {
             'mupen64plus mupen64plus-video-glide64mk2 master'
             'mupen64plus mupen64plus-rsp-cxd4 master'
             'mupen64plus mupen64plus-rsp-z64 master'
-			'gonetz GLideN64 master'
+            'gonetz GLideN64 master'
         )
     fi
     local repo
