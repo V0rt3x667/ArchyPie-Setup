@@ -26,12 +26,18 @@ function depends_ecwolf() {
         'perl-rename'
         'sdl2_mixer'
         'sdl2_net'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_ecwolf() {
-    gitPullOrClone
+    # updaterevision will fail with: fatal: No names found, cannot describe anything.
+    # Need to fetch a full clone of the repo.
+    gitPullOrClone "$md_build" "$md_repo_url" "$md_repo_branch" "" 0
+
+    # Set binary dir to bin
+    sed s'|set(CMAKE_INSTALL_BINDIR "games")|set(CMAKE_INSTALL_BINDIR "bin")|'g -i "$md_build/CMakeLists.txt"
 }
 
 function build_ecwolf() {
@@ -41,31 +47,31 @@ function build_ecwolf() {
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DGPL=OFF \
+        -DGPL=ON \
+        -DNO_GTK=ON \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/ecwolf"
 }
 
 function install_ecwolf() {
     ninja -C build install/strip
-    mv "$md_inst/games" "$md_inst/bin"
 }
 
 function _game_data_ecwolf() {
-    local dir
-    dir="$romdir/ports/wolf3d"
+    local dir="$romdir/ports/wolf3d"
 
-    ##Change Filename Characters to Lowercase
+    # Change Filenames to Lowercase
     find "$romdir/ports/wolf3d/" -depth -exec perl-rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
-
+    # Download Wolfenstein3D Shareware Data
     if [[ ! -f "$dir/vswap.wl6" && ! -f "$dir/vswap.wl1" ]]; then
-        cd "$__tmpdir"
+        cd "$__tmpdir" || return
         downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/wolf3d14.zip" "$romdir/ports/wolf3d" -j -LL
     fi
-
+    # Download Spear of Destiny Shareware Data
     if [[ ! -f "$dir/vswap.sdm" && ! -f "$dir/vswap.sod" && ! -f "$dir/vswap.sd1" ]]; then
-        cd "$__tmpdir"
+        cd "$__tmpdir" || return
         downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/soddemo.zip" "$romdir/ports/wolf3d" -j -LL
     fi
 
@@ -74,29 +80,25 @@ function _game_data_ecwolf() {
 
 function _add_games_ecwolf(){
     local cmd="$1"
-    local game
-    local path="$romdir/ports/wolf3d"
+    local wad
 
     declare -A games=(
-        ['n3d']="Super Noah’s Ark 3D"
-        ['sd1']="Wolfenstein 3D - Spear of Destiny"
-        ['sd2']="Wolfenstein 3D - Spear of Destiny Mission Pack 2 - Return to Danger"
-        ['sd3']="Wolfenstein 3D - Spear of Destiny Mission Pack 3 - Ultimate Challenge"
-        ['sdm']="Wolfenstein 3D - Spear of Destiny (Shareware)"
-        ['sod']="Wolfenstein 3D - Spear of Destiny"
+        ['n3d']="Super Noah's Ark 3D"
+        ['sd1']="Wolfenstein 3D: Spear of Destiny"
+        ['sd2']="Wolfenstein 3D: Spear of Destiny Mission Pack 2: Return to Danger"
+        ['sd3']="Wolfenstein 3D: Spear of Destiny Mission Pack 3: Ultimate Challenge"
+        ['sdm']="Wolfenstein 3D: Spear of Destiny (Shareware)"
+        ['sod']="Wolfenstein 3D: Spear of Destiny"
         ['wl1']="Wolfenstein 3D (Shareware)"
         ['wl6']="Wolfenstein 3D"
     )
 
     for game in "${!games[@]}"; do
-        if [[ -f "$path/vswap.$game" ]]; then
-            addPort "$md_id" "ecwolf" "${games[$game]}" "$cmd --data $game"
+        wad="$romdir/ports/wolf3d/vswap.$game"
+        if [[ -f "$wad" ]]; then
+            addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd --data %ROM%" "$game"
         fi
     done
-}
-
-function add_games_ecwolf() {
-    _add_games_ecwolf "$md_inst/bin/ecwolf"
 }
 
 function configure_ecwolf() {
@@ -113,8 +115,9 @@ function configure_ecwolf() {
     iniSet "Vid_FullScreen" "1;"
     iniSet "Vid_Vsync" "1;"
 
-    _game_data_ecwolf
-    add_games_ecwolf
+    chown "$user:$user" "$configdir/ports/ecwolf/ecwolf.cfg"
+
+    _game_data_ecwolf && _add_games_ecwolf "$md_inst/bin/ecwolf"
 
     chown -R "$user:$user" "$romdir/ports/wolf3d"
 }
