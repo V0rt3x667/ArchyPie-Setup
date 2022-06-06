@@ -53,10 +53,9 @@ function _get_repos_mupen64plus() {
             'mupen64plus mupen64plus-video-glide64mk2 master'
             'mupen64plus mupen64plus-rsp-cxd4 master'
             'mupen64plus mupen64plus-rsp-z64 master'
+			'gonetz GLideN64 master'
         )
     fi
-    repos+=('gonetz GLideN64 master')
-
     local repo
     for repo in "${repos[@]}"; do
         echo "$repo"
@@ -73,7 +72,7 @@ function _pkg_info_mupen64plus() {
             local date
             local newest_date
             while read -r repo; do
-                repo=("$repo")
+                repo=($repo) # Do not quote
                 date=$(git -C "$md_build/${repo[1]}" log -1 --format=%aI)
                 hash="$(git -C "$md_build/${repo[1]}" log -1 --format=%H)"
                 hashes+=("$hash")
@@ -89,8 +88,8 @@ function _pkg_info_mupen64plus() {
         newer)
             local hashes=()
             local hash
-            while read repo; do
-                repo=($repo)
+            while read -r repo; do
+                repo=($repo) # Do not quote
                 # if we have any repos set to a specific git hash (eg GLideN64 then we use that) otherwise check
                 if [[ -n "${repo[3]}" ]]; then
                     hash="${repo[3]}"
@@ -112,7 +111,7 @@ function _pkg_info_mupen64plus() {
         check)
             local ret=0
             while read -r repo; do
-                repo=("$repo")
+                repo=($repo) # Do not quote
                 out=$(rp_getRemoteRepoHash git https://github.com/${repo[0]}/${repo[1]} ${repo[2]})
                 if [[ -z "$out" ]]; then
                     printMsgs "console" "$id repository failed - https://github.com/${repo[0]}/${repo[1]} ${repo[2]}"
@@ -127,7 +126,7 @@ function _pkg_info_mupen64plus() {
 function sources_mupen64plus() {
     local repo
     while read -r repo; do
-        repo=("$repo")
+        repo=($repo) # Do not quote
         gitPullOrClone "$md_build/${repo[1]}" https://github.com/${repo[0]}/${repo[1]} ${repo[2]} ${repo[3]}
     done < <(_get_repos_mupen64plus)
 
@@ -361,5 +360,5 @@ function configure_mupen64plus() {
     addAutoConf mupen64plus_hotkeys 1
     addAutoConf mupen64plus_texture_packs 1
 
-    chown -R $user:$user "$md_conf_root/n64"
+    chown -R "$user:$user" "$md_conf_root/n64"
 }

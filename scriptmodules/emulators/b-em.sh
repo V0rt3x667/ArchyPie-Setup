@@ -27,7 +27,6 @@ function sources_b-em() {
 
 function build_b-em() {
     export CFLAGS="${CFLAGS} -ffile-prefix-map=\"$PWD\"=."
-    export LDFLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'"
     ./autogen.sh
     ./configure --prefix="$md_inst"
     make clean
@@ -45,7 +44,6 @@ function install_b-em() {
         'fonts'
         'roms'
         'tapes'
-        'allegro-5/lib'
     )
 }
 
