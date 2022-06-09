@@ -23,6 +23,7 @@ pkg/
 src/
 tmp/
 .vscode/
+bash-debugger
 
 #Exceptions
 !libagar.tar.zst
