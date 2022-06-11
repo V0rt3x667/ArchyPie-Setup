@@ -69,7 +69,7 @@ function install_dxx-rebirth() {
     )
 }
 
-function game_data_dxx-rebirth() {
+function _game_data_dxx-rebirth() {
     local D1X_SHARE_URL='https://www.dxx-rebirth.com/download/dxx/content/descent-pc-shareware.zip'
     local D2X_SHARE_URL='https://www.dxx-rebirth.com/download/dxx/content/descent2-pc-demo.zip'
     local D1X_HIGH_TEXTURE_URL='https://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.dxa'
@@ -128,9 +128,9 @@ function configure_dxx-rebirth() {
             config="$md_conf_root/descent${ver}/descent.cfg"
             iniConfig "=" '' "$config"
             iniSet "VSync" "1"
-            chown $user:$user "$config"
+            chown "$user:$user" "$config"
         fi
     done
 
-    [[ "$md_mode" == "install" ]] && game_data_dxx-rebirth
+    [[ "$md_mode" == "install" ]] && _game_data_dxx-rebirth
 }

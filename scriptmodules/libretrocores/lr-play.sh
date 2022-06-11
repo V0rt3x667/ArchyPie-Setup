@@ -27,6 +27,7 @@ function depends_lr-play() {
 
 function sources_lr-play() {
     gitPullOrClone
+    find . -type f -name "*.h" -exec sed -i '1i#include <string.h>' {} +
 }
 
 function build_lr-play() {
@@ -36,7 +37,6 @@ function build_lr-play() {
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DCMAKE_C_COMPILER=clang \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DBUILD_LIBRETRO_CORE=ON \
         -DBUILD_PLAY=OFF \

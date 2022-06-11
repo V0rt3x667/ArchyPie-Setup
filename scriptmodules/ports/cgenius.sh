@@ -17,9 +17,12 @@ function _get_branch_cgenius() {
 function depends_cgenius() {
     local depends=(
         'cmake'
+        'curl'
+        'ninja'
         'sdl2_image' 
         'sdl2_mixer'
         'sdl2_ttf'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -58,10 +61,18 @@ function build_cgenius() {
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DAPPDIR="$md_inst" \
-        -DNOTYPESAVE=on \
-		-DBUILD_COSMOS=1 \
-		-Wno-dev
+        -DFULL_GAMES_SHAREDIR="$md_inst/data" \
+        -DGAMES_SHAREDIR="$md_inst/data" \
+        -DDOCDIR="$md_inst/docs" \
+        -DSHAREDIR="$md_inst/data" \
+        -DSYSTEM_DATA_DIR="$md_inst/data" \
+        -DNOTYPESAVE=ON \
+        -DBUILD_COSMOS=1 \
+        -DUSE_OPENGL=ON \
+        -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/src/CGeniusExe"
 }
@@ -71,7 +82,7 @@ function install_cgenius() {
 }
 
 function configure_cgenius() {
-    addPort "$md_id" "cgenius" "Keen: Launch Commander Genius GUI" "$md_inst/CGeniusExe"
+    #addPort "$md_id" "cgenius" "Keen: Launch Commander Genius GUI" "$md_inst/CGeniusExe"
     mkRomDir "ports/$md_id"
 
     moveConfigDir "$home/.CommanderGenius"  "$md_conf_root/$md_id"

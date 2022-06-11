@@ -14,8 +14,8 @@ rp_module_flags="sdl2"
 function depends_wolf4sdl() {
      local depends=(
         'perl-rename'
-        'sdl2'
         'sdl2_mixer'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -78,9 +78,10 @@ function install_wolf4sdl() {
 }
 
 function game_data_wolf4sdl() {
-    pushd "$romdir/ports/wolf3d"
-    perl-rename 'y/A-Z/a-z/' *
-    popd
+    pushd "$romdir/ports/wolf3d" || return
+    perl-rename 'y/A-Z/a-z/' ./*
+    popd || return
+
     if [[ ! -f "$romdir/ports/wolf3d/vswap.wl6" && ! -f "$romdir/ports/wolf3d/vswap.wl1" ]]; then
         cd "$__tmpdir"
         # Get shareware game data
@@ -92,7 +93,7 @@ function game_data_wolf4sdl() {
         downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/soddemo.zip" "$romdir/ports/wolf3d" -j -LL
     fi
 
-    chown -R $user:$user "$romdir/ports/wolf3d"
+    chown -R "$user:$user" "$romdir/ports/wolf3d"
 }
 
 function configure_wolf4sdl() {
@@ -101,7 +102,7 @@ function configure_wolf4sdl() {
     mkRomDir "ports/wolf3d"
 
     # remove obsolete emulator entries
-    while read game; do
+    while read -r game; do
         delEmulator "${game%% *}" "wolf3d"
     done < <(_get_opts_wolf4sdl; echo -e "wolf4sdl-spear2\nwolf4sdl-spear3")
 

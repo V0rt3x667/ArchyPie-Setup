@@ -33,12 +33,11 @@ function depends_raze() {
 function sources_raze() {
     gitPullOrClone
     applyPatch "$md_data/01_fix_file_paths.patch"
+    _sources_zmusic
 }
 
 function build_raze() {
     _build_zmusic
-
-    cd "$md_build"
     cmake . \
         -Bbuild \
         -GNinja \
@@ -50,7 +49,7 @@ function build_raze() {
         -DDYN_GTK=OFF \
         -DDYN_OPENAL=OFF \
         -DZMUSIC_INCLUDE_DIR="$md_build/zmusic/include" \
-        -DZMUSIC_LIBRARIES="$md_build/zmusic/build/source/libzmusic.so" \
+        -DZMUSIC_LIBRARIES="$md_build/zmusic/source/libzmusic.so" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -97,10 +96,10 @@ function _add_games_raze() {
     local game16=('World War II GI: Platoon Leader' 'ww2gi' '-iwad platoonl.dat')
 
     for ((game=0;game<=num_games;game++)); do
-        game_launcher="game$game[0]"
-        game_portname="game$game[1]"
-        game_path="game$game[1]"
-        game_args="game$game[2]"
+        game_launcher="game${game}[0]"
+        game_portname="game${game}[1]"
+        game_path="game${game}[1]"
+        game_args="game${game}[2]"
         if [[ -d "$romdir/ports/${!game_path}" ]]; then
            addPort "$md_id" "${!game_portname}" "${!game_launcher}" "${binary}.sh %ROM%" "${!game_args}"
         fi

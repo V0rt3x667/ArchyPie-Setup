@@ -82,14 +82,14 @@ function build_gzdoom() {
 function install_gzdoom() {
     md_ret_files=(
         'build/brightmaps.pk3'
-        'docs'
         'build/fm_banks'
         'build/game_support.pk3'
         'build/game_widescreen_gfx.pk3'
-        'build/gzdoom'
         'build/gzdoom.pk3'
+        'build/gzdoom'
         'build/lights.pk3'
         'build/soundfonts'
+        'docs'
     )
     mkdir "$md_inst/lib"
     cp -Pv "$md_build"/zmusic/source/*.so* "$md_inst/lib"
@@ -97,12 +97,16 @@ function install_gzdoom() {
 
 function _add_games_gzdoom() {
     local launcher_prefix="DOOMWADDIR=$romdir/ports/doom"
-    _add_games_lr-prboom "$md_inst/gzdoom -iwad %ROM% +vid_renderer 1 +vid_fullscreen 1"
+    _add_games_lr-prboom "$launcher_prefix $md_inst/gzdoom -iwad %ROM% +vid_renderer 1 +vid_fullscreen 1"
 }
 
 function configure_gzdoom() {
-    mkRomDir ports/doom
+    mkRomDir "ports/doom"
+    mkRomDir "ports/doom/addon"
+
     moveConfigDir "$home/.config/gzdoom" "$md_conf_root/doom"
 
-    [[ "$md_mode" == "install" ]] && _add_games_gzdoom
+    [[ "$md_mode" == "install" ]] && _game_data_lr-prboom
+
+    _add_games_gzdoom
 }

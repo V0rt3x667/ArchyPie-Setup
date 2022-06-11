@@ -63,8 +63,8 @@ function build_splitwolf() {
 }
 
 function install_splitwolf() {
-    cp "$md_build/gamecontrollerdb.txt" "$md_build/bin/"
     md_ret_files=('bin')
+    install -Dm644 "$md_build/gamecontrollerdb.txt" -t "$md_build/bin"
 }
 
 function configure_splitwolf() {

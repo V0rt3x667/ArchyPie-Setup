@@ -59,16 +59,18 @@ function install_eduke32() {
 }
 
 function game_data_eduke32() {
-    local dest="$romdir/ports/duke3d"
+    local dest 
+    dest="$romdir/ports/duke3d"
     if [[ "$md_id" == "eduke32" ]]; then
         if [[ ! -f "$dest/duke3d.grp" ]]; then
             mkUserDir "$dest"
-            local temp="$(mktemp -d)"
+            local temp 
+            temp="$(mktemp -d)"
             download "$__archive_url/3dduke13.zip" "$temp"
             unzip -L -o "$temp/3dduke13.zip" -d "$temp" dn3dsw13.shr
             unzip -L -o "$temp/dn3dsw13.shr" -d "$dest" duke3d.grp duke.rts
             rm -rf "$temp"
-            chown -R $user:$user "$dest"
+            chown -R "$user:$user" "$dest"
         fi
     fi
 }
@@ -123,9 +125,9 @@ function _add_games_eduke32() {
     fi
 
     for ((game=0;game<=num_games;game++)); do
-        game_launcher="game$game[0]"
-        game_portname="game$game[1]"
-        game_args="game$game[2]"
+        game_launcher="game${game}[0]"
+        game_portname="game${game}[1]"
+        game_args="game${game}[2]"
 
         if [[ -d "$romdir/ports/${!game_portname}" ]]; then
            addPort "$md_id" "${!game_portname}" "${!game_launcher}" "pushd $md_conf_root/${!game_portname}; ${binary}.sh %ROM%; popd" "-j$romdir/ports/${!game_portname} ${!game_args}"

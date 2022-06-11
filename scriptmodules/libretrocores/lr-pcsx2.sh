@@ -14,7 +14,6 @@ rp_module_flags="!all x86"
 
 function depends_lr-pcsx2() {
     local depends=(
-        'ccache'
         'cmake'
         'gcc-libs'
         'glibc'
@@ -22,7 +21,7 @@ function depends_lr-pcsx2() {
         'libglvnd'
         'ninja'
         'png++'
-        'vim'
+        'sdl2'
         'zlib'
     )
     getDepends "${depends[@]}"
@@ -40,13 +39,13 @@ function build_lr-pcsx2() {
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
         -DDISABLE_BUILD_DATE=ON \
         -DENABLE_TESTS=OFF \
         -DLIBRETRO=ON \
         -DSDL2_API=ON \
         -DREBUILD_SHADER=ON \
         -DXDG_STD=ON \
+        -DUSE_LTO=OFF \
         -Wno-dev
     ninja -C build clean
     ninja -C build
