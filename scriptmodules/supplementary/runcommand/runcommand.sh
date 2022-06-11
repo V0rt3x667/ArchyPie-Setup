@@ -775,7 +775,7 @@ function choose_emulator() {
 
     local options=()
     local i=1
-    while read line; do
+    while read -r line; do
         # convert key=value to array
         local line=(${line/=/ })
         local id=${line[0]}
