@@ -578,12 +578,7 @@ function update_packages_gui_setup() {
     {
         rps_logStart
         if [[ "$update_os" -eq 1 ]]; then
-            if rp_isEnabled "raspbiantools"; then
-                rp_callModule raspbiantools apt_upgrade
-            else
-                aptUpdate
-                apt-get -y dist-upgrade
-            fi
+            pacmanUpdate
         fi
         update_packages_setup
         rps_logEnd
