@@ -159,7 +159,7 @@ function hasPackage() {
 }
 
 ## @fn pacmanUpdate()
-## @brief Calls apt-get update (if it has not been called before).
+## @brief Calls pacman -Syyu (if it has not been called before).
 function pacmanUpdate() {
     if [[ "$__pacman_update" != "1" ]]; then
         pacman -Syyu --noconfirm
@@ -217,9 +217,9 @@ function getDepends() {
     # if we are removing, then remove packages and return
     if [[ "$md_mode" == "remove" ]]; then
         printMsgs "console" "Removing dependencies: ${all_pkgs[*]}"
-        for pkg in ${own_pkgs[@]}; do
-            rp_callModule "$pkg" remove
-        done
+        # for pkg in "${own_pkgs[@]}"; do
+        #     rp_callModule "$pkg" remove
+        # done
         pacman -Rsn "${pacman_pkgs[@]}" --no-confirm
         pacman -Qdtq | pacman -Rsn --no-confirm
         return 0
@@ -232,7 +232,7 @@ function getDepends() {
     local failed=()
     # check the required packages again rather than return code of pacman -S,
     # as pacman -S might fail for other reasons (eg other half installed packages)
-    for pkg in ${pacman_pkgs[@]}; do
+    for pkg in "${pacman_pkgs[@]}"; do
         if ! hasPackage "$pkg"; then
             failed+=("$pkg")
         fi
@@ -315,7 +315,7 @@ function gitPullOrClone() {
     fi
 
     if [[ -d "$dir/.git" ]]; then
-        pushd "$dir" > /dev/null
+        pushd "$dir" > /dev/null || exit
         # if we are using persistent repos, fetch the latest remote changes and clean the source so
         # any patches can be re-applied as needed.
         if [[ "$__persistent_repos" -eq 1 ]]; then
@@ -329,7 +329,7 @@ function gitPullOrClone() {
             runCmd git pull --ff-only
             runCmd git submodule update --init --recursive
         fi
-        popd > /dev/null
+        popd > /dev/null || exit
     else
         local git="git clone --recursive"
         if [[ "$depth" -gt 0 ]]; then
@@ -407,9 +407,9 @@ function mkUserDir() {
 function mkRomDir() {
     mkUserDir "$romdir/$1"
     if [[ "$1" == "megadrive" ]]; then
-        pushd "$romdir"
+        pushd "$romdir" || exit
         ln -snf "$1" "genesis"
-        popd
+        popd || exit
     fi
 }
 
