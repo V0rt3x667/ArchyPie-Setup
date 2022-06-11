@@ -5,18 +5,14 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 function setup_env() {
-
     __ERRMSGS=()
     __INFMSGS=()
 
-    # if no apt-get we need to fail
-    [[ -z "$(which pacman)" ]] && fatalError "Unsupported OS - No pacman command found"
-
+    test_pacman
     test_chroot
 
     get_platform
     get_os_version
-
     get_archypie_depends
 
     conf_memory_vars
@@ -26,6 +22,28 @@ function setup_env() {
     if [[ -z "$__nodialog" ]]; then
         __nodialog=0
     fi
+}
+
+function test_pacman() {
+    local os 
+
+    os="$(grep ^ID /etc/os-release | cut -d\= -f2)"
+
+    # Test for the pacman command, if not found we need to fail.
+    case "$os" in
+        arch)
+            return
+            ;;
+        archarm)
+            return
+            ;;
+        manjaro)
+            return
+            ;;
+        *)
+            [[ -z "$(which pacman)" ]] && fatalError "Unsupported OS - No Pacman Command Found!"
+            ;;
+    esac
 }
 
 function test_chroot() {
@@ -40,7 +58,6 @@ function test_chroot() {
         __chroot=0
     fi
 }
-
 
 function conf_memory_vars() {
     __memory_total_kb=$(awk '/^MemTotal:/{print $2}' /proc/meminfo)
@@ -61,16 +78,17 @@ function conf_binary_vars() {
 
     # set location of binary downloads
     __binary_host="files.retropie.org.uk"
-    __binary_base_url="https://$__binary_host/binaries"
 
-    __binary_path="$__os_codename/$__platform"
-    isPlatform "kms" && __binary_path+="/kms"
-    __binary_url="$__binary_base_url/$__binary_path"
+    # Code might be used at a future date
+    # __binary_base_url="https://$__binary_host/binaries"
+    # __binary_path="$__os_codename/$__platform"
+    # isPlatform "kms" && __binary_path+="/kms"
+    # __binary_url="$__binary_base_url/$__binary_path"
 
     __archive_url="https://files.retropie.org.uk/archives"
 
     # set the gpg key used by ArchyPie
-    __gpg_archypie_key="retropieproject@gmail.com"
+    __gpg_retropie_key="retropieproject@gmail.com"
 
     # if __gpg_signing_key is not set, set to __gpg_retropie_key
     [[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_retropie_key"
@@ -152,30 +170,37 @@ function get_os_version() {
     ##Get OS Distributor ID and Release
     __os_desc=$(lsb_release -sir)
 
+    # Code might be used at a future date
+    # We provide binaries for RPI
+    # if isPlatform "rpi" && isPlatform "32bit"; then
+    #    # only set __has_binaries if not already set
+    #    [[ -z "$__has_binaries" ]] && __has_binaries=1
+    # fi
+
     # configure Raspberry Pi graphics stack
     isPlatform "rpi" && get_rpi_video
 }
 
 function get_archypie_depends() {
     local depends=(
-        'base-devel'
-        'ca-certificates'
-        'curl'
-        'dialog'
-        'git'
-        'gnupg'
-        'python'
-        'python-pip'
-        'python-pyudev'
-        'python-six'
-        'subversion'
-        'unzip'
-        'xmlstarlet'
+        ca-certificates
+        curl
+        dialog
+        git
+        gnupg
+        python
+        python-pip
+        python-pyudev
+        python-six
+        subversion
+        unzip
+        xmlstarlet
     )
+    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]})
 
-    [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')
+    [[ -n "$DISTCC_HOSTS" ]] && depends+=(distcc)
 
-    [[ "$__use_ccache" -eq 1 ]] && depends+=('ccache')
+    [[ "$__use_ccache" -eq 1 ]] && depends+=(ccache)
 
     if ! getDepends "${depends[@]}"; then
         fatalError "Unable to install packages required by $0 - ${md_ret_errors[@]}"
@@ -300,7 +325,7 @@ function get_platform() {
 
     # if we have a function for the platform, call it, otherwise use the default "native" one.
     if fnExists "platform_${__platform}"; then
-        platform_${__platform}
+        "platform_${__platform}"
     else
         platform_native
     fi
@@ -426,7 +451,8 @@ function platform_tinker() {
 }
 
 function platform_native() {
-    __default_cpu_flags="-march=native"
+    __default_cpu_flags="-march=native -mtune=native -O2 -pipe -fno-plt"
+    __default_ldflags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
     __platform_flags+=(gl)
     if [[ "$__has_kms" -eq 1 ]]; then
         __platform_flags+=(kms)
