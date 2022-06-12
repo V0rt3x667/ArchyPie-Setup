@@ -51,9 +51,11 @@ function _get_repos_mupen64plus() {
     if isPlatform "gl"; then
         repos+=(
             'mupen64plus mupen64plus-video-glide64mk2 master'
+            'mupen64plus mupen64plus-video-z64 master'
             'mupen64plus mupen64plus-rsp-cxd4 master'
             'mupen64plus mupen64plus-rsp-z64 master'
             'gonetz GLideN64 master'
+            'ata4 angrylion-rdp-plus master'
         )
     fi
     local repo
@@ -161,7 +163,7 @@ function build_mupen64plus() {
 
     # build GLideN64
     "$md_build/GLideN64/src/getRevision.sh"
-    pushd "$md_build/GLideN64/projects/cmake"
+    pushd "$md_build/GLideN64/projects/cmake" || exit
 
     params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On" "-DCMAKE_CXX_FLAGS=${CXXFLAGS} -fpermissive" "-Wno-dev")
     isPlatform "neon" && params+=("-DNEON_OPT=On")
@@ -172,7 +174,7 @@ function build_mupen64plus() {
 
     cmake "${params[@]}" ../../src/
     make
-    popd
+    popd || exit
 
     rpSwap off
     md_ret_require=(
