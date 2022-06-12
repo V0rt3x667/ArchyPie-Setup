@@ -8,14 +8,14 @@ rp_module_id="lr-parallel-n64"
 rp_module_desc="Nintendo N64 Libretro Core"
 rp_module_help="ROM Extensions: .z64 .n64 .v64\n\nCopy your N64 roms to $romdir/n64"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/parallel-n64/master/mupen64plus-core/LICENSES"
-rp_module_repo="git https://github.com/RetroPie/parallel-n64.git retropie"
+rp_module_repo="git https://github.com/libretro/parallel-n64 master"
 rp_module_section="exp x86=main"
 
 function depends_lr-parallel-n64() {
     local depends=()
-    isPlatform "x11" && depends+=(libglvnd)
-    isPlatform "videocore" && depends+=(libraspberrypi-firmware)
-    isPlatform "kms" && isPlatform "gles" && depends+=(libglvnd)
+    isPlatform "x11" && depends+=('libglvnd')
+    isPlatform "videocore" && depends+=('raspberrypi-firmware')
+    isPlatform "kms" && isPlatform "gles" && depends+=('libglvnd')
     getDepends "${depends[@]}"
 }
 
@@ -164,7 +164,7 @@ rom name=Mega Man 64
 framebuffer enable=1
 target FPS=25
 _EOF_
-    chown $user:$user "$biosdir/gles2n64rom.conf"
+    chown "$user:$user" "$biosdir/gles2n64rom.conf"
 
     addEmulator 0 "$md_id" "n64" "$md_inst/parallel_n64_libretro.so"
     addSystem "n64"
