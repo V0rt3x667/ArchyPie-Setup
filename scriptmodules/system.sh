@@ -162,7 +162,7 @@ function get_os_version() {
 }
 
 function get_archypie_depends() {
-    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)"
+    local basedev
     local depends=(
         'ca-certificates'
         'curl'
@@ -177,8 +177,7 @@ function get_archypie_depends() {
         'unzip'
         'xmlstarlet'
     )
-    #local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]}) #Do not quote
-    
+    basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)"
     depends[${#depends[@]}]="$basedev"
 
     [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')

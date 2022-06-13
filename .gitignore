@@ -17,14 +17,15 @@
 *.zip
 *.zst
 
+bash-debugger
 ext/*
 logs/
 pkg/
 src/
+support/
 tmp/
 .vscode/
-bash-debugger
 
-#Exceptions
+# Exceptions
 !libagar.tar.zst
 !abuse_assets.tar.zst
