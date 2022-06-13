@@ -12,8 +12,8 @@ function gui_resetromdirs() {
     printHeading "Resetting $romdir Ownershop & Permissions"
     mkUserDir "$romdir"
     mkUserDir "$biosdir"
-    chown -R $user:$user "$romdir"
-    chown -R $user:$user "$biosdir"
+    chown -R "$user:$user" "$romdir"
+    chown -R "$user:$user" "$biosdir"
     chmod -R ug+rwx "$romdir"
     chmod -R ug+rwx "$biosdir"
 }

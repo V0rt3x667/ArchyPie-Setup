@@ -49,7 +49,7 @@ function _game_data_jumpnbump() {
         uncompressed="${uncompressed%.bz2}"
         if [[ ! -f "$romdir/ports/jumpnbump/$uncompressed" ]]; then
             bzcat "$compressed" > "$romdir/ports/jumpnbump/$uncompressed"
-            chown -R $user:$user "$romdir/ports/jumpnbump/$uncompressed"
+            chown -R "$user:$user" "$romdir/ports/jumpnbump/$uncompressed"
         fi
     done
     rm -rf "$tmpdir"

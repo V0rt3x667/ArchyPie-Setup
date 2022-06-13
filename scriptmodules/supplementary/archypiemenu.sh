@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="archypiemenu"
-rp_module_desc="ArchyPie configuration menu for EmulationStation"
+rp_module_desc="ArchyPie Configuration Menu for EmulationStation"
 rp_module_section="core"
 rp_module_flags="nonet"
 
@@ -26,14 +26,13 @@ function install_bin_archypiemenu() {
     return
 }
 
-function configure_archypiemenu()
-{
+function configure_archypiemenu() {
     [[ "$md_mode" == "remove" ]] && return
 
     local rpdir="$home/ArchyPie/archypiemenu"
     mkdir -p "$rpdir"
     cp -Rv "$md_data/icons" "$rpdir/"
-    chown -R $user:$user "$rpdir"
+    chown -R "$user:$user" "$rpdir"
 
     isPlatform "rpi" && rm -f "$rpdir/dispmanx.rp"
 
@@ -98,8 +97,6 @@ function configure_archypiemenu()
             audiosettings|raspiconfig|splashscreen)
                 ! isPlatform "rpi" && continue
                 ;;
-            wifi)
-                [[ "$__os_id" != "Raspbian" ]] && continue
         esac
 
         file="${files[i]}"
@@ -132,8 +129,8 @@ function launch_archypiemenu() {
         retroarch.rp)
             joy2keyStop
             cp "$configdir/all/retroarch.cfg" "$configdir/all/retroarch.cfg.bak"
-            chown $user:$user "$configdir/all/retroarch.cfg.bak"
-            su $user -c "XDG_RUNTIME_DIR=/run/user/$SUDO_UID \"$emudir/retroarch/bin/retroarch\" --menu --config \"$configdir/all/retroarch.cfg\""
+            chown "$user:$user" "$configdir/all/retroarch.cfg.bak"
+            su "$user" -c "XDG_RUNTIME_DIR=/run/user/$SUDO_UID \"$emudir/retroarch/bin/retroarch\" --menu --config \"$configdir/all/retroarch.cfg\""
             iniConfig " = " '"' "$configdir/all/retroarch.cfg"
             iniSet "config_save_on_exit" "false"
             ;;
@@ -151,15 +148,15 @@ function launch_archypiemenu() {
             printMsgs "dialog" "Your IP is: ${ip:-(unknown)}\n\nOutput of 'ip addr show':\n\n$(ip addr show)"
             ;;
         *.rp)
-            rp_callModule $no_ext depends
-            if fnExists gui_$no_ext; then
-                rp_callModule $no_ext gui
+            rp_callModule "$no_ext" depends
+            if fnExists gui_"$no_ext"; then
+                rp_callModule "$no_ext" gui
             else
-                rp_callModule $no_ext configure
+                rp_callModule "$no_ext" configure
             fi
             ;;
         *.sh)
-            cd "$home/ArchyPie/archypiemenu"
+            cd "$home/ArchyPie/archypiemenu" || exit
             sudo -u "$user" bash "$command"
             ;;
     esac

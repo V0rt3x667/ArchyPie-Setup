@@ -8,7 +8,9 @@ function setup_env() {
     __ERRMSGS=()
     __INFMSGS=()
 
-    test_pacman
+    # Test for the pacman command, if not found we need to fail.
+    [[ ! -f /usr/bin/pacman ]] && fatalError "Unsupported OS - No Pacman Command Found!"
+
     test_chroot
 
     get_platform
@@ -22,28 +24,6 @@ function setup_env() {
     if [[ -z "$__nodialog" ]]; then
         __nodialog=0
     fi
-}
-
-function test_pacman() {
-    local os 
-
-    os="$(grep ^ID /etc/os-release | cut -d\= -f2)"
-
-    # Test for the pacman command, if not found we need to fail.
-    case "$os" in
-        arch)
-            return
-            ;;
-        archarm)
-            return
-            ;;
-        manjaro)
-            return
-            ;;
-        *)
-            [[ -z "$(which pacman)" ]] && fatalError "Unsupported OS - No Pacman Command Found!"
-            ;;
-    esac
 }
 
 function test_chroot() {
@@ -78,9 +58,9 @@ function conf_binary_vars() {
 
     # set location of binary downloads
     __binary_host="files.retropie.org.uk"
+    __binary_base_url="https://$__binary_host/binaries"
 
     # Code might be used at a future date
-    # __binary_base_url="https://$__binary_host/binaries"
     # __binary_path="$__os_codename/$__platform"
     # isPlatform "kms" && __binary_path+="/kms"
     # __binary_url="$__binary_base_url/$__binary_path"
@@ -451,7 +431,7 @@ function platform_tinker() {
 }
 
 function platform_native() {
-    __default_cpu_flags="-march=native -mtune=native -O2 -pipe -fno-plt"
+    __default_cpu_flags="-march=native -mtune=native -pipe -fno-plt"
     __default_ldflags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
     __platform_flags+=(gl)
     if [[ "$__has_kms" -eq 1 ]]; then
