@@ -20,6 +20,7 @@ function depends_simcoupe() {
     local depends=(
         'bzip2'
         'cmake'
+        'ninja'
         'sdl2'
         'zlib'
     )
@@ -37,7 +38,9 @@ function build_simcoupe() {
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/simcoupe"
 }
@@ -50,6 +53,6 @@ function configure_simcoupe() {
     mkRomDir "samcoupe"
     moveConfigDir "$home/.simcoupe" "$md_conf_root/$md_id"
 
-    addEmulator 1 "$md_id" "samcoupe" "pushd $md_inst; $md_inst/bin/simcoupe autoboot -disk1 %ROM% -fullscreen; popd"
+    addEmulator 1 "$md_id" "samcoupe" "$md_inst/bin/simcoupe autoboot -disk1 %ROM% -fullscreen"
     addSystem "samcoupe"
 }
