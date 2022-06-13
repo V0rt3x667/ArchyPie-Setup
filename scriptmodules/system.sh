@@ -162,25 +162,28 @@ function get_os_version() {
 }
 
 function get_archypie_depends() {
+    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)"
     local depends=(
-        ca-certificates
-        curl
-        dialog
-        git
-        gnupg
-        python
-        python-pip
-        python-pyudev
-        python-six
-        subversion
-        unzip
-        xmlstarlet
+        'ca-certificates'
+        'curl'
+        'dialog'
+        'git'
+        'gnupg'
+        'python'
+        'python-pip'
+        'python-pyudev'
+        'python-six'
+        'subversion'
+        'unzip'
+        'xmlstarlet'
     )
-    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]})
+    #local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]}) #Do not quote
+    
+    depends[${#depends[@]}]="$basedev"
 
-    [[ -n "$DISTCC_HOSTS" ]] && depends+=(distcc)
+    [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')
 
-    [[ "$__use_ccache" -eq 1 ]] && depends+=(ccache)
+    [[ "$__use_ccache" -eq 1 ]] && depends+=('ccache')
 
     if ! getDepends "${depends[@]}"; then
         fatalError "Unable to install packages required by $0 - ${md_ret_errors[@]}"
