@@ -22,7 +22,7 @@ function remove_virtualgamepad() {
 
 function sources_virtualgamepad() {
     gitPullOrClone "$md_inst"
-    chown -R $user:$user "$md_inst"
+    chown -R "$user:$user" "$md_inst"
 }
 
 function install_virtualgamepad() {

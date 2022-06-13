@@ -191,7 +191,7 @@ function configure_skyscraper() {
     done
 
     _init_config_skyscraper
-    chown -R $user:$user "$configdir/all/skyscraper"
+    chown -R "$user:$user" "$configdir/all/skyscraper"
 }
 
 function _init_config_skyscraper() {

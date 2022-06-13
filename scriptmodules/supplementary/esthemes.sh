@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="esthemes"
-rp_module_desc="Install Themes for Emulation Station"
+rp_module_desc="Install Themes for EmulationStation"
 rp_module_section="config"
 
 function depends_esthemes() {
@@ -21,7 +21,7 @@ function _has_pixel_pos_esthemes() {
     # get the version of emulationstation installed so we can check whether to show
     # themes that use the new pixel based positioning - we run as $user as the
     # emulationstation launch script will exit if run as root
-    local es_ver="$(sudo -u $user /usr/bin/emulationstation --help | grep -oP "Version \K[^,]+")"
+    local es_ver="$(sudo -u "$user" /usr/bin/emulationstation --help | grep -oP "Version \K[^,]+")"
     # if emulationstation is newer than 2.10, enable pixel based themes
     compareVersions "$es_ver" "2.10"
     if [[ $? == 0 || $? == -1 ]]; then

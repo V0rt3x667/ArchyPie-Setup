@@ -14,9 +14,9 @@ rp_module_flags="sdl2"
 
 function depends_dosbox-sdl2() {
     local depends=(
-        'alsa-utils'
         'fluidsynth'
         'glew'
+        'sdl2'
         'sdl2_net'
         'soundfont-fluid'
     )

@@ -139,12 +139,8 @@ function hasPackage() {
     local pkgs="$1"
     local installed=0
 
-    for pkg in $pkgs; do
-        if [[ "$pkg" == base-devel ]]; then
-            pacman -Qg "$pkg" &>/dev/null
-        else
+    for pkg in "${pkgs[@]}"; do
             pacman -Q "$pkg" &>/dev/null
-        fi
         if [[ "$?" -eq 0 ]]; then
             installed=1
         fi
@@ -177,14 +173,12 @@ function pacmanInstall() {
 }
 
 ## @fn pacmanRemove()
-## @param packages package / space separated list of packages to install
+## @param packages package / space separated list of packages to remove
 ## @brief Calls pacman -Rsn with the packages provided.
 function pacmanRemove() {
-    pacmanUpdate
     pacman -Rsn "$@" --noconfirm
     return $?
 }
-
 
 ## @fn getDepends()
 ## @param packages package / space separated list of packages to install
@@ -216,11 +210,8 @@ function getDepends() {
 
     # if we are removing, then remove packages and return
     if [[ "$md_mode" == "remove" ]]; then
-        printMsgs "console" "Removing dependencies: ${all_pkgs[*]}"
-        # for pkg in "${own_pkgs[@]}"; do
-        #     rp_callModule "$pkg" remove
-        # done
-        pacman -Rsn "${pacman_pkgs[@]}" --no-confirm
+        printMsgs "console" "Removing Dependencies: ${all_pkgs[*]}"
+        pacman -Rsn "${pacman_pkgs[@]}" --no-confirm && \
         pacman -Qdtq | pacman -Rsn --no-confirm
         return 0
     fi
@@ -381,7 +372,7 @@ function setupDirectories() {
     if [[ ! -f "$config" ]]; then
         echo "# this file can be used to enable/disable archypie autoconfiguration features" >"$config"
     fi
-    chown $user:$user "$config"
+    chown "$user:$user" "$config"
 }
 
 ## @fn rmDirExists()
@@ -398,7 +389,7 @@ function rmDirExists() {
 ## @brief Creates a directory owned by the current user.
 function mkUserDir() {
     mkdir -p "$1"
-    chown $user:$user "$1"
+    chown "$user:$user" "$1"
 }
 
 ## @fn mkRomDir()
@@ -435,7 +426,7 @@ function moveConfigDir() {
     fi
     ln -snf "$to" "$from"
     # set ownership of the actual link to $user
-    chown -h $user:$user "$from"
+    chown -h "$user:$user" "$from"
 }
 
 ## @fn moveConfigFile()
@@ -458,7 +449,7 @@ function moveConfigFile() {
     fi
     ln -sf "$to" "$from"
     # set ownership of the actual link to $user
-    chown -h $user:$user "$from"
+    chown -h "$user:$user" "$from"
 }
 
 ## @fn diffFiles()
@@ -579,7 +570,7 @@ function setBackend() {
     iniGet "$id"
     if [[ "$force" -eq 1 || -z "$ini_value" ]]; then
         iniSet "$id" "$mode"
-        chown $user:$user "$config"
+        chown "$user:$user" "$config"
     fi
 }
 
@@ -905,7 +896,7 @@ function setRetroArchCoreOption() {
     if [[ -z "$ini_value" ]]; then
         iniSet "$option" "$value"
     fi
-    chown $user:$user "$configdir/all/retroarch-core-options.cfg"
+    chown "$user:$user" "$configdir/all/retroarch-core-options.cfg"
 }
 
 ## @fn setConfigRoot()
@@ -1344,7 +1335,7 @@ function addPort() {
 "$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "$game"
 _EOF_
 
-    chown $user:$user "$file"
+    chown "$user:$user" "$file"
     chmod +x "$file"
 
     [[ -n "$cmd" ]] && addEmulator 1 "$id" "$port" "$cmd"
@@ -1405,7 +1396,7 @@ function addEmulator() {
         if [[ -z "$ini_value" && "$default" -eq 1 ]]; then
             iniSet "default" "$id"
         fi
-        chown $user:$user "$md_conf_root/$system/emulators.cfg"
+        chown "$user:$user" "$md_conf_root/$system/emulators.cfg"
     fi
 }
 

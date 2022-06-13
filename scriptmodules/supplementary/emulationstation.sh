@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="emulationstation"
-rp_module_desc="EmulationStation - Frontend used by ArchyPie for launching emulators"
+rp_module_desc="EmulationStation - Frontend for Launching Emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
 rp_module_repo="git https://github.com/RetroPie/EmulationStation.git v2.10.3"
 rp_module_section="core"
@@ -120,7 +120,7 @@ function _add_rom_emulationstation() {
             -u "/gameList/game[name='$name']/image" -v "$image" \
             "$config"
     fi
-    chown $user:$user "$config"
+    chown "$user:$user" "$config"
 }
 
 function depends_emulationstation() {
@@ -155,7 +155,7 @@ function build_emulationstation() {
         # force GLESv1 on videocore due to performance issue with GLESv2
         isPlatform "videocore" && params+=(-DUSE_GLES1=On)
     elif isPlatform "x11"; then
-        local gl_ver=$(sudo -u $user glxinfo | grep -oP "OpenGL version string: \K(\d+)")
+        local gl_ver=$(sudo -u "$user" glxinfo | grep -oP "OpenGL version string: \K(\d+)")
         [[ "$gl_ver" -gt 1 ]] && params+=(-DUSE_OPENGL_21=On)
     fi
     if isPlatform "dispmanx"; then
@@ -203,7 +203,7 @@ function init_input_emulationstation() {
             "$es_config"
     fi
 
-    chown $user:$user "$es_config"
+    chown "$user:$user" "$es_config"
 }
 
 function copy_inputscripts_emulationstation() {

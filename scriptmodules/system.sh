@@ -8,7 +8,9 @@ function setup_env() {
     __ERRMSGS=()
     __INFMSGS=()
 
-    test_pacman
+    # Test for the pacman command, if not found we need to fail.
+    [[ ! -f /usr/bin/pacman ]] && fatalError "Unsupported OS - No Pacman Command Found!"
+
     test_chroot
 
     get_platform
@@ -22,28 +24,6 @@ function setup_env() {
     if [[ -z "$__nodialog" ]]; then
         __nodialog=0
     fi
-}
-
-function test_pacman() {
-    local os 
-
-    os="$(grep ^ID /etc/os-release | cut -d\= -f2)"
-
-    # Test for the pacman command, if not found we need to fail.
-    case "$os" in
-        arch)
-            return
-            ;;
-        archarm)
-            return
-            ;;
-        manjaro)
-            return
-            ;;
-        *)
-            [[ -z "$(which pacman)" ]] && fatalError "Unsupported OS - No Pacman Command Found!"
-            ;;
-    esac
 }
 
 function test_chroot() {
@@ -78,9 +58,9 @@ function conf_binary_vars() {
 
     # set location of binary downloads
     __binary_host="files.retropie.org.uk"
+    __binary_base_url="https://$__binary_host/binaries"
 
     # Code might be used at a future date
-    # __binary_base_url="https://$__binary_host/binaries"
     # __binary_path="$__os_codename/$__platform"
     # isPlatform "kms" && __binary_path+="/kms"
     # __binary_url="$__binary_base_url/$__binary_path"
@@ -182,25 +162,27 @@ function get_os_version() {
 }
 
 function get_archypie_depends() {
+    local basedev
     local depends=(
-        ca-certificates
-        curl
-        dialog
-        git
-        gnupg
-        python
-        python-pip
-        python-pyudev
-        python-six
-        subversion
-        unzip
-        xmlstarlet
+        'ca-certificates'
+        'curl'
+        'dialog'
+        'git'
+        'gnupg'
+        'python'
+        'python-pip'
+        'python-pyudev'
+        'python-six'
+        'subversion'
+        'unzip'
+        'xmlstarlet'
     )
-    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]})
+    basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)"
+    depends[${#depends[@]}]="$basedev"
 
-    [[ -n "$DISTCC_HOSTS" ]] && depends+=(distcc)
+    [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')
 
-    [[ "$__use_ccache" -eq 1 ]] && depends+=(ccache)
+    [[ "$__use_ccache" -eq 1 ]] && depends+=('ccache')
 
     if ! getDepends "${depends[@]}"; then
         fatalError "Unable to install packages required by $0 - ${md_ret_errors[@]}"
@@ -451,7 +433,7 @@ function platform_tinker() {
 }
 
 function platform_native() {
-    __default_cpu_flags="-march=native -mtune=native -O2 -pipe -fno-plt"
+    __default_cpu_flags="-march=native -mtune=native -pipe -fno-plt"
     __default_ldflags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
     __platform_flags+=(gl)
     if [[ "$__has_kms" -eq 1 ]]; then

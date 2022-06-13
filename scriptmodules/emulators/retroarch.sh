@@ -12,80 +12,98 @@ rp_module_section="core"
 
 function depends_retroarch() {
     local depends=(
+        'bearssl'
         'ffmpeg'
         'flac'
         'libass'
         'libcaca'
         'libusb'
-        'libxext'
-        'libxinerama'
         'libxkbcommon'
+        'libxml2'
         'libxv'
-        'libxxf86vm'
         'mbedtls'
         'miniupnpc'
         'openal'
+        'sdl2'
         'systemd-libs'
+        'zlib'
     )
 
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
     isPlatform "gles" && depends+=('libglvnd')
-    isPlatform "mesa" && depends+=('libx11' 'libxcb')
-    isPlatform "mali" && depends+=('mali-utgard-meson-libgl-fb')
-    isPlatform "x11" && depends+=('libx11' 'libxcb' 'libxrandr' 'vulkan-headers' 'wayland' 'wayland-protocols')
     isPlatform "kms" && depends+=('mesa')
-
+    isPlatform "mali" && depends+=('mali-utgard-meson-libgl-fb')
+    isPlatform "mesa" && depends+=('libxcb')
+    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "x11" && depends+=(
+        'glslang'
+        'libpulse'
+        'libx11'
+        'libxcb'
+        'libxext'
+        'libxinerama'
+        'libxrandr'
+        'libxxf86vm'
+        'vulkan-icd-loader'
+        'wayland'
+        'wayland-protocols'
+    )
     getDepends "${depends[@]}"
 }
 
 function sources_retroarch() {
     gitPullOrClone
-    local patch=(
+    local patchs=(
         '01_disable_search.patch'
         '02_revert_default_paths.patch'
         '03_add_video_shader_parameter.patch'
     )
-    for p in ${patch[@]}; do
-        applyPatch "$md_data/$p"
+    for patch in "${patchs[@]}"; do
+        applyPatch "$md_data/$patch"
     done
 }
 
 function build_retroarch() {
     local params=(
-        --enable-sdl2 \
-        --disable-al \
-        --disable-qt \
+        --disable-builtinbearssl \
         --disable-builtinflac \
         --disable-builtinglslang \
         --disable-builtinmbedtls \
         --disable-builtinzlib \
         --disable-cg \
+        --disable-discord \
         --disable-jack \
+        --disable-materialui \
+        --disable-opengl1 \
         --disable-oss \
-        --disable-sdl \
+        --disable-qt \
+        --disable-roar \
+        --disable-update_assets \
+        --disable-update_cores \
         --enable-dbus
+        --enable-sdl2
     )
 
     if ! isPlatform "x11"; then
-        params+=(--disable-pulse)
-        ! isPlatform "mesa" && params+=(--disable-x11)
+        params+=('--disable-pulse')
+        ! isPlatform "mesa" && params+=('--disable-x11')
     fi
 
-    isPlatform "gles" && params+=(--enable-opengles)
+    isPlatform "gles" && params+=('--enable-opengles')
+
     if isPlatform "gles3"; then
-        params+=(--enable-opengles3)
-        isPlatform "gles31" && params+=(--enable-opengles3_1)
-        isPlatform "gles32" && params+=(--enable-opengles3_2)
+        params+=('--enable-opengles3')
+        isPlatform "gles31" && params+=('--enable-opengles3_1')
+        isPlatform "gles32" && params+=('--enable-opengles3_2')
     fi
-    isPlatform "rpi" && isPlatform "mesa" && params+=(--disable-videocore)
+    isPlatform "rpi" && isPlatform "mesa" && params+=('--disable-videocore')
     # Temporarily block dispmanx support for fkms until upstream support is fixed
-    isPlatform "dispmanx" && ! isPlatform "kms" && params+=(--enable-dispmanx --disable-opengl1)
-    isPlatform "mali" && params+=(--enable-mali_fbdev)
-    isPlatform "kms" && params+=(--enable-kms --enable-egl)
-    isPlatform "arm" && params+=(--enable-floathard)
-    isPlatform "neon" && params+=(--enable-neon)
-    isPlatform "x11" && params+=(--enable-vulkan)
-    ! isPlatform "x11" && params+=(--disable-vulkan --disable-wayland)
+    isPlatform "dispmanx" && ! isPlatform "kms" && params+=('--enable-dispmanx' '--disable-opengl1')
+    isPlatform "mali" && params+=('--enable-mali_fbdev')
+    isPlatform "kms" && params+=('--enable-kms' '--enable-egl')
+    isPlatform "arm" && params+=('--enable-floathard')
+    isPlatform "neon" && params+=('--enable-neon')
+    isPlatform "x11" && params+=('--enable-vulkan')
+    ! isPlatform "x11" && params+=('--disable-vulkan' '--disable-wayland')
     ./configure --prefix="$md_inst" "${params[@]}"
     make clean
     make
@@ -142,6 +160,14 @@ function update_assets_retroarch() {
     chown -R "$user:$user" "$dir"
 }
 
+function install_minimal_assets_retroarch() {
+    local dir="$configdir/all/retroarch/assets"
+    [[ -d "$dir/.git" ]] && return
+    [[ ! -d "$dir" ]] && mkUserDir "$dir"
+    downloadAndExtract "$__binary_base_url/retroarch-minimal-assets.tar.gz" "$dir"
+    chown -R "$user:$user" "$dir"
+}
+
 function configure_retroarch() {
     [[ "$md_mode" == "remove" ]] && return
 
@@ -157,6 +183,9 @@ function configure_retroarch() {
     moveConfigDir "$md_inst/assets" "$configdir/all/retroarch/assets"
     moveConfigDir "$md_inst/overlays" "$configdir/all/retroarch/overlay"
     moveConfigDir "$md_inst/shader" "$configdir/all/retroarch/shaders"
+
+    # install minimal assets
+    install_minimal_assets_retroarch
 
     # install joypad autoconfig presets
     update_joypad_autoconfigs_retroarch
@@ -291,7 +320,7 @@ function keyboard_retroarch() {
     local options
     local i=1
     local key=()
-    while read input; do
+    while read -r input; do
         local parts=($input)
         key+=("${parts[0]}")
         options+=("${parts[0]}" $i 2 "${parts[*]:2}" $i 26 16 0)
@@ -383,7 +412,6 @@ function gui_retroarch() {
                         ;;
                     2)
                         rm -rf "$configdir/all/retroarch/$dir"
-                        #[[ "$dir" == "assets" ]] && install_xmb_monochrome_assets_retroarch
                         ;;
                     *)
                         continue
