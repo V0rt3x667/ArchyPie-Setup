@@ -1,0 +1,87 @@
+--- a/src/gameconfigfile.cpp	2022-06-14 04:31:48.310112000 +0100
++++ b/src/gameconfigfile.cpp	2022-06-15 01:16:05.880968601 +0100
+@@ -103,49 +103,13 @@
+ 	if (!SetSection ("IWADSearch.Directories"))
+ 	{
+ 		SetSection ("IWADSearch.Directories", true);
+-		SetValueForKey ("Path", ".", true);
+ 		SetValueForKey ("Path", "$DOOMWADDIR", true);
+-#ifdef __APPLE__
+-		SetValueForKey ("Path", user_docs, true);
+-		SetValueForKey ("Path", user_app_support, true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", local_app_support, true);
+-#elif !defined(__unix__)
+-		SetValueForKey ("Path", "$HOME", true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-#else
+-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+-		SetValueForKey ("Path", "$HOME/.local/share/games/doom", true);
+-		// Arch Linux likes them in /usr/share/doom
+-		// Debian likes them in /usr/share/games/doom
+-		// I assume other distributions don't do anything radically different
+-		SetValueForKey ("Path", "/usr/local/share/doom", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/doom", true);
+-		SetValueForKey ("Path", "/usr/share/doom", true);
+-		SetValueForKey ("Path", "/usr/share/games/doom", true);
+-#endif
+ 	}
+ 
+ 	// Set default search paths if none present
+ 	if (!SetSection ("FileSearch.Directories"))
+ 	{
+ 		SetSection ("FileSearch.Directories", true);
+-#ifdef __APPLE__
+-		SetValueForKey ("Path", user_docs, true);
+-		SetValueForKey ("Path", user_app_support, true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", local_app_support, true);
+-#elif !defined(__unix__)
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-#else
+-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+-		SetValueForKey ("Path", "$HOME/.local/share/games/doom", true);
+-		SetValueForKey ("Path", SHARE_DIR, true);
+-		SetValueForKey ("Path", "/usr/local/share/doom", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/doom", true);
+-		SetValueForKey ("Path", "/usr/share/doom", true);
+-		SetValueForKey ("Path", "/usr/share/games/doom", true);
+-#endif
+ 		SetValueForKey ("Path", "$DOOMWADDIR", true);
+ 	}
+ 
+@@ -153,32 +117,10 @@
+ 	if (!SetSection("SoundfontSearch.Directories"))
+ 	{
+ 		SetSection("SoundfontSearch.Directories", true);
+-#ifdef __APPLE__
+-		SetValueForKey("Path", user_docs + "/soundfonts", true);
+-		SetValueForKey("Path", user_docs + "/fm_banks", true);
+-		SetValueForKey("Path", user_app_support + "/soundfonts", true);
+-		SetValueForKey("Path", user_app_support + "/fm_banks", true);
+ 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
+ 		SetValueForKey("Path", "$PROGDIR/fm_banks", true);
+-		SetValueForKey("Path", local_app_support + "/soundfonts", true);
+-		SetValueForKey("Path", local_app_support + "/fm_banks", true);
+-#elif !defined(__unix__)
+-		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
+-		SetValueForKey("Path", "$PROGDIR/fm_banks", true);
+-#else
+-		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
+-		SetValueForKey("Path", "$HOME/" GAME_DIR "/fm_banks", true);
+-		SetValueForKey("Path", "$HOME/.local/share/games/doom/soundfonts", true);
+-		SetValueForKey("Path", "$HOME/.local/share/games/doom/fm_banks", true);
+-		SetValueForKey("Path", "/usr/local/share/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/doom/fm_banks", true);
+-		SetValueForKey("Path", "/usr/local/share/games/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/games/doom/fm_banks", true);
+-		SetValueForKey("Path", "/usr/share/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/doom/fm_banks", true);
+-		SetValueForKey("Path", "/usr/share/games/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/games/doom/fm_banks", true);
+-#endif
++		SetValueForKey("Path", "/usr/share/soundfonts", true);
++		SetValueForKey("Path", "/usr/share/fm_banks", true);
+ 	}
+ 
+ 	// Add some self-documentation.

@@ -35,6 +35,7 @@ function depends_gzdoom() {
 function sources_gzdoom() {
     gitPullOrClone
     _sources_zmusic
+    applyPatch "$md_data/01_fix_file_paths.patch"
 }
 
 function _sources_zmusic() {

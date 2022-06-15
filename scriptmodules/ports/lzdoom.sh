@@ -38,35 +38,41 @@ function depends_lzdoom() {
 
 function sources_lzdoom() {
     gitPullOrClone
+    applyPatch "$md_data/01_fix_file_paths.patch"
 }
 
 function build_lzdoom() {
-    rm -rf release
-    mkdir -p release
-    cd release
-    local params=(-DCMAKE_INSTALL_PREFIX="$md_inst" -DCMAKE_BUILD_TYPE=Release)
+    local params=()
     if isPlatform "armv8"; then
         params+=(-DUSE_ARMV8=On)
     fi
-    # Note: `-funsafe-math-optimizations` should be avoided, see: https://forum.zdoom.org/viewtopic.php?f=7&t=57781
-    cmake "${params[@]}" ..
-    make
-    md_ret_require="$md_build/release/$md_id"
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        "${params[@]}" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/$md_id"
 }
 
 function install_lzdoom() {
     md_ret_files=(
-        'release/brightmaps.pk3'
-        'release/lzdoom'
-        'release/lzdoom.pk3'
-        'release/lights.pk3'
-        'release/game_support.pk3'
-        'release/soundfonts'
         'README.md'
+        'build/brightmaps.pk3'
+        'build/fm_banks'
+        'build/game_support.pk3'
+        'build/lights.pk3'
+        'build/lzdoom'
+        'build/lzdoom.pk3'
+        'build/soundfonts'
     )
 }
 
-function add_games_lzdoom() {
+function _add_games_lzdoom() {
     local params=("+fullscreen 1")
     local launcher_prefix="DOOMWADDIR=$romdir/ports/doom"
 
@@ -93,7 +99,7 @@ function configure_lzdoom() {
 
     moveConfigDir "$home/.config/$md_id" "$md_conf_root/doom"
 
-    [[ "$md_mode" == "install" ]] && game_data_lr-prboom
+    [[ "$md_mode" == "install" ]] && _game_data_lr-prboom
 
-    add_games_${md_id}
+    _add_games_lzdoom
 }
