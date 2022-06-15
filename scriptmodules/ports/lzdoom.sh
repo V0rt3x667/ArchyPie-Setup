@@ -27,6 +27,7 @@ function depends_lzdoom() {
         'libsndfile'
         'mesa'
         'mpg123'
+        'ninja'
         'openal'
         'sdl2'
         'soundfont-fluid'
