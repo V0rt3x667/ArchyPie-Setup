@@ -38,9 +38,11 @@ function _get_repos_mupen64plus() {
         'mupen64plus mupen64plus-input-sdl master'
         'mupen64plus mupen64plus-rsp-hle master'
     )
+
     if isPlatform "videocore" && isPlatform "32bit"; then
         repos+=('gizmo98 mupen64plus-audio-omx master')
     fi
+
     if isPlatform "gles"; then
         ! isPlatform "rpi" && repos+=('mupen64plus mupen64plus-video-glide64mk2 master')
         if isPlatform "32bit"; then
@@ -48,16 +50,16 @@ function _get_repos_mupen64plus() {
             repos+=('ricrpi mupen64plus-video-gles2n64 master')
         fi
     fi
+
     if isPlatform "gl"; then
         repos+=(
             'mupen64plus mupen64plus-video-glide64mk2 master'
-            'mupen64plus mupen64plus-video-z64 master'
             'mupen64plus mupen64plus-rsp-cxd4 master'
-            'mupen64plus mupen64plus-rsp-z64 master'
+			'mupen64plus mupen64plus-rsp-z64 master'
             'gonetz GLideN64 master'
-            'ata4 angrylion-rdp-plus master'
         )
     fi
+
     local repo
     for repo in "${repos[@]}"; do
         echo "$repo"
@@ -161,29 +163,38 @@ function build_mupen64plus() {
         fi
     done
 
-    # build GLideN64
+    # Build GLideN64
     "$md_build/GLideN64/src/getRevision.sh"
-    pushd "$md_build/GLideN64/projects/cmake" || exit
+    #pushd "$md_build/GLideN64/projects/cmake" || exit
 
-    params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On" "-DCMAKE_CXX_FLAGS=${CXXFLAGS} -fpermissive" "-Wno-dev")
+    params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On")
     isPlatform "neon" && params+=("-DNEON_OPT=On")
     isPlatform "mesa" && params+=("-DMESA=On" "-DEGL=On")
     isPlatform "armv8" && params+=("-DCRC_ARMV8=On")
     isPlatform "mali" && params+=("-DVERO4K=On" "-DCRC_OPT=On" "-DEGL=On")
-    isPlatform "x86" && params+=("-DCRC_OPT=On" "-DX86_OPT=ON")
+    isPlatform "x86" && params+=("-DCRC_OPT=On")
 
-    cmake "${params[@]}" ../../src/
-    make
-    popd || exit
+    cmake . \
+        -S"$md_build/GLideN64/src" \
+        -B"$md_build/GLideN64/build" \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        "${params[@]}" \
+        -Wno-dev
+    ninja -C "$md_build/GLideN64/build" clean
+    ninja -C "$md_build/GLideN64/build"
 
     rpSwap off
+
     md_ret_require=(
         'mupen64plus-ui-console/projects/unix/mupen64plus'
         'mupen64plus-core/projects/unix/libmupen64plus.so.2.0.0'
         'mupen64plus-audio-sdl/projects/unix/mupen64plus-audio-sdl.so'
         'mupen64plus-input-sdl/projects/unix/mupen64plus-input-sdl.so'
         'mupen64plus-rsp-hle/projects/unix/mupen64plus-rsp-hle.so'
-        'GLideN64/projects/cmake/plugin/Release/mupen64plus-video-GLideN64.so'
+        'GLideN64/build/plugin/Release/mupen64plus-video-GLideN64.so'
     )
 
     if isPlatform "videocore" && ! isPlatform " 64bit"; then
@@ -193,10 +204,13 @@ function build_mupen64plus() {
     if isPlatform "gles"; then
         ! isPlatform "rpi" && md_ret_require+=('mupen64plus-video-glide64mk2/projects/unix/mupen64plus-video-glide64mk2.so')
         if isPlatform "32bit"; then
-            md_ret_require+=('mupen64plus-video-gles2rice/projects/unix/mupen64plus-video-rice.so')
-            md_ret_require+=('mupen64plus-video-gles2n64/projects/unix/mupen64plus-video-n64.so')
+            md_ret_require+=(
+                'mupen64plus-video-gles2rice/projects/unix/mupen64plus-video-rice.so'
+                'mupen64plus-video-gles2n64/projects/unix/mupen64plus-video-n64.so'
+            )
         fi
     fi
+
     if isPlatform "gl"; then
         md_ret_require+=(
             'mupen64plus-video-glide64mk2/projects/unix/mupen64plus-video-glide64mk2.so'
@@ -229,7 +243,7 @@ function install_mupen64plus() {
         fi
     done
     cp "$md_build/GLideN64/ini/GLideN64.custom.ini" "$md_inst/share/mupen64plus/"
-    cp "$md_build/GLideN64/projects/cmake/plugin/Release/mupen64plus-video-GLideN64.so" "$md_inst/lib/mupen64plus/"
+    cp "$md_build/GLideN64/build/plugin/Release/mupen64plus-video-GLideN64.so" "$md_inst/lib/mupen64plus/"
     cp "$md_build/GLideN64_config_version.ini" "$md_inst/share/mupen64plus/"
     # remove default InputAutoConfig.ini. inputconfigscript writes a clean file
     rm -f "$md_inst/share/mupen64plus/InputAutoCfg.ini"
