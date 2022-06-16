@@ -21,6 +21,7 @@ function depends_dolphin() {
         'lzo'
         'mbedtls'
         'miniupnpc'
+        'minizip'
         'ninja'
         'pugixml'
         'qt5-base'
