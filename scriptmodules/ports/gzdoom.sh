@@ -96,11 +96,6 @@ function install_gzdoom() {
     cp -Pv "$md_build"/zmusic/source/*.so* "$md_inst/lib"
 }
 
-function _add_games_gzdoom() {
-    local launcher_prefix="DOOMWADDIR=$romdir/ports/doom"
-    _add_games_lr-prboom "$launcher_prefix $md_inst/gzdoom -iwad %ROM% +vid_renderer 1 +vid_fullscreen 1"
-}
-
 function configure_gzdoom() {
     mkRomDir "ports/doom"
     mkRomDir "ports/doom/addon"
@@ -109,5 +104,6 @@ function configure_gzdoom() {
 
     [[ "$md_mode" == "install" ]] && _game_data_lr-prboom
 
-    _add_games_gzdoom
+    local launcher_prefix="DOOMWADDIR=$romdir/ports/doom"
+    _add_games_lr-prboom "$launcher_prefix $md_inst/gzdoom -iwad %ROM% +vid_renderer 1 +vid_fullscreen 1"
 }
