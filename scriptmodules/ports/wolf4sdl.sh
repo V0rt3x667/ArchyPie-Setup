@@ -13,7 +13,6 @@ rp_module_flags="sdl2"
 
 function depends_wolf4sdl() {
      local depends=(
-        'perl-rename'
         'sdl2_mixer'
         'sdl2'
     )
@@ -32,30 +31,38 @@ function _get_opts_wolf4sdl() {
     echo 'wolf4sdl-spear-sw -DCARMACIZED -DSPEARDEMO -DSPEAR' # spear of destiny demo
 }
 
-function add_games_wolf4sdl() {
-    declare -A -g games_wolf4sdl=(
-        ['vswap.sod']="Wolfenstein 3D - Spear of Destiny"
-        ['vswap.sd1']="Wolfenstein 3D - Spear of Destiny"
-        ['vswap.sd2']="Wolfenstein 3D - Spear of Destiny Mission Pack 2 - Return to Danger"
-        ['vswap.sd3']="Wolfenstein 3D - Spear of Destiny Mission Pack 3 - Ultimate Challenge"
-        ['vswap.sdm']="Wolfenstein 3D - Spear of Destiny (Shareware)"
-        ['vswap.wl1']="Wolfenstein 3D - Wolfenstein 3D (Shareware)"
-        ['vswap.wl6']="Wolfenstein 3D - Wolfenstein 3D"
-    )
-
-    add_ports_wolf4sdl "$md_inst/bin/wolf4sdl.sh %ROM%" "wolf3d"
-}
-
-function add_ports_wolf4sdl() {
-    local port="$2"
+function _add_games_wolf4sdl() {
     local cmd="$1"
+    local doswad
     local game
     local wad
-
-    for game in "${!games_wolf4sdl[@]}"; do
+    declare -A games=(
+        ['vswap.sd1']="Wolfenstein 3D: Spear of Destiny"
+        ['vswap.sd2']="Wolfenstein 3D: Spear of Destiny: Mission Pack 2: Return to Danger"
+        ['vswap.sd3']="Wolfenstein 3D: Spear of Destiny: Mission Pack 3: Ultimate Challenge"
+        ['vswap.sdm']="Wolfenstein 3D: Spear of Destiny (Shareware)"
+        ['vswap.sod']="Wolfenstein 3D: Spear of Destiny"
+        ['vswap.wl1']="Wolfenstein 3D: Wolfenstein 3D (Shareware)"
+        ['vswap.wl6']="Wolfenstein 3D: Wolfenstein 3D"
+    )
+    if [[ "$md_id" == "ecwolf" ]]; then
+        games+=(['vswap.n3d']="Super Noah's Ark 3D")
+    fi
+    # Create .sh files for each game found. Uppercase filnames will be converted to lowercase.
+    for game in "${!games[@]}"; do
+        doswad="$romdir/ports/wolf3d/${game^^}"
         wad="$romdir/ports/wolf3d/$game"
+        if [[ -f "$doswad" ]]; then
+            mv "$doswad" "$wad"
+        fi
         if [[ -f "$wad" ]]; then
-            addPort "$md_id" "$port" "${games_wolf4sdl[$game]}" "$cmd" "$wad"
+            if [[ $md_id == ecwolf ]]; then
+                addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd" "${wad##*.}"
+            elif [[ $md_id == splitwolf ]]; then
+                addPort "$md_id" "splitwolf" "SplitWolf: ${games[$game]/Wolfenstein 3D:/}" "$cmd" "$wad"
+            else
+                addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd" "$wad"
+            fi
         fi
     done
 }
@@ -77,18 +84,14 @@ function install_wolf4sdl() {
     md_ret_files=('bin')
 }
 
-function game_data_wolf4sdl() {
-    pushd "$romdir/ports/wolf3d" || return
-    perl-rename 'y/A-Z/a-z/' ./*
-    popd || return
-
+function _game_data_wolf4sdl() {
     if [[ ! -f "$romdir/ports/wolf3d/vswap.wl6" && ! -f "$romdir/ports/wolf3d/vswap.wl1" ]]; then
-        cd "$__tmpdir"
+        cd "$__tmpdir" || exit
         # Get shareware game data
         downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/wolf3d14.zip" "$romdir/ports/wolf3d" -j -LL
     fi
     if [[ ! -f "$romdir/ports/wolf3d/vswap.sdm" && ! -f "$romdir/ports/wolf3d/vswap.sod" ]]; then
-        cd "$__tmpdir"
+        cd "$__tmpdir" || exit
         # Get shareware game data
         downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/soddemo.zip" "$romdir/ports/wolf3d" -j -LL
     fi
@@ -97,17 +100,10 @@ function game_data_wolf4sdl() {
 }
 
 function configure_wolf4sdl() {
-    local game
-
     mkRomDir "ports/wolf3d"
 
-    # remove obsolete emulator entries
-    while read -r game; do
-        delEmulator "${game%% *}" "wolf3d"
-    done < <(_get_opts_wolf4sdl; echo -e "wolf4sdl-spear2\nwolf4sdl-spear3")
-
     if [[ "$md_mode" == "install" ]]; then
-        game_data_wolf4sdl
+        _game_data_wolf4sdl && _add_games_wolf4sdl "$md_inst/bin/wolf4sdl.sh %ROM%"
         cat > "$md_inst/bin/wolf4sdl.sh" << _EOF_
 #!/bin/bash
 
@@ -131,7 +127,7 @@ function launch_wolf4sdl() {
     )
         if [[ "\${game_checksums[\$(get_md5sum \$wad_file)]}" ]] 2>/dev/null; then
             pushd "$romdir/ports/wolf3d"
-            $md_inst/bin/\${game_checksums[\$(get_md5sum \$wad_file)]}
+            $md_inst/bin/\${game_checksums[\$(get_md5sum \$wad_file)]} --fullscreen
             popd
         else
             echo "Error: \$wad_file (md5: \$(get_md5sum \$wad_file)) is not a supported version"
@@ -142,8 +138,6 @@ launch_wolf4sdl "\$1"
 _EOF_
         chmod +x "$md_inst/bin/wolf4sdl.sh"
     fi
-
-    add_games_wolf4sdl
 
     moveConfigDir "$home/.wolf4sdl" "$md_conf_root/wolf3d"
 }

@@ -12,7 +12,7 @@ rp_module_repo="git https://bitbucket.org/linuxwolf6/splitwolf.git scrubbed"
 rp_module_section="exp"
 
 function depends_splitwolf() {
-    getDepends sdl2 sdl2_mixer
+    depends_wolf4sdl
 }
 
 function sources_splitwolf() {
@@ -28,24 +28,11 @@ function _get_opts_splitwolf() {
     echo 'splitwolf-spear_demo VERSION_SPEAR_DEMO=y' # spear of destiny
 }
 
-function game_data_splitwolf() {
+function _game_data_splitwolf() {
     if [[ ! -d "$md_inst/bin/lwmp" ]]; then
         # Get game assets
         downloadAndExtract "https://bitbucket.org/linuxwolf6/splitwolf/downloads/lwmp.zip" "$md_inst/bin/"
     fi
-}
-
-function add_games_splitwolf() {
-    declare -A games_wolf4sdl=(
-        ['vswap.sod']="SplitWolf - Spear of Destiny"
-        ['vswap.sd1']="SplitWolf - Spear of Destiny"
-        ['vswap.sd2']="SplitWolf - Spear of Destiny Mission Pack 2 - Return to Danger"
-        ['vswap.sd3']="SplitWolf - Spear of Destiny Mission Pack 3 - Ultimate Challenge"
-        ['vswap.sdm']="SplitWolf - Spear of Destiny (Shareware)"
-        ['vswap.wl1']="SplitWolf - Wolfenstein 3D (Shareware)"
-        ['vswap.wl6']="SplitWolf - Wolfenstein 3D"
-    )
-    add_ports_wolf4sdl "$md_inst/bin/splitwolf.sh %ROM%" "splitwolf"
 }
 
 function build_splitwolf() {
@@ -56,7 +43,7 @@ function build_splitwolf() {
         local defs="${opt#* }"
         make clean
         CFLAGS+=" -Wno-narrowing"
-        make "$defs" DATADIR="$romdir/ports/wolf3d"
+        make "$defs" PREFIX="$md_inst" DATADIR="$romdir/ports/wolf3d/"
         mv "$bin" "bin/$bin"
         md_ret_require+=("bin/$bin")
     done < <(_get_opts_splitwolf)
@@ -68,13 +55,11 @@ function install_splitwolf() {
 }
 
 function configure_splitwolf() {
-    local game
-
     mkRomDir "ports/wolf3d"
 
     if [[ "$md_mode" == "install" ]]; then
-        game_data_splitwolf
-        game_data_wolf4sdl
+        _game_data_splitwolf && _game_data_wolf4sdl
+        _add_games_wolf4sdl "$md_inst/bin/splitwolf.sh %ROM%"
         cat > "$md_inst/bin/splitwolf.sh" << _EOF_
 #!/bin/bash
 
@@ -96,7 +81,9 @@ function launch_splitwolf() {
         ['35afda760bea840b547d686a930322dc']="splitwolf-spear_demo"
     )
         if [[ "\${game_checksums[\$(get_md5sum \$wad_file)]}" ]] 2>/dev/null; then
+            pushd "$romdir/ports/wolf3d"
             $md_inst/bin/\${game_checksums[\$(get_md5sum \$wad_file)]} --splitdatadir $md_inst/bin/lwmp/ --split 2 --splitlayout 2x1
+            popd
         else
             echo "Error: \$wad_file (md5: \$(get_md5sum \$wad_file)) is not a supported version"
         fi
@@ -106,8 +93,6 @@ launch_splitwolf "\$1"
 _EOF_
         chmod +x "$md_inst/bin/splitwolf.sh"
     fi
-
-    add_games_splitwolf
 
     moveConfigDir "$home/.splitwolf" "$md_conf_root/splitwolf"
 }

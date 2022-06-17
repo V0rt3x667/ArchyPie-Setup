@@ -23,7 +23,6 @@ function depends_ecwolf() {
         'libvorbis'
         'ninja'
         'opusfile'
-        'perl-rename'
         'sdl2_mixer'
         'sdl2_net'
         'sdl2'
@@ -59,65 +58,21 @@ function install_ecwolf() {
     ninja -C build install/strip
 }
 
-function _game_data_ecwolf() {
-    local dir="$romdir/ports/wolf3d"
-
-    # Change Filenames to Lowercase
-    find "$romdir/ports/wolf3d/" -depth -exec perl-rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
-    # Download Wolfenstein3D Shareware Data
-    if [[ ! -f "$dir/vswap.wl6" && ! -f "$dir/vswap.wl1" ]]; then
-        cd "$__tmpdir" || return
-        downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/wolf3d14.zip" "$romdir/ports/wolf3d" -j -LL
-    fi
-    # Download Spear of Destiny Shareware Data
-    if [[ ! -f "$dir/vswap.sdm" && ! -f "$dir/vswap.sod" && ! -f "$dir/vswap.sd1" ]]; then
-        cd "$__tmpdir" || return
-        downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/soddemo.zip" "$romdir/ports/wolf3d" -j -LL
-    fi
-
-    chown -R "$user:$user" "$romdir/ports/wolf3d"
-}
-
-function _add_games_ecwolf(){
-    local cmd="$1"
-    local wad
-
-    declare -A games=(
-        ['n3d']="Super Noah's Ark 3D"
-        ['sd1']="Wolfenstein 3D: Spear of Destiny"
-        ['sd2']="Wolfenstein 3D: Spear of Destiny Mission Pack 2: Return to Danger"
-        ['sd3']="Wolfenstein 3D: Spear of Destiny Mission Pack 3: Ultimate Challenge"
-        ['sdm']="Wolfenstein 3D: Spear of Destiny (Shareware)"
-        ['sod']="Wolfenstein 3D: Spear of Destiny"
-        ['wl1']="Wolfenstein 3D (Shareware)"
-        ['wl6']="Wolfenstein 3D"
-    )
-
-    for game in "${!games[@]}"; do
-        wad="$romdir/ports/wolf3d/vswap.$game"
-        if [[ -f "$wad" ]]; then
-            addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd --data %ROM%" "$game"
-        fi
-    done
-}
-
 function configure_ecwolf() {
     mkRomDir "ports/wolf3d"
 
     moveConfigDir "$home/.local/share/ecwolf" "$md_conf_root/ecwolf"
     moveConfigDir "$home/.config/ecwolf" "$md_conf_root/ecwolf"
 
-    [[ "$md_mode" == "install" ]]
+    [[ "$md_mode" == "install" ]] && _game_data_wolf4sdl
 
-    iniConfig " = " '' "$configdir/ports/ecwolf/ecwolf.cfg"
+     _add_games_wolf4sdl "$md_inst/bin/ecwolf --data %ROM%"
+
+    iniConfig " = " '' "$configdir/ports/wolf3d/ecwolf.cfg"
 
     iniSet "BaseDataPaths" "\"$romdir/ports/wolf3d\";"
     iniSet "Vid_FullScreen" "1;"
     iniSet "Vid_Vsync" "1;"
 
-    chown "$user:$user" "$configdir/ports/ecwolf/ecwolf.cfg"
-
-    _game_data_ecwolf && _add_games_ecwolf "$md_inst/bin/ecwolf"
-
-    chown -R "$user:$user" "$romdir/ports/wolf3d"
+    chown "$user:$user" "$configdir/ports/wolf3d/ecwolf.cfg"
 }
