@@ -66,7 +66,7 @@ function configure_ecwolf() {
 
     [[ "$md_mode" == "install" ]] && _game_data_wolf4sdl
 
-     _add_games_wolf4sdl "$md_inst/bin/ecwolf --data %ROM%"
+    _add_games_wolf4sdl "$md_inst/bin/ecwolf --data %ROM%"
 
     iniConfig " = " '' "$configdir/ports/wolf3d/ecwolf.cfg"
 
