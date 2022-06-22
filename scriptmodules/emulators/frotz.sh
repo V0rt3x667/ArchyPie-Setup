@@ -13,7 +13,7 @@ rp_module_repo="git https://gitlab.com/DavidGriffith/frotz.git :_get_branch_frot
 rp_module_flags=""
 
 function _get_branch_frotz() {
-    download https://gitlab.com/api/v4/projects/DavidGriffith%2Ffrotz/releases - | grep -m 1 tag_name | cut -d\" -f4
+    download https://gitlab.com/api/v4/projects/DavidGriffith%2Ffrotz/releases - | grep -m 1 tag_name | cut -d\" -f8
 }
 
 function depends_frotz() {
@@ -26,8 +26,8 @@ function depends_frotz() {
         'libsamplerate'
         'libsndfile'
         'libvorbis'
-        'sdl2_mixer'
         'sdl2'
+        'sdl2_mixer'
         'zlib'
     )
     getDepends "${depends[@]}"
