@@ -42,6 +42,8 @@ function build_citra() {
         -DENABLE_FFMPEG_AUDIO_DECODER=ON \
         -DCITRA_USE_BUNDLED_SDL2=OFF \
         -Wno-dev
+    # ninja -C build clean removes an object from the build dir resulting in a compliation failure:
+    # fatal error: shaders/depth_to_color.frag: No such file or directory
     ninja -C build
     md_ret_require="$md_build/build/bin/Release/citra"
 }

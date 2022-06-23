@@ -12,7 +12,14 @@ rp_module_repo="git https://github.com/ColinPitrat/caprice32 master"
 rp_module_section="main"
 
 function depends_caprice32() {
-    local depends=(sdl sdl_image sdl_ttf zlib libpng freetype2)
+    local depends=(
+        'freetype2'
+        'libpng'
+        'sdl2'
+        'sdl2_image'
+        'sdl2_ttf'
+        'zlib'
+    )
     getDepends "${depends[@]}"
 }
 

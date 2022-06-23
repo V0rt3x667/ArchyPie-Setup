@@ -20,7 +20,6 @@ function depends_b-em() {
     getDepends "${depends[@]}"
 }
 
-
 function sources_b-em() {
     gitPullOrClone
 }

@@ -13,20 +13,24 @@ rp_module_section="opt"
 rp_module_flags="sdl1 !all videocore"
 
 function depends_capricerpi() {
-    local depends=('sdl' 'sdl_image' 'sdl_ttf' 'zlib' 'libpng')
+    local depends=(
+        'libpng'
+        'sdl'
+        'sdl_image'
+        'sdl_ttf'
+        'zlib'
+    )
     getDepends "${depends[@]}"
 }
 
 function sources_capricerpi() {
     gitPullOrClone
-    sed -i "s/-lpng12/-lpng/" src/makefile
+    sed "s|-lpng12|-lpng|" -i "$md_inst/src/makefile"
 }
 
 function build_capricerpi() {
-    cd src
-    make clean
-
-    make RELEASE=TRUE
+    make -C src clean
+    make -C src RELEASE=TRUE
     md_ret_require="$md_build/src/capriceRPI"
 }
 

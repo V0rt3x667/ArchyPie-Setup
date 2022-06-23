@@ -52,25 +52,24 @@ function _build_libcapsimage_hatari() {
 
 function build_hatari() {
     _build_libcapsimage_hatari
-    
-    # build hatari
-    cd "$md_build"
     cmake . \
-        -Bbuild \
+        -S"$md_build" \
+        -B"$md_build/build" \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX:PATH="$md_inst" \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -DCAPSIMAGE_INCLUDE_DIR="$md_build/src/includes" \
         -DCAPSIMAGE_LIBRARY="$md_build/lib/libcapsimage.so.5.1" \
         -Wno-dev
-    ninja -C build
+    ninja -C "$md_build/build" clean
+    ninja -C "$md_build/build"
     md_ret_require="$md_build/build/src/hatari"
 }
 
 function _install_libcapsimage_hatari() {
-    cp "$md_build/lib/libcapsimage.so.5.1" "$md_inst/lib"
+    install -Dm644 "$md_build/lib/libcapsimage.so.5.1" -t "$md_inst/lib"
     ln -sf "$md_inst/lib/libcapsimage.so.5.1" "$md_inst/lib/libcapsimage.so.5"
 }
 

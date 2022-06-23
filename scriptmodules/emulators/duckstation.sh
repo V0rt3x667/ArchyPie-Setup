@@ -41,7 +41,9 @@ function build_duckstation() {
         -DUSE_DRMKMS=ON \
         -DUSE_WAYLAND=ON \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
+
     md_ret_require=(
         'build/bin/duckstation-nogui'
         'build/bin/duckstation-qt'

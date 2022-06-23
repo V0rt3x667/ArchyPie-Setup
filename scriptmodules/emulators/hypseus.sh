@@ -39,15 +39,21 @@ function sources_hypseus() {
 }
 
 function build_hypseus() {
-    rm -rf build
-    mkdir build
-    cd build
+    # Does not currently build with Ninja.
     rpSwap on 1024
-    cmake ../src
-    make
+    cmake . \
+        -Ssrc \
+        -Bbuild \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -Wno-dev
+    make -C build clean
+    make -C build
     rpSwap off
-    cp hypseus ../hypseus.bin
-    md_ret_require="hypseus"
+
+    cp build/hypseus hypseus.bin
+    md_ret_require="hypseus.bin"
 }
 
 function install_hypseus() {

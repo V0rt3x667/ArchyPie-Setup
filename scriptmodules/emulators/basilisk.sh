@@ -8,19 +8,18 @@ rp_module_id="basilisk"
 rp_module_desc="BasiliskII - Apple Macintosh II Emulator"
 rp_module_help="ROM Extensions: .img .rom\n\nCopy your Macintosh roms mac.rom and disk.img to $romdir/macintosh"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/cebix/macemu/master/BasiliskII/COPYING"
-rp_module_repo="git https://github.com/cebix/macemu.git master"
+rp_module_repo="git https://github.com/kanjitalk755/macemu.git master"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="!mali"
 
 function depends_basilisk() {
-    local depends=('sdl' 'vde2')
+    local depends=('sdl2' 'vde2')
     isPlatform "x11" && depends+=('gtk2')
     getDepends "${depends[@]}"
 }
 
 function sources_basilisk() {
     gitPullOrClone
-    applyPatch "$md_data/01_fix_config_rpath_error.patch"
 }
 
 function build_basilisk() {
@@ -29,16 +28,14 @@ function build_basilisk() {
     ! isPlatform "x86" && params+=(--disable-jit-compiler)
     ! isPlatform "x11" && params+=(--without-x --without-gtk)
     isPlatform "aarch64" && params+=(--build=arm)
-    NO_CONFIGURE=1 ./autogen.sh
-    ./configure --prefix="$md_inst" "${params[@]}"
+    ./autogen.sh --prefix="$md_inst" "${params[@]}"
     make clean
     make
     md_ret_require="$md_build/BasiliskII/src/Unix/BasiliskII"
 }
 
 function install_basilisk() {
-    cd BasiliskII/src/Unix
-    make install
+    make -C BasiliskII/src/Unix install
 }
 
 function configure_basilisk() {

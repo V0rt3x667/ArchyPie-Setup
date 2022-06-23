@@ -8,12 +8,20 @@ rp_module_id="atari800"
 rp_module_desc="Atari 800 - Atari 400, 800, 600XL, 800XL, 130XE & 5200 Emulator"
 rp_module_help="ROM Extensions: .a52 .atr .atr.gz .bas .bin .car .dcm .xex .xfd .xfd.gz\n\nCopy your Atari800 games to $romdir/atari800\n\nCopy your Atari 5200 roms to $romdir/atari5200 You need to copy the Atari 800/5200 BIOS files (5200.ROM, ATARIBAS.ROM, ATARIOSB.ROM and ATARIXL.ROM) to the folder $biosdir and then on first launch configure it to scan that folder for roms (F1 -> Emulator Configuration -> System Rom Settings)"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/atari800/atari800/master/COPYING"
-rp_module_repo="git https://github.com/atari800/atari800.git ATARI800_4_2_0"
+rp_module_repo="git https://github.com/atari800/atari800.git :_get_branch_atari800"
 rp_module_section="opt"
 rp_module_flags="sdl1 !mali"
 
+function _get_branch_atari800() {
+    download https://api.github.com/repos/atari800/atari800/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_atari800() {
-    local depends=('sdl' 'zlib' 'libpng')
+    local depends=(
+        'libpng'
+        'sdl'
+        'zlib'
+    )
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
     getDepends "${depends[@]}"
 }
@@ -36,8 +44,7 @@ function build_atari800() {
 }
 
 function install_atari800() {
-    cd src
-    make install
+    make -C src install
 }
 
 function _add_emulators_atari800() {

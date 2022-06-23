@@ -19,6 +19,7 @@ function _get_branch_ags() {
 function depends_ags() {
     local depends=(
         'allegro'
+        'cmake'
         'dumb'
         'freetype2'
         'libogg'
@@ -43,6 +44,7 @@ function build_ags() {
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/ags"
 }

@@ -43,6 +43,7 @@ function build_dolphin() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DUSE_SHARED_ENET=ON \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="$md_build/build/Binaries/dolphin-emu"
 }
