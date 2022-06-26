@@ -26,8 +26,7 @@ function build_ioquake3() {
 }
 
 function _arch_ioquake3() {
-    # exact parsing from Makefile
-    echo "$(uname -m | sed -e 's/i.86/x86/' | sed -e 's/^arm.*/arm/')"
+    uname -m | sed -e 's/i.86/x86/' | sed -e 's/^arm.*/arm/'
 }
 
 function install_ioquake3() {
@@ -43,8 +42,10 @@ function configure_ioquake3() {
     local launcher
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
+    isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
 
     addPort "$md_id" "quake3" "Quake III Arena" "$md_inst/ioquake3.$(_arch_ioquake3) ${launcher[*]}"
+    addPort "$md_id" "quake3-ta" "Quake III Team Arena" "$md_inst/ioq3ded.$(_arch_ioquake3) ${launcher[*]}"
     
     mkRomDir "ports/quake3"
 
