@@ -21,7 +21,7 @@ function sources_ioquake3() {
 
 function build_ioquake3() {
     make clean
-    make
+    make COPYDIR="$md_inst" USE_INTERNAL_LIBS=0
     md_ret_require="$md_build/build/release-linux-$(_arch_ioquake3)/ioquake3.$(_arch_ioquake3)"
 }
 
@@ -30,12 +30,7 @@ function _arch_ioquake3() {
 }
 
 function install_ioquake3() {
-    md_ret_files=(
-        "build/release-linux-$(_arch_ioquake3)/ioq3ded.$(_arch_ioquake3)"
-        "build/release-linux-$(_arch_ioquake3)/ioquake3.$(_arch_ioquake3)"
-        "build/release-linux-$(_arch_ioquake3)/renderer_opengl1_$(_arch_ioquake3).so"
-        "build/release-linux-$(_arch_ioquake3)/renderer_opengl2_$(_arch_ioquake3).so"
-    )
+    make COPYDIR="$md_inst" USE_INTERNAL_LIBS=0 copyfiles
 }
 
 function configure_ioquake3() {
@@ -45,7 +40,7 @@ function configure_ioquake3() {
     isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
 
     addPort "$md_id" "quake3" "Quake III Arena" "$md_inst/ioquake3.$(_arch_ioquake3) ${launcher[*]}"
-    addPort "$md_id" "quake3-ta" "Quake III Team Arena" "$md_inst/ioq3ded.$(_arch_ioquake3) ${launcher[*]}"
+    addPort "$md_id" "quake3-ta" "Quake III Team Arena" "$md_inst/ioquake3.$(_arch_ioquake3) +set fs_game missionpack ${launcher[*]}"
     
     mkRomDir "ports/quake3"
 
