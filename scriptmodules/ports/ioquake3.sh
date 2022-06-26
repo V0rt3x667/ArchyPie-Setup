@@ -34,13 +34,13 @@ function install_ioquake3() {
 }
 
 function configure_ioquake3() {
-    local launcher
+    local launcher=("$md_inst/ioquake3.$(_arch_ioquake3)")
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
     isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
 
-    addPort "$md_id" "quake3" "Quake III Arena" "$md_inst/ioquake3.$(_arch_ioquake3) ${launcher[*]}"
-    addPort "$md_id" "quake3-ta" "Quake III Team Arena" "$md_inst/ioquake3.$(_arch_ioquake3) +set fs_game missionpack ${launcher[*]}"
+    addPort "$md_id" "quake3" "Quake III Arena" "${launcher[*]}"
+    addPort "$md_id" "quake3-ta" "Quake III Team Arena" "${launcher[*]} +set fs_game missionpack"
     
     mkRomDir "ports/quake3"
 
