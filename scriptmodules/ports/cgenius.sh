@@ -19,10 +19,10 @@ function depends_cgenius() {
         'cmake'
         'curl'
         'ninja'
+        'sdl2'
         'sdl2_image' 
         'sdl2_mixer'
         'sdl2_ttf'
-        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -33,8 +33,6 @@ function sources_cgenius() {
 
 function _add_games_cgenius(){
     local cmd="$1"
-    local game
-    local path="$romdir/ports/cgenius"
     declare -A games=(
         ['keen1']="Keen 1: Marooned on Mars (Invasion of the Vorticons)"
         ['keen2']="Keen 2: The Earth Explodes (Invasion of the Vorticons)"
@@ -45,32 +43,35 @@ function _add_games_cgenius(){
         ['keen6']="Keen 6: Aliens Ate My Baby Sitter! (Goodbye, Galaxy!)"
     )
     for game in "${!games[@]}"; do
-        if [[ -d "$path/$game" ]]; then
-            addPort "$md_id" "cgenius" "${games[$game]}" "$cmd dir=games/$game"
+        if [[ -f "$romdir/ports/$md_id/$game/$game.exe" ]]; then
+            addPort "$md_id" "cgenius" "${games[$game]}" "$md_inst/$md_id.sh %ROM%" "dir=games/$game"
         fi
     done
-}
 
-function add_games_cgenius() {
-    _add_games_cgenius "$md_inst/CGeniusExe"
+    if [[ "$md_mode" == "install" ]]; then
+        # we need to use a dumb launcher script to strip quotes from runcommand's generated arguments
+        cat >"$md_inst/$md_id.sh" << _EOF_
+#!/bin/bash
+$cmd \$*
+_EOF_
+        chmod +x "$md_inst/$md_id.sh"
+    fi
 }
 
 function build_cgenius() {
+    local params
+    if isPlatform x11; then
+        params+=("-DUSE_OPENGL=ON")
+    fi 
     cmake . \
         -Bbuild \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DAPPDIR="$md_inst" \
-        -DFULL_GAMES_SHAREDIR="$md_inst/data" \
-        -DGAMES_SHAREDIR="$md_inst/data" \
-        -DDOCDIR="$md_inst/docs" \
-        -DSHAREDIR="$md_inst/data" \
-        -DSYSTEM_DATA_DIR="$md_inst/data" \
         -DNOTYPESAVE=ON \
         -DBUILD_COSMOS=1 \
-        -DUSE_OPENGL=ON \
+        "${params[*]}" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -78,17 +79,17 @@ function build_cgenius() {
 }
 
 function install_cgenius() {
-    ninja -C build install/strip
+    md_ret_files=(
+        'build/src/CGeniusExe'
+        'vfsroot'
+    )
 }
 
 function configure_cgenius() {
-    #addPort "$md_id" "cgenius" "Keen: Launch Commander Genius GUI" "$md_inst/CGeniusExe"
     mkRomDir "ports/$md_id"
 
-    moveConfigDir "$home/.CommanderGenius"  "$md_conf_root/$md_id"
-    moveConfigDir "$md_conf_root/$md_id/games"  "$romdir/ports/$md_id"
+    moveConfigDir "$home/.CommanderGenius" "$md_conf_root/$md_id"
+    moveConfigDir "$md_conf_root/$md_id/games" "$romdir/ports/$md_id"
 
-    [[ "$md_mode" == "install" ]]
-
-    add_games_cgenius
+    _add_games_cgenius "$md_inst/CGeniusExe"
 }
