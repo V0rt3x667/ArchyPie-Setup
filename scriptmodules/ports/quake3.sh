@@ -31,7 +31,7 @@ function install_quake3() {
     )
 }
 
-function game_data_quake3() {
+function _game_data_quake3() {
     if [[ ! -f "$romdir/ports/quake3/baseq3/pak0.pk3" ]]; then
         downloadAndExtract "$__archive_url/Q3DemoPaks.zip" "$romdir/ports/quake3/baseq3" -j
     fi
@@ -41,11 +41,10 @@ function game_data_quake3() {
 
 function configure_quake3() {
     mkRomDir "ports/quake3"
-    addPort "$md_id" "quake3" "Quake III Arena" "LD_LIBRARY_PATH=lib $md_inst/ioquake3.arm"
 
-    [[ "$md_mode" == "remove" ]] && return
+    addPort "$md_id" "quake3" "Quake III Arena" "LD_LIBRARY_PATH=lib $md_inst/ioquake3.arm"
 
     moveConfigDir "$md_inst/baseq3" "$romdir/ports/quake3/baseq3"
 
-    game_data_quake3
+    [[ "$md_mode" == "install" ]] && _game_data_quake3
 }

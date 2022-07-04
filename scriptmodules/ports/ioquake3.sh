@@ -12,7 +12,12 @@ rp_module_section="opt"
 rp_module_flags="!videocore"
 
 function depends_ioquake3() {
-    getDepends sdl2 mesa
+    local depends=(
+        'mesa'
+        'perl-rename'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_ioquake3() {
@@ -33,20 +38,44 @@ function install_ioquake3() {
     make COPYDIR="$md_inst" USE_INTERNAL_LIBS=0 copyfiles
 }
 
-function configure_ioquake3() {
-    local launcher=("$md_inst/ioquake3.$(_arch_ioquake3)")
-    isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
-    isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
-    isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
+function _add_games_ioquake3() {
+    local cmd="$1"
+    local dir
+    local game
+    declare -A games=(
+        ['baseq3/pak0.pk3']="Quake III Arena"
+        ['missionpack/pak0.pk3']="Quake III: Team Arena"
+    )
 
-    addPort "$md_id" "quake3" "Quake III Arena" "${launcher[*]}"
-    addPort "$md_id" "quake3-ta" "Quake III Team Arena" "${launcher[*]} +set fs_game missionpack"
-    
+    for game in "${!games[@]}"; do
+        dir="$romdir/ports/quake3/$game"
+        # Convert Uppercase Filenames to Lowercase
+        pushd "${dir%/*}"
+        perl-rename 'y/A-Z/a-z/' *
+        popd
+        if [[ -f "$dir" ]]; then
+            if [[ "$game" == "missionpack/pak0.pk3" ]]; then
+                addPort "$md_id" "quake3" "${games[$game]}" "$cmd" "${game%/*}"
+            else
+                addPort "$md_id" "quake3" "${games[$game]}" "$cmd" "${game%/*}"
+            fi
+        fi
+    done
+}
+
+function configure_ioquake3() {
     mkRomDir "ports/quake3"
 
     moveConfigDir "$md_inst/baseq3" "$romdir/ports/quake3/baseq3"
     moveConfigDir "$md_inst/missionpack" "$romdir/ports/quake3/missionpack"
     moveConfigDir "$home/.q3a" "$md_conf_root/ioquake3"
 
-    [[ "$md_mode" == "install" ]] && game_data_quake3
+    [[ "$md_mode" == "install" ]] && _game_data_quake3
+    
+    local launcher=("$md_inst/ioquake3.$(_arch_ioquake3) +set fs_game %ROM%")
+    isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
+    isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
+    isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
+
+    _add_games_ioquake3 "${launcher[*]}"
 }

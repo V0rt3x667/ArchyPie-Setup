@@ -10,6 +10,10 @@ rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-prbo
 rp_module_repo="git https://github.com/libretro/libretro-prboom.git master"
 rp_module_section="opt"
 
+function depends_lr-prboom() {
+    getDepends perl-rename
+}
+
 function sources_lr-prboom() {
     gitPullOrClone
 }
@@ -44,9 +48,8 @@ function _game_data_lr-prboom() {
 function _add_games_lr-prboom() {
     local addon="$romdir/ports/doom/addon"
     local cmd="$1"
-    local doswad
+    local dir
     local game
-    local wad
     declare -A games=(
         ['doom1.wad']="Doom (Shareware)"
         ['doom.wad']="Doom: The Ultimate Doom"
@@ -70,17 +73,15 @@ function _add_games_lr-prboom() {
             ['strife1.wad']="Strife"
         )
     fi
+
     # Create .sh files for each game found. Uppercase filnames will be converted to lowercase.
     for game in "${!games[@]}"; do
-        doswad="$romdir/ports/doom/${game^^}"
-        wad="$romdir/ports/doom/$game"
-        if [[ -f "$doswad" ]]; then
-            mv "$doswad" "$wad"
-        fi
-        if [[ -f "$wad" ]]; then
-            addPort "$md_id" "doom" "${games[$game]}" "$cmd" "$wad"
+        dir="$romdir/ports/doom/$game"
+        perl-rename 'y/A-Z/a-z/' "$dir"/*
+        if [[ -f "$dir/$game" ]]; then
+            addPort "$md_id" "doom" "${games[$game]}" "$cmd" "$game"
             if [[ "$md_id" == "gzdoom" || "$md_id" == "lzdoom" ]]; then
-                addPort "$md_id-addon" "doom" "${games[$game]}" "$cmd -file ${addon}/*" "$wad"
+                addPort "$md_id-addon" "doom" "${games[$game]}" "$cmd -file ${addon}/*" "$game"
             fi
         fi
     done

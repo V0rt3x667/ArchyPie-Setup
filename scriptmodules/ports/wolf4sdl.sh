@@ -13,6 +13,7 @@ rp_module_flags="sdl2"
 
 function depends_wolf4sdl() {
      local depends=(
+        'perl-rename'
         'sdl2_mixer'
         'sdl2'
     )
@@ -33,9 +34,8 @@ function _get_opts_wolf4sdl() {
 
 function _add_games_wolf4sdl() {
     local cmd="$1"
-    local doswad
+    local dir
     local game
-    local wad
     declare -A games=(
         ['vswap.sd1']="Wolfenstein 3D: Spear of Destiny"
         ['vswap.sd2']="Wolfenstein 3D: Spear of Destiny: Mission Pack 2: Return to Danger"
@@ -48,20 +48,20 @@ function _add_games_wolf4sdl() {
     if [[ "$md_id" == "ecwolf" ]]; then
         games+=(['vswap.n3d']="Super Noah's Ark 3D")
     fi
-    # Create .sh files for each game found. Uppercase filnames will be converted to lowercase.
+
     for game in "${!games[@]}"; do
-        doswad="$romdir/ports/wolf3d/${game^^}"
-        wad="$romdir/ports/wolf3d/$game"
-        if [[ -f "$doswad" ]]; then
-            mv "$doswad" "$wad"
-        fi
-        if [[ -f "$wad" ]]; then
+        dir="$romdir/ports/wolf3d/$game"
+        # Convert Uppercase Filenames to Lowercase
+        pushd "${dir%/*}"
+        perl-rename 'y/A-Z/a-z/' *
+        popd
+        if [[ -f "$dir" ]]; then
             if [[ $md_id == ecwolf ]]; then
-                addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd" "${wad##*.}"
+                addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd" "${game##*.}"
             elif [[ $md_id == splitwolf ]]; then
-                addPort "$md_id" "splitwolf" "SplitWolf: ${games[$game]/Wolfenstein 3D:/}" "$cmd" "$wad"
+                addPort "$md_id" "splitwolf" "SplitWolf: ${games[$game]/Wolfenstein 3D:/}" "$cmd" "$game"
             else
-                addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd" "$wad"
+                addPort "$md_id" "wolf3d" "${games[$game]}" "$cmd" "$game"
             fi
         fi
     done

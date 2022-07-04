@@ -21,6 +21,7 @@ function depends_iortcw() {
         'openal'
         'opus'
         'opusfile'
+        'perl-rename'
         'pcre'
         'sdl2'
         'zlib'
@@ -55,18 +56,44 @@ function install_iortcw() {
     done
 }
 
+function _add_games_iortcw() {
+    local cmd="$1"
+    local dir
+    local game
+    declare -A games=(
+        ['main/pak0.pk3']="Return to Castle Wolfenstein (SP)"
+        ['main/mp_pak0.pk3']="Return to Castle Wolfenstein (MP)"
+    )
+
+    for game in "${!games[@]}"; do
+        dir="$romdir/ports/rtcw/$game"
+        # Convert Uppercase Filenames to Lowercase
+        pushd "${dir%/*}"
+        perl-rename 'y/A-Z/a-z/' *
+        popd
+        if [[ -f "$dir" ]]; then
+            if [[ "$game" == "main/mp_pak0.pk3" ]]; then
+                addPort "$md_id" "rtcw" "${games[$game]}" "$cmd" "iowolfmp"
+            else
+                addPort "$md_id" "rtcw" "${games[$game]}" "$cmd" "iowolfsp"
+            fi
+        fi
+    done
+}
+
 function configure_iortcw() {
-    local launcher
+    mkRomDir "ports/rtcw"
+
+    moveConfigDir "$md_inst/main" "$romdir/ports/rtcw/main"
+    moveConfigDir "$home/.wolf" "$md_conf_root/iortcw"
+    #chown -R "$user:$user" "$romdir/ports/rtcw"
+
+    [[ "$md_mode" == "remove" ]] && return 
+
+    local launcher=("$md_inst/%ROM%.$(_arch_iortcw)")
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
     isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
 
-    addPort "$md_id" "rtcw" "Return to Castle Wolfenstein (SP)" "$md_inst/iowolfsp.$(_arch_iortcw) ${launcher[*]}"
-    addPort "$md_id" "rtcw-mp" "Return to Castle Wolfenstein (MP)" "$md_inst/iowolfmp.$(_arch_iortcw) ${launcher[*]}"
-
-    mkRomDir "ports/rtcw"
-
-    moveConfigDir "$home/.wolf" "$md_conf_root/iortcw"
-    moveConfigDir "$md_inst/main" "$romdir/ports/rtcw/main"
-    chown -R "$user:$user" "$romdir/ports/rtcw"
+    _add_games_iortcw "${launcher[*]}"
 }

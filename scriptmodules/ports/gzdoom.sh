@@ -27,6 +27,7 @@ function depends_gzdoom() {
         'gtk3'
         'libjpeg-turbo'
         'openal'
+        'perl-rename'
         'sdl2'
     )
     getDepends "${depends[@]}"

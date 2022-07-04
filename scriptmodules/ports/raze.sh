@@ -24,6 +24,7 @@ function depends_raze() {
         'gtk3'
         'libjpeg-turbo'
         'ninja'
+        'perl-rename'
         'openal'
         'sdl2'
     )
@@ -65,58 +66,57 @@ function install_raze() {
         'package/common/gpl-2.0.txt'
         'soundfont/raze.sf2'
     )
-    install -Dm644 "$md_build"/zmusic/build/source/libzmusic* -t "$md_inst/lib"
+    mkdir "$md_inst/lib"
+    cp -Pv "$md_build"/zmusic/source/*.so* "$md_inst/lib"
 }
 
 function _add_games_raze() {
-    local binary="$1"
+    local cmd="$1"
+    local dir
     local game
-    local game_args
-    local game_launcher
-    local game_path
-    local game_portname
-    local num_games=16
+    declare -A games=(
+        ['blood/blood.rff']="Blood"
+        ['blood/cryptic.ini']="Blood: Cryptic Passage"
+        ['duke3d/duke3d.grp']="Duke Nukem 3D"
+        ['duke3d/dukedc.grp']="Duke Nukem 3D: Duke It Out in D.C."
+        ['duke3d/vacation.grp']="Duke Nukem 3D: Duke Caribbean: Life's a Beach"
+        ['duke3d/nwinter.grp']="Duke Nukem 3D: Duke: Nuclear Winter"
+        ['exhumed/stuff.dat']="Exhumed (AKA PowerSlave)"
+        ['nam/nam.grp']="NAM (AKA Napalm)"
+        ['nam/napalm.grp']="Napalm (AKA NAM)"
+        ['redneck/redneck.grp']="Redneck Rampage"
+        ['redneck/game66.con']="Redneck Rampage: Suckin' Grits on Route 66"
+        ['redneck/rides.grp']="Redneck Rampage II: Redneck Rampage Rides Again"
+        ['shadow/sw.grp']="Shadow Warrior"
+        ['shadow/td.grp']="Shadow Warrior: Twin Dragon"
+        ['shadow/wt.grp']="Shadow Warrior: Wanton Destruction"
+        ['ww2gi/ww2gi.grp']="World War II GI"
+        ['ww2gi/platoonl.dat']="World War II GI: Platoon Leader"
+    )
 
-    local game0=('Blood' 'blood' '-iwad blood.rff')
-    local game1=('Blood: Cryptic Passage' 'blood' '-cryptic')
-    local game2=('Duke Nukem 3D' 'duke3d' '-addon 0')
-    local game3=('Duke Nukem 3D: Duke It Out In D.C.' 'duke3d' '-addon 1')
-    local game4=('Duke Nukem 3D: Duke: Nuclear Winter' 'duke3d' '-addon 2')
-    local game5=('Duke Nukem 3D: Duke Caribbean: Life'\''s a Beach' 'duke3d' '-addon 3')
-    local game6=('Exhumed-PowerSlave' 'exhumed' '-iwad stuff.dat')
-    local game7=('Napalm' 'nam' '-napalm')
-    local game8=('NAM' 'nam' '-nam')
-    local game9=('Redneck Rampage' 'redneck' '-iwad redneck.grp')
-    local game10=('Redneck Rampage: Suckin'\'' Grits on Route 66' 'redneck' '-route66')
-    local game11=('Redneck Rampage: Redneck Rampage Rides Again' 'redneck' '-iwad rides.grp')
-    local game12=('Shadow Warrior' 'shadow' '-iwad sw.grp')
-    local game13=('Shadow Warrior: Twin Dragon' 'shadow' '-iwad td.grp')
-    local game14=('Shadow Warrior: Wanton Destruction' 'shadow' '-iwad wt.grp')
-    local game15=('World War II GI' 'ww2gi' '-ww2gi')
-    local game16=('World War II GI: Platoon Leader' 'ww2gi' '-iwad platoonl.dat')
-
-    for ((game=0;game<=num_games;game++)); do
-        game_launcher="game${game}[0]"
-        game_portname="game${game}[1]"
-        game_path="game${game}[1]"
-        game_args="game${game}[2]"
-        if [[ -d "$romdir/ports/${!game_path}" ]]; then
-           addPort "$md_id" "${!game_portname}" "${!game_launcher}" "${binary}.sh %ROM%" "${!game_args}"
+    for game in "${!games[@]}"; do
+        dir="$romdir/ports/$game"
+        # Convert Uppercase Filenames to Lowercase
+        pushd "${dir%/*}"
+        perl-rename 'y/A-Z/a-z/' *
+        popd
+        if [[ -f "$dir" ]]; then
+            # Add Blood: Cryptic Passage
+            if [[ "$game" == "blood/cryptic.ini" ]]; then
+                addPort "$md_id" "${game%/*}" "${games[$game]}" "$cmd -%ROM%" "cryptic"
+            # Add Redneck Rampage: Suckin' Grits on Route 66
+            elif [[ "$game" == "redneck/game66.con" ]]; then
+                addPort "$md_id" "${game%/*}" "${games[$game]}" "$cmd -%ROM%" "route66"
+            # Add Games Which Do Not Require Additional Parameters
+            else
+                addPort "$md_id" "${game%/*}" "${games[$game]}" "$cmd -iwad %ROM%" "${game#*/}"
+            fi
         fi
     done
-
-    if [[ "$md_mode" == "install" ]]; then
-        # we need to use a dumb launcher script to strip quotes from runcommand's generated arguments
-        cat > "${binary}.sh" << _EOF_
-#!/bin/bash
-$md_inst/raze +vid_renderer 1 +vid_fullscreen 1 \$*
-_EOF_
-        chmod +x "${binary}.sh"
-    fi
 }
 
 function configure_raze() {
-    local dir=(
+    local dirs=(
         'blood'
         'duke3d' 
         'exhumed'
@@ -125,9 +125,11 @@ function configure_raze() {
         'shadow'
         'ww2gi' 
     )
-    for d in "${dir[@]}"; do
-        mkRomDir "ports/$d"
+    for dir in "${dirs[@]}"; do
+        mkRomDir "ports/$dir"
     done
 
-    [[ "$md_mode" == "install" ]] && _add_games_raze "$md_inst/raze"
+    moveConfigDir "$home/.config/raze" "$md_conf_root/raze"
+
+    [[ "$md_mode" == "install" ]] && _add_games_raze "$md_inst/raze +vid_renderer 1 +vid_fullscreen 1"
 }
