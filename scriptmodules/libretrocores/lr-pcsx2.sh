@@ -29,7 +29,8 @@ function depends_lr-pcsx2() {
 
 function sources_lr-pcsx2() {
     gitPullOrClone
-    sed '/set(CMAKE_C_COMPILER_LAUNCHER ccache)/d; /set(CMAKE_CXX_COMPILER_LAUNCHER ccache)/d' -i "$md_build/CMakeLists.txt"
+    # Set root directory under $biosdir
+    sed 's|Path::Combine(system, "pcsx2/bios");|Path::Combine(system, "ps2/bios");|g' -i ./libretro/main.cpp
 }
 
 function build_lr-pcsx2() {
@@ -42,10 +43,8 @@ function build_lr-pcsx2() {
         -DDISABLE_BUILD_DATE=ON \
         -DENABLE_TESTS=OFF \
         -DLIBRETRO=ON \
-        -DSDL2_API=ON \
         -DREBUILD_SHADER=ON \
         -DXDG_STD=ON \
-        -DUSE_LTO=OFF \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -58,7 +57,9 @@ function install_lr-pcsx2() {
 
 function configure_lr-pcsx2() {
     mkRomDir "ps2"
-    mkUserDir "$biosdir/pcsx2/bios"
+
+    mkUserDir "$biosdir/ps2"
+    mkUserDir "$biosdir/ps2/bios"
 
     defaultRAConfig "ps2"
 

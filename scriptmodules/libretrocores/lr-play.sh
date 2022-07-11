@@ -14,12 +14,12 @@ rp_module_flags="!all 64bit"
 
 function depends_lr-play() {
     local depends=(
+        'bzip2'
         'glew'
-        'libglvnd'
+        'glibc'
         'icu'
         'libgl'
-        'bzip2'
-        'glibc'
+        'libglvnd'
         'zlib'
     )
     getDepends "${depends[@]}"
@@ -27,7 +27,8 @@ function depends_lr-play() {
 
 function sources_lr-play() {
     gitPullOrClone
-    find . -type f -name "*.h" -exec sed -i '1i#include <string.h>' {} +
+    # Add missing include: #include <string.h>
+    find Source/{ee,iop} -type f -name "*" -exec sed -i '1i#include <string.h>' {} +
 }
 
 function build_lr-play() {
@@ -37,7 +38,6 @@ function build_lr-play() {
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DCMAKE_CXX_COMPILER=clang++ \
         -DBUILD_LIBRETRO_CORE=ON \
         -DBUILD_PLAY=OFF \
         -DBUILD_TESTS=OFF \

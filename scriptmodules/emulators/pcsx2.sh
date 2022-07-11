@@ -15,14 +15,17 @@ rp_module_flags="!all x86"
 function depends_pcsx2() {
     local depends=(
         'cmake'
+        'doxygen'
         'fmt'
         'libaio'
         'ninja'
         'png++'
         'portaudio'
+        'qt6-base'
+        'qt6-tools'
+        'rapidyaml'
         'sdl2'
         'soundtouch'
-        'wxgtk3'
     )
     getDepends "${depends[@]}"
 }
@@ -32,6 +35,9 @@ function sources_pcsx2() {
 }
 
 function build_pcsx2() {
+    #local params=()
+    #isPlatform wayland && params+=('-DWAYLAND_API=ON')
+
     cmake . \
         -Bbuild \
         -GNinja \
@@ -41,28 +47,53 @@ function build_pcsx2() {
         -DENABLE_TESTS=OFF \
         -DDISABLE_BUILD_DATE=ON \
         -DDISABLE_PCSX2_WRAPPER=ON \
-        -DSDL2_API=ON \
         -DUSE_VTUNE=OFF \
-        -DUSE_SYSTEM_YAML=OFF \
-        -DPACKAGE_MODE=ON \
+        -DUSE_SYSTEM_LIBS=ON \
         -DXDG_STD=ON \
-        -DwxWidgets_CONFIG_EXECUTABLE=/usr/bin/wx-config-gtk3 \
+        -DQT_BUILD=ON \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
-    md_ret_require="$md_build/build/pcsx2/pcsx2"
+    md_ret_require="$md_build/build/pcsx2-qt/pcsx2-qt"
 }
 
 function install_pcsx2() {
-    ninja -C build install/strip
+    md_ret_files=(
+        'build/pcsx2-qt/pcsx2-qt'
+        'build/pcsx2-qt/resources'
+    )
+    ln -svf "$md_inst/pcsx2-qt" "$md_inst/pcsx2"
 }
 
 function configure_pcsx2() {
     mkRomDir "ps2"
-    moveConfigDir "$home/.config/PCSX2" "$md_conf_root/ps2"
-    ln -svf "$md_conf_root/ps2/bios/" "$biosdir/ps2"
-    # Windowed option
-    addEmulator 0 "$md_id" "ps2" "$md_inst/bin/pcsx2 %ROM% --windowed"
-    # Fullscreen option with no gui (default, because we can close with `Esc` key, easy to map for gamepads)
-    addEmulator 1 "$md_id-nogui" "ps2" "$md_inst/bin/pcsx2 %ROM% --fullscreen --nogui"
+
+    mkUserDir "$biosdir/ps2"
+    mkUserDir "$biosdir/ps2/bios"
+
+    moveConfigDir "$home/.config/PCSX2" "$md_conf_root/ps2/$md_id"
+    moveConfigDir "$md_conf_root/ps2/$md_id/bios" "$biosdir/ps2/bios"  
+
+    addEmulator 1 "$md_id" "ps2" "$md_inst/pcsx2 %ROM%"
+    addEmulator 0 "$md_id-gui" "ps2" "$md_inst/pcsx2"
+
     addSystem "ps2"
+
+    [[ "$md_mode" == "remove" ]] && return
+
+    mkUserDir "$md_conf_root/ps2/$md_id/inis"
+
+    # Set default settings.
+    local inifile
+    inifile="$md_conf_root/ps2/$md_id/inis/PCSX2.ini"
+    if [[ ! -f "$inifile" ]]; then
+        iniConfig " = " "" "$inifile"
+        echo "[UI]" >> "$inifile"
+        iniSet "SettingsVersion" "1"
+        iniSet "StartFullscreen" "true"
+        iniSet "HideMouseCursor" "true"
+        echo "[GameList]" >> "$inifile"
+        iniSet "Paths" "$romdir/ps2"
+    fi
+    chown -R "$user:$user" "$md_conf_root/ps2/$md_id"
 }
