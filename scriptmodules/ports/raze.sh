@@ -86,7 +86,7 @@ function _add_games_raze() {
         ['nam/napalm.grp']="Napalm (AKA NAM)"
         ['redneck/redneck.grp']="Redneck Rampage"
         ['redneck/game66.con']="Redneck Rampage: Suckin' Grits on Route 66"
-        ['redneck/rides.grp']="Redneck Rampage II: Redneck Rampage Rides Again"
+        ['redneckrides/redneck.grp']="Redneck Rampage II: Redneck Rampage Rides Again"
         ['shadow/sw.grp']="Shadow Warrior"
         ['shadow/td.grp']="Shadow Warrior: Twin Dragon"
         ['shadow/wt.grp']="Shadow Warrior: Wanton Destruction"
@@ -122,6 +122,7 @@ function configure_raze() {
         'exhumed'
         'nam'
         'redneck'
+        'redneckrides'
         'shadow'
         'ww2gi' 
     )
