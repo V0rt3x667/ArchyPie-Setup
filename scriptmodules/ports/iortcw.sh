@@ -69,7 +69,7 @@ function _add_games_iortcw() {
         dir="$romdir/ports/rtcw/$game"
         # Convert Uppercase Filenames to Lowercase
         pushd "${dir%/*}"
-        perl-rename 'y/A-Z/a-z/' *
+        perl-rename 'y/A-Z/a-z/' [^.-]*
         popd
         if [[ -f "$dir" ]]; then
             if [[ "$game" == "main/mp_pak0.pk3" ]]; then

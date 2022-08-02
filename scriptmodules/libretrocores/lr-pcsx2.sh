@@ -30,7 +30,10 @@ function depends_lr-pcsx2() {
 function sources_lr-pcsx2() {
     gitPullOrClone
     # Set root directory under $biosdir
-    sed 's|Path::Combine(system, "pcsx2/bios");|Path::Combine(system, "ps2/bios");|g' -i ./libretro/main.cpp
+    sed 's|Path::Combine(system, "pcsx2/bios");|Path::Combine(system, "");|g' -i ./libretro/main.cpp
+    # Set directory for memory cards
+    #sed 's|AppendDir("pcsx2");|AppendDir("lr-pcsx2");|g' -i ./{*.cpp,*.h}
+    #find . -type f -exec sed -i 's|AppendDir("pcsx2");|AppendDir("lr-pcsx2");|g' {} +
 }
 
 function build_lr-pcsx2() {
@@ -59,10 +62,10 @@ function configure_lr-pcsx2() {
     mkRomDir "ps2"
 
     mkUserDir "$biosdir/ps2"
-    mkUserDir "$biosdir/ps2/bios"
 
-    defaultRAConfig "ps2"
+    defaultRAConfig "ps2" "system_directory" "$biosdir/ps2"
 
     addEmulator 0 "$md_id" "ps2" "$md_inst/pcsx2_libretro.so"
+
     addSystem "ps2"
 }

@@ -1,0 +1,27 @@
+diff -ru a/sources/src/fpp_native.c b/sources/src/fpp_native.c
+--- a/sources/src/fpp_native.c	2022-07-12 00:09:55.203424000 +0100
++++ b/sources/src/fpp_native.c	2022-07-12 01:51:54.078650950 +0100
+@@ -903,7 +903,7 @@
+ static void fp_log2(fpdata *a, fpdata *b)
+ {
+ 	fp_normal_prec();
+-	a->fp = log2l(b->fp);
++	a->fp = logbl(b->fp);
+ 	fp_reset_normal_prec();
+ 	fp_round(a);
+ }
+diff -ru a/sources/src/include/sysdeps.h b/sources/src/include/sysdeps.h
+--- a/sources/src/include/sysdeps.h	2022-07-12 00:09:55.272426000 +0100
++++ b/sources/src/include/sysdeps.h	2022-07-12 01:53:55.253945708 +0100
+@@ -747,11 +747,4 @@
+ #define _daylight 0
+ #endif
+ 
+-#ifndef log2
+-#define log2 logb
+-#endif
+-#ifndef log2l
+-#define log2l logbl
+-#endif
+-
+ #endif /* UAE_SYSDEPS_H */

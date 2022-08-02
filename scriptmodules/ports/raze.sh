@@ -98,7 +98,7 @@ function _add_games_raze() {
         dir="$romdir/ports/$game"
         # Convert Uppercase Filenames to Lowercase
         pushd "${dir%/*}"
-        perl-rename 'y/A-Z/a-z/' *
+        perl-rename 'y/A-Z/a-z/' [^.-]*
         popd
         if [[ -f "$dir" ]]; then
             # Add Blood: Cryptic Passage

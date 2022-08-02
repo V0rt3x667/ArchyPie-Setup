@@ -69,10 +69,10 @@ function configure_pcsx2() {
     mkRomDir "ps2"
 
     mkUserDir "$biosdir/ps2"
-    mkUserDir "$biosdir/ps2/bios"
+    #mkUserDir "$biosdir/ps2/bios"
 
     moveConfigDir "$home/.config/PCSX2" "$md_conf_root/ps2/$md_id"
-    moveConfigDir "$md_conf_root/ps2/$md_id/bios" "$biosdir/ps2/bios"  
+    #moveConfigDir "$md_conf_root/ps2/$md_id/bios" "$biosdir/ps2/bios"  
 
     addEmulator 1 "$md_id" "ps2" "$md_inst/pcsx2 %ROM%"
     addEmulator 0 "$md_id-gui" "ps2" "$md_inst/pcsx2"
@@ -84,16 +84,16 @@ function configure_pcsx2() {
     mkUserDir "$md_conf_root/ps2/$md_id/inis"
 
     # Set default settings.
-    local inifile
-    inifile="$md_conf_root/ps2/$md_id/inis/PCSX2.ini"
-    if [[ ! -f "$inifile" ]]; then
-        iniConfig " = " "" "$inifile"
-        echo "[UI]" >> "$inifile"
-        iniSet "SettingsVersion" "1"
-        iniSet "StartFullscreen" "true"
-        iniSet "HideMouseCursor" "true"
-        echo "[GameList]" >> "$inifile"
-        iniSet "Paths" "$romdir/ps2"
-    fi
-    chown -R "$user:$user" "$md_conf_root/ps2/$md_id"
+    local config="$(mktemp)"
+    iniConfig " = " "" "$config"
+    echo "[UI]" > "$config"
+    iniSet "SettingsVersion" "1"
+    iniSet "StartFullscreen" "true"
+    iniSet "HideMouseCursor" "true"
+    echo "[GameList]" >> "$config"
+    iniSet "Paths" "$romdir/ps2"
+    echo "[Folders]" >> "$config"
+    iniSet "Bios" "$biosdir/ps2"
+    copyDefaultConfig "$config" "$md_conf_root/ps2/$md_id/inis/PCSX2.ini"
+    rm "$config"
 }

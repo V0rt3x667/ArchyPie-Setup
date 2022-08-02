@@ -32,41 +32,6 @@ function sources_cgenius() {
     gitPullOrClone
 }
 
-function _add_games_cgenius(){
-    local cmd="$1"
-    local dir
-    local game
-    declare -A games=(
-        ['keen1/keen1.exe']="Keen 1: Marooned on Mars (Invasion of the Vorticons)"
-        ['keen2/keen2.exe']="Keen 2: The Earth Explodes (Invasion of the Vorticons)"
-        ['keen3/keen3.exe']="Keen 3: Keen Must Die! (Invasion of the Vorticons)"
-        ['keen3.5/keen3.exe']="Keen Dreams (Lost Episode)"
-        ['keen4/keen4.exe']="Keen 4: Secret of the Oracle (Goodbye, Galaxy!)"
-        ['keen5/keen5.exe']="Keen 5: The Armageddon Machine (Goodbye, Galaxy!)"
-        ['keen6/keen6.exe']="Keen 6: Aliens Ate My Baby Sitter! (Goodbye, Galaxy!)"
-    )
-
-    for game in "${!games[@]}"; do
-        dir="$romdir/ports/cgenius/$game"
-        # Convert Uppercase Filenames to Lowercase
-        pushd "${dir%/*}"
-        perl-rename 'y/A-Z/a-z/' *
-        popd
-        if [[ -f "$dir" ]]; then
-            addPort "$md_id" "cgenius" "${games[$game]}" "$md_inst/$md_id.sh %ROM%" "dir=games/${game%/*}"
-        fi
-    done
-
-    if [[ "$md_mode" == "install" ]]; then
-        # Create a launcher script to strip quotes from runcommand's generated arguments.
-        cat >"$md_inst/$md_id.sh" << _EOF_
-#!/bin/bash
-$cmd \$*
-_EOF_
-        chmod +x "$md_inst/$md_id.sh"
-    fi
-}
-
 function build_cgenius() {
     local params
     if isPlatform x11; then
@@ -94,6 +59,43 @@ function install_cgenius() {
     )
 }
 
+function _add_games_cgenius(){
+    local cmd="$1"
+    local dir
+    local game
+    declare -A games=(
+        ['keen1/keen1.exe']="Keen 1: Marooned on Mars (Invasion of the Vorticons)"
+        ['keen2/keen2.exe']="Keen 2: The Earth Explodes (Invasion of the Vorticons)"
+        ['keen3/keen3.exe']="Keen 3: Keen Must Die! (Invasion of the Vorticons)"
+        ['keen3.5/keen3.5.exe']="Keen Dreams (Lost Episode)"
+        ['keen4/keen4.exe']="Keen 4: Secret of the Oracle (Goodbye, Galaxy!)"
+        ['keen4/keen4e.exe']="Keen 4: Secret of the Oracle (Goodbye, Galaxy!)"
+        ['keen5/keen5.exe']="Keen 5: The Armageddon Machine (Goodbye, Galaxy!)"
+        ['keen5/keen5e.exe']="Keen 5: The Armageddon Machine (Goodbye, Galaxy!)"
+        ['keen6/keen6.exe']="Keen 6: Aliens Ate My Baby Sitter! (Goodbye, Galaxy!)"
+    )
+
+    # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
+    for game in "${!games[@]}"; do
+        dir="$romdir/ports/cgenius"
+        pushd "$dir/${game%%/*}"
+        perl-rename 'y/A-Z/a-z/' [^.-]*
+        popd
+        if [[ -f "$dir/$game" ]]; then
+            addPort "$md_id" "cgenius" "${games[$game]}" "$md_inst/$md_id.sh %ROM%" "dir=games/${game%/*}"
+        fi
+    done
+
+    if [[ "$md_mode" == "install" ]]; then
+        # Create a launcher script to strip quotes from runcommand's generated arguments.
+        cat >"$md_inst/$md_id.sh" << _EOF_
+#!/bin/bash
+$cmd \$*
+_EOF_
+        chmod +x "$md_inst/$md_id.sh"
+    fi
+}
+
 function configure_cgenius() {
     mkRomDir "ports/$md_id"
 
@@ -101,4 +103,12 @@ function configure_cgenius() {
     moveConfigDir "$md_conf_root/$md_id/games" "$romdir/ports/$md_id"
 
     [[ "$md_mode" == "install" ]] && _add_games_cgenius "$md_inst/CGeniusExe"
+
+     # Set default settings.
+    local config="$(mktemp)"
+    iniConfig " = " "" "$config"
+    echo "[Video]" > "$config"
+    iniSet "fullscreen" "true"
+    copyDefaultConfig "$config" "$md_conf_root/$md_id/cgenius.cfg"
+    rm "$config"
 }

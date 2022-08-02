@@ -16,7 +16,7 @@ function depends_ionfury() {
 }
 
 function sources_ionfury() {
-    # patches are also shared with eduke32, so avoid duplication
+    # Patches are also shared with eduke32 to avoid duplication.
     md_data="$(dirname $md_data)/eduke32" sources_eduke32
 }
 

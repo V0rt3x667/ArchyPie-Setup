@@ -7,10 +7,10 @@
 rp_module_id="amiberry"
 rp_module_desc="Amiberry - Commodore Amiga Emulator"
 rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy your Amiga games to $romdir/amiga\n\nCopy the required BIOS files\nkick13.rom\nkick20.rom\nkick31.rom\nto $biosdir/amiga"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/midwan/amiberry/master/COPYING"
-rp_module_repo="git https://github.com/midwan/amiberry v5.2"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
+rp_module_repo="git https://github.com/BlitterStudio/amiberry v5.3"
 rp_module_section="opt"
-rp_module_flags="!all arm rpi3 rpi4"
+rp_module_flags="!all x86 arm rpi3 rpi4"
 
 function _update_hook_amiberry() {
     local rom
@@ -45,9 +45,9 @@ function depends_amiberry() {
         'libmpg123'
         'libpng'
         'libxml2'
+        'sdl2'
         'sdl2_image'
         'sdl2_ttf'
-        'sdl2'
         'zlib'
     )
     isPlatform "dispmanx" && depends+=('libraspberrypi-firmware')
@@ -64,12 +64,12 @@ function sources_amiberry() {
 
 function build_amiberry() {
     local platform=$(_get_platform_amiberry)
-    cd external/capsimg
+    cd external/capsimg || return
     ./bootstrap
     ./configure
     make clean
     make
-    cd "$md_build"
+    cd "$md_build" || return
     make clean
     make PLATFORM="$platform" CPUFLAGS="$__cpu_flags"
     md_ret_require="$md_build/amiberry"
@@ -93,8 +93,9 @@ function configure_amiberry() {
     addEmulator 0 "amiberry-a500plus" "amiga" "$md_inst/amiberry.sh %ROM% --model A500P"
     addEmulator 0 "amiberry-a1200" "amiga" "$md_inst/amiberry.sh %ROM% --model A1200"
     addEmulator 0 "amiberry-a4000" "amiga" "$md_inst/amiberry.sh %ROM% --model A4000"
-    addEmulator 0 "amiberry-cdtv" "amiga" "$md_inst/amiberry.sh %ROM% --model CDTV"
-    addEmulator 0 "amiberry-cd32" "amiga" "$md_inst/amiberry.sh %ROM% --model CD32"
+    addEmulator 0 "amiberry-cdtv" "cdtv" "$md_inst/amiberry.sh %ROM% --model CDTV"
+    addEmulator 0 "amiberry-cd32" "cd32" "$md_inst/amiberry.sh %ROM% --model CD32"
+
     addSystem "amiga"
 
     [[ "$md_mode" == "remove" ]] && return

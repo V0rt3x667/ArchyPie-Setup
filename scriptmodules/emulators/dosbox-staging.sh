@@ -50,8 +50,7 @@ function build_dosbox-staging() {
 }
 
 function install_dosbox-staging() {
-    cd "$md_build/build"
-    meson install
+    meson -C build install
 }
 
 function configure_dosbox-staging() {

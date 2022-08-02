@@ -23,9 +23,9 @@ function depends_ecwolf() {
         'libvorbis'
         'ninja'
         'opusfile'
+        'sdl2'
         'sdl2_mixer'
         'sdl2_net'
-        'sdl2'
     )
     getDepends "${depends[@]}"
 }

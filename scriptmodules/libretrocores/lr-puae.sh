@@ -13,28 +13,45 @@ rp_module_section="opt"
 
 function sources_lr-puae() {
     gitPullOrClone
+    applyPatch "$md_data/01_fix_glibc_error.patch"
     _sources_libcapsimage_fs-uae
 }
 
 function build_lr-puae() {
     _build_libcapsimage_fs-uae
-    cd "$md_build"
-    make
+    make -C "$md_build" clean
+    make -C "$md_build"
     md_ret_require="$md_build/puae_libretro.so"
 }
 
 function install_lr-puae() {
     md_ret_files=(
-        'puae_libretro.so'
         'README.md'
-        'sources/uae_data'
         'capsimg/CAPSImg/capsimg.so'
+        'puae_libretro.so'
+        'sources/uae_data'
     )
 }
 
 function configure_lr-puae() {
     mkRomDir "amiga"
-    defaultRAConfig "amiga"
+    mkRomDir "cd32"
+    mkRomDir "cdtv"
+
+    mkUserDir "$biosdir/amiga"
+    #mkUserDir "$biosdir/amiga/bios"
+
+    defaultRAConfig "amiga" "system_directory" "$biosdir/amiga"
+    defaultRAConfig "cd32" "system_directory" "$biosdir/amiga"
+    defaultRAConfig "cdtv" "system_directory" "$biosdir/amiga"
+
+    if [[ ! -f "$biosdir/amiga/bios/capsimg.so" ]]; then
+        install -Dm644 "$md_inst/capsimg.so" "$biosdir/amiga"
+    fi
+
     addEmulator 1 "$md_id" "amiga" "$md_inst/puae_libretro.so"
+
     addSystem "amiga"
+    addSystem "cd32"
+    addSystem "cdtv"
 }

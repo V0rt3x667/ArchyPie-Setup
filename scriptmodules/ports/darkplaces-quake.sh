@@ -77,7 +77,7 @@ function _add_games_darkplaces-quake() {
 function configure_darkplaces-quake() {
     mkRomDir "ports/quake"
 
-    [[ "$md_mode" == "install" ]] && game_data_lr-tyrquake
+    [[ "$md_mode" == "install" ]] && _game_data_lr-tyrquake
 
     _add_games_darkplaces-quake
 

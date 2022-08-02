@@ -30,7 +30,7 @@ function launch_amiga() {
             --cdroms_dir="$datadir/roms/cdtv" \
             --save_states_dir="$datadir/roms/cdtv"
             ;;
-        A500|A500+|A600|A1200)
+        A500|A500P|A600|A1200)
             "$rootdir/emulators/fs-uae/bin/fs-uae" \
             --amiga_model="$MODEL" \
             --floppy_drive_0="$ROM" \
@@ -46,7 +46,7 @@ function check_arch_files() {
         CD32|CDTV)
             launch_amiga
             ;;
-        A500|A500+|A600|A1200)
+        A500|A500P|A600|A1200)
             archiveExtract "$ROM" ".adf .adz .dms .ipf"
             # Check for Successful Extraction
             if [[ $? == 0 ]]; then

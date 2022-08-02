@@ -12,13 +12,24 @@ rp_module_section="opt"
 rp_module_flags="!mali"
 
 function depends_dxx-rebirth() {
-    local depends=(libpng physfs scons)
+    local depends=('libpng' 'physfs' 'scons')
     if isPlatform "videocore"; then
-        depends+=(raspberrypi-firmware sdl sdl_mixer sdl_image)
+        depends+=(
+            'raspberrypi-firmware'
+            'sdl'
+            'sdl_image'
+            'sdl_mixer'
+        )
     else
-        depends+=(mesa glu sdl2 sdl2_mixer sdl2_image unzip)
+        depends+=(
+            'glu'
+            'mesa'
+            'sdl2'
+            'sdl2_image'
+            'sdl2_mixer'
+            'unzip'
+        )
     fi
-
     getDepends "${depends[@]}"
 }
 

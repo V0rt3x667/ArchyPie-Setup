@@ -343,20 +343,21 @@ function gitPullOrClone() {
 }
 
 # @fn setupDirectories()
-# @brief Makes sure some required archypie directories and files are created.
+# @brief Makes sure some required ArchyPie directories and files are created.
 function setupDirectories() {
-    mkdir -p "$rootdir"
-    mkUserDir "$datadir"
-    mkUserDir "$romdir"
-    mkUserDir "$biosdir"
-    mkUserDir "$configdir"
-    mkUserDir "$configdir/all"
-
-    # some home folders for configs that modules rely on
+    # Create home folders for configs that modules rely on
     mkUserDir "$home/.cache"
     mkUserDir "$home/.config"
     mkUserDir "$home/.local"
     mkUserDir "$home/.local/share"
+
+    mkdir -p "$rootdir"
+    mkUserDir "$datadir"
+    mkUserDir "$romdir"
+    mkUserDir "$biosdir"
+    mkUserDir "$arpiedir"
+    mkUserDir "$configdir"
+    mkUserDir "$configdir/all"
 
     # make sure we have inifuncs.sh in place and that it is up to date
     mkdir -p "$rootdir/lib"
@@ -826,30 +827,13 @@ function setESSystem() {
     done
 }
 
-## @fn ensureSystemretroconfig()
-## @param system system to create retroarch.cfg for
-## @brief Deprecated - use defaultRAConfig
-## @details Creates a default retroarch.cfg for specified system in `$configdir/$system/retroarch.cfg`.
-function ensureSystemretroconfig() {
-    # don't do any config work on module removal
-    [[ "$md_mode" == "remove" ]] && return
-
-    # reset "$md_conf_root" to "$configdir" as defaultRAConfig handles this whereas ensureSystemretroconfig
-    # expects system to include any subdirectory in the first parameter such as "ports/$system".
-    local save_conf_root="$md_conf_root"
-    md_conf_root="$configdir"
-    defaultRAConfig "$1"
-    md_conf_root="$save_conf_root"
-}
-
 ## @fn defaultRAConfig()
 ## @param system system to create retroarch.cfg for
 ## @param ... optional key then value parameters to be used in the config
 ## @brief Creates a default retroarch.cfg for specified system in `$md_root_dir/$system/retroarch.cfg`.
 ## @details Additional default configuration values can be provided as parameters to the function - eg. "fps_show" "true"
 ## as two parameters would add a default entry of fps_show = "true" to the default configuration.
-## This function uses $md_conf_root as a base, so there is no need to use "ports/$system" for libretro ports as with
-## the older ensureSystemretroconfig
+## This function uses $md_conf_root as a base, so there is no need to use "ports/$system" for libretro ports.
 function defaultRAConfig() {
     # don't do any config work on module removal
     [[ "$md_mode" == "remove" ]] && return
@@ -1218,7 +1202,7 @@ function getPlatformConfig() {
 function addSystem() {
     local system="$1"
     local fullname="$2"
-    local exts=($3)
+    local exts=("$3")
 
     local platform="$system"
     local theme="$system"

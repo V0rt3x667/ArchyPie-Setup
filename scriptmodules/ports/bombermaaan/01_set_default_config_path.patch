@@ -1,34 +1,22 @@
---- a/trunk/src/CGame.cpp	2022-05-29 17:10:52.000000000 
-+++ b/trunk/src/CGame.cpp	2022-05-29 21:25:37.000000000 
-@@ -319,13 +319,15 @@
-     if (useAppDataFolder)
-     {
-         // Check for the Bombermaaan directory in the appdata folder
+--- a/trunk/src/CGame.cpp	2022-05-29 17:10:52.465856000 +0100
++++ b/trunk/src/CGame.cpp	2022-08-02 16:25:57.848396620 +0100
+@@ -322,7 +322,9 @@
  #ifdef WIN32
          const char* appDataPath = getenv("APPDATA");
  #else
 -        const char* appDataPath = getenv("HOME");
 +        char* env_var = getenv("HOME");
-+        const char* path = "/.config/archypie";
++        const char* path = "/.config/archypie/ports/bombermaaan";
 +        const char* appDataPath = strcat(env_var, path);
  #endif
          if (!appDataPath)
          {
- #ifdef WIN32
-             MessageBox(m_hWnd, "Could not get the user application folder (%APPDATA%).\nBombermaaan terminates.", "Error", MB_OK | MB_ICONERROR);
- #else
-@@ -350,13 +352,13 @@
-                 errorMsg.append("'.\nBombermaaan cannot run without this folder.");
-                 MessageBox(m_hWnd, errorMsg.c_str(), "Error", MB_OK | MB_ICONERROR);
-                 return false;
+@@ -353,7 +355,7 @@
              }
          }
  #else
 -        dynamicDataFolder.append("/.Bombermaaan/");
-+        dynamicDataFolder.append("/bombermaaan/");
++        dynamicDataFolder;
          struct stat dirStatus;
  
          if (stat(dynamicDataFolder.c_str(), &dirStatus) == 0 && S_ISDIR(dirStatus.st_mode))
-         {
-             // dir exists
-         }

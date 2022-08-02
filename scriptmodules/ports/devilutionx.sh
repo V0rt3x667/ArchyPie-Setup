@@ -64,36 +64,38 @@ function install_devilutionx() {
 
 function _add_games_devilutionx() {
     local cmd="$1"
+    local dir
     local game
-    
-    # Lowercase file names
-    pushd "$romdir/ports/diablo"
-    perl-rename 'y/A-Z/a-z/' *
-    popd
-    
     declare -A games=(
-        ['diablo/diabat.mpq']="Diablo"
-        ['diablo/hellfire.mpq']="Diablo: Hellfire"
-        ['diablo/spawn.mpq']="Diablo (Shareware)"
+        ['diabdat.mpq']="Diablo"
+        ['hellfire.mpq']="Diablo: Hellfire"
+        ['spawn.mpq']="Diablo (Shareware)"
     )
 
+    # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
     for game in "${!games[@]}"; do
-        local file="$romdir/ports/$game"
-        if [[ "$game" == diablo/diabat.mpq && -f "$file" ]]; then
-            addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd --diablo"
-        elif [[ "${game}" == diablo/hellfire.mpq && -f "$file" ]]; then
-            addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd --hellfire"
-        elif [[ "${game}" == diablo/spawn.mpq && -f "$file" ]]; then
-            addPort "$md_id" "${game#*/}" "${games[$game]}" "$cmd --spawn"
+        dir="$romdir/ports/diablo"
+        pushd "$dir"
+        perl-rename 'y/A-Z/a-z/' [^.-]*
+        popd
+        if [[ -f "$dir/$game" ]]; then
+            if [[ "$game" == diabdat.mpq ]]; then
+                addPort "$md_id" "diablo" "${games[$game]}" "$cmd --diablo"
+            elif [[ "$game" == hellfire.mpq ]]; then
+                addPort "$md_id" "diablo" "${games[$game]}" "$cmd --hellfire"
+            elif [[ "$game" == spawn.mpq ]]; then
+                addPort "$md_id" "diablo" "${games[$game]}" "$cmd --spawn"
+            fi
         fi
     done
 }
 
 function configure_devilutionx() {
     mkRomDir "ports/diablo"
+
     mkUserDir "$home/.local/share/diasurgical"
 
     moveConfigDir "$home/.local/share/diasurgical/devilution" "$md_conf_root/diablo"
 
-    [[ "$md_mode" == "install" ]] && _add_games_devilutionx "$md_inst/devilutionx --data-dir $romdir/ports/diablo --save-dir $romdir/ports/diablo --data-dir $md_inst/ports/devilutionx/assets"
+    [[ "$md_mode" == "install" ]] && _add_games_devilutionx "$md_inst/devilutionx --save-dir $romdir/ports/diablo --data-dir $md_inst/ports/$md_id/assets"
 }

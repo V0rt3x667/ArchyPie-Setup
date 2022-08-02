@@ -23,7 +23,6 @@ function depends_runcommand() {
     isPlatform "rpi" && depends+=(raspberrypi-firmware)
     isPlatform "rpi" || isPlatform "kms" && depends+=(fbida fbset)
     isPlatform "x11" && depends+=(feh)
-    isPlatform "kms" && depends+=(libdrm)
     getDepends "${depends[@]}"
 }
 
@@ -44,6 +43,7 @@ function install_bin_runcommand() {
     if [[ ! -f "$configdir/all/runcommand-launch-dialog.cfg" ]]; then
         dialog --create-rc "$configdir/all/runcommand-launch-dialog.cfg"
         chown "$user:$user" "$configdir/all/runcommand-launch-dialog.cfg"
+        rp_installModule "mesa-drm" "_autoupdate_"
     fi
 
     md_ret_require="$md_inst/runcommand.sh"

@@ -39,7 +39,7 @@ function _sources_sdl() {
 }
 
 function _build_sdl() {
-    cd sdl || return
+    cd sdl || exit
     ./autogen.sh
     ./configure --disable-rpath --disable-static
     make clean
@@ -47,7 +47,7 @@ function _build_sdl() {
 }
 
 function build_bombermaaan() {
-    _build_sdl && cd "$md_build" || return
+    _build_sdl && cd "$md_build" || exit
     cmake . \
         -Strunk \
         -Btrunk/build \
@@ -72,9 +72,10 @@ function install_bombermaaan() {
 function configure_bombermaaan() {
     addPort "$md_id" "bombermaaan" "Bombermaaan" "$md_inst/Bombermaaan"
 
-    mkUserDir "$home/.config/archypie"
+    mkUserDir "$arpiedir/ports"
+    mkUserDir "$arpiedir/ports/$md_id"
 
-    moveConfigDir "$home/.config/archypie/$md_id" "$md_conf_root/$md_id"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
 
     isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
 }
