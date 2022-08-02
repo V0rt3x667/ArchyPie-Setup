@@ -18,6 +18,7 @@ function depends_pcsx2() {
         'doxygen'
         'fmt'
         'libaio'
+        'libpcap'
         'ninja'
         'png++'
         'portaudio'
@@ -27,14 +28,18 @@ function depends_pcsx2() {
         'sdl2'
         'soundtouch'
     )
+
     getDepends "${depends[@]}"
 }
 
 function sources_pcsx2() {
     gitPullOrClone
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function build_pcsx2() {
+    # For future use.
     #local params=()
     #isPlatform wayland && params+=('-DWAYLAND_API=ON')
 
@@ -69,10 +74,11 @@ function configure_pcsx2() {
     mkRomDir "ps2"
 
     mkUserDir "$biosdir/ps2"
-    mkUserDir "$biosdir/ps2/bios"
+    mkUserDir "$arpiedir/emulators"
+    mkUserDir "$arpiedir/emulators/$md_id"
+    mkUserDir "$arpiedir/emulators/$md_id/inis"
 
-    moveConfigDir "$home/.config/PCSX2" "$md_conf_root/ps2/$md_id"
-    moveConfigDir "$md_conf_root/ps2/$md_id/bios" "$biosdir/ps2/bios"  
+    moveConfigDir "$arpiedir/emulators/$md_id" "$md_conf_root/ps2/$md_id"
 
     addEmulator 1 "$md_id" "ps2" "$md_inst/pcsx2 %ROM%"
     addEmulator 0 "$md_id-gui" "ps2" "$md_inst/pcsx2"
@@ -81,19 +87,18 @@ function configure_pcsx2() {
 
     [[ "$md_mode" == "remove" ]] && return
 
-    mkUserDir "$md_conf_root/ps2/$md_id/inis"
-
     # Set default settings.
-    local inifile
-    inifile="$md_conf_root/ps2/$md_id/inis/PCSX2.ini"
-    if [[ ! -f "$inifile" ]]; then
-        iniConfig " = " "" "$inifile"
-        echo "[UI]" >> "$inifile"
-        iniSet "SettingsVersion" "1"
-        iniSet "StartFullscreen" "true"
-        iniSet "HideMouseCursor" "true"
-        echo "[GameList]" >> "$inifile"
-        iniSet "Paths" "$romdir/ps2"
-    fi
-    chown -R "$user:$user" "$md_conf_root/ps2/$md_id"
+    local config="$(mktemp)"
+    iniConfig " = " "" "$config"
+    echo "[UI]" > "$config"
+    iniSet "SettingsVersion" "1"
+    iniSet "StartFullscreen" "true"
+    iniSet "HideMouseCursor" "true"
+    iniSet "ConfirmShutdown" "false"
+    echo "[GameList]" >> "$config"
+    iniSet "Paths" "$romdir/ps2"
+    echo "[Folders]" >> "$config"
+    iniSet "Bios" "$biosdir/ps2"
+    copyDefaultConfig "$config" "$md_conf_root/ps2/$md_id/inis/PCSX2.ini"
+    rm "$config"
 }

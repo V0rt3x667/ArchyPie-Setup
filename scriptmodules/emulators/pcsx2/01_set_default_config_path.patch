@@ -1,0 +1,63 @@
+--- a/pcsx2-qt/QtHost.cpp	2022-08-02 19:32:22.679863000 +0100
++++ b/pcsx2-qt/QtHost.cpp	2022-08-02 21:59:37.556045232 +0100
+@@ -147,47 +147,13 @@
+ 		return;
+ 	}
+ 
+-#if defined(_WIN32)
+-	// On Windows, use My Documents\PCSX2 to match old installs.
+-	PWSTR documents_directory;
+-	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
++#if defined(__linux__)
++	// Custom ArchyPie Path
++	const char* arpie_cpath = getenv("HOME");
++	if (arpie_cpath && Path::IsAbsolute(arpie_cpath))
+ 	{
+-		if (std::wcslen(documents_directory) > 0)
+-			EmuFolders::DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
+-		CoTaskMemFree(documents_directory);
++		EmuFolders::DataRoot = Path::Combine(arpie_cpath, ".config/archypie/emulators/pcsx2");
+ 	}
+-#elif defined(__linux__)
+-	// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
+-	const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
+-	if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
+-	{
+-		EmuFolders::DataRoot = Path::Combine(xdg_config_home, "PCSX2");
+-	}
+-	else
+-	{
+-		// Use ~/PCSX2 for non-XDG, and ~/.config/PCSX2 for XDG.
+-		// Maybe we should drop the former when Qt goes live.
+-		const char* home_dir = getenv("HOME");
+-		if (home_dir)
+-		{
+-#ifndef XDG_STD
+-			EmuFolders::DataRoot = Path::Combine(home_dir, "PCSX2");
+-#else
+-			// ~/.config should exist, but just in case it doesn't and this is a fresh profile..
+-			const std::string config_dir(Path::Combine(home_dir, ".config"));
+-			if (!FileSystem::DirectoryExists(config_dir.c_str()))
+-				FileSystem::CreateDirectoryPath(config_dir.c_str(), false);
+-
+-			EmuFolders::DataRoot = Path::Combine(config_dir, "PCSX2");
+-#endif
+-		}
+-	}
+-#elif defined(__APPLE__)
+-	static constexpr char MAC_DATA_DIR[] = "Library/Application Support/PCSX2";
+-	const char* home_dir = getenv("HOME");
+-	if (home_dir)
+-		EmuFolders::DataRoot = Path::Combine(home_dir, MAC_DATA_DIR);
+-#endif
+ 
+ 	// make sure it exists
+ 	if (!EmuFolders::DataRoot.empty() && !FileSystem::DirectoryExists(EmuFolders::DataRoot.c_str()))
+@@ -201,6 +167,7 @@
+ 	if (EmuFolders::DataRoot.empty())
+ 		EmuFolders::DataRoot = EmuFolders::AppRoot;
+ }
++#endif
+ 
+ bool QtHost::InitializeConfig()
+ {
