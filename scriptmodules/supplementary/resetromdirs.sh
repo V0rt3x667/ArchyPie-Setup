@@ -9,11 +9,14 @@ rp_module_desc="Reset Ownership & Permissions of the ArchyPie ROM & BIOS Directo
 rp_module_section="config"
 
 function gui_resetromdirs() {
-    printHeading "Resetting $romdir Ownershop & Permissions"
+    printHeading "Resetting $romdir Ownership & Permissions"
+
     mkUserDir "$romdir"
     mkUserDir "$biosdir"
+
     chown -R "$user:$user" "$romdir"
     chown -R "$user:$user" "$biosdir"
+
     chmod -R ug+rwx "$romdir"
     chmod -R ug+rwx "$biosdir"
 }
