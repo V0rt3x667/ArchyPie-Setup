@@ -20,12 +20,14 @@ function depends_cannonball() {
     )
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
     isPlatform "mesa" && depends+=('mesa')
+
     getDepends "${depends[@]}"
 }
 
 function sources_cannonball() {
     gitPullOrClone
-    applyPatch "$md_data/01_set_config_path.patch"
+
+    applyPatch "$md_data/01_set_config_&_rom_paths.patch"
 }
 
 function build_cannonball() {
@@ -53,7 +55,9 @@ function build_cannonball() {
 function install_cannonball() {
     md_ret_files=(
         'build/cannonball'
-        'res'
+        'build/config.xml'
+        'build/res'
+        'roms/roms.txt'
     )
 }
 
@@ -61,27 +65,15 @@ function configure_cannonball() {
     addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "pushd $md_inst; $md_inst/cannonball; popd"
 
     mkRomDir "ports/$md_id"
-    mkUserDir "$home/.config/archypie"
+    mkRomDir "ports/$md_id/hiscores/$md_id"
 
-    moveConfigDir "$home/.config/archypie/cannonball" "$md_conf_root/$md_id"
+    mkUserDir "$arpiedir/ports"
+    mkUserDir "$arpiedir/ports/$md_id"
+
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
 
     [[ "$md_mode" == "remove" ]] && return
 
-    copyDefaultConfig "$md_inst/res/config.xml" "$md_conf_root/$md_id/config.xml"
-
-    install -Dm755 "$md_build/roms/roms.txt" "$romdir/ports/$md_id/"
-
-    local hiscores=(
-        'hiscores.xml'
-        'hiscores_jap.xml'
-        'hiscores_timetrial.xml'
-        'hiscores_timetrial_jap.xml'
-    )
-    for hiscore in "${hiscores[@]}"; do
-        ln -snf "$md_conf_root/$md_id/$hiscore" "$md_inst/$hiscore"
-    done
-
-    ln -snf "$romdir/ports/$md_id" "$md_inst/roms"
-
-    chown -R "$user:$user" "$romdir/ports/$md_id" "$md_conf_root/$md_id"
+    copyDefaultConfig "$md_inst/config.xml" "$arpiedir/ports/$md_id/config.xml"
+    copyDefaultConfig "$md_inst/roms.txt" "$romdir/ports/$md_id/roms.txt"
 }
