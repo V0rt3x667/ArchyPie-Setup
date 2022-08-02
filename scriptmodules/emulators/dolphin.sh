@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dolphin"
-rp_module_desc="Dolphin - Nintendo Gamecube & Wii Emulator"
-rp_module_help="ROM Extensions: .ciso .dol .elf .gcm .gcz .iso .rvz .tgc .wad .wbfs\n\nCopy Gamecube ROMs to: $romdir/gc\n\nCopy Wii ROMs to: $romdir/wii"
+rp_module_desc="Dolphin - Nintendo Gamecube, Wii & Triforce Emulator"
+rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy Your Gamecube ROMs to: $romdir/gc and Wii ROMs to $romdir/wii"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dolphin-emu/dolphin/master/COPYING"
 rp_module_repo="git https://github.com/dolphin-emu/dolphin master"
 rp_module_section="exp"
@@ -55,8 +55,6 @@ function install_dolphin() {
 function configure_dolphin() {
     mkRomDir "gc"
     mkRomDir "wii"
-
-    mkUserDir "$biosdir/gc"
 
     moveConfigDir "$home/.dolphin-emu" "$md_conf_root/gc"
 

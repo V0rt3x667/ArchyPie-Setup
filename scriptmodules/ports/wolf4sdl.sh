@@ -53,7 +53,7 @@ function _add_games_wolf4sdl() {
         dir="$romdir/ports/wolf3d/$game"
         # Convert Uppercase Filenames to Lowercase
         pushd "${dir%/*}"
-        perl-rename 'y/A-Z/a-z/' [^.-]*
+        perl-rename 'y/A-Z/a-z/' *
         popd
         if [[ -f "$dir" ]]; then
             if [[ $md_id == ecwolf ]]; then

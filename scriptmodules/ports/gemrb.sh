@@ -16,7 +16,7 @@ function _get_branch_gemrb() {
 }
 
 function depends_gemrb() {
-    local depends=(
+    depends=(
         'cmake'
         'glew'
         'libpng'

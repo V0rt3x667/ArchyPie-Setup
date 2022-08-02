@@ -46,14 +46,13 @@ function sources_csp-fm7() {
     for string in "${strings[@]}"; do
         sed -e "s|$string|#$string|g" -i "$md_build/source/CMakeLists.txt"
     done
-    #find . -type f * -exec sed -i "s|#include <QTextCodec>|#include <QtCore5Compat/QTextCodec>|g" {} +
-    #sed '14i #include <QtCore5Compat/QTextCodec>' -i "$md_build/source/src/qt/osd_base.h"
 }
 
 function build_csp-fm7() {
     cmake . \
         -Ssource \
-        -Bbuild \
+        -Bsource/build \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
@@ -62,12 +61,11 @@ function build_csp-fm7() {
         -DUSE_MOVIE_LOADER=OFF \
         -DUSE_MOVIE_SAVER=OFF \
         -DCSP_BUILD_WITH_CXX20=ON \
-        -DUSE_QT_6=OFF \
-        -DUSE_QT_5=ON \
+        -DUSE_QT_6=ON \
         -DUSE_SDL2=ON \
         -Wno-dev
-    make -C build clean
-    make -C build emufm7
+    ninja -C source/build clean
+    ninja -C source/build
 
     md_ret_require=(
         "source/build/emufm8"

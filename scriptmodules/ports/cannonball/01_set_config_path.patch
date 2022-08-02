@@ -1,0 +1,34 @@
+--- a/src/main/frontend/config.cpp	2022-05-23 13:53:41.000000000 
++++ b/src/main/frontend/config.cpp	2022-05-24 11:52:56.000000000 
+@@ -20,12 +20,13 @@
+ #include "globals.hpp"
+ #include "../utils.hpp"
+ 
+ #include "engine/ohiscore.hpp"
+ #include "engine/outils.hpp"
+ #include "engine/audio/osoundint.hpp"
++#include <cstdlib>
+ 
+ // api change in boost 1.56
+ #include <boost/version.hpp>
+ #if (BOOST_VERSION >= 105600)
+ typedef boost::property_tree::xml_writer_settings<std::string> xml_writer_settings;
+ #else
+@@ -33,13 +34,16 @@
+ #endif
+ 
+ Config config;
+ 
+ Config::Config(void)
+ {
+-    data.cfg_file = "./config.xml";
++    char *env_var = getenv("HOME");
++    const char *path = "/.config/archypie/cannonball/config.xml";
++
++    data.cfg_file = strcat(env_var, path);
+     
+     // Setup default sounds
+     music_t magical, breeze, splash;
+     magical.title = "MAGICAL SOUND SHOWER";
+     breeze.title  = "PASSING BREEZE";
+     splash.title  = "SPLASH WAVE";

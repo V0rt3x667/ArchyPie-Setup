@@ -33,22 +33,20 @@ function sources_cdogs-sdl() {
 
 function build_cdogs-sdl() {
     cmake . \
-        -Bbuild \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCDOGS_DATA_DIR="$md_inst/" \
         -Wno-dev
-    ninja -C build clean
-    ninja -C build
-    md_ret_require="$md_build/build/src/cdogs-sdl"
+    ninja
+    md_ret_require="$md_build/src/cdogs-sdl"
 }
 
 function install_cdogs-sdl() {
     md_ret_files=(        
-        'build/src/cdogs-sdl'
-        'build/src/cdogs-sdl-editor'
+        'src/cdogs-sdl'
+        'src/cdogs-sdl-editor'
         'data'
         'doc'
         'dogfights'

@@ -176,7 +176,7 @@ function get_archypie_depends() {
         'unzip'
         'xmlstarlet'
     )
-    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]}) # Do not quote
+    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]})
 
     [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')
 

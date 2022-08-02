@@ -29,7 +29,6 @@ function depends_lzdoom() {
         'mpg123'
         'ninja'
         'openal'
-        'perl-rename'
         'sdl2'
         'soundfont-fluid'
         'timidity'

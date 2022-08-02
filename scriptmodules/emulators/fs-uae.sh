@@ -6,15 +6,11 @@
 
 rp_module_id="fs-uae"
 rp_module_desc="FS-UAE - Commodore Amiga 500, 500+, 600, 1200, CDTV & CD32 Emulator"
-rp_module_help="ROM Extension: .adf .adz .dms .ipf .zip .lha .iso .cue .bin\n\nCopy Your Amiga Games to $romdir/amiga\n\nCopy Your CD32 Games to $romdir/cd32\n\nCopy Your CDTV Games to $romdir/cdtv\n\nCopy a required BIOS file (e.g. kick13.rom) to $biosdir/amiga."
+rp_module_help="ROM Extension: .adf .adz .dms .ipf .zip .lha .iso .cue .bin\n\nCopy Your Amiga Games to $romdir/amiga\n\nCopy Your CD32 Games to $romdir/cd32\n\nCopy Your CDTV Games to $romdir/cdtv\n\nCopy a required BIOS file (e.g. kick13.rom) to $biosdir."
 rp_module_licence="GPL2 https://raw.githubusercontent.com/FrodeSolheim/fs-uae/master/COPYING"
-rp_module_repo="git https://github.com/FrodeSolheim/fs-uae.git :_get_branch_fs-uae"
+rp_module_repo="git https://github.com/FrodeSolheim/fs-uae.git v3.1.66"
 rp_module_section="main"
 rp_module_flags="!all !arm x11"
-
-function _get_branch_fs-uae() {
-    download https://api.github.com/repos/FrodeSolheim/fs-uae/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
-}
 
 function depends_fs-uae() {
     local depends=(
@@ -40,7 +36,7 @@ function depends_fs-uae() {
 }
 
 function _sources_libcapsimage_fs-uae() {
-    gitPullOrClone "$md_build/capsimg" "https://github.com/FrodeSolheim/capsimg.git"
+    gitPullOrClone "$md_build/capsimg" "https://github.com/FrodeSolheim/capsimg.git" "v5.1.2"
 }
 
 function sources_fs-uae() {
@@ -49,7 +45,7 @@ function sources_fs-uae() {
 }
 
 function _build_libcapsimage_fs-uae() {
-    cd "$md_build/capsimg/CAPSImg" || return
+    cd "$md_build/capsimg/CAPSImg"
     chmod a+x ./bootstrap.sh
     ./bootstrap.sh
     ./configure
@@ -62,7 +58,7 @@ function _build_libcapsimage_fs-uae() {
 function build_fs-uae() {
     _build_libcapsimage_fs-uae
 
-    cd "$md_build" || return
+    cd "$md_build"
     ./bootstrap
     ./configure --prefix="$md_inst"
     make clean
@@ -70,42 +66,36 @@ function build_fs-uae() {
     md_ret_require="$md_build/fs-uae"
 }
 
+function _install_libcapsimage_fs-uae() {
+    cd "$md_build/capsimg/CAPSImg"
+    cp capsimg.so "$md_inst/bin/"
+}
+
 function install_fs-uae() {
     make install
-    install -Dm644 "$md_build/capsimg/CAPSImg/capsimg.so" "$md_inst/bin/"
+    _install_libcapsimage_fs-uae
 }
 
 function configure_fs-uae() {
-    addEmulator 0 "$md_id-a1200" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A1200"
-    addEmulator 0 "$md_id-a500plus" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500P"
-    addEmulator 0 "$md_id-a600" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A600"
-    addEmulator 1 "$md_id-a500" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500"
-    addEmulator 1 "$md_id-cd32" "cd32" "$md_inst/bin/fs-uae.sh %ROM% CD32"
-    addEmulator 1 "$md_id-cdtv" "cdtv" "$md_inst/bin/fs-uae.sh %ROM% CDTV"
-
-    addSystem "amiga"
-    addSystem "cd32"
-    addSystem "cdtv"
-
-    [[ "$md_mode" == "remove" ]] && return
-
     mkRomDir "amiga"
     mkRomDir "cd32"
     mkRomDir "cdtv"
 
-    mkUserDir "$biosdir/amiga"
+    # copy configuring start script
+    mkdir "$md_inst/bin"
+    cp "$md_data/fs-uae.sh" "$md_inst/bin"
+    chmod +x "$md_inst/bin/fs-uae.sh"
+
+    mkUserDir "$md_conf_root/amiga"
 
     moveConfigDir "$home/.local/share/fs-uae" "$md_conf_root/amiga/$md_id"
     moveConfigDir "$home/.config/fs-uae" "$md_conf_root/amiga/$md_id"
 
-    # Copy configuring start script
-    install -Dm755 "$md_data/fs-uae.sh" "$md_inst/bin/"
-
-    # Copy default config file
+    # copy default config file
     local config="$(mktemp)"
     iniConfig " = " "" "$config"
     iniSet "base_dir" "$home/.config/fs-uae"
-    iniSet "kickstarts_dir" "$biosdir/amiga"
+    iniSet "kickstarts_dir" "$biosdir"
     iniSet "fullscreen" "1"
     iniSet "keep_aspect" "1"
     iniSet "video_sync" "Auto"
@@ -115,4 +105,14 @@ function configure_fs-uae() {
     iniSet "floppy_drive_speed" "100"
     copyDefaultConfig "$config" "$md_conf_root/amiga/$md_id/fs-uae.conf"
     rm "$config"
+
+    addEmulator 0 "$md_id-a500-plus" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500+"
+    addEmulator 1 "$md_id-a500" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A500"
+    addEmulator 0 "$md_id-a600" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A600"
+    addEmulator 0 "$md_id-a1200" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A1200"
+    addEmulator 1 "$md_id-cd32" "cd32" "$md_inst/bin/fs-uae.sh %ROM% CD32"
+    addEmulator 1 "$md_id-cdtv" "cdtv" "$md_inst/bin/fs-uae.sh %ROM% CDTV"
+    addSystem "amiga"
+    addSystem "cd32"
+    addSystem "cdtv"
 }

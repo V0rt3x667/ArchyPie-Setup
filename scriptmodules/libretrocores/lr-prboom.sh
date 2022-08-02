@@ -74,12 +74,10 @@ function _add_games_lr-prboom() {
         )
     fi
 
-    # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
+    # Create .sh files for each game found. Uppercase filnames will be converted to lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/doom"
-        pushd "$dir"
-        perl-rename 'y/A-Z/a-z/' [^.-]*
-        popd
+        dir="$romdir/ports/doom/$game"
+        perl-rename 'y/A-Z/a-z/' "$dir"/*
         if [[ -f "$dir/$game" ]]; then
             addPort "$md_id" "doom" "${games[$game]}" "$cmd" "$game"
             if [[ "$md_id" == "gzdoom" || "$md_id" == "lzdoom" ]]; then
@@ -97,7 +95,7 @@ function configure_lr-prboom() {
 
     defaultRAConfig "doom"
 
-    if [[ "$md_mode" == "install" ]]; then
-        _game_data_lr-prboom && _add_games_lr-prboom "$md_inst/prboom_libretro.so"
-    fi
+    [[ "$md_mode" == "install" ]] && _game_data_lr-prboom
+
+    _add_games_lr-prboom "$md_inst/prboom_libretro.so"
 }

@@ -51,7 +51,7 @@ function _add_games_ioquake3() {
         dir="$romdir/ports/quake3/$game"
         # Convert Uppercase Filenames to Lowercase
         pushd "${dir%/*}"
-        perl-rename 'y/A-Z/a-z/' [^.-]*
+        perl-rename 'y/A-Z/a-z/' *
         popd
         if [[ -f "$dir" ]]; then
             if [[ "$game" == "missionpack/pak0.pk3" ]]; then

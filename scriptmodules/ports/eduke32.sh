@@ -17,7 +17,6 @@ function depends_eduke32() {
         'libpng'
         'libvorbis'
         'libvpx'
-        'sdl2'
         'sdl2_mixer'
     )
     isPlatform "x86" && depends+=('nasm')
@@ -59,18 +58,20 @@ function install_eduke32() {
     fi
 }
 
-function _game_data_eduke32() {
+function game_data_eduke32() {
     local dest 
-    local temp
-
     dest="$romdir/ports/duke3d"
-    if [[ ! -f "$dest/duke3d.grp" ]]; then
-        temp="$(mktemp -d)"
-        download "$__archive_url/3dduke13.zip" "$temp"
-        unzip -L -o "$temp/3dduke13.zip" -d "$temp" dn3dsw13.shr
-        unzip -L -o "$temp/dn3dsw13.shr" -d "$dest" duke3d.grp duke.rts
-        rm -rf "$temp"
-        chown -R "$user:$user" "$dest"
+    if [[ "$md_id" == "eduke32" ]]; then
+        if [[ ! -f "$dest/duke3d.grp" ]]; then
+            mkUserDir "$dest"
+            local temp 
+            temp="$(mktemp -d)"
+            download "$__archive_url/3dduke13.zip" "$temp"
+            unzip -L -o "$temp/3dduke13.zip" -d "$temp" dn3dsw13.shr
+            unzip -L -o "$temp/dn3dsw13.shr" -d "$dest" duke3d.grp duke.rts
+            rm -rf "$temp"
+            chown -R "$user:$user" "$dest"
+        fi
     fi
 }
 
@@ -84,22 +85,22 @@ function configure_eduke32() {
     local config="$md_conf_root/$portname/settings.cfg"
 
     mkRomDir "ports/$portname"
-
     moveConfigDir "$home/.config/$appname" "$md_conf_root/$portname"
 
+    _add_games_eduke32 "$md_inst/$appname"
+
     if [[ "$md_mode" == "install" ]]; then
-        if [[ "$md_id" == "ionfury" ]]; then
-            _add_games_eduke32 "$md_inst/$appname"
-        else
-            _game_data_eduke32 && _add_games_eduke32 "$md_inst/$appname"
-        fi
+        game_data_eduke32
 
         touch "$config"
         iniConfig " " '"' "$config"
-        # Enforce vsync for KMS targets.
+
+        # enforce vsync for kms targets
         isPlatform "kms" && iniSet "r_swapinterval" "1"
-        # VC4 & V3D drivers render menu splash colours incorrectly without this.
+
+        # the VC4 & V3D drivers render menu splash colours incorrectly without this
         isPlatform "mesa" && iniSet "r_useindexedcolortextures" "0"
+
         chown -R "$user:$user" "$config"
     fi
 }
