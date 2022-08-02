@@ -80,8 +80,8 @@ function configure_pcsx2() {
 
     moveConfigDir "$arpiedir/emulators/$md_id" "$md_conf_root/ps2/$md_id"
 
-    addEmulator 1 "$md_id" "ps2" "$md_inst/pcsx2 %ROM%"
-    addEmulator 0 "$md_id-gui" "ps2" "$md_inst/pcsx2"
+    addEmulator 1 "$md_id" "ps2" "$md_inst/pcsx2 -nogui -fullscreen %ROM%"
+    addEmulator 0 "$md_id-gui" "ps2" "$md_inst/pcsx2 -fullscreen"
 
     addSystem "ps2"
 
