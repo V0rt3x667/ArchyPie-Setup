@@ -27,8 +27,12 @@ function depends_abuse() {
 
 function sources_abuse() {
     gitPullOrClone
-    sed -e "s|ASSETDIR \"share/games/abuse\"|ASSETDIR "$md_inst"|g" -i "$md_build/CMakeLists.txt"
-    downloadAndExtract http://abuse.zoy.org/raw-attachment/wiki/download/abuse-data-2.00.tar.gz "$md_build/data" music register sfx
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
+
+    downloadAndExtract "$__arpie_url/Abuse-Data/abuse_assets.tar.xz" "$md_build/data" music register sfx
+
+    sed -e "s|ASSETDIR \"share/games/abuse\"|ASSETDIR "data"|g" -i "$md_build/CMakeLists.txt"
 }
 
 function build_abuse() {
@@ -46,30 +50,18 @@ function build_abuse() {
 }
 
 function install_abuse() {
-    md_ret_files=(        
-        'build/src/abuse'
-        'build/src/abuse-tool'
-        'data/abuse.lsp'
-        'data/edit.lsp'
-        'data/hardness.lsp'
-        'data/defaults.prp'
-        'data/addon'
-        'data/art'
-        'data/levels'
-        'data/lisp'
-        'data/netlevel'
-        'data/register'
-        'data/music'
-        'data/sfx'
-    )
+    ninja -C build install/strip
 }
 
 function configure_abuse() {
-    moveConfigDir "$home/.abuse" "$md_conf_root/abuse"
-
     if isPlatform gl || isPlatform gles; then
-        addPort "$md_id" "abuse" "Abuse" "$md_inst/abuse -datadir $md_inst -fullscreen -gl -antialias"
+        addPort "$md_id" "abuse" "Abuse" "$md_inst/bin/abuse -datadir $md_inst/data -fullscreen -gl"
     else
-        addPort "$md_id" "abuse" "Abuse" "$md_inst/abuse -datadir $md_inst -fullscreen"
+        addPort "$md_id" "abuse" "Abuse" "$md_inst/bin/abuse -datadir $md_inst/data -fullscreen"
     fi
+
+    mkUserDir "$arpiedir/ports"
+    mkUserDir "$arpiedir/ports/$md_id"
+
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
 }

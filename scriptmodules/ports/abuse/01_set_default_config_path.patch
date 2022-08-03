@@ -1,0 +1,13 @@
+--- a/src/sdlport/setup.cpp	2022-08-03 02:21:30.666416000 +0100
++++ b/src/sdlport/setup.cpp	2022-08-03 19:44:25.782858522 +0100
+@@ -412,8 +412,8 @@
+ #else
+     if( (homedir = getenv( "HOME" )) != NULL )
+     {
+-        savedir = (char *)malloc( strlen( homedir ) + 9 );
+-        sprintf( savedir, "%s/.abuse/", homedir );
++        savedir = (char *)malloc( strlen( homedir ) + 100 );
++        sprintf( savedir, "%s/.config/archypie/ports/abuse/", homedir );
+         // Check if we already have a savegame directory
+         if( (fd = fopen( savedir, "r" )) == NULL )
+         {
