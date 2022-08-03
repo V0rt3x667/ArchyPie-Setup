@@ -34,6 +34,8 @@ function depends_alephone() {
 
 function sources_alephone() {
     gitPullOrClone
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function build_alephone() {
@@ -71,18 +73,15 @@ function _game_data_alephone() {
 
 function configure_alephone() {
     addPort "$md_id" "alephone" "Aleph One Engine: Marathon" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon/"
-    addPort "$md_id" "alephone" "Aleph One Engine: Marathon 2" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon 2/"
+    addPort "$md_id" "alephone" "Aleph One Engine: Marathon 2: Durandal" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon 2/"
     addPort "$md_id" "alephone" "Aleph One Engine: Marathon Infinity" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon Infinity/"
 
     mkRomDir "ports/$md_id"
 
-    moveConfigDir "$home/.alephone" "$md_conf_root/alephone"
-    # fix for wrong config location
-    if [[ -d "/alephone" ]]; then
-        cp -R /alephone "$md_conf_root/"
-        rm -rf /alephone
-        chown "$user:$user" "$md_conf_root/alephone"
-    fi
+    mkUserDir "$arpiedir/ports"
+    mkUserDir "$arpiedir/ports/$md_id"
+
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
 
     [[ "$md_mode" == "install" ]] && _game_data_alephone
 }
