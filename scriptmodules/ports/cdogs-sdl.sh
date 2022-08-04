@@ -18,6 +18,7 @@ function _get_branch_cdogs-sdl() {
 function depends_cdogs-sdl() {
     local depends=(
         'cmake'
+        'libarchive'
         'ninja'
         'sdl2'
         'sdl2_image'
@@ -28,25 +29,33 @@ function depends_cdogs-sdl() {
 
 function sources_cdogs-sdl() {
     gitPullOrClone
-    sed 's| -Werror||' -i "$md_build/CMakeLists.txt"
+
+    download https://cxong.github.io/cdogs-sdl/missionpack.zip - | bsdtar xvf - --strip-components=1 -C "$md_build"
+
+    # Prevent warnings from aborting the build
+    sed 's| -Werror||g' -i "$md_build/CMakeLists.txt"
+    # Set default config location
+    sed 's|".config/cdogs-sdl/"|".config/archypie/ports/cdogs-sdl/"|g' -i "$md_build/CMakeLists.txt"
 }
 
 function build_cdogs-sdl() {
     cmake . \
+        -Bbuild \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DCDOGS_DATA_DIR="$md_inst/" \
         -Wno-dev
-    ninja
-    md_ret_require="$md_build/src/cdogs-sdl"
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/src/cdogs-sdl"
 }
 
 function install_cdogs-sdl() {
     md_ret_files=(        
-        'src/cdogs-sdl'
-        'src/cdogs-sdl-editor'
+        'build/src/cdogs-sdl'
+        'build/src/cdogs-sdl-editor'
         'data'
         'doc'
         'dogfights'
@@ -60,11 +69,12 @@ function install_cdogs-sdl() {
 function configure_cdogs-sdl() {
     addPort "$md_id" "cdogs-sdl" "C-Dogs SDL" "$md_inst/cdogs-sdl --fullscreen"
 
+    mkUserDir "$arpiedir/ports"
+    mkUserDir "$arpiedir/ports/$md_id"
+
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
+
     [[ "$md_mode" == "remove" ]] && return
-    
-    curl -sSL https://cxong.github.io/cdogs-sdl/missionpack.zip | bsdtar xvf - --strip-components=1 -C "$md_inst"
 
     isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
-
-    moveConfigDir "$home/.config/cdogs-sdl" "$md_conf_root/cdogs-sdl"
 }
