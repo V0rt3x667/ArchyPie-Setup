@@ -1,0 +1,13 @@
+diff -u a/GsKit/base/utils/FindFile.cpp b/GsKit/base/utils/FindFile.cpp
+--- a/GsKit/base/utils/FindFile.cpp	2022-08-04 03:12:38.236102000 +0100
++++ b/GsKit/base/utils/FindFile.cpp	2022-08-04 03:46:38.377976343 +0100
+@@ -505,7 +505,7 @@
+     AddToFileList(&basesearchpaths, SDL_AndroidGetInternalStoragePath());
+     AddToFileList(&basesearchpaths, "/storage/emulated/0/Android/data/net.sourceforge.clonekeenplus/files/SaveData");
+ #else
+-    AddToFileList(&basesearchpaths, "${HOME}/.CommanderGenius");
++    AddToFileList(&basesearchpaths, "${HOME}/.config/archypie/ports/cgenius");
+ #endif
+     AddToFileList(&basesearchpaths, ".");
+     AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/commandergenius"); // no use of ${SYSTEM_DATA}, because it is uncommon and could cause confusion to the user
+Common subdirectories: a/GsKit/base/utils/property_tree and b/GsKit/base/utils/property_tree
