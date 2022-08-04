@@ -1,0 +1,11 @@
+--- a/fs.c	2022-08-04 06:05:35.810476000 +0100
++++ b/fs.c	2022-08-04 13:41:22.035971798 +0100
+@@ -1944,7 +1944,7 @@
+ 		homedir = getenv("HOME");
+ 		if(homedir)
+ 		{
+-			dpsnprintf(userdir, userdirsize, "%s/.%s/", homedir, gameuserdirname);
++			dpsnprintf(userdir, userdirsize, "%s/.%s/", homedir, "/.config/archypie/ports/darkplaces-quake");
+ 			break;
+ 		}
+ 		return -1;

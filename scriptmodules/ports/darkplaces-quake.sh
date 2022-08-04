@@ -18,14 +18,24 @@ function depends_darkplaces-quake() {
     )
     isPlatform "videocore" && depends+=('raspberrypi-firmware')
     isPlatform "mesa" && depends+=('mesa')
+
     getDepends "${depends[@]}"
 }
 
 function sources_darkplaces-quake() {
     gitPullOrClone
-    isPlatform "rpi" && applyPatch "$md_data/01_rpi_fixes.diff"
-    applyPatch "$md_data/02_makefile_fixes.diff"
-    # comment out problematic invariant qualifier which fails to compile with mesa gles on rpi4
+
+    local patchs=(
+        '01_set_default_config_path.patch'
+        '02_makefile_fixes.patch'
+    )
+    isPlatform "rpi" && patches+=('03_rpi_fixes.patch')
+
+    for patch in "${patchs[@]}"; do
+        applyPatch "$md_data/$patch"
+    done
+
+    # Comment out problematic invariant qualifier which fails to compile with mesa gles on rpi4
     isPlatform "rpi4" && sed -i 's#^"invariant#"//invariant#' "$md_build/shader_glsl.h"
 }
 
@@ -65,21 +75,23 @@ function install_darkplaces-quake() {
     isPlatform "rpi4" && md_ret_files+=("darkplaces-sdl-gles")
 }
 
-function _add_games_darkplaces-quake() {
-    local params=(-basedir "$romdir/ports/quake" -game %QUAKEDIR%)
-    isPlatform "kms" && params+=("+vid_vsync 1")
-    if isPlatform "rpi4"; then
-       addEmulator 0 "$md_id-gles" "quake" "$md_inst/darkplaces-sdl-gles ${params[*]}"
-    fi
-    _add_games_lr-tyrquake "$md_inst/darkplaces-sdl ${params[*]}"
-}
-
 function configure_darkplaces-quake() {
     mkRomDir "ports/quake"
 
-    [[ "$md_mode" == "install" ]] && game_data_lr-tyrquake
+    mkUserDir "$arpiedir/ports"
+    mkUserDir "$arpiedir/ports/$md_id"
 
-    _add_games_darkplaces-quake
+    if [[ "$md_mode" == "install" ]]; then
+        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/quake/$md_id" && \
+       _game_data_lr-tyrquake
 
-    moveConfigDir "$home/.darkplaces" "$md_conf_root/quake/darkplaces"
+        local params=(-basedir "$romdir/ports/quake" -game %QUAKEDIR%)
+        isPlatform "kms" && params+=("+vid_vsync 1")
+        if isPlatform "rpi4"; then
+            _add_games_lr-tyrquake "$md_inst/darkplaces-sdl-gles ${params[*]}" && \
+            _add_games_lr-tyrquake "$md_inst/darkplaces-sdl ${params[*]}"
+        else
+            _add_games_lr-tyrquake "$md_inst/darkplaces-sdl ${params[*]}"
+        fi
+    fi
 }
