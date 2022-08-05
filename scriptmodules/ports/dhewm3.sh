@@ -23,6 +23,7 @@ function depends_dhewm3() {
         'libvorbis'
         'ninja'
         'openal'
+        'perl-rename'
         'sdl2'
     )
     getDepends "${depends[@]}"
@@ -30,6 +31,8 @@ function depends_dhewm3() {
 
 function sources_dhewm3() {
     gitPullOrClone
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function build_dhewm3() {
@@ -57,12 +60,10 @@ function install_dhewm3() {
 function _game_data_dhewm3() {
     local url
     url="https://files.holarse-linuxgaming.de/native/Spiele/Doom%203/Demo/doom3-linux-1.1.1286-demo.x86.run"
-    if [[ -f "$romdir/ports/doom3/base/pak000.pk4" ]] || [[ -f "$romdir/ports/doom3/demo/demo00.pk4" ]]; then
-        return
-    else
+    if [[ ! -f "$romdir/ports/doom3/base/pak000.pk4" ]] || [[ ! -f "$romdir/ports/doom3/demo/demo00.pk4" ]]; then
         download "$url" "$romdir/ports/doom3"
         chmod +x "$romdir/ports/doom3/doom3-linux-1.1.1286-demo.x86.run"
-        cd "$romdir/ports/doom3"
+        cd "$romdir/ports/doom3" || return
         ./doom3-linux-1.1.1286-demo.x86.run --tar xf demo/ && rm "$romdir/ports/doom3/doom3-linux-1.1.1286-demo.x86.run"
         chown "$user:$user" "$romdir/ports/doom3/demo"
     fi
@@ -70,16 +71,21 @@ function _game_data_dhewm3() {
 
 function _add_games_dhewm3() {
     local cmd="$1"
+    local dir
     local game
-    local pak
     declare -A games=(
-        ['base/pak000']="Doom III"
-        ['demo/demo00']="Doom III (Demo)"
-        ['d3xp/pak000']="Doom III: Resurrection of Evil"
+        ['base/pak000.pk4']="Doom III"
+        ['demo/demo00.pk4']="Doom III (Demo)"
+        ['d3xp/pak000.pk4']="Doom III: Resurrection of Evil"
     )
+
+    # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
     for game in "${!games[@]}"; do
-        pak="$romdir/ports/doom3/$game.pk4"
-        if [[ -f "$pak" ]]; then
+        dir="$romdir/ports/doom3"
+        pushd "$dir/${game%%/*}"
+        perl-rename 'y/A-Z/a-z/' [^.-]*
+        popd
+        if [[ -f "$dir/$game" ]]; then
             addPort "$md_id" "doom3" "${games[$game]}" "$cmd" "${game%%/*}"
         fi
     done
@@ -88,10 +94,15 @@ function _add_games_dhewm3() {
 function configure_dhewm3() {
     mkRomDir "ports/doom3"
 
-    moveConfigDir "$home/.config/dhewm3" "$md_conf_root/doom3"
+    mkUserDir "$arpiedir/ports"
+    mkUserDir "$arpiedir/ports/$md_id"
 
-    [[ "$md_mode" == "install" ]] && _game_data_dhewm3
+    if [[ "$md_mode" == "install" ]]; then
+        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/doom3/$md_id"
 
-    local basedir="$romdir/ports/doom3"
-    _add_games_dhewm3 "$md_inst/bin/dhewm3 +set fs_basepath $basedir +set r_fullscreen 1 +set fs_game %ROM%"
+        _game_data_dhewm3
+
+        local basedir="$romdir/ports/doom3"
+        _add_games_dhewm3 "$md_inst/bin/dhewm3 +set fs_basepath $basedir +set r_fullscreen 1 +set fs_game %ROM%"
+    fi
 }
