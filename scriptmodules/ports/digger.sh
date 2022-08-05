@@ -22,6 +22,8 @@ function depends_digger() {
 
 function sources_digger() {
     gitPullOrClone
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function build_digger() {
@@ -42,11 +44,9 @@ function install_digger() {
 }
 
 function configure_digger() {
-    # remove symlink that isn't used
-    rm -f "$home/.config/digger"
-
-    # symlink config and hiscore save file
-    moveConfigFile "$home/.digger.rc" "$md_conf_root/digger/.digger.rc"
-    moveConfigFile "$home/.digger.sco" "$md_conf_root/digger/.digger.sco"
     addPort "$md_id" "digger" "Digger Remastered" "$md_inst/digger /F"
+
+    if [[ "$md_mode" == "install" ]]; then
+        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
+    fi
 }
