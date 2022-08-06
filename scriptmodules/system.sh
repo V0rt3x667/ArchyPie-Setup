@@ -171,6 +171,7 @@ function get_archypie_depends() {
         'gnupg'
         'python'
         'python-pip'
+        'python-py-cpuinfo'
         'python-pyudev'
         'python-six'
         'subversion'
