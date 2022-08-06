@@ -594,18 +594,6 @@ function getBackend() {
      echo "$ini_value"
 }
 
-## @fn setDispmanx()
-## @param module_id name of module to add dispmanx flag for
-## @param status initial status of flag (0 or 1)
-## @brief Sets a dispmanx flag for a module. This function is deprecated.
-## @details Set a dispmanx flag for a module as to whether it should use the
-## sdl1 dispmanx backend by default or not (0 for framebuffer, 1 for dispmanx).
-## This function is deprecated and instead setBackend should be used.
-#function setDispmanx() {
-#    isPlatform "dispmanx" || return
-#    setBackend "$1" "dispmanx"
-#}
-
 ## @fn iniFileEditor()
 ## @param delim ini file delimiter eg. ' = '
 ## @param quote ini file quoting character eg. '"'
