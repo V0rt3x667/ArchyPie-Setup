@@ -12,19 +12,35 @@ rp_module_section="opt"
 rp_module_flags="!mali"
 
 function depends_dxx-rebirth() {
-    local depends=(libpng physfs scons)
+    local depends=(
+        'libpng'
+        'physfs'
+        'scons'
+    )
     if isPlatform "videocore"; then
-        depends+=(raspberrypi-firmware sdl sdl_mixer sdl_image)
+        depends+=(
+            'raspberrypi-firmware'
+            'sdl'
+            'sdl_image'
+            'sdl_mixer'
+        )
     else
-        depends+=(mesa glu sdl2 sdl2_mixer sdl2_image unzip)
+        depends+=(
+            'glu'
+            'mesa'
+            'sdl2'
+            'sdl2_image'
+            'sdl2_mixer'
+            'unzip'
+        )
     fi
-
     getDepends "${depends[@]}"
 }
 
 function sources_dxx-rebirth() {
     gitPullOrClone
-    sed -ie "/^PREFIX =/s|$md_inst|/usr/|" "$md_build/SConstruct"
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function build_dxx-rebirth() {
@@ -33,14 +49,14 @@ function build_dxx-rebirth() {
     if isPlatform "videocore"; then
         params+=("raspberrypi=1")
     elif isPlatform "mesa"; then
-        # GLES is limited to ES 1 and blocks SDL2; GL works at fullspeed on Pi 3.
         params+=("raspberrypi=mesa" "opengl=1" "opengles=0" "sdl2=1")
     else
         params+=("opengl=1" "opengles=0" "sdl2=1")
     fi
 
     scons -c
-    scons "${params[@]}" -j$__jobs
+    scons "${params[@]}" prefix="$md_inst" -j$__jobs
+
     md_ret_require=(
         "$md_build/build/d1x-rebirth/d1x-rebirth"
         "$md_build/build/d2x-rebirth/d2x-rebirth"
@@ -48,7 +64,6 @@ function build_dxx-rebirth() {
 }
 
 function install_dxx-rebirth() {
-    # Rename generic files
     mv -f "$md_build/d1x-rebirth/INSTALL.txt" "$md_build/d1x-rebirth/D1X-INSTALL.txt"
     mv -f "$md_build/d1x-rebirth/RELEASE-NOTES.txt" "$md_build/d1x-rebirth/D1X-RELEASE-NOTES.txt"
     mv -f "$md_build/d2x-rebirth/INSTALL.txt" "$md_build/d2x-rebirth/D2X-INSTALL.txt"
@@ -57,32 +72,28 @@ function install_dxx-rebirth() {
     md_ret_files=(
         'COPYING.txt'
         'GPL-3.txt'
-        'd1x-rebirth/README.RPi'
         'build/d1x-rebirth/d1x-rebirth'
-        'd1x-rebirth/d1x.ini'
+        'build/d2x-rebirth/d2x-rebirth'
         'd1x-rebirth/D1X-INSTALL.txt'
         'd1x-rebirth/D1X-RELEASE-NOTES.txt'
-        'build/d2x-rebirth/d2x-rebirth'
-        'd2x-rebirth/d2x.ini'
+        'd1x-rebirth/README.RPi'
+        'd1x-rebirth/d1x.ini'
         'd2x-rebirth/D2X-INSTALL.txt'
         'd2x-rebirth/D2X-RELEASE-NOTES.txt'
+        'd2x-rebirth/d2x.ini'
     )
 }
 
 function _game_data_dxx-rebirth() {
-    local D1X_SHARE_URL='https://www.dxx-rebirth.com/download/dxx/content/descent-pc-shareware.zip'
-    local D2X_SHARE_URL='https://www.dxx-rebirth.com/download/dxx/content/descent2-pc-demo.zip'
     local D1X_HIGH_TEXTURE_URL='https://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.dxa'
     local D1X_OGG_URL='https://www.dxx-rebirth.com/download/dxx/res/d1xr-sc55-music.dxa'
+    local D1X_SHARE_URL='https://www.dxx-rebirth.com/download/dxx/content/descent-pc-shareware.zip'
     local D2X_OGG_URL='https://www.dxx-rebirth.com/download/dxx/res/d2xr-sc55-music.dxa'
-
+    local D2X_SHARE_URL='https://www.dxx-rebirth.com/download/dxx/content/descent2-pc-demo.zip'
     local dest_d1="$romdir/ports/descent1"
     local dest_d2="$romdir/ports/descent2"
 
-    mkUserDir "$dest_d1"
-    mkUserDir "$dest_d2"
-
-    # Download / unpack / install Descent shareware files
+    # Download, Unpack & Install Descent Shareware Files
     if [[ ! -f "$dest_d1/descent.hog" ]]; then
         downloadAndExtract "$D1X_SHARE_URL" "$dest_d1"
     fi
@@ -97,7 +108,7 @@ function _game_data_dxx-rebirth() {
         download "$D1X_OGG_URL" "$dest_d1"
     fi
 
-    # Download / unpack / install Descent 2 shareware files
+    # Download, Unpack & Install Descent 2 Shareware Files
     if [[ ! -f "$dest_d2/D2DEMO.HOG" ]]; then
         downloadAndExtract "$D2X_SHARE_URL" "$dest_d2"
     fi
@@ -114,23 +125,27 @@ function configure_dxx-rebirth() {
     local config
     local ver
     local name="Descent Rebirth"
+
     for ver in 1 2; do
         [[ "$ver" -eq 2 ]] && name="Descent II Rebirth"
         addPort "$md_id" "descent${ver}" "$name" "$md_inst/d${ver}x-rebirth -hogdir $romdir/ports/descent${ver}"
 
-        # skip folder / config work on removal
-        [[ "$md_mode" == "remove" ]] && continue
+        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/descent"
 
-        mkRomDir "ports/descent${ver}"
-        # copy any existing configs from ~/.d1x-rebirth and symlink the config folder to $md_conf_root/descent1/
-        moveConfigDir "$home/.d${ver}x-rebirth" "$md_conf_root/descent${ver}/"
-        if isPlatform "kms"; then
-            config="$md_conf_root/descent${ver}/descent.cfg"
-            iniConfig "=" '' "$config"
-            iniSet "VSync" "1"
-            chown "$user:$user" "$config"
+        if [[ "$md_mode" == "install" ]]; then
+            mkRomDir "ports/descent${ver}"
+
+            mkUserDir "$arpiedir/ports"
+            mkUserDir "$arpiedir/ports/$md_id"
+
+            _game_data_dxx-rebirth
+
+            if isPlatform "kms"; then
+                config="$md_conf_root/descent${ver}/descent.cfg"
+                iniConfig "=" '' "$config"
+                iniSet "VSync" "1"
+                chown "$user:$user" "$config"
+            fi
         fi
-    done
-
-    [[ "$md_mode" == "install" ]] && _game_data_dxx-rebirth
+    done 
 }

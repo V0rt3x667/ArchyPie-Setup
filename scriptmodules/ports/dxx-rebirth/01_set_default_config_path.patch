@@ -1,0 +1,24 @@
+diff -ru a/similar/main/inferno.cpp b/similar/main/inferno.cpp
+--- a/similar/main/inferno.cpp	2022-08-05 13:32:58.397421000 +0100
++++ b/similar/main/inferno.cpp	2022-08-05 14:58:56.687963235 +0100
+@@ -491,7 +491,7 @@
+ 	{
+ #if defined(__unix__) && !defined(__APPLE__)
+ #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+-			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
++			      "\t$HOME/.config/archypie/ports/dxx-rebirth/d" DXX_NAME_NUMBER "x-rebirth\n"	\
+ 					DXX_HOGFILE_SHAREPATH_INDENTED
+ #if DXX_USE_SHAREPATH
+ #define DXX_HOGFILE_SHAREPATH_INDENTED	\
+diff -ru a/similar/misc/physfsx.cpp b/similar/misc/physfsx.cpp
+--- a/similar/misc/physfsx.cpp	2022-08-05 15:38:51.186621000 +0100
++++ b/similar/misc/physfsx.cpp	2022-08-05 20:13:33.813015535 +0100
+@@ -142,7 +142,7 @@
+ 		path = getenv(&home_environ_var[4]);
+ 		if (!path)
+ # if !(defined(__APPLE__) && defined(__MACH__))
+-	path = "~/.d" DESCENT_PATH_NUMBER "x-rebirth/";
++	path = "~/.config/archypie/ports/dxx-rebirth/d" DESCENT_PATH_NUMBER "x-rebirth/";
+ # else
+ 	path = "~/Library/Preferences/D" DESCENT_PATH_NUMBER "X Rebirth/";
+ # endif
