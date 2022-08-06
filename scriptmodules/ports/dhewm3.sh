@@ -92,17 +92,17 @@ function _add_games_dhewm3() {
 }
 
 function configure_dhewm3() {
-    mkRomDir "ports/doom3"
-
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/doom3/$md_id"
 
     if [[ "$md_mode" == "install" ]]; then
-        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/doom3/$md_id"
+        mkRomDir "ports/doom3"
+
+        mkUserDir "$arpiedir/ports"
+        mkUserDir "$arpiedir/ports/$md_id"
 
         _game_data_dhewm3
-
-        local basedir="$romdir/ports/doom3"
-        _add_games_dhewm3 "$md_inst/bin/dhewm3 +set fs_basepath $basedir +set r_fullscreen 1 +set fs_game %ROM%"
     fi
+
+    local basedir="$romdir/ports/doom3"
+    _add_games_dhewm3 "$md_inst/bin/dhewm3 +set fs_basepath $basedir +set r_fullscreen 1 +set fs_game %ROM%"
 }
