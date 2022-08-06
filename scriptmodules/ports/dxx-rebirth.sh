@@ -141,7 +141,7 @@ function configure_dxx-rebirth() {
             _game_data_dxx-rebirth
 
             if isPlatform "kms"; then
-                config="$md_conf_root/descent${ver}/descent.cfg"
+                config="$md_conf_root/descent/d${ver}x-rebirth/descent.cfg"
                 iniConfig "=" '' "$config"
                 iniSet "VSync" "1"
                 chown "$user:$user" "$config"
