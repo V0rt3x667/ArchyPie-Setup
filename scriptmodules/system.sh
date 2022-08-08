@@ -171,7 +171,6 @@ function get_archypie_depends() {
         'gnupg'
         'python'
         'python-pip'
-        'python-py-cpuinfo'
         'python-pyudev'
         'python-six'
         'subversion'
@@ -223,16 +222,16 @@ function get_platform() {
             BCM*)
                 # calculated based on information from https://github.com/AndrewFromMelbourne/raspberry_pi_revision
                 local rev="0x$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
-                # get the cpu from bits 12-15
+                # if bit 23 is set, get the cpu from bits 12-15
                 local cpu=$((($rev >> 12) & 15))
                 case $cpu in
-                    0)
+                    1)
                         __platform="rpi2"
                         ;;
-                    1)
+                    2)
                         __platform="rpi3"
                         ;;
-                    2)
+                    3)
                         __platform="rpi4"
                         ;;
                 esac
