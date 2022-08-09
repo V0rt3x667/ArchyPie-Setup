@@ -1302,6 +1302,7 @@ function addPort() {
     fi
 
     mkUserDir "$romdir/ports"
+    mkUserDir "$arpiedir/ports"
 
     cat >"$file" << _EOF_
 #!/bin/bash
