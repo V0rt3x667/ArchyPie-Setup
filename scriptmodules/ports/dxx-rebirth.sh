@@ -122,30 +122,25 @@ function _game_data_dxx-rebirth() {
 }
 
 function configure_dxx-rebirth() {
-    local config
-    local ver
-    local name="Descent Rebirth"
+    addPort "$md_id" "descent1" "Descent Rebirth" "$md_inst/d1x-rebirth -hogdir $romdir/ports/descent1"
+    addPort "$md_id" "descent2" "Descent II Rebirth" "$md_inst/d2x-rebirth -hogdir $romdir/ports/descent2"
 
-    for ver in 1 2; do
-        [[ "$ver" -eq 2 ]] && name="Descent II Rebirth"
-        addPort "$md_id" "descent${ver}" "$name" "$md_inst/d${ver}x-rebirth -hogdir $romdir/ports/descent${ver}"
+    moveConfigDir "$arpiedir/ports/dxx1-rebirth" "$md_conf_root/descent1/"
+    moveConfigDir "$arpiedir/ports/dxx2-rebirth" "$md_conf_root/descent2/"
 
-        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/descent"
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "ports/descent1"
+        mkRomDir "ports/descent2"
 
-        if [[ "$md_mode" == "install" ]]; then
-            mkRomDir "ports/descent${ver}"
+        _game_data_dxx-rebirth
 
-            mkUserDir "$arpiedir/ports"
-            mkUserDir "$arpiedir/ports/$md_id"
-
-            _game_data_dxx-rebirth
-
-            if isPlatform "kms"; then
-                config="$md_conf_root/descent/d${ver}x-rebirth/descent.cfg"
+        if isPlatform "kms"; then
+            for ver in 1 2; do 
+                config="$md_conf_root/descent${ver}/descent.cfg"
                 iniConfig "=" '' "$config"
                 iniSet "VSync" "1"
                 chown "$user:$user" "$config"
-            fi
+            done
         fi
-    done 
+    fi
 }
