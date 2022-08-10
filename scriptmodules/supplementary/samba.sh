@@ -40,17 +40,23 @@ function restart_samba() {
 }
 
 function install_shares_samba() {
-    cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
+    [[ -f /etc/samba/smb.conf ]] && cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
     add_share_samba "roms" "$romdir"
     add_share_samba "bios" "$home/ArchyPie/BIOS"
     add_share_samba "configs" "$configdir"
-    add_share_samba "splashscreens" "$datadir/splashscreens"
+    isPlatform "rpi" && add_share_samba "splashscreens" "$datadir/splashscreens"
     restart_samba
 }
 
 function remove_shares_samba() {
-    local name
-    for name in roms bios configs splashscreens; do
+    local names=(
+        'bios'
+        'configs'
+        'roms'
+    )
+    isPlatform "rpi" && names+=('splashscreens')
+
+    for name in "${names[@]}"; do
         remove_share_samba "$name"
     done
     restart_samba

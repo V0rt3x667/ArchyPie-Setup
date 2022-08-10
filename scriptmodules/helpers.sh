@@ -211,8 +211,8 @@ function getDepends() {
     # if we are removing, then remove packages and return
     if [[ "$md_mode" == "remove" ]]; then
         printMsgs "console" "Removing Dependencies: ${all_pkgs[*]}"
-        pacman -Rsn "${pacman_pkgs[@]}" --no-confirm && \
-        pacman -Qdtq | pacman -Rsn --no-confirm
+        pacman -Rsn "${pacman_pkgs[@]}" --noconfirm && \
+        pacman -Qdtq | pacman -Rsn --noconfirm
         return 0
     fi
 
