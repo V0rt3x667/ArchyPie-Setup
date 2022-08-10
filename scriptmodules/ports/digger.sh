@@ -46,7 +46,5 @@ function install_digger() {
 function configure_digger() {
     addPort "$md_id" "digger" "Digger Remastered" "$md_inst/digger /F"
 
-    if [[ "$md_mode" == "install" ]]; then
-        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
-    fi
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
 }

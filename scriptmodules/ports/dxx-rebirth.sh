@@ -122,6 +122,11 @@ function _game_data_dxx-rebirth() {
 }
 
 function configure_dxx-rebirth() {
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "ports/descent1"
+        mkRomDir "ports/descent2"
+    fi
+
     addPort "$md_id" "descent1" "Descent Rebirth" "$md_inst/d1x-rebirth -hogdir $romdir/ports/descent1"
     addPort "$md_id" "descent2" "Descent II Rebirth" "$md_inst/d2x-rebirth -hogdir $romdir/ports/descent2"
 
@@ -129,11 +134,6 @@ function configure_dxx-rebirth() {
     moveConfigDir "$arpiedir/ports/dxx2-rebirth" "$md_conf_root/descent2/"
 
     if [[ "$md_mode" == "install" ]]; then
-        mkRomDir "ports/descent1"
-        mkRomDir "ports/descent2"
-
-        _game_data_dxx-rebirth
-
         if isPlatform "kms"; then
             for ver in 1 2; do 
                 config="$md_conf_root/descent${ver}/descent.cfg"
@@ -142,5 +142,6 @@ function configure_dxx-rebirth() {
                 chown "$user:$user" "$config"
             done
         fi
+        _game_data_dxx-rebirth
     fi
 }

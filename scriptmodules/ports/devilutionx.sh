@@ -92,19 +92,16 @@ function _add_games_devilutionx() {
 }
 
 function configure_devilutionx() {
-    mkRomDir "ports/diablo"
-
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
-
     if [[ "$md_mode" == "install" ]]; then
-        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/diablo/$md_id"
-
-        local params=(
-            "--config-dir $arpiedir/ports/$md_id"
-            "--save-dir $romdir/ports/diablo"
-            "--data-dir $md_inst/ports/devilutionx/assets"
-        )
-        _add_games_devilutionx "$md_inst/devilutionx ${params[*]}"
+        mkRomDir "ports/diablo"
     fi
+
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/diablo/"
+
+    local params=(
+        "--config-dir $arpiedir/ports/$md_id"
+        "--save-dir $romdir/ports/diablo"
+        "--data-dir $md_inst/ports/devilutionx/assets"
+    )
+    _add_games_devilutionx "$md_inst/devilutionx ${params[*]}"
 }

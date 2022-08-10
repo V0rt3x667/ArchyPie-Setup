@@ -72,16 +72,13 @@ function _game_data_alephone() {
 }
 
 function configure_alephone() {
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "ports/$md_id" && _game_data_alephone
+    fi
+
     addPort "$md_id" "alephone" "Aleph One Engine: Marathon" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon/"
     addPort "$md_id" "alephone" "Aleph One Engine: Marathon 2: Durandal" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon 2/"
     addPort "$md_id" "alephone" "Aleph One Engine: Marathon Infinity" "$md_inst/bin/alephone %ROM%" "$romdir/ports/$md_id/Marathon Infinity/"
 
-    mkRomDir "ports/$md_id"
-
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
-
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
-
-    [[ "$md_mode" == "install" ]] && _game_data_alephone
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
 }

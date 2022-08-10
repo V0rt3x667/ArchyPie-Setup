@@ -72,10 +72,7 @@ function install_bombermaaan() {
 function configure_bombermaaan() {
     addPort "$md_id" "bombermaaan" "Bombermaaan" "$md_inst/Bombermaaan"
 
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
-
     moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
 
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
+    [[ "$md_mode" == "install" ]] && isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
 }

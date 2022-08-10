@@ -99,21 +99,22 @@ _EOF_
 }
 
 function configure_cgenius() {
-    mkRomDir "ports/$md_id"
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "ports/$md_id"
+    fi
 
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
+    moveConfigDir "$arpiedir/ports/$md_id/games" "$romdir/ports/$md_id/"
 
-    moveConfigDir "$arpiedir/ports/$md_id/games" "$romdir/ports/$md_id"
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
+    if [[ "$md_mode" == "install" ]]; then
+        # Set Default Settings.
+        local config="$(mktemp)"
+        iniConfig " = " "" "$config"
+        echo "[Video]" > "$config"
+        iniSet "fullscreen" "true"
+        copyDefaultConfig "$config" "$md_conf_root/$md_id/cgenius.cfg"
+        rm "$config"
+    fi
 
-    [[ "$md_mode" == "install" ]] && _add_games_cgenius "$md_inst/CGeniusExe"
-
-     # Set default settings.
-    local config="$(mktemp)"
-    iniConfig " = " "" "$config"
-    echo "[Video]" > "$config"
-    iniSet "fullscreen" "true"
-    copyDefaultConfig "$config" "$md_conf_root/$md_id/cgenius.cfg"
-    rm "$config"
+    _add_games_cgenius "$md_inst/CGeniusExe"
 }

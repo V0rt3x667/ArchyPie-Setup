@@ -62,18 +62,17 @@ function install_cannonball() {
 }
 
 function configure_cannonball() {
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "ports/$md_id"
+        mkRomDir "ports/$md_id/hiscores/$md_id"
+    fi
+
     addPort "$md_id" "cannonball" "Cannonball: OutRun Engine" "pushd $md_inst; $md_inst/cannonball; popd"
 
-    mkRomDir "ports/$md_id"
-    mkRomDir "ports/$md_id/hiscores/$md_id"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
 
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
-
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
-
-    [[ "$md_mode" == "remove" ]] && return
-
-    copyDefaultConfig "$md_inst/config.xml" "$arpiedir/ports/$md_id/config.xml"
-    copyDefaultConfig "$md_inst/roms.txt" "$romdir/ports/$md_id/roms.txt"
+    if [[ "$md_mode" == "install" ]]; then
+        copyDefaultConfig "$md_inst/config.xml" "$md_conf_root/$md_id/config.xml"
+        copyDefaultConfig "$md_inst/roms.txt" "$romdir/ports/$md_id/roms.txt"
+    fi
 }

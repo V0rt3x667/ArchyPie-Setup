@@ -76,22 +76,18 @@ function install_darkplaces-quake() {
 }
 
 function configure_darkplaces-quake() {
-    mkRomDir "ports/quake"
-
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
-
     if [[ "$md_mode" == "install" ]]; then
-        moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/quake/$md_id" && \
-       _game_data_lr-tyrquake
+        mkRomDir "ports/quake" && _game_data_lr-tyrquake
+    fi
 
-        local params=(-basedir "$romdir/ports/quake" -game %QUAKEDIR%)
-        isPlatform "kms" && params+=("+vid_vsync 1")
-        if isPlatform "rpi4"; then
-            _add_games_lr-tyrquake "$md_inst/darkplaces-sdl-gles ${params[*]}" && \
-            _add_games_lr-tyrquake "$md_inst/darkplaces-sdl ${params[*]}"
-        else
-            _add_games_lr-tyrquake "$md_inst/darkplaces-sdl ${params[*]}"
-        fi
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/quake/$md_id/"
+
+    local params=(-basedir "$romdir/ports/quake" -game %QUAKEDIR%)
+    isPlatform "kms" && params+=("+vid_vsync 1")
+    if isPlatform "rpi4"; then
+        _add_games_lr-tyrquake "$md_inst/darkplaces-sdl-gles ${params[*]}" && \
+        _add_games_lr-tyrquake "$md_inst/darkplaces-sdl ${params[*]}"
+    else
+        _add_games_lr-tyrquake "$md_inst/darkplaces-sdl ${params[*]}"
     fi
 }

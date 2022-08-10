@@ -60,8 +60,5 @@ function configure_abuse() {
         addPort "$md_id" "abuse" "Abuse" "$md_inst/bin/abuse -datadir $md_inst/data -fullscreen"
     fi
 
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
-
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
 }

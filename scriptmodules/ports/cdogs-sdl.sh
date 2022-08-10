@@ -69,12 +69,7 @@ function install_cdogs-sdl() {
 function configure_cdogs-sdl() {
     addPort "$md_id" "cdogs-sdl" "C-Dogs SDL" "$md_inst/cdogs-sdl --fullscreen"
 
-    mkUserDir "$arpiedir/ports"
-    mkUserDir "$arpiedir/ports/$md_id"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
 
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id"
-
-    [[ "$md_mode" == "remove" ]] && return
-
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
+    [[ "$md_mode" == "install" ]] && isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
 }
