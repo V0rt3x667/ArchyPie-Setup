@@ -25,9 +25,9 @@ function install_bin_giana() {
 function configure_giana() {
     moveConfigDir "$home/.giana" "$md_conf_root/giana"
 
-    if isPlatform "x86 64bit"; then
+    if isPlatform "x86" && isPlatform "64bit"; then
         addPort "$md_id" "giana" "Giana's Return" "pushd $md_inst; $md_inst/giana_linux64 -fs -a44; popd"
-    elif isPlatform "x86 32bit"; then
+    elif isPlatform "x86" && isPlatform "32bit"; then
         addPort "$md_id" "giana" "Giana's Return" "pushd $md_inst; $md_inst/giana_linux32 -fs -a44; popd"
     else
         addPort "$md_id" "giana" "Giana's Return" "pushd $md_inst; $md_inst/giana_rpi; popd"
