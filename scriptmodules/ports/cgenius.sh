@@ -107,11 +107,14 @@ function configure_cgenius() {
     moveConfigDir "$arpiedir/ports/$md_id/games" "$romdir/ports/$md_id/"
 
     if [[ "$md_mode" == "install" ]]; then
+        local config
+
         # Set Default Settings.
-        local config="$(mktemp)"
+        config="$(mktemp)"
         iniConfig " = " "" "$config"
         echo "[Video]" > "$config"
         iniSet "fullscreen" "true"
+
         copyDefaultConfig "$config" "$md_conf_root/$md_id/cgenius.cfg"
         rm "$config"
     fi

@@ -17,15 +17,13 @@ function depends_ecwolf() {
         'cmake'
         'flac'
         'fluidsynth'
-        'gtk3'
         'libjpeg'
         'libmodplug'
         'libvorbis'
         'ninja'
         'opusfile'
-        'sdl2_mixer'
-        'sdl2_net'
         'sdl2'
+        'sdl2_net'
     )
     getDepends "${depends[@]}"
 }
@@ -37,6 +35,8 @@ function sources_ecwolf() {
 
     # Set binary dir to bin
     sed s'|set(CMAKE_INSTALL_BINDIR "games")|set(CMAKE_INSTALL_BINDIR "bin")|'g -i "$md_build/CMakeLists.txt"
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function build_ecwolf() {
@@ -48,6 +48,7 @@ function build_ecwolf() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         -DGPL=ON \
         -DNO_GTK=ON \
+        -DINTERNAL_SDL_MIXER=ON \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -59,20 +60,25 @@ function install_ecwolf() {
 }
 
 function configure_ecwolf() {
-    mkRomDir "ports/wolf3d"
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "ports/wolf3d" && _game_data_wolf4sdl
+    fi
 
-    moveConfigDir "$home/.local/share/ecwolf" "$md_conf_root/ecwolf"
-    moveConfigDir "$home/.config/ecwolf" "$md_conf_root/ecwolf"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/wolf3d/$md_id/"
 
-    [[ "$md_mode" == "install" ]] && _game_data_wolf4sdl
+    if [[ "$md_mode" == "install" ]]; then
+        local config
+    
+        # Set Default Settings.
+        config="$(mktemp)"
+        iniConfig " = " "" "$config"
+        iniSet "BaseDataPaths" "\"$romdir/ports/wolf3d\";"
+        iniSet "Vid_FullScreen" "1;"
+        iniSet "Vid_Vsync" "1;"
+    
+        copyDefaultConfig "$config" "$md_conf_root/wolf3d/$md_id/ecwolf.cfg"
+        rm "$config"
+    fi
 
     _add_games_wolf4sdl "$md_inst/bin/ecwolf --data %ROM%"
-
-    iniConfig " = " '' "$configdir/ports/wolf3d/ecwolf.cfg"
-
-    iniSet "BaseDataPaths" "\"$romdir/ports/wolf3d\";"
-    iniSet "Vid_FullScreen" "1;"
-    iniSet "Vid_Vsync" "1;"
-
-    chown "$user:$user" "$configdir/ports/wolf3d/ecwolf.cfg"
 }
