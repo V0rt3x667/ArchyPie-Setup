@@ -30,7 +30,7 @@ function sources_abuse() {
 
     applyPatch "$md_data/01_set_default_config_path.patch"
 
-    downloadAndExtract "$__arpie_url/Abuse-Data/abuse_assets.tar.xz" "$md_build/data" music register sfx
+    downloadAndExtract "$__arpie_url/Abuse/abuse_assets.tar.xz" "$md_build/data" music register sfx
 
     sed -e "s|ASSETDIR \"share/games/abuse\"|ASSETDIR "data"|g" -i "$md_build/CMakeLists.txt"
 }

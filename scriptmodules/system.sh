@@ -66,7 +66,7 @@ function conf_binary_vars() {
     # __binary_url="$__binary_base_url/$__binary_path"
 
     __archive_url="https://files.retropie.org.uk/archives"
-    __arpie_url="https://github.com/V0rt3x667/ArchyPie-Resources/releases/download"
+    __arpie_url="https://github.com/V0rt3x667/ArchyPie-Resources/raw"
 
     # set the gpg key used by ArchyPie
     __gpg_retropie_key="retropieproject@gmail.com"
