@@ -83,7 +83,7 @@ function _add_games_dhewm3() {
     for game in "${!games[@]}"; do
         dir="$romdir/ports/doom3"
         pushd "$dir/${game%%/*}"
-        perl-rename 'y/A-Z/a-z/' [^.-]*
+        perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
         popd
         if [[ -f "$dir/$game" ]]; then
             addPort "$md_id" "doom3" "${games[$game]}" "$cmd" "${game%%/*}"

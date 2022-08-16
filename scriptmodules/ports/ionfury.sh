@@ -16,8 +16,7 @@ function depends_ionfury() {
 }
 
 function sources_ionfury() {
-    # patches are also shared with eduke32, so avoid duplication
-    md_data="$(dirname $md_data)/eduke32" sources_eduke32
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function build_ionfury() {

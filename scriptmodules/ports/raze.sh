@@ -33,7 +33,9 @@ function depends_raze() {
 
 function sources_raze() {
     gitPullOrClone
-    applyPatch "$md_data/01_fix_file_paths.patch"
+
+    applyPatch "$md_data/01_set_default_config_path.patch"
+
     _sources_zmusic
 }
 
@@ -94,13 +96,15 @@ function _add_games_raze() {
         ['ww2gi/platoonl.dat']="World War II GI: Platoon Leader"
     )
 
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/$game"
-        # Convert Uppercase Filenames to Lowercase
-        pushd "${dir%/*}"
-        perl-rename 'y/A-Z/a-z/' *
-        popd
-        if [[ -f "$dir" ]]; then
+        dir="$romdir/ports/${game%%/*}"
+        if [[ "$md_mode" == "install" ]]; then
+            pushd "$dir" || return
+            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+            popd || return
+        fi
+        if [[ -f "$dir/${game##*/}" ]]; then
             # Add Blood: Cryptic Passage
             if [[ "$game" == "blood/cryptic.ini" ]]; then
                 addPort "$md_id" "${game%/*}" "${games[$game]}" "$cmd -%ROM%" "cryptic"
@@ -116,21 +120,23 @@ function _add_games_raze() {
 }
 
 function configure_raze() {
-    local dirs=(
-        'blood'
-        'duke3d' 
-        'exhumed'
-        'nam'
-        'redneck'
-        'redneckrides'
-        'shadow'
-        'ww2gi' 
-    )
-    for dir in "${dirs[@]}"; do
-        mkRomDir "ports/$dir"
-    done
+    if [[ "$md_mode" == "install" ]]; then
+        local dirs=(
+            'blood'
+            'duke3d'
+            'exhumed'
+            'nam'
+            'redneck'
+            'redneckrides'
+            'shadow'
+            'ww2gi'
+        )
+        for dir in "${dirs[@]}"; do
+            mkRomDir "ports/$dir"
+        done
+    fi
 
-    moveConfigDir "$home/.config/raze" "$md_conf_root/raze"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
 
-    [[ "$md_mode" == "install" ]] && _add_games_raze "$md_inst/raze +vid_renderer 1 +vid_fullscreen 1"
+    _add_games_raze "$md_inst/raze +vid_renderer 1 +vid_fullscreen 1"
 }

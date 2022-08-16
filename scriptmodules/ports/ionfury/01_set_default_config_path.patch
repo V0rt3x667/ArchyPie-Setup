@@ -5,7 +5,7 @@
                        "apps/" APPBASENAME
  #else
 -                      ".config/" APPBASENAME
-+                      ".config/archypie/ports/eduke32"
++                      ".config/archypie/ports/ionfury"
  #endif
                        ,homedir);
              asperr = addsearchpath(cwd);
