@@ -7,7 +7,7 @@
 rp_module_id="emulationstation"
 rp_module_desc="EmulationStation - Frontend for Launching Emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
-rp_module_repo="git https://github.com/RetroPie/EmulationStation.git v2.10.3"
+rp_module_repo="git https://github.com/RetroPie/EmulationStation.git stable"
 rp_module_section="core"
 rp_module_flags="frontend"
 
@@ -155,8 +155,8 @@ function build_emulationstation() {
         # force GLESv1 on videocore due to performance issue with GLESv2
         isPlatform "videocore" && params+=(-DUSE_GLES1=On)
     elif isPlatform "x11"; then
-        local gl_ver=$(sudo -u "$user" glxinfo | grep -oP "OpenGL version string: \K(\d+)")
-        [[ "$gl_ver" -gt 1 ]] && params+=(-DUSE_OPENGL_21=On)
+        local gl_ver=$(sudo -u $user glxinfo | grep -oP "OpenGL version string: \K(\d+)")
+        [[ "$gl_ver" -gt 1 ]] && params+=(-DUSE_GL21=On)
     fi
     if isPlatform "dispmanx"; then
         params+=(-DOMX=On)

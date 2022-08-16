@@ -25,7 +25,7 @@ function depends_ppsspp() {
         'snappy'
         'zlib'
     )
-    isPlatform "videocore" && depends+=(libraspberrypi-firmware)
+    isPlatform "videocore" && depends+=(raspberrypi-firmware)
     isPlatform "mesa" && depends+=(libglvnd)
     getDepends "${depends[@]}"
 }

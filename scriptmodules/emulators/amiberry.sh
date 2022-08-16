@@ -7,8 +7,8 @@
 rp_module_id="amiberry"
 rp_module_desc="Amiberry - Commodore Amiga Emulator"
 rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy your Amiga games to $romdir/amiga\n\nCopy the required BIOS files\nkick13.rom\nkick20.rom\nkick31.rom\nto $biosdir/amiga"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/midwan/amiberry/master/COPYING"
-rp_module_repo="git https://github.com/midwan/amiberry v5.2"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
+rp_module_repo="git https://github.com/BlitterStudio/amiberry v5.3"
 rp_module_section="opt"
 rp_module_flags="!all arm rpi3 rpi4"
 
@@ -48,9 +48,10 @@ function depends_amiberry() {
         'sdl2_image'
         'sdl2_ttf'
         'sdl2'
+		'wget'
         'zlib'
     )
-    isPlatform "dispmanx" && depends+=('libraspberrypi-firmware')
+    isPlatform "dispmanx" && depends+=('raspberrypi-firmware')
 
     getDepends "${depends[@]}"
 }

@@ -46,8 +46,6 @@ function _build_libcapsimage_hatari() {
     mkdir -p "$md_build/src/includes/caps"
     cp -R "../LibIPF/"*.h "$md_build/src/includes/caps/"
     cp "../Core/CommonTypes.h" "$md_build/src/includes/caps/"
-    # 'lr-hatari' expects a 'caps5' include path
-    ln -sf "$md_build/src/includes/caps" "$md_build/src/includes/caps5"
 }
 
 function build_hatari() {
@@ -62,6 +60,7 @@ function build_hatari() {
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='$md_inst/lib'" \
         -DCAPSIMAGE_INCLUDE_DIR="$md_build/src/includes" \
         -DCAPSIMAGE_LIBRARY="$md_build/lib/libcapsimage.so.5.1" \
+        -DENABLE_SDL2=ON \
         -Wno-dev
     ninja -C "$md_build/build" clean
     ninja -C "$md_build/build"
