@@ -144,10 +144,12 @@ function depends_emulationstation() {
 
 function sources_emulationstation() {
     gitPullOrClone
+    # Fix: "error: field ‘mTimeStruct’ has incomplete type ‘tm’"
+    sed '/^#include <string>/a #include <ctime>' -i ./es-core/src/utils/TimeUtil.h
 }
 
 function build_emulationstation() {
-    local params=(-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/ -Wno-dev)
+    local params=(-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/)
     if isPlatform "rpi"; then
         params+=(-DRPI=On)
         # use OpenGL on RPI/KMS for now
@@ -155,7 +157,7 @@ function build_emulationstation() {
         # force GLESv1 on videocore due to performance issue with GLESv2
         isPlatform "videocore" && params+=(-DUSE_GLES1=On)
     elif isPlatform "x11"; then
-        local gl_ver=$(sudo -u $user glxinfo | grep -oP "OpenGL version string: \K(\d+)")
+        local gl_ver=$(sudo -u "$user" glxinfo | grep -oP "OpenGL version string: \K(\d+)")
         [[ "$gl_ver" -gt 1 ]] && params+=(-DUSE_GL21=On)
     fi
     if isPlatform "dispmanx"; then
@@ -163,9 +165,14 @@ function build_emulationstation() {
     fi
 
     rpSwap on 1000
-    cmake . "${params[@]}"
+    cmake . \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        "${params[@]}" \
+        -Wno-dev
     make clean
-    make VERBOSE=1
+    make
     rpSwap off
     md_ret_require="$md_build/emulationstation"
 }
