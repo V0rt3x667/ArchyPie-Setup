@@ -11,7 +11,7 @@ rp_module_section="opt"
 rp_module_flags="!mali"
 
 function _update_hook_kodi() {
-    # to show as installed in archypie-setup
+    # Show as Installed in ArchyPie-Setup
     hasPackage kodi && mkdir -p "$md_inst"
 }
 
@@ -20,14 +20,11 @@ function depends_kodi() {
 }
 
 function install_bin_kodi() {
-    # force pacmanInstall to get a fresh list before installing
-    __pacman_update=0
-
-    pacmanInstall kodi kodi-platform p8-platform
+    pacmanInstall kodi kodi-eventclients kodi-platform p8-platform
 }
 
 function remove_kodi() {
-    pacmanRemove kodi kodi-platform p8-platform
+    pacmanRemove kodi kodi-eventclients kodi-platform p8-platform
     rp_callModule kodi depends remove
 }
 
