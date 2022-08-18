@@ -45,14 +45,13 @@ function depends_amiberry() {
         'libmpg123'
         'libpng'
         'libxml2'
+        'sdl2'
         'sdl2_image'
         'sdl2_ttf'
-        'sdl2'
-		'wget'
+        'wget'
         'zlib'
     )
     isPlatform "dispmanx" && depends+=('raspberrypi-firmware')
-
     getDepends "${depends[@]}"
 }
 
