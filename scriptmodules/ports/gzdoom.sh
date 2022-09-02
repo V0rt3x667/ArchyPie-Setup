@@ -36,13 +36,13 @@ function depends_gzdoom() {
 function sources_gzdoom() {
     gitPullOrClone
     _sources_zmusic
-    applyPatch "$md_data/01_fix_file_paths.patch"
+    applyPatch "$md_data/01_set_default_config_path.patch"
 }
 
 function _sources_zmusic() {
     tag="$(_get_branch_zmusic)"
     gitPullOrClone "$md_build/zmusic" "https://github.com/coelckers/ZMusic" "$tag"
-    sed 's/\/sounds/\/soundfonts/g' -i "$md_build/zmusic/source/mididevices/music_fluidsynth_mididevice.cpp"
+    sed 's|/sounds/sf2|/soundfonts|g' -i "$md_build/zmusic/source/mididevices/music_fluidsynth_mididevice.cpp"
 }
 
 function _build_zmusic() {
@@ -87,8 +87,8 @@ function install_gzdoom() {
         'build/fm_banks'
         'build/game_support.pk3'
         'build/game_widescreen_gfx.pk3'
-        'build/gzdoom.pk3'
         'build/gzdoom'
+        'build/gzdoom.pk3'
         'build/lights.pk3'
         'build/soundfonts'
         'docs'
@@ -98,13 +98,32 @@ function install_gzdoom() {
 }
 
 function configure_gzdoom() {
-    mkRomDir "ports/doom"
-    mkRomDir "ports/doom/addon"
+    if [[ "$md_mode" == "install" ]]; then
+        local dirs=(
+            'addons'
+            'addons/bloom'
+            'addons/brutal'
+            'addons/misc'
+            'addons/sigil'
+            'chex'
+            'doom1'
+            'doom2'
+            'finaldoom'
+            'freedoom'
+            'hacx'
+            'heretic'
+            'strife'
+        )
+        for dir in "${dirs[@]}"; do
+            mkRomDir "ports/doom"
+            mkRomDir "ports/doom/$dir"
+        done
 
-    moveConfigDir "$home/.config/gzdoom" "$md_conf_root/doom"
+        _game_data_lr-prboom
+    fi
 
-    [[ "$md_mode" == "install" ]] && _game_data_lr-prboom
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/doom/$md_id"
 
     local launcher_prefix="DOOMWADDIR=$romdir/ports/doom"
-    _add_games_lr-prboom "$launcher_prefix $md_inst/gzdoom -iwad %ROM% +vid_renderer 1 +vid_fullscreen 1"
+    _add_games_lr-prboom "$launcher_prefix $md_inst/gzdoom +vid_renderer 1 +vid_fullscreen 1 -iwad %ROM%"
 }

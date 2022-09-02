@@ -76,9 +76,9 @@ function _add_games_devilutionx() {
     # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
     for game in "${!games[@]}"; do
         dir="$romdir/ports/diablo"
-        pushd "$dir"
-        perl-rename 'y/A-Z/a-z/' [^.-]*
-        popd
+        pushd "$dir/${game%%/*}" || return
+        perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+        popd || return
         if [[ -f "$dir/$game" ]]; then
             if [[ "$game" == "diabdat.mpq" ]]; then
                 addPort "$md_id" "diablo" "${games[$game]}" "$cmd --%ROM%" "diablo"

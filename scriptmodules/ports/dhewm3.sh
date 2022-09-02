@@ -82,9 +82,9 @@ function _add_games_dhewm3() {
     # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
     for game in "${!games[@]}"; do
         dir="$romdir/ports/doom3"
-        pushd "$dir/${game%%/*}"
+        pushd "$dir/${game%%/*}" || return
         perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-        popd
+        popd || return
         if [[ -f "$dir/$game" ]]; then
             addPort "$md_id" "doom3" "${games[$game]}" "$cmd" "${game%%/*}"
         fi

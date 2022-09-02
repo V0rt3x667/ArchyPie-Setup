@@ -79,10 +79,10 @@ function _add_games_cgenius(){
 
     # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/cgenius"
-        pushd "$dir/${game%%/*}"
-        perl-rename 'y/A-Z/a-z/' [^.-]*
-        popd
+        dir="$romdir/ports/$md_id"
+        pushd "$dir/${game%%/*}" || return
+        perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+        popd || return
         if [[ -f "$dir/$game" ]]; then
             addPort "$md_id" "cgenius" "${games[$game]}" "$md_inst/$md_id.sh %ROM%" "dir=games/${game%/*}"
         fi

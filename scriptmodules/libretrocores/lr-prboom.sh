@@ -34,68 +34,85 @@ function install_lr-prboom() {
 function _game_data_lr-prboom() {
     local dest="$romdir/ports/doom"
 
-    if [[ ! -f "$dest/doom1.wad" ]]; then
-        # Download DOOM 1 shareware.
-        download "$__archive_url/doom1.wad" "$dest/doom1.wad"
+    if [[ -f "$dest/doom1/doom1.wad" || -f $dest/doom1/DOOM1.WAD]]; then
+        return
+    else
+        # Download DOOM Shareware.
+        download "$__archive_url/doom1.wad" "$dest/doom1/doom1.wad"
     fi
-    if ! echo "e9bf428b73a04423ea7a0e9f4408f71df85ab175 $dest/freedoom1.wad" | sha1sum -c &>/dev/null; then
-        # Download or update Freedoom
-        downloadAndExtract "https://github.com/freedoom/freedoom/releases/download/v0.12.1/freedoom-0.12.1.zip" "$dest" -j -LL
+    if ! echo "e9bf428b73a04423ea7a0e9f4408f71df85ab175 $dest/freedoom/freedoom1.wad" | sha1sum -c &>/dev/null; then
+        # Download or Update Freedoom
+        downloadAndExtract "https://github.com/freedoom/freedoom/releases/download/v0.12.1/freedoom-0.12.1.zip" "$dest/freedoom" -j -LL
     fi
     chown -R "$user:$user" "$dest"
 }
 
 function _add_games_lr-prboom() {
-    local addon="$romdir/ports/doom/addon"
     local cmd="$1"
     local dir
     local game
     declare -A games=(
-        ['doom1.wad']="Doom (Shareware)"
-        ['doom.wad']="Doom: The Ultimate Doom"
-        ['doomu.wad']="Doom: The Ultimate Doom"
-        ['doom2.wad']="Doom II: Hell on Earth"
-        ['masterlevels.wad']="Doom II: Master Levels"
-        ['tnt.wad']="Final Doom: TNT: Evilution"
-        ['plutonia.wad']="Final Doom: The Plutonia Experiment"
-        ['freedoom1.wad']="Freedoom: Phase I"
-        ['freedoom2.wad']="Freedoom: Phase II"
+        ['doom1/doom1.wad']="Doom (Shareware)"
+        ['doom1/doom.wad']="Doom: The Ultimate Doom"
+        ['doom1/doomu.wad']="Doom: The Ultimate Doom"
+        ['doom2/doom2.wad']="Doom II: Hell on Earth"
+        ['doom2/masterlevels.wad']="Doom II: Master Levels"
+        ['finaldoom/tnt.wad']="Final Doom: TNT: Evilution"
+        ['finaldoom/plutonia.wad']="Final Doom: The Plutonia Experiment"
+        ['freedoom/freedoom1.wad']="Freedoom: Phase I"
+        ['freedoom/freedoom2.wad']="Freedoom: Phase II"
     )
     if [[ "$md_id" == "gzdoom" || "$md_id" == "lzdoom" ]]; then
         games+=(
-            ['chex.wad']="Chex Quest"
-            ['chex2.wad']="Chex Quest 2"
-            ['chex3.wad']="Chex Quest 3"
-            ['hacx.wad']="HacX"
-            ['heretic.wad']="Heretic: Shadow of the Serpent Riders"
-            ['hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
-            ['hexen.wad']="Hexen: Beyond Heretic"
-            ['strife1.wad']="Strife"
+            ['addons/bloom/bloom.pk3']="Doom II: Bloom"
+            ['addons/brutal/brutal.pk3']="Doom: Brutal Doom"
+            ['addons/brutal/brutality.wad']="Doom: Project Brutality"
+            ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
+            ['addons/sigil/sigil.wad']="Doom: SIGIL"
+            ['chex/chex.wad']="Chex Quest"
+            ['chex/chex2.wad']="Chex Quest 2"
+            ['chex/chex3.wad']="Chex Quest 3"
+            ['hacx/hacx.wad']="HacX"
+            ['heretic/heretic.wad']="Heretic: Shadow of the Serpent Riders"
+            ['heretic/hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
+            ['heretic/hexen.wad']="Hexen: Beyond Heretic"
+            ['strife/strife1.wad']="Strife: Quest for the Sigil"
         )
     fi
 
-    # Create .sh files for each game found. Uppercase filnames will be converted to lowercase.
+    # Create .sh Files for Each Game Found. Uppercase Filnames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/doom/$game"
-        perl-rename 'y/A-Z/a-z/' "$dir"/*
-        if [[ -f "$dir/$game" ]]; then
-            addPort "$md_id" "doom" "${games[$game]}" "$cmd" "$game"
-            if [[ "$md_id" == "gzdoom" || "$md_id" == "lzdoom" ]]; then
-                addPort "$md_id-addon" "doom" "${games[$game]}" "$cmd -file ${addon}/*" "$game"
+        dir="$romdir/ports/doom/${game%/*}"
+        if [[ "$md_mode" == "install" ]]; then
+            pushd "$dir" || return
+            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+            popd || return
+        fi
+        if [[ -f "$dir/${game##*/}" ]]; then
+            if [[ "${game##*/}" == "sigil.wad" || "${game##*/}" == "bloom.wad" || "${game##*/}" =~ "brutal" ]]; then
+                addPort "$md_id" "doom" "${games[$game]}" "$cmd -file %ROM%" "${game##*/}"
+            elif [[ "$md_id" == "gzdoom" || "$md_id" == "lzdoom" ]]; then
+                addPort "$md_id-addon" "doom" "${games[$game]}" "$cmd -file $romdir/ports/doom/addons/misc/*" "${game##*/}"
+            else
+                addPort "$md_id" "doom" "${games[$game]}" "$cmd" "${game##*/}"
             fi
         fi
     done
 }
 
 function configure_lr-prboom() {
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "ports/doom"
+        mkUserDir "$biosdir/doom"
+
+        _game_data_lr-prboom
+
+        cp "$md_inst/prboom.wad" "$biosdir/doom/"
+    fi
+
     setConfigRoot "ports"
 
-    mkRomDir "ports/doom"
-    mkRomDir "ports/doom/addon"
-
-    defaultRAConfig "doom"
-
-    [[ "$md_mode" == "install" ]] && _game_data_lr-prboom
+    defaultRAConfig "doom" "system_directory" "$biosdir/doom"
 
     _add_games_lr-prboom "$md_inst/prboom_libretro.so"
 }
