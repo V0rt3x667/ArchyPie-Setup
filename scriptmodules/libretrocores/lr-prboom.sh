@@ -25,16 +25,13 @@ function build_lr-prboom() {
 }
 
 function install_lr-prboom() {
-    md_ret_files=(
-        'prboom_libretro.so'
-        'prboom.wad'
-    )
+    md_ret_files=('prboom_libretro.so' 'prboom.wad')
 }
 
 function _game_data_lr-prboom() {
     local dest="$romdir/ports/doom"
 
-    if [[ -f "$dest/doom1/doom1.wad" || -f $dest/doom1/DOOM1.WAD]]; then
+    if [[ -f "$dest/doom1/doom1.wad" || -f "$dest/doom1/DOOM1.WAD" ]]; then
         return
     else
         # Download DOOM Shareware.
@@ -51,14 +48,15 @@ function _add_games_lr-prboom() {
     local cmd="$1"
     local dir
     local game
+    local portname
     declare -A games=(
-        ['doom1/doom1.wad']="Doom (Shareware)"
         ['doom1/doom.wad']="Doom: The Ultimate Doom"
+        ['doom1/doom1.wad']="Doom (Shareware)"
         ['doom1/doomu.wad']="Doom: The Ultimate Doom"
         ['doom2/doom2.wad']="Doom II: Hell on Earth"
         ['doom2/masterlevels.wad']="Doom II: Master Levels"
-        ['finaldoom/tnt.wad']="Final Doom: TNT: Evilution"
         ['finaldoom/plutonia.wad']="Final Doom: The Plutonia Experiment"
+        ['finaldoom/tnt.wad']="Final Doom: TNT: Evilution"
         ['freedoom/freedoom1.wad']="Freedoom: Phase I"
         ['freedoom/freedoom2.wad']="Freedoom: Phase II"
     )
@@ -66,9 +64,10 @@ function _add_games_lr-prboom() {
         games+=(
             ['addons/bloom/bloom.pk3']="Doom II: Bloom"
             ['addons/brutal/brutal.pk3']="Doom: Brutal Doom"
-            ['addons/brutal/brutality.wad']="Doom: Project Brutality"
+            ['addons/brutal/brutality.pk3']="Doom: Project Brutality"
             ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
             ['addons/sigil/sigil.wad']="Doom: SIGIL"
+            ['addons/strain/strainfix.wad']="Doom II: Strain"
             ['chex/chex.wad']="Chex Quest"
             ['chex/chex2.wad']="Chex Quest 2"
             ['chex/chex3.wad']="Chex Quest 3"
@@ -82,37 +81,39 @@ function _add_games_lr-prboom() {
 
     # Create .sh Files for Each Game Found. Uppercase Filnames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/doom/${game%/*}"
+        portname="doom"
+        dir="$romdir/ports/$portname/${game%/*}"
         if [[ "$md_mode" == "install" ]]; then
             pushd "$dir" || return
             perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
             popd || return
         fi
         if [[ -f "$dir/${game##*/}" ]]; then
-            if [[ "${game##*/}" == "sigil.wad" || "${game##*/}" == "bloom.wad" || "${game##*/}" =~ "brutal" ]]; then
-                addPort "$md_id" "doom" "${games[$game]}" "$cmd -file %ROM%" "${game##*/}"
+            if [[ "${game##*/}" == "sigil.wad" || "${game##*/}" == "bloom.wad" || "${game##*/}" == "strainfix.wad" || "${game##*/}" =~ "brutal" ]]; then
+                addPort "$md_id" "$portname" "${games[$game]}" "$cmd -file %ROM%" "${game##*/}"
             elif [[ "$md_id" == "gzdoom" || "$md_id" == "lzdoom" ]]; then
-                addPort "$md_id-addon" "doom" "${games[$game]}" "$cmd -file $romdir/ports/doom/addons/misc/*" "${game##*/}"
+                addPort "$md_id-addon" "$portname" "${games[$game]}" "$cmd -file $romdir/ports/$portname/addons/misc/*" "${game##*/}"
             else
-                addPort "$md_id" "doom" "${games[$game]}" "$cmd" "${game##*/}"
+                addPort "$md_id" "$portname" "${games[$game]}" "$cmd" "${game##*/}"
             fi
         fi
     done
 }
 
 function configure_lr-prboom() {
+    local portname
+    portname=doom
+
     if [[ "$md_mode" == "install" ]]; then
-        mkRomDir "ports/doom"
-        mkUserDir "$biosdir/doom"
-
+        mkRomDir "ports/$portname"
+        mkUserDir "$biosdir/$portname"
         _game_data_lr-prboom
-
-        cp "$md_inst/prboom.wad" "$biosdir/doom/"
+        cp "$md_inst/prboom.wad" "$biosdir/$portname/"
     fi
 
     setConfigRoot "ports"
 
-    defaultRAConfig "doom" "system_directory" "$biosdir/doom"
+    defaultRAConfig "$portname" "system_directory" "$biosdir/$portname"
 
     _add_games_lr-prboom "$md_inst/prboom_libretro.so"
 }

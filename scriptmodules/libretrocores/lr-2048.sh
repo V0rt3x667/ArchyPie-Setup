@@ -22,14 +22,12 @@ function build_lr-2048() {
 }
 
 function install_lr-2048() {
-    md_ret_files=(
-        '2048_libretro.so'
-    )
+    md_ret_files=('2048_libretro.so')
 }
 
 function configure_lr-2048() {
     setConfigRoot "ports"
-    defaultRAConfig "ports/2048"
+    defaultRAConfig "2048"
 
     addPort "$md_id" "2048" "2048" "$md_inst/2048_libretro.so"
 }
