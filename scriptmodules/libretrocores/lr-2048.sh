@@ -16,7 +16,7 @@ function sources_lr-2048() {
 }
 
 function build_lr-2048() {
-    make clean
+    make -f Makefile.libretro clean
     make -f Makefile.libretro
     md_ret_require="$md_build/2048_libretro.so"
 }
@@ -27,7 +27,8 @@ function install_lr-2048() {
 
 function configure_lr-2048() {
     setConfigRoot "ports"
-    defaultRAConfig "2048"
 
     addPort "$md_id" "2048" "2048" "$md_inst/2048_libretro.so"
+
+    defaultRAConfig "2048"
 }

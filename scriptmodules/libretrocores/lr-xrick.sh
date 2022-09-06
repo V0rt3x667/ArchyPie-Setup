@@ -42,7 +42,7 @@ function configure_lr-xrick() {
 
     [[ "$md_mode" == "remove" ]] && return
 
-    defaultRAConfig "ports/xrick"
+    defaultRAConfig "xrick"
 
     _add_data_lr-xrick
 }
