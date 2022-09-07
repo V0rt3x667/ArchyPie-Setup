@@ -25,8 +25,8 @@ diff -ru a/source/common/platform/posix/unix/i_specialpaths.cpp b/source/common/
  		CreatePath(path);
 diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 --- a/source/core/gameconfigfile.cpp	2022-08-14 02:47:25.770049000 +0100
-+++ b/source/core/gameconfigfile.cpp	2022-08-15 18:09:09.124333506 +0100
-@@ -76,92 +76,35 @@
++++ b/source/core/gameconfigfile.cpp	2022-09-05 22:13:18.979112757 +0100
+@@ -76,92 +76,24 @@
  	if (!SetSection ("GameSearch.Directories"))
  	{
  		SetSection ("GameSearch.Directories", true);
@@ -72,13 +72,8 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -
 -#endif
 -		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/blood", true);
 +		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/exhumed", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/nam", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/redneck", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/shadow", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/ww2gi", true);
++		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d/*", true);
  	}
  
  	// Set default search paths if none present
@@ -103,13 +98,8 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -		SetValueForKey ("Path", "/usr/share/games/nblood", true);
 -		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
 -#endif
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/blood", true);
 +		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/exhumed", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/nam", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/redneck", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/shadow", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/ww2gi", true);
++		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d/*", true);
  	}
  
  	// Set default search paths if none present
@@ -130,8 +120,7 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -		SetValueForKey("Path", "/usr/share/" GAME_DIR "/soundfonts", true);
 -		SetValueForKey("Path", "/usr/share/games/" GAME_DIR "/soundfonts", true);
 -#endif
-+		SetValueForKey ("Path", ".", true);
-+		SetValueForKey ("Path", "./soundfonts", true);
++		SetValueForKey ("Path", "$PROGDIR/soundfonts", true);
 +		SetValueForKey ("Path", "/usr/share/soundfonts", true);
  	}
  

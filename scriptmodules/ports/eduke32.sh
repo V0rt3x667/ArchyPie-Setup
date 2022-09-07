@@ -6,6 +6,7 @@
 
 rp_module_id="eduke32"
 rp_module_desc="EDuke32 - Duke Nukem 3D Port"
+rp_module_help="ROM Extensions: .grp\n\nCopy Game Files to:\n$romdir/ports/duke3d/duke\n$romdir/ports/duke3d/nam\n$romdir/ports/duke3d/ww2gi"
 rp_module_licence="GPL2 https://voidpoint.io/terminx/eduke32/-/raw/master/package/common/gpl-2.0.txt?inline=false"
 rp_module_repo="git https://voidpoint.io/terminx/eduke32.git master"
 rp_module_section="opt"
@@ -77,6 +78,7 @@ function _add_games_eduke32() {
     local cmd="$1"
     local dir
     local game
+    local portname
     declare -A games=()
 
     if [[ "$md_id" == "ionfury" ]]; then
@@ -84,20 +86,26 @@ function _add_games_eduke32() {
     fi
     if [[ "$md_id" == "eduke32" ]]; then
         games=(
-            ['duke3d/duke3d.grp']="Duke Nukem 3D"
-            ['duke3d/dukedc.grp']="Duke Nukem 3D: Duke It Out in D.C."
-            ['duke3d/nwinter.grp']="Duke Nukem 3D: Duke: Nuclear Winter"
-            ['duke3d/vacation.grp']="Duke Nukem 3D: Duke Caribbean: Life's a Beach"
+            ['duke/duke3d.grp']="Duke Nukem 3D"
+            ['duke/dukedc.grp']="Duke Nukem 3D: Duke It Out in D.C."
+            ['duke/nwinter.grp']="Duke Nukem 3D: Duke: Nuclear Winter"
+            ['duke/vacation.grp']="Duke Nukem 3D: Duke Caribbean: Life's a Beach"
             ['nam/nam.grp']="NAM (AKA Napalm)"
             ['nam/napalm.grp']="Napalm (AKA NAM)"
-            ['ww2gi/ww2gi.grp']="World War II GI"
             ['ww2gi/platoonl.dat']="World War II GI: Platoon Leader"
+            ['ww2gi/ww2gi.grp']="World War II GI"
         )
     fi
 
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/${game%%/*}"
+        if [[ "$game" == "ionfury/fury.grp" ]]; then
+            portname="ionfury"
+            dir="$romdir/ports/$portname/${game%%/*}"
+        else
+            portname="duke3d"
+            dir="$romdir/ports/$portname/${game%%/*}"
+        fi
         if [[ "$md_mode" == "install" ]]; then
             pushd "$dir" || return
             perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
@@ -105,24 +113,24 @@ function _add_games_eduke32() {
         fi
         if [[ -f "$dir/${game##*/}" ]]; then
             if [[ "$game" == "ionfury/fury.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir"
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir"
             fi 
-            if [[ "$game" == "duke3d/duke3d.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 0"
-            elif [[ "$game" == "duke3d/dukedc.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 1"
-            elif [[ "$game" == "duke3d/nwinter.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 2"
-            elif [[ "$game" == "duke3d/vacation.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 3"
+            if [[ "$game" == "duke/duke3d.grp" ]]; then
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 0"
+            elif [[ "$game" == "duke/dukedc.grp" ]]; then
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 1"
+            elif [[ "$game" == "duke/nwinter.grp" ]]; then
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 2"
+            elif [[ "$game" == "duke/vacation.grp" ]]; then
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -addon 3"
             elif [[ "$game" == "ww2gi/ww2gi.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -ww2gi"
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -ww2gi"
             elif [[ "$game" == "ww2gi/platoonl.dat" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -ww2gi"
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -ww2gi"
             elif [[ "$game" == "nam/nam.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -nam"
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -nam"
             elif [[ "$game" == "nam/napalm.grp" ]]; then
-                addPort "$md_id" "${game%%/*}" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -napalm"
+                addPort "$md_id" "$portname" "${games[$game]}" "pushd $md_conf_root/$md_id; $md_inst/$md_id.sh %ROM%; popd" "-j $dir -napalm"
             fi
         fi
     done
@@ -143,15 +151,16 @@ function configure_eduke32() {
         if [[ "$md_id" == "ionfury" ]]; then
             dirs=('ionfury')
         else
-            dirs=('duke3d' 'nam' 'ww2gi')
+            dirs=('duke' 'nam' 'ww2gi')
         fi
         for dir in "${dirs[@]}"; do
-            mkRomDir "ports/$dir"
+            mkRomDir "ports/duke3d"
+            mkRomDir "ports/duke3d/$dir"
         done
         [[ "$md_id" == "eduke32" ]] && _game_data_eduke32
     fi
 
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/duke3d/$md_id/"
 
     if [[ "$md_id" == "ionfury" ]]; then
         _add_games_eduke32 "$md_inst/fury"

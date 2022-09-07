@@ -35,8 +35,8 @@ diff -ru a/src/d_iwad.cpp b/src/d_iwad.cpp
  	}
 diff -ru a/src/gameconfigfile.cpp b/src/gameconfigfile.cpp
 --- a/src/gameconfigfile.cpp	2022-08-19 07:00:53.000000000 +0100
-+++ b/src/gameconfigfile.cpp	2022-08-27 00:25:54.042130528 +0100
-@@ -105,82 +105,34 @@
++++ b/src/gameconfigfile.cpp	2022-09-04 19:48:54.895554350 +0100
+@@ -105,82 +105,35 @@
  	if (!SetSection ("IWADSearch.Directories"))
  	{
  		SetSection ("IWADSearch.Directories", true);
@@ -96,6 +96,7 @@ diff -ru a/src/gameconfigfile.cpp b/src/gameconfigfile.cpp
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons/bloom", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons/brutal", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons/sigil", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/addons/strain", true);
  	}
  
  	// Set default search paths if none present

@@ -9,7 +9,7 @@ rp_module_desc="GZDoom - Enhanced DOOM Port"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/coelckers/gzdoom/master/LICENSE"
 rp_module_repo="git https://github.com/coelckers/gzdoom.git :_get_branch_gzdoom"
 rp_module_section="opt"
-rp_module_flags="!all x86 64bit"
+rp_module_flags="!all 64bit"
 
 function _get_branch_gzdoom() {
     download https://api.github.com/repos/coelckers/gzdoom/releases - | grep -m 1 tag_name | cut -d\" -f4
@@ -98,6 +98,9 @@ function install_gzdoom() {
 }
 
 function configure_gzdoom() {
+    local portname
+    portname=doom
+
     if [[ "$md_mode" == "install" ]]; then
         local dirs=(
             'addons'
@@ -105,6 +108,7 @@ function configure_gzdoom() {
             'addons/brutal'
             'addons/misc'
             'addons/sigil'
+            'addons/strain'
             'chex'
             'doom1'
             'doom2'
@@ -115,15 +119,15 @@ function configure_gzdoom() {
             'strife'
         )
         for dir in "${dirs[@]}"; do
-            mkRomDir "ports/doom"
-            mkRomDir "ports/doom/$dir"
+            mkRomDir "ports/$portname"
+            mkRomDir "ports/$portname/$dir"
         done
 
         _game_data_lr-prboom
     fi
 
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/doom/$md_id"
+    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$portname/$md_id"
 
-    local launcher_prefix="DOOMWADDIR=$romdir/ports/doom"
+    local launcher_prefix="DOOMWADDIR=$romdir/ports/$portname"
     _add_games_lr-prboom "$launcher_prefix $md_inst/gzdoom +vid_renderer 1 +vid_fullscreen 1 -iwad %ROM%"
 }
