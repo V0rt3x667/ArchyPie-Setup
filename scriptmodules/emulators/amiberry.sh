@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy your Amiga games
 rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
 rp_module_repo="git https://github.com/BlitterStudio/amiberry v5.3"
 rp_module_section="opt"
-rp_module_flags="!all arm rpi3 rpi4"
+rp_module_flags="!all arm rpi3 rpi4 64bit"
 
 function _update_hook_amiberry() {
     local rom
@@ -34,6 +34,8 @@ function _get_platform_amiberry() {
         platform="c1"
     elif isPlatform "tinker"; then
         platform="tinker"
+    elif isPlatform "x86" && isPlatform "64bit"; then
+        platform="x86-64"
     fi
     echo "$platform"
 }
