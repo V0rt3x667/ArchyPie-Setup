@@ -15,7 +15,7 @@ function set_consolefont() {
     iniSet "FONTSIZE" "$2"
     service console-setup restart
     # force font configuration update if running from a pseudo-terminal
-    [[ "$(tty | egrep '/dev/tty[1-6]')" == "" ]] && setupcon -f --force
+    [[ "$(tty | grep -E '/dev/tty[1-6]')" == "" ]] && setupcon -f --force
 }
 
 function check_consolefont() {
