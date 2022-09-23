@@ -41,7 +41,7 @@ function sources_alephone() {
 function build_alephone() {
     params=(--prefix="$md_inst")
     isPlatform "arm" && params+=(--with-boost-libdir=/usr/lib/arm-linux-gnueabihf)
-    ./autogen.sh
+    autoreconf -iv
     PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig" ./configure "${params[@]}"
     make clean
     make

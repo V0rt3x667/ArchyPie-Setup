@@ -135,7 +135,7 @@ function depends_emulationstation() {
         'vlc'
     )
 
-    isPlatform "x11" && depends+=('gnome-terminal' 'mesa-demos')
+    isPlatform "x11" && depends+=('gnome-terminal' 'mesa-utils')
     if isPlatform "dispmanx"; then
         depends+=(omxplayer-git)
     fi
@@ -172,7 +172,7 @@ function build_emulationstation() {
         "${params[@]}" \
         -Wno-dev
     make clean
-    make
+    make VERBOSE=1
     rpSwap off
     md_ret_require="$md_build/emulationstation"
 }

@@ -43,6 +43,7 @@ function depends_retroarch() {
         'libxinerama'
         'libxrandr'
         'libxxf86vm'
+        'spirv-tools'
         'vulkan-icd-loader'
         'wayland'
         'wayland-protocols'
