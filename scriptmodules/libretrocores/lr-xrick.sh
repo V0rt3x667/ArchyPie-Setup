@@ -40,6 +40,6 @@ function configure_lr-xrick() {
     defaultRAConfig "xrick"
 
     if [[ "$md_mode" == "install" ]]; then
-        mkUserDir "$biosdir/xrick"
+        _add_data_lr-xrick
     fi
 }
