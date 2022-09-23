@@ -21,28 +21,25 @@ function build_lr-xrick() {
 }
 
 function install_lr-xrick() {
-    md_ret_files=(
-        'README'
-        'README.md'
-        'xrick_libretro.so'
-    )
+    md_ret_files=('xrick_libretro.so')
 }
 
 function _add_data_lr-xrick() { 
-    if [[ ! -f "$romdir/ports/xrick/data.zip" ]]; then
-        curl -sSL "https://buildbot.libretro.com/assets/cores/Rick%20Dangerous/Rick%20Dangerous.zip" | bsdtar xvf - --strip-components=1 -C "$biosdir"
-        chown -R "$user:$user" "$romdir/ports/xrick/data.zip"
+    if [[ ! -f "$biosdir/xrick/data.zip" ]]; then
+        mkUserDir "$biosdir/xrick"
+        curl -sSL "https://buildbot.libretro.com/assets/cores/Rick%20Dangerous/Rick%20Dangerous.zip" | bsdtar xvf - --strip-components=1 -C "$biosdir/xrick"
+        chown -R "$user:$user" "$biosdir/xrick/data.zip"
     fi
 }
 
 function configure_lr-xrick() {
     setConfigRoot "ports"
 
-    addPort "$md_id" "xrick" "XRick" "$md_inst/xrick_libretro.so" "$romdir/ports/xrick/data.zip"
-
-    [[ "$md_mode" == "remove" ]] && return
+    addPort "$md_id" "xrick" "XRick" "$md_inst/xrick_libretro.so" "$biosdir/xrick/data.zip"
 
     defaultRAConfig "xrick"
 
-    _add_data_lr-xrick
+    if [[ "$md_mode" == "install" ]]; then
+        mkUserDir "$biosdir/xrick"
+    fi
 }
