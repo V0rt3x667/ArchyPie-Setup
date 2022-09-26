@@ -101,7 +101,7 @@ function configure_usbromservice() {
     iniSet "MOUNTOPTIONS" "nodev,noexec,noatime"
 
     # set per filesystem mount options
-    local options="uid=$(id -u $user),gid=$(id -g $user)"
+    local options="uid=$(id -u $user),gid=$(id -g $user),rw"
     local fs_options
     local fs
     for fs in vfat hfsplus ntfs exfat; do
