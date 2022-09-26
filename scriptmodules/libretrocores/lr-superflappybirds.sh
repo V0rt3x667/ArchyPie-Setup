@@ -12,7 +12,7 @@ rp_module_repo="git https://github.com/IgniparousTempest/libretro-superflappybir
 rp_module_section="exp"
 
 function depends_lr-superflappybirds() {
-    getDepends cmake
+    getDepends cmake gcc11
 }
 
 function sources_lr-superflappybirds() {
@@ -20,17 +20,24 @@ function sources_lr-superflappybirds() {
 }
 
 function build_lr-superflappybirds() {
-    cmake .
-    make
-    md_ret_require="$md_build/superflappybirds_libretro.so"
+    cmake . \
+        -Bbuild \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_C_COMPILER=gcc-11 \
+        -DCMAKE_CXX_COMPILER=g++-11 \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="$md_build/build/superflappybirds_libretro.so"
 }
 
 function install_lr-superflappybirds() {
     md_ret_files=(
-        'superflappybirds_libretro.so'
+        'build/superflappybirds_libretro.so'
         'resources'
-        'LICENSE'
-        'README.md'
     )
 }
 
