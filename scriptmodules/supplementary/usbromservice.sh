@@ -6,7 +6,8 @@
 
 rp_module_id="usbromservice"
 rp_module_desc="USB ROM Service"
-rp_module_section="opt !all"
+rp_module_repo="git https://github.com/V0rt3x667/ArchyPie-USBROMService.git main"
+rp_module_section="opt"
 
 function _get_ver_usbromservice() {
     echo 0.0.24
@@ -18,16 +19,34 @@ function _update_hook_usbromservice() {
 }
 
 function depends_usbromservice() {
-    local depends=(rsync ntfs-3g exfat-utils)
-    if ! hasPackage usbmount $(_get_ver_usbromservice); then
-        depends+=(debhelper devscripts pmount lockfile-progs)
-        getDepends "${depends[@]}"
-        gitPullOrClone "$md_build/usbmount" https://github.com/RetroPie/usbmount.git systemd
-        cd "$md_build/usbmount"
-        dpkg-buildpackage
-        dpkg -i ../usbmount_*_all.deb
-        rm -f ../usbmount_*
+    if ! hasPackage arpie-usbromservice "$(_get_ver_usbromservice)"; then
+        gitPullOrClone
+        _build_depends_usbromservice
     fi
+}
+
+function _build_depends_usbromservice() {
+    # Preinstall Depends for PKGBUILDs
+    local depends=(
+        'exfat-utils'
+        'lockfile-progs'
+        'ntfs-3g'
+        'rsync'
+    )
+    getDepends "${depends[@]}"
+
+    # Build & Install arpie-pmount & arpie-usbromservice Packages
+    local builddir="$scriptdir/pkgbuild"
+    mkUserDir "$builddir"
+    for pkg in pmount usbromservice; do
+        su "$user" -c 'cd '"$md_build/$pkg"' && \
+        BUILDDIR='"$builddir"' \
+        PKGDEST='"$builddir"' \
+        SRCDEST='"$builddir"' \
+        PACKAGER="archypie.project <archypie.project@gmail.com>" \
+        makepkg -cfs --noconfirm'
+    done
+    pacman -U "$builddir"/arpie-*.pkg.tar.zst --needed --noconfirm
 }
 
 function install_bin_usbromservice() {
@@ -62,7 +81,7 @@ function disable_usbromservice() {
 
 function remove_usbromservice() {
     disable_usbromservice
-    apt-get remove -y usbmount
+    pacmanRemove arpie-pmount arpie-usbromservice
 }
 
 function configure_usbromservice() {
@@ -98,8 +117,8 @@ function gui_usbromservice() {
     while true; do
         cmd=(dialog --backtitle "$__backtitle" --menu "Choose from an option below." 22 86 16)
         options=(
-            1 "Enable USB ROM Service scripts"
-            2 "Disable USB ROM Service scripts"
+            1 "Enable USB ROM Service Scripts"
+            2 "Disable USB ROM Service Scripts"
         )
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         if [[ -n "$choice" ]]; then
