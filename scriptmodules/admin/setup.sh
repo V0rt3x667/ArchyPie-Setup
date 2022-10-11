@@ -63,40 +63,31 @@ function rps_printInfo() {
 }
 
 function depends_setup() {
-    # check for VERSION file - if it doesn't exist we will run the post_update script as it won't be triggered
-    # on first upgrade to 4.x
+    # Check for VERSION file, if it does not exist the post_update script will be triggered.
+
     if [[ ! -f "$rootdir/VERSION" ]]; then
         joy2keyStop
         exec "$scriptdir/archypie_packages.sh" setup post_update gui_setup
     fi
 
-    if isPlatform "rpi" && isPlatform "mesa" && ! isPlatform "rpi4"; then
-        printMsgs "dialog" "WARNING: You have the experimental desktop GL driver enabled. This is NOT supported by ArchyPie, and Emulation Station as well as emulators may fail to launch.\n\nPlease disable the experimental desktop GL driver from the raspi-config 'Advanced Options' menu."
-    fi
-
-    if isPlatform "rpi" && isPlatform "64bit"; then
-        printMsgs "dialog" "WARNING: 64bit support on the Raspberry Pi is not yet officially supported, although the main emulator package selection should work ok."
-    fi
-
-    # make sure user has the correct group permissions
+    # Set required correct group permissions.
     if ! isPlatform "x11"; then
         local group
         for group in input video; do
-            if ! hasFlag "$(groups $user)" "$group"; then
+            if ! hasFlag "$(groups "$user")" "$group"; then
                 dialog --yesno "Your user '$user' is not a member of the system group '$group'.\n\nThis is needed for ArchyPie to function correctly. May I add '$user' to group '$group'?\n\nYou will need to restart for these changes to take effect." 22 76 2>&1 >/dev/tty && usermod -a -G "$group" "$user"
             fi
         done
     fi
 
-    # set a global __setup to 1 which is used to adjust package function behaviour if called from the setup gui
+    # Set a global __setup to 1 which is used to adjust package function behaviour if called from the setup GUI.
     __setup=1
 
-    # print any pending msgs - eg during module scanning which wouldn't be seen otherwise
+    # Print any pending messages.
     rps_printInfo
 }
 
-function updatescript_setup()
-{
+function updatescript_setup() {
     clear
     chown -R "$user:$user" "$scriptdir"
     printHeading "Fetching latest version of the ArchyPie Setup Script."
@@ -130,7 +121,6 @@ function post_update_setup() {
     rps_logInit
     {
         rps_logStart
-        # run _update_hook_id functions - eg to fix up modules for archypie-setup 4.x install detection
         printHeading "Running post update hooks"
         rp_updateHooks
         rps_logEnd
@@ -139,7 +129,6 @@ function post_update_setup() {
 
     printMsgs "dialog" "NOTICE: The ArchyPie-Setup script and pre-made ArchyPie SD card images are available to download for free from https://archypie.org.uk.\n\nThe pre-built ArchyPie image includes software that has non commercial licences. Selling ArchyPie images or including ArchyPie with your commercial product is not allowed.\n\nNo copyrighted games are included with ArchyPie.\n\nIf you have been sold this software, you can let us know about it by emailing archypieproject@gmail.com."
 
-    # return to set return function
     "${return_func[@]}"
 }
 
@@ -327,7 +316,7 @@ function package_setup() {
 Package Origin: ${__mod_info[$id/pkg_origin]}
 Build Date: ${__mod_info[$id/pkg_date]}
 
-Built from source via:
+Built from Source:
 
 Type: ${__mod_info[$id/pkg_repo_type]}
 URL: ${__mod_info[$id/pkg_repo_url]}
@@ -471,7 +460,7 @@ function section_gui_setup() {
                 ;;
             X)
                 local text="Are you sure you want to remove all installed $name?"
-                [[ "$section" == "core" ]] && text+="\n\nWARNING - core packages are needed for RetroPie to function!"
+                [[ "$section" == "core" ]] && text+="\n\nWARNING! - Core packages are needed for ArchyPie to function!"
                 dialog --defaultno --yesno "$text" 22 76 2>&1 >/dev/tty || continue
                 rps_logInit
                 {
@@ -666,23 +655,23 @@ function gui_setup() {
 
         cmd=(dialog --backtitle "$__backtitle" --title "ArchyPie-Setup Script" --cancel-label "Exit" --item-help --help-button --default-item "$default" --menu "Version: $__version - Last Commit: $commit\nSystem: $__platform ($__platform_arch) - Running On: $__os_desc" 22 76 16)
         options=(
-            I "Basic install" "I This will install all packages from Core and Main which gives a basic ArchyPie install. Further packages can then be installed later from the Optional and Experimental sections. If binaries are available they will be used, alternatively packages will be built from source - which will take longer."
+            I "Basic Install" "I This will install all packages from Core and Main which gives a basic ArchyPie install. Further packages can then be installed later from the Optional and Experimental sections. If binaries are available they will be used, alternatively packages will be built from source - which will take longer."
 
             U "Update" "U Updates ArchyPie-Setup and all currently installed packages. Will also allow to update OS packages. If binaries are available they will be used, otherwise packages will be built from source."
 
-            P "Manage packages"
+            P "Manage Packages"
             "P Install/Remove and Configure the various components of ArchyPie, including emulators, ports, and controller drivers."
 
-            C "Configuration / tools"
+            C "Configuration & Tools"
             "C Configuration and Tools. Any packages you have installed that have additional configuration options will also appear here."
 
-            S "Update ArchyPie-Setup script"
+            S "Update ArchyPie-Setup Script"
             "S Update this ArchyPie-Setup script. This will update this main management script only, but will not update any software packages. To update packages use the 'Update' option from the main menu, which will also update the ArchyPie-Setup script."
 
             X "Uninstall ArchyPie"
             "X Uninstall ArchyPie completely."
 
-            R "Perform reboot"
+            R "Perform Reboot"
             "R Reboot your machine."
         )
 
