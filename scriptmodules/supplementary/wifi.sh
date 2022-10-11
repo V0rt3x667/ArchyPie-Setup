@@ -7,7 +7,16 @@
 rp_module_id="wifi"
 rp_module_desc="Configure WiFi"
 rp_module_section="config"
-rp_module_flags="!x11"
+rp_module_flags=""
+
+function depends_wifi() {
+    local depends=(
+        'wireless_tools'
+        'wireless-regdb'
+        'wpa_supplicant'
+    )
+    getDepends "${depends[@]}"
+}
 
 function _set_interface_wifi() {
     local state="$1"
@@ -149,9 +158,6 @@ _EOF_
 function gui_connect_wifi() {
     _set_interface_wifi down 2>/dev/null
     _set_interface_wifi up 2>/dev/null
-    # BEGIN workaround for dhcpcd trigger failure on Raspbian stretch
-    systemctl restart dhcpcd &>/dev/null
-    # END workaround
     dialog --backtitle "$__backtitle" --infobox "\nConnecting ..." 5 40 >/dev/tty
     local id=""
     i=0
@@ -166,21 +172,7 @@ function gui_connect_wifi() {
     fi
 }
 
-function _check_country_wifi() {
-    [[ ! -f /etc/wpa_supplicant/wpa_supplicant.conf ]] && return
-    iniConfig "=" "" /etc/wpa_supplicant/wpa_supplicant.conf
-    iniGet "country"
-    if [[ -z "$ini_value" ]]; then
-        if dialog --defaultno --yesno "You don't currently have your WiFi country set in /etc/wpa_supplicant/wpa_supplicant.conf\n\nOn a Raspberry Pi 3B+/4B/400 your WiFI will be disabled until the country is set. You can do this via raspi-config which is available from the RetroPie menu in Emulation Station. Once in raspi-config you can set your country via menu 5 (Localisation Options)\n\nDo you want me to launch raspi-config for you now ?" 22 76 2>&1 >/dev/tty; then
-            raspi-config
-        fi
-    fi
-}
-
 function gui_wifi() {
-
-    isPlatform "rpi" && _check_country_wifi
-
     local default
     while true; do
         local ip_current="$(getIPAddress)"

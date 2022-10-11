@@ -38,7 +38,7 @@ function printHeading() {
 ## @brief Calls PrintMsgs with "heading" type, and exits immediately.
 function fatalError() {
     printHeading "Error"
-    echo -e "$1"
+    echo -e "$1" "$2"
     joy2keyStop
     exit 1
 }
