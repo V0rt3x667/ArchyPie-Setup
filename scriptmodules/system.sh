@@ -340,7 +340,7 @@ function cpu_armv8() {
     local cpu="$1"
     __default_cpu_flags="-mcpu=$cpu"
     if isPlatform "32bit"; then
-        __default_cpu_flags+="  -mfpu=neon-fp-armv8"
+        __default_cpu_flags+=" -mfpu=neon-fp-armv8"
         __platform_flags+=(arm armv8 neon)
     else
         __platform_flags+=(aarch64)
