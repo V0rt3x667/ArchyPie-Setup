@@ -268,6 +268,9 @@ function get_platform() {
                         *tegra194*)
                             __platform="xavier"
                             ;;
+                        *rockpro64*)
+                            __platform="rockpro64"
+                            ;;
                     esac
                 elif [[ -e "/sys/devices/soc0/family" ]]; then
                     case "$(tr -d '\0' < /sys/devices/soc0/family)" in
@@ -306,7 +309,7 @@ function get_platform() {
 
     # if we have a function for the platform, call it, otherwise use the default "native" one.
     if fnExists "platform_${__platform}"; then
-        "platform_${__platform}"
+        platform_${__platform}
     else
         platform_native
     fi
@@ -358,6 +361,11 @@ function platform_conf_glext() {
 function platform_rpi2() {
     cpu_armv7 "cortex-a7"
     __platform_flags+=(rpi gles)
+}
+
+function platform_rockpro64() {
+    cpu_armv8 "cortex-a53"
+    __platform_flags+=(gles kms)
 }
 
 function platform_rpi3() {
