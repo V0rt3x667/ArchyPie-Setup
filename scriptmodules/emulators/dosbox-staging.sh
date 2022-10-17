@@ -9,7 +9,7 @@ rp_module_desc="DOSBox-Staging - MS-DOS x86 Emulator"
 rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy Your DOS Games to: $romdir/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dosbox-staging/dosbox-staging/master/COPYING"
 rp_module_repo="git https://github.com/dosbox-staging/dosbox-staging.git :_get_branch_dosbox-staging"
-rp_module_section="exp"
+rp_module_section="opt"
 rp_module_flags="sdl2"
 
 function _get_branch_dosbox-staging() {
@@ -31,6 +31,7 @@ function depends_dosbox-staging() {
         'opusfile'
         'sdl2'
         'sdl2_net'
+		'speexdsp'
     )
     getDepends "${depends[@]}"
 }
@@ -59,15 +60,25 @@ function configure_dosbox-staging() {
 
     [[ "$md_id" == "remove" ]] && return
 
+    local config_dir="$md_conf_root/pc"
+    chown -R $user: "$config_dir"
+
+    local staging_output="texturenb"
+    if isPlatform "kms"; then
+        staging_output="openglnb"
+    fi
+
     local config_path=$(su "$user" -c "\"$md_inst/bin/dosbox\" -printconf")
     if [[ -f "$config_path" ]]; then
         iniConfig " = " "" "$config_path"
         if isPlatform "rpi"; then
             iniSet "fullscreen" "true"
-            iniSet "fullresolution" "desktop"
-            iniSet "output" "texturenb"
+            iniSet "fullresolution" "original"
+            iniSet "vsync" "true"
+            iniSet "output" "$staging_output"
             iniSet "core" "dynamic"
-            iniSet "cycles" "25000"
+            iniSet "blocksize" "2048"
+            iniSet "prebuffer" "50"
         fi
     fi
 }
