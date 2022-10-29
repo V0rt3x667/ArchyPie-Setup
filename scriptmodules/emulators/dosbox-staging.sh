@@ -31,7 +31,7 @@ function depends_dosbox-staging() {
         'opusfile'
         'sdl2'
         'sdl2_net'
-		'speexdsp'
+        'speexdsp'
     )
     getDepends "${depends[@]}"
 }
@@ -41,11 +41,10 @@ function sources_dosbox-staging() {
 }
 
 function build_dosbox-staging() {
-    local params=(-Dbuildtype=release -Dtry_static_libs=mt32emu --prefix="$md_inst")
+    local params=(-Dprefix="$md_inst" -Ddatadir="resources" -Dbuildtype="release" -Dtry_static_libs="mt32emu")
 
-    cd "$md_build"
     meson setup "${params[@]}" build
-    ninja -C build
+    meson compile -j${__jobs} -C build
 
     md_ret_require=("$md_build/build/dosbox")
 }

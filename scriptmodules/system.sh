@@ -398,12 +398,12 @@ function platform_odroid-xu() {
 }
 
 function platform_tegra-x1() {
-    cpu_armv8 "cortex-a57"
+    cpu_armv8 "cortex-a57+crypto"
     __platform_flags+=(x11 gl)
 }
 
 function platform_tegra-x2() {
-    cpu_armv8 "native"
+    cpu_armv8 "cortex-a57+crypto"
     __platform_flags+=(x11 gl)
 }
 
@@ -448,7 +448,7 @@ function platform_native() {
     else
         __platform_flags+=(x11)
     fi
-    # add x86 platform flag for x86/x86_64 archictures.
+    # add x86 platform flag for x86/x86_64 architectures.
     [[ "$__platform_arch" =~ (i386|i686|x86_64) ]] && __platform_flags+=(x86)
 }
 
