@@ -1,0 +1,91 @@
+diff --git a/configuration.c b/configuration.c
+index 87519327239..028fde45b40 100644
+--- a/configuration.c
++++ b/configuration.c
+@@ -1521,6 +1521,8 @@ static struct config_path_setting *populate_settings_path(
+          settings->paths.directory_resampler, false, NULL, true);
+    SETTING_PATH("video_shader_dir",
+          settings->paths.directory_video_shader, true, NULL, true);
++   SETTING_PATH("video_shader",
++         settings->paths.path_shader, false, NULL, true);
+    SETTING_PATH("video_filter_dir",
+          settings->paths.directory_video_filter, true, NULL, true);
+    SETTING_PATH("core_assets_directory",
+@@ -2744,6 +2746,7 @@ void config_set_defaults(void *data)
+    *settings->paths.directory_menu_config = '\0';
+ #endif
+    *settings->paths.directory_video_shader = '\0';
++   *settings->paths.path_shader = '\0';
+    *settings->paths.directory_video_filter = '\0';
+    *settings->paths.directory_audio_filter = '\0';
+ 
+@@ -4676,6 +4679,10 @@ bool config_save_file(const char *path)
+    {
+       for (i = 0; i < (unsigned)path_settings_size; i++)
+       {
++         /* blacklist 'video_shader', better handled by shader presets */
++         if (string_is_equal(path_settings[i].ident, "video_shader"))
++             continue;
++
+          const char *value = path_settings[i].ptr;
+ 
+          if (path_settings[i].def_enable && string_is_empty(path_settings[i].ptr))
+@@ -5028,6 +5035,10 @@ bool config_save_overrides(enum override_type type, void *data)
+ 
+       for (i = 0; i < (unsigned)path_settings_size; i++)
+       {
++         /* blacklist 'video_shader', better handled by shader presets */
++         if (string_is_equal(path_settings[i].ident, "video_shader"))
++             continue;
++
+          if (!string_is_equal(path_settings[i].ptr, path_overrides[i].ptr))
+             config_set_path(conf, path_overrides[i].ident,
+                   path_overrides[i].ptr);
+diff --git a/configuration.h b/configuration.h
+index 839fdde48c7..700d8c68925 100644
+--- a/configuration.h
++++ b/configuration.h
+@@ -489,6 +489,7 @@ typedef struct settings
+       char path_cheat_settings[PATH_MAX_LENGTH];
+       char path_font[PATH_MAX_LENGTH];
+       char path_rgui_theme_preset[PATH_MAX_LENGTH];
++      char path_shader[PATH_MAX_LENGTH];
+ 
+       char directory_audio_filter[PATH_MAX_LENGTH];
+       char directory_autoconfig[PATH_MAX_LENGTH];
+diff --git a/gfx/video_shader_parse.c b/gfx/video_shader_parse.c
+index 9f1ed880958..d07fb428118 100644
+--- a/gfx/video_shader_parse.c
++++ b/gfx/video_shader_parse.c
+@@ -2389,9 +2389,10 @@ static bool retroarch_load_shader_preset_internal(
+       {
+          if (string_is_empty(special_name))
+             break;
+-
+-         fill_pathname_join(s, shader_directory, special_name, len);
+-         strlcat(s, video_shader_get_preset_extension(types[i]), len);
++         if (strcmp(special_name, "config")!=0) {
++            fill_pathname_join(s, shader_directory, special_name, len);
++            strlcat(s, video_shader_get_preset_extension(types[i]), len);
++         }
+       }
+ 
+       if (path_is_valid(s))
+@@ -2475,6 +2476,17 @@ bool load_shader_preset(settings_t *settings, const char *core_name,
+                "global"))
+          goto success;
+    }
++   /* Configuration file shader found ? */
++   strlcpy(shader_path, settings->paths.path_shader, PATH_MAX_LENGTH);
++   if (!string_is_empty(shader_path)) {
++      RARCH_LOG("[Shaders/RetroPie]: Configuration file shader path found.\n");
++      if(retroarch_load_shader_preset_internal(
++            shader_path,
++            sizeof(shader_path),
++            NULL, NULL,
++            "config"))
++         goto success;
++   }
+    return false;
+ 
+ success:

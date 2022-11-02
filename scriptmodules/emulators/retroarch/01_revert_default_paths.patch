@@ -1,6 +1,8 @@
+diff --git a/frontend/drivers/platform_unix.c b/frontend/drivers/platform_unix.c
+index 29e9a0d6338..624205855ab 100644
 --- a/frontend/drivers/platform_unix.c
 +++ b/frontend/drivers/platform_unix.c
-@@ -1935,12 +1935,6 @@
+@@ -1908,12 +1908,6 @@ static void frontend_unix_get_env(int *argc,
           "thumbnails", sizeof(g_defaults.dirs[DEFAULT_DIR_THUMBNAILS]));
     fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_LOGS], base_path,
           "logs", sizeof(g_defaults.dirs[DEFAULT_DIR_LOGS]));

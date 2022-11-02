@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch - Frontend to the Libretro Cores - Required by all lr-* Emulators"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/Libretro/RetroArch v1.10.3"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.12.0"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -54,9 +54,8 @@ function depends_retroarch() {
 function sources_retroarch() {
     gitPullOrClone
     local patchs=(
-        '01_disable_search.patch'
-        '02_revert_default_paths.patch'
-        '03_add_video_shader_parameter.patch'
+        '01_revert_default_paths.patch'
+        '02_add_video_shader_parameter.patch'
     )
     for patch in "${patchs[@]}"; do
         applyPatch "$md_data/$patch"
@@ -218,7 +217,6 @@ function configure_retroarch() {
     iniSet "system_directory" "$biosdir"
     iniSet "config_save_on_exit" "false"
     iniSet "video_aspect_ratio_auto" "true"
-    iniSet "rgui_show_start_screen" "false"
     iniSet "rgui_browser_directory" "$romdir"
     iniSet "rgui_switch_icons" "false"
 
@@ -268,6 +266,7 @@ function configure_retroarch() {
     iniSet "auto_remaps_enable" "true"
     iniSet "input_joypad_driver" "udev"
     iniSet "all_users_control_menu" "true"
+    iniSet "remap_save_on_exit" "false"
 
     # rgui by default
     iniSet "menu_driver" "rgui"
@@ -277,6 +276,14 @@ function configure_retroarch() {
     iniSet "menu_show_core_updater" "false"
     iniSet "menu_show_online_updater" "false"
     iniSet "menu_show_restart_retroarch" "false"
+    # disable the search action
+    iniSet "menu_disable_search_button" "true"
+
+    # remove some options from quick menu
+    iniSet "quick_menu_show_close_content" "false"
+    iniSet "quick_menu_show_add_to_favorites" "false"
+    iniSet "menu_show_overlays" "false"
+
     # disable the load notification message with core and game info
     iniSet "menu_show_load_content_animation" "false"
 
@@ -325,6 +332,12 @@ function configure_retroarch() {
 
     # disable the content load info popup with core and game info
     _set_config_option_retroarch "menu_show_load_content_animation" "false"
+
+    # disable search action
+    _set_config_option_retroarch "menu_disable_search_button" "true"
+
+    # don't save input remaps by default
+    _set_config_option_retroarch "remap_save_on_exit" "false"
 
     # remapping hack for old 8bitdo firmware
     addAutoConf "8bitdo_hack" 0
