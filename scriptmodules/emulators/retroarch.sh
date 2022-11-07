@@ -56,6 +56,7 @@ function sources_retroarch() {
     local patchs=(
         '01_revert_default_paths.patch'
         '02_add_video_shader_parameter.patch'
+        '03_fix_shaders_with_glcore.patch'
     )
     for patch in "${patchs[@]}"; do
         applyPatch "$md_data/$patch"
