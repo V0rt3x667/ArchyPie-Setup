@@ -167,6 +167,7 @@ function get_archypie_depends() {
         'ca-certificates'
         'curl'
         'dialog'
+        'fbset'
         'git'
         'gnupg'
         'python'
