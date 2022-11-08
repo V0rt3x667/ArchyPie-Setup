@@ -355,7 +355,7 @@ function setupDirectories() {
     mkUserDir "$datadir"
     mkUserDir "$romdir"
     mkUserDir "$biosdir"
-    mkUserDir "$arpiedir"
+    mkUserDir "$arpdir"
     mkUserDir "$configdir"
     mkUserDir "$configdir/all"
 
@@ -1300,7 +1300,6 @@ function addPort() {
     fi
 
     mkUserDir "$romdir/ports"
-    mkUserDir "$arpiedir/ports"
 
     cat >"$file" << _EOF_
 #!/bin/bash

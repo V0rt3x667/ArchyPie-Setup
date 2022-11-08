@@ -24,10 +24,10 @@ else
 fi
 
 home="$(eval echo ~"$user")"
-arpiedir="$home/.config/archypie"
 datadir="$home/ArchyPie"
 biosdir="$datadir/BIOS"
 romdir="$datadir/roms"
+arpdir="$datadir/configs"
 emudir="$rootdir/emulators"
 configdir="$rootdir/configs"
 
