@@ -1,0 +1,24 @@
+diff --git a/advance/linux/file.c b/advance/linux/file.c
+index 2c90582d..15cdb3e3 100644
+--- a/advance/linux/file.c
++++ b/advance/linux/file.c
+@@ -94,9 +94,7 @@ adv_error file_init(void)
+ 		if (home) {
+ 			/* add the .advance subdirectory */
+ 			if (!home[0] || home[strlen(home) - 1] != '/')
+-				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s/.advance", home);
+-			else
+-				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s.advance", home);
++				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s/ArchyPie/configs/advmame", home);
+ 		} else {
+ 			/* use ROOT */
+ 			snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s", FL.data_dir_buffer);
+@@ -107,7 +105,7 @@ adv_error file_init(void)
+ 	}
+ 
+ 	if (!FL.home_dir_buffer[0]) {
+-		target_err("Undefined $home directory.\nCheck your HOME and ADVANCE environment variables.\n");
++		target_err("Undefined $home directory.\nCheck your HOME environment variable.\n");
+ 		return -1;
+ 	}
+ 
