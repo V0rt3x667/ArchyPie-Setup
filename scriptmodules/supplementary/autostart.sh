@@ -51,10 +51,6 @@ function enable_autostart() {
         mkUserDir "$home/.config/autostart"
         ln -sf "/usr/local/share/applications/archypie.desktop" "$home/.config/autostart/"
     else
-#        if [[ "$__os_id" == "Raspbian" ]]; then
-#            # remove any old autologin.conf - we use raspi-config now
-#            rm -f /etc/systemd/system/getty@tty1.service.d/autologin.conf
-#            raspi-config nonint do_boot_behaviour B2
         if [[ "$(cat /proc/1/comm)" == "systemd" ]]; then
             mkdir -p /etc/systemd/system/getty@tty1.service.d/
             cat >/etc/systemd/system/getty@tty1.service.d/autologin.conf <<_EOF_
@@ -63,7 +59,6 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin $user --noclear %I \$TERM
 _EOF_
         fi
-
         _autostart_script_autostart "$mode"
     fi
 }

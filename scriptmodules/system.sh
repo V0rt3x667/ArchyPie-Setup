@@ -86,11 +86,11 @@ function conf_build_vars() {
     # calculate build concurrency based on cores and available memory
     __jobs=1
     local unit=512
-    isPlatform "64bit" && unit=$(($unit + 256))
+    isPlatform "64bit" && unit=$((unit + 256))
     if [[ "$(nproc)" -gt 1 ]]; then
         local nproc="$(nproc)"
         # max one thread per unit (MB) of ram
-        local max_jobs=$(($__memory_avail / $unit))
+        local max_jobs=$((__memory_avail / unit))
         if [[ "$max_jobs" -gt 0 ]]; then
             if [[ "$max_jobs" -lt "$nproc" ]]; then
                 __jobs="$max_jobs"
@@ -163,6 +163,7 @@ function get_os_version() {
 }
 
 function get_archypie_depends() {
+    local basedev
     local depends=(
         'ca-certificates'
         'curl'
@@ -177,15 +178,16 @@ function get_archypie_depends() {
         'subversion'
         'unzip'
         'xmlstarlet'
+        "${basedev[@]}"
     )
-    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]}) # Do not quote
+    basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" #&& depends+=(${basedev[@]}) # Do not quote
 
     [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')
 
     [[ "$__use_ccache" -eq 1 ]] && depends+=('ccache')
 
     if ! getDepends "${depends[@]}"; then
-        fatalError "Unable to install packages required by $0 - ${md_ret_errors[@]}"
+        fatalError "Unable to install packages required by $0 -" "${md_ret_errors[@]}"
     fi
 }
 
@@ -217,14 +219,16 @@ function get_rpi_video() {
 }
 
 function get_platform() {
-    local architecture="$(uname --machine)"
+    local architecture
+    local rev
     if [[ -z "$__platform" ]]; then
+        architecture="$(uname --machine)"
         case "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" in
             BCM*)
                 # calculated based on information from https://github.com/AndrewFromMelbourne/raspberry_pi_revision
-                local rev="0x$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
+                rev="0x$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
                 # if bit 23 is set, get the cpu from bits 12-15
-                local cpu=$((($rev >> 12) & 15))
+                local cpu=$(((rev >> 12) & 15))
                 case $cpu in
                     1)
                         __platform="rpi2"

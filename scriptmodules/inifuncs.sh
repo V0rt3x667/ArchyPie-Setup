@@ -12,7 +12,7 @@
 # @param message string or array of messages to display
 # @brief echos message, and exits immediately.
 function fatalError() {
-    echo -e "$1"
+    echo -e "$1" "$2"
     exit 1
 }
 
@@ -54,7 +54,7 @@ function iniProcess() {
     local delim_strip=${delim// /}
     # if the stripped delimiter is empty - such as in the case of a space, just use the delimiter instead
     [[ -z "$delim_strip" ]] && delim_strip="$delim"
-    local match_re="^[[:space:]#]*$key[[:space:]]*$delim_strip.*$"
+    local match_re="^[[:space:]#]*${key}[[:space:]]*$delim_strip.*$"
 
     local match
     if [[ -f "$file" ]]; then
@@ -147,7 +147,7 @@ function iniGet() {
         value_m="\([^\r]*\)"
     fi
 
-    ini_value="$(sed -n "s/^[ |\t]*$key[ |\t]*$delim_strip[ |\t]*$value_m.*/\1/p" "$file" | tail -1)"
+    ini_value="$(sed -n "s/^[ |\t]*${key}[ |\t]*${delim_strip}[ |\t]*$value_m.*/\1/p" "$file" | tail -1)"
 }
 
 # @fn retroarchIncludeToEnd()
