@@ -83,7 +83,7 @@ function configure_alephone() {
         moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
     fi
 
-    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon" "${md_inst}/bin/alephone %ROM%" "${romdir}/ports/${md_id}/Marathon/"
-    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon 2: Durandal" "${md_inst}/bin/alephone %ROM%" "${romdir}/ports/${md_id}/Marathon 2/"
-    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon Infinity" "${md_inst}/bin/alephone %ROM%" "${romdir}/ports/${md_id}/Marathon Infinity/"
+    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon" "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon/"
+    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon 2: Durandal" "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon 2/"
+    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon Infinity" "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon Infinity/"
 }
