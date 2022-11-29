@@ -5,16 +5,24 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="joy2key"
-rp_module_desc="Provides joystick to keyboard conversion for navigation of ArchyPie dialog menus"
+rp_module_desc="Provides Joystick to Keyboard Conversion for Navigation of ArchyPie Dialog Menus"
 rp_module_section="core"
 
 function _update_hook_joy2key() {
-    # make sure joy2key is always updated when updating archypie-setup
+    # Make sure joy2key is always updated when updating archypie-setup
     rp_isInstalled "$md_id" && rp_callModule "$md_id"
 }
 
 function depends_joy2key() {
-    getDepends python-pip python-wheel python-urwid
+    local depends=(
+        'python-pip'
+        'python-pyudev'
+        'python-six'
+        'python-urwid'
+        'python-wheel'
+    )
+    getDepends "${depends[@]}"
+
     pip install -U git+https://github.com/marcusva/py-sdl2.git
 }
 
@@ -33,7 +41,7 @@ mode="\$1"
 [[ -z "\$mode" ]] && mode="start"
 shift
 
-# allow overriding joystick device via __joy2key_dev env (by default will use /dev/input/jsX which will scan all)
+# Allow overriding joystick device via __joy2key_dev env (by default will use /dev/input/jsX which will scan all)
 device="/dev/input/jsX"
 [[ -n "\$__joy2key_dev" ]] && device="\$__joy2key_dev"
 

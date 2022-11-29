@@ -1,9 +1,10 @@
 #!/usr/bin/python
+
+# This file is part of the ArchyPie project.
+#
+# Please see the LICENSE file at the top-level directory of this distribution.
+
 """
-This file is part of the ArchyPie project.
-
-Please see the LICENSE file at the top-level directory of this distribution.
-
 Command line joystick to keyboard translator, using SDL2 for event handling
 Example usage:
  <script> kcub1 kcuf1 kcuu1 kcud1 0x0a 0x20 0x1b 0x00 kpp knp [--debug|-d]
@@ -14,8 +15,7 @@ https://github.com/RetroPie/EmulationStation/blob/62fd08c26d2f757259b7d890c98c0d
 EmulationStation is authored by Alec "Aloshi" Lofquist (http://www.aloshi.com,http://www.emulationstation.org)
 
 This script uses the PySDL2 python module from https://github.com/marcusva/py-sdl2.
-Install it before running the script with:
- pip install -U git+https://github.com/marcusva/py-sdl2.git
+Install it before running the script with: pip install -U git+https://github.com/marcusva/py-sdl2.git
 """
 
 import logging
@@ -164,7 +164,7 @@ def ra_input_parse(key: str, value: str):
             if value.startswith('h'):
                 input_type = 'hat'
                 hat_value = re.split(r'([0-9]+)', value)[1:]
-                # reject malformed hat values
+                # Reject malformed hat values
                 if hat_value[1] not in JS_HAT_VALUES:
                     raise ValueError('Not a valid hat value')
                 input_index, input_value = int(hat_value[0]), JS_HAT_VALUES[hat_value[1]]
@@ -174,7 +174,7 @@ def ra_input_parse(key: str, value: str):
         elif key.endswith('axis'):
             input_type = 'axis'
             input_index, input_value = int(value[1:]), int(f'{value[0]}1')
-        else:  # unknown input
+        else:  # Unknown input
             return None, None, None
 
         return input_type, input_index, input_value
@@ -188,10 +188,10 @@ def get_all_ra_config(def_buttons: list) -> list:
     and creates a list with of the configured joystick devices as InputDev objects
     """
     ra_config_list = []
-    # add a generic mapping at index 0, to be used for un-configured joysticks
+    # Add a generic mapping at index 0, to be used for un-configured joysticks
     generic_dev = InputDev("*", "*")
     generic_dev.add_mappings(
-        {},  # no axis
+        {},  # No axis
         {0: [(1, 'up'), (8, 'left'), (4, 'down'), (2, 'right')]},  # D-Pad as 'hat0'
         {0: 'b', 1: 'a', 3: 'y', 4: 'x'}  # 4 buttons
     )
@@ -200,7 +200,7 @@ def get_all_ra_config(def_buttons: list) -> list:
 
     config = ConfigParser(delimiters="=", strict=False, interpolation=None)
     for file in os.listdir(js_cfg_dir):
-        # skip non '.cfg' files
+        # Skip non '.cfg' files
         if not file.endswith('.cfg') or file.startswith('.'):
             continue
 
@@ -212,13 +212,13 @@ def get_all_ra_config(def_buttons: list) -> list:
                 conf_vals = config['device']
                 dev_name = conf_vals['input_device'].strip('"')
 
-                # translate the RetroArch inputs from the configuration file
+                # Translate the RetroArch inputs from the configuration file
                 axis, buttons, hats = {}, {}, {}
                 for i in conf_vals:
                     if i.startswith('input') and (i.endswith('btn') or i.endswith('axis')):
                         input_type, input_index, input_value = ra_input_parse(i, conf_vals[i].strip('"'))
 
-                        # check if the input is mapped to one of the events we recognize
+                        # Check if the input is mapped to one of the events we recognize
                         event_name = ra_event_map(i)
                         if event_name not in def_buttons:
                             continue
@@ -262,7 +262,7 @@ def filter_active_events(event_queue: dict) -> list:
             event_queue[e][2] = current_time
             event_queue[e][1] += 1
 
-    # remove any duplicate events from the list
+    # Remove any duplicate events from the list
     return list(set(filtered_events))
 
 """
@@ -274,11 +274,11 @@ def remove_events_for_device(event_queue: dict, dev_index: int):
 def event_loop(configs, joy_map, tty_fd):
     event = SDL_Event()
 
-    # keep of dict of active joystick devices as a dict of
-    #  instance_id -> (config_id, SDL_Joystick object)
+    # Keep of dict of active joystick devices as a dict of
+    # instance_id -> (config_id, SDL_Joystick object)
     active_devices = {}
 
-    # keep an event queue populated with the current active inputs
+    # Keep an event queue populated with the current active inputs
     # indexed by joystick index, input type and input index
     # the values consist of:
     # - the event list (as taked from the event configuration)
@@ -287,7 +287,7 @@ def event_loop(configs, joy_map, tty_fd):
     # e.g. { event_hash -> ([event_list], repeat_no, last_fire_time) }
     event_queue = {}
 
-    # keep track of axis previous values
+    # Keep track of axis previous values
     axis_prev_values = {}
 
     def handle_new_input(e: SDL_Event, axis_norm_value: int = 0) -> bool:
@@ -330,7 +330,7 @@ def event_loop(configs, joy_map, tty_fd):
                 _SDL_JoystickGetGUIDString(joystick.SDL_JoystickGetGUID(stick), guid, 33)
                 LOG.debug(f'Joystick #{joystick.SDL_JoystickInstanceID(stick)} {name} added')
                 conf_found = False
-                # try to find a configuration for the joystick
+                # Try to find a configuration for the joystick
                 for key, dev_conf in enumerate(configs):
                     if dev_conf.name == str(name) or dev_conf.guid == guid.value.decode():
                         # Add the matching joystick configuration to the watched list
@@ -339,12 +339,12 @@ def event_loop(configs, joy_map, tty_fd):
                         conf_found = True
                         break
 
-                # add the default configuration for unknown/un-configured joysticks
+                # Add the default configuration for unknown/un-configured joysticks
                 if not conf_found:
                     LOG.debug(f'Un-configured device "{str(name)}", mapped using generic mapping')
                     active_devices[joystick.SDL_JoystickInstanceID(stick)] = (0, stick)
 
-                # if the device has axis inputs, initialize to zero their initial position
+                # If the device has axis inputs, initialize to zero their initial position
                 if joystick.SDL_JoystickNumAxes(stick) > 0:
                     axis_prev_values[joystick.SDL_JoystickInstanceID(stick)] = [0 for x in range(joystick.SDL_JoystickNumAxes(stick))]
 
@@ -378,10 +378,10 @@ def event_loop(configs, joy_map, tty_fd):
                     event_queue.pop(f'{dev_index}_hat{event.jhat.hat}', None)
 
             if event.type == SDL_JOYAXISMOTION:
-                # check if the axis value went over the deadzone threshold
+                # Check if the axis value went over the deadzone threshold
                 if (abs(event.jaxis.value) > JS_AXIS_DEADZONE) \
                         != (abs(axis_prev_values[event.jdevice.which][event.jaxis.axis]) > JS_AXIS_DEADZONE):
-                    # normalize the axis value to the movement direction or stop the input
+                    # Normalize the axis value to the movement direction or stop the input
                     if abs(event.jaxis.value) <= JS_AXIS_DEADZONE:
                         event_queue.pop(f'{dev_index}_axis{event.jaxis.axis}', None)
                     else:
@@ -390,15 +390,15 @@ def event_loop(configs, joy_map, tty_fd):
                         else:
                             axis_norm_value = 1
                         input_started = handle_new_input(event, axis_norm_value)
-                # store the axis current values for tracking
+                # Store the axis current values for tracking
                 axis_prev_values[event.jdevice.which][event.jaxis.axis] = event.jaxis.value
 
-        # process the current events in the queue
+        # Process the current events in the queue
         if len(event_queue):
             emitted_events = filter_active_events(event_queue)
             if len(emitted_events):
                 LOG.debug(f'Events emitted: {emitted_events}')
-            # send the events mapped key code(s) to the terminal
+            # Send the events mapped key code(s) to the terminal
             for k in emitted_events:
                 if k in joy_map:
                     for c in joy_map[k]:
@@ -470,7 +470,7 @@ def _SDL_JoystickGetGUIDString(guid, pszGUID, cbGUID):
 
 
 def main():
-    # install a signal handler so the script can stop safely
+    # Install a signal handler so the script can stop safely
     def signal_handler(signum, frame):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
@@ -488,7 +488,7 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    # daemonize after signal handlers are registered
+    # Daemonize after signal handlers are registered
     if os.fork():
         os._exit(0)
 
@@ -503,13 +503,13 @@ def main():
 
     def_buttons = ['left', 'right', 'up', 'down', 'a', 'b', 'x', 'y', 'pageup', 'pagedown']
     joy_map = {}
-    # add for each button the mapped keycode, based on the arguments received
+    # Add for each button the mapped keycode, based on the arguments received
     for i, btn in enumerate(def_buttons):
         if i < len(mapped_chars):
             joy_map[btn] = mapped_chars[i]
 
     menu_swap = ra_btn_swap_config()
-    # if button A is <enter> and menu_swap_ok_cancel_buttons is true, swap buttons A and B functions
+    # If button A is <enter> and menu_swap_ok_cancel_buttons is true, swap buttons A and B functions
     if menu_swap \
             and 'a' in joy_map.keys() \
             and 'b' in joy_map.keys() \
@@ -517,14 +517,14 @@ def main():
         joy_map['a'] = joy_map['b']
         joy_map['b'] = '\n'
 
-    # tell SDL that we don't want to grab and lock the keyboard
+    # Tell SDL that we don't want to grab and lock the keyboard
     os.environ['SDL_INPUT_LINUX_KEEP_KBD'] = '1'
 
-    # disable the HIDAPI joystick driver in SDL
+    # Disable the HIDAPI joystick driver in SDL
     if not(SDL_USE_HIDAPI):
         os.environ['SDL_JOYSTICK_HIDAPI'] = '0'
 
-    # tell SDL to not add any signal handlers for TERM/INT
+    # Tell SDL to not add any signal handlers for TERM/INT
     os.environ['SDL_NO_SIGNAL_HANDLERS'] = '1'
 
     configs = get_all_ra_config(def_buttons)
