@@ -4,26 +4,21 @@
 #
 # Please see the LICENSE file at the top-level directory of this distribution.
 
-rp_module_id="ags"
-rp_module_desc="Adventure Game Studio: Adventure Game Engine (AGS 3 Branch ≥ 2.50)"
+rp_module_id="ags4"
+rp_module_desc="Adventure Game Studio: Adventure Game Engine (AGS 4 Branch ≥ 3.4.1)"
 rp_module_help="ROM Extension: .ags .exe\n\nCopy Adventure Game Studio Games to: $romdir/ags"
 rp_module_licence="OTHER https://raw.githubusercontent.com/adventuregamestudio/ags/master/License.txt"
-rp_module_repo="git https://github.com/adventuregamestudio/ags.git :_get_branch_ags"
+rp_module_repo="git https://github.com/adventuregamestudio/ags.git ags4"
 rp_module_section="opt"
-rp_module_flags="!mali !wayland"
+rp_module_flags=""
 
-function _get_branch_ags() {
-    download https://api.github.com/repos/adventuregamestudio/ags/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
-}
-
-function depends_ags() {
+function depends_ags4() {
     local depends=(
         'cmake'
         'freetype2'
         'libogg'
         'libtheora'
         'libvorbis'
-        'libxxf86vm'
         'ninja'
         'sdl2'
         'sdl2_mixer'
@@ -31,11 +26,11 @@ function depends_ags() {
     getDepends "${depends[@]}"
 }
 
-function sources_ags() {
+function sources_ags4() {
     gitPullOrClone
 }
 
-function build_ags() {
+function build_ags4() {
     cmake . \
         -GNinja \
         -Bbuild \
@@ -49,27 +44,19 @@ function build_ags() {
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="$md_build/build/$md_id"
+    md_ret_require="$md_build/build/${md_id/4/}"
 }
 
-function install_ags() {
+function install_ags4() {
     ninja -C build install/strip
 }
 
-function configure_ags() {
+function configure_ags4() {
     if [[ "$md_mode" == "install" ]]; then
-        mkRomDir "$md_id"
-
-        # Install Eawpatches GUS Patch Set (See: http://liballeg.org/digmid.html)
-        download "http://www.eglebbk.dds.nl/program/download/digmid.dat" - | bzcat >"$md_inst/bin/patches.dat"
+        mkRomDir "${md_id/4/}"
     fi
 
-    local binary="XINIT:$md_inst/bin/$md_id"
-    local params=("--fullscreen %ROM%")
-    if ! isPlatform "x11"; then
-        params+=("--gfxdriver software")
-    fi
-    addEmulator 1 "$md_id" "$md_id" "$md_inst/bin/$md_id ${params[*]}"
+    addEmulator 0 "$md_id" "${md_id/4/}" "$md_inst/bin/${md_id/4/} --fullscreen %ROM%"
 
-    addSystem "$md_id"
+    addSystem "${md_id/4/}"
 }
