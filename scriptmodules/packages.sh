@@ -32,12 +32,12 @@ function rp_listFunctions() {
             printf "*%-20s: %-42s : %s\n" "$id" "${__mod_info[$id/desc]}" "This module is not available for your platform"
             continue
         fi
-        while read mode; do
+        while read -r mode; do
             # skip private module functions (start with an underscore)
             [[ "$mode" = _* ]] && continue
             mode=${mode//_$id/}
             echo -n " $mode"
-        done < <(compgen -A function -X \!*_$id)
+        done < <(compgen -A function -X \!*_"$id")
         fnExists "sources_${id}" && echo -n " clean"
         fnExists "install_${id}" || fnExists "install_bin_${id}" && ! fnExists "remove_${id}" && echo -n " remove"
         echo ""

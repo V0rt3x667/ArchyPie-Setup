@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="setup"
-rp_module_desc="GUI based setup for ArchyPie"
+rp_module_desc="Setup GUI for ArchyPie"
 rp_module_section=""
 
 function _setup_gzip_log() {
@@ -21,10 +21,11 @@ function rps_logInit() {
         fi
     fi
 
-    # remove all but the last 20 logs
+    # Remove all but the last 20 logs.
     find "$__logdir" -type f | sort | head -n -20 | xargs -d '\n' --no-run-if-empty rm
 
-    local now=$(date +'%Y-%m-%d_%H%M%S')
+    local now 
+    now=$(date +'%Y-%m-%d_%H%M%S')
     logfilename="$__logdir/rps_$now.log.gz"
     touch "$logfilename"
     chown "$user:$user" "$logfilename"
@@ -32,20 +33,20 @@ function rps_logInit() {
 }
 
 function rps_logStart() {
-    echo -e "Log started at: $(date -d @$time_start)\n"
-    echo "ArchyPie-Setup version: $__version ($(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:%h))"
+    echo -e "Log Started At: $(date -d @"$time_start")\n"
+    echo "ArchyPie-Setup Version: $__version ($(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:%h))"
     echo "System: $__platform ($__platform_arch) - $__os_desc - $(uname -a)"
 }
 
 function rps_logEnd() {
     time_end=$(date +"%s")
     echo
-    echo "Log ended at: $(date -d @$time_end)"
+    echo "Log Ended At: $(date -d @"$time_end")"
     date_total=$((time_end-time_start))
     local hours=$((date_total / 60 / 60 % 24))
     local mins=$((date_total / 60 % 60))
     local secs=$((date_total % 60))
-    echo "Total running time: $hours hours, $mins mins, $secs secs"
+    echo "Total Running Time: $hours hours, $mins mins, $secs secs"
 }
 
 function rps_printInfo() {
@@ -64,23 +65,12 @@ function rps_printInfo() {
 
 function depends_setup() {
     # Check for VERSION file, if it does not exist the post_update script will be triggered.
-
     if [[ ! -f "$rootdir/VERSION" ]]; then
         joy2keyStop
         exec "$scriptdir/archypie_packages.sh" setup post_update gui_setup
     fi
 
-    # Set required correct group permissions.
-    if ! isPlatform "x11"; then
-        local group
-        for group in input video; do
-            if ! hasFlag "$(groups "$user")" "$group"; then
-                dialog --yesno "Your user '$user' is not a member of the system group '$group'.\n\nThis is needed for ArchyPie to function correctly. May I add '$user' to group '$group'?\n\nYou will need to restart for these changes to take effect." 22 76 2>&1 >/dev/tty && usermod -a -G "$group" "$user"
-            fi
-        done
-    fi
-
-    # Set a global __setup to 1 which is used to adjust package function behaviour if called from the setup GUI.
+    # Set global __setup to 1 which is used to adjust package function behaviour if called from the setup GUI.
     __setup=1
 
     # Print any pending messages.
@@ -90,22 +80,22 @@ function depends_setup() {
 function updatescript_setup() {
     clear
     chown -R "$user:$user" "$scriptdir"
-    printHeading "Fetching latest version of the ArchyPie Setup Script."
-    pushd "$scriptdir" >/dev/null
+    printHeading "Fetching the latest version of the ArchyPie Setup Script."
+    pushd "$scriptdir" >/dev/null || exit
     if [[ ! -d ".git" ]]; then
-        printMsgs "dialog" "Cannot find directory '.git'. Please clone the ArchyPie Setup script via 'git clone https://github.com/V0rt3x667/ArchyPie-Setup.git'"
-        popd >/dev/null
+        printMsgs "dialog" "Cannot find directory '.git'. Please clone the ArchyPie Setup Script via 'git clone https://github.com/V0rt3x667/ArchyPie-Setup.git'"
+        popd >/dev/null || exit
         return 1
     fi
     local error
     if ! error=$(sudo -u "$user" git pull --ff-only 2>&1 >/dev/null); then
-        printMsgs "dialog" "Update failed:\n\n$error"
-        popd >/dev/null
+        printMsgs "dialog" "Update Failed:\n\n$error"
+        popd >/dev/null || exit
         return 1
     fi
-    popd >/dev/null
+    popd >/dev/null || exit
 
-    printMsgs "dialog" "Fetched the latest version of the ArchyPie Setup script."
+    printMsgs "dialog" "Fetched the latest version of the ArchyPie Setup Script."
     return 0
 }
 
@@ -121,13 +111,13 @@ function post_update_setup() {
     rps_logInit
     {
         rps_logStart
-        printHeading "Running post update hooks"
+        printHeading "Running Post Update Hooks"
         rp_updateHooks
         rps_logEnd
     } &> >(_setup_gzip_log "$logfilename")
     rps_printInfo "$logfilename"
 
-    printMsgs "dialog" "NOTICE: The ArchyPie-Setup script and pre-made ArchyPie SD card images are available to download for free from https://archypie.org.uk.\n\nThe pre-built ArchyPie image includes software that has non commercial licences. Selling ArchyPie images or including ArchyPie with your commercial product is not allowed.\n\nNo copyrighted games are included with ArchyPie.\n\nIf you have been sold this software, you can let us know about it by emailing archypieproject@gmail.com."
+    printMsgs "dialog" "NOTICE: The ArchyPie-Setup Script is available to download for free from 'https://github.com/V0rt3x667/ArchyPie-Setup.git'\n\nArchyPie includes software that has non-commercial licences. Selling ArchyPie or including ArchyPie with your commercial product is not allowed.\n\nNo copyrighted games are included with ArchyPie.\n\nIf you have been sold this software, you can let us know about it by emailing archypieproject@gmail.com."
 
     "${return_func[@]}"
 }
@@ -137,15 +127,14 @@ function package_setup() {
     local default=""
 
     if ! rp_isEnabled "$id"; then
-        printMsgs "dialog" "Sorry but package '$id' is not available for your system ($__platform)\n\nPackage flags: ${__mod_info[$id/flags]}\n\nYour $__platform flags: ${__platform_flags[*]}"
+        printMsgs "dialog" "Sorry but package '$id' is not available for your system ($__platform)\n\nPackage Flags: ${__mod_info[$id/flags]}\n\nYour $__platform Flags: ${__platform_flags[*]}"
         return 1
     fi
 
-    # associative array so we can pull out the messages later for the confirmation requester
     declare -A option_msgs=(
         ["U"]=""
-        ["B"]="Install from pre-compiled binary"
-        ["S"]="Install from source"
+        ["B"]="Install from Pre-compiled Binary"
+        ["S"]="Install from Source"
     )
 
     while true; do
@@ -158,7 +147,7 @@ function package_setup() {
 
         isConnected && has_net=1
 
-        # for modules with nonet flag that don't need to download data, we force has_net to 1, so we get install options
+        # For modules with nonet flag that don't need to download data, we force has_net to 1, so we get install options
         hasFlag "${__mod_info[$id/flags]}" "nonet" && has_net=1
 
         if [[ "$has_net" -eq 1 ]]; then
@@ -174,7 +163,7 @@ function package_setup() {
         local pkg_origin=""
         local pkg_date=""
         if ! rp_isInstalled "$id"; then
-            status="Not installed"
+            status="Not Installed"
         else
             is_installed=1
 
@@ -183,9 +172,9 @@ function package_setup() {
             pkg_date="${__mod_info[$id/pkg_date]}"
             [[ -n "$pkg_date" ]] && pkg_date="$(date -u -d "$pkg_date" 2>/dev/null)"
 
-            status="Installed - via $pkg_origin"
+            status="Installed from $pkg_origin"
 
-            [[ -n "$pkg_date" ]] && status+=" (built: $pkg_date)"
+            [[ -n "$pkg_date" ]] && status+=" (Built: $pkg_date)"
 
             if [[ "$has_net" -eq 1 ]]; then
                 rp_hasNewerModule "$id" "$pkg_origin"
@@ -208,7 +197,7 @@ function package_setup() {
                             fi
                         fi
                         option_msgs["U"]="Update (from $pkg_origin)"
-                        status+="\nUpdate may be available (Unable to check for this package)."
+                        status+="\nUpdate may be available (Unable to check for this package)"
                         ;;
                     3)
                         has_net=0
@@ -230,27 +219,27 @@ function package_setup() {
                 options+=(S "${option_msgs[S]}")
            fi
         else
-            status+="\nInstall options disabled:\n$__NET_ERRMSG"
+            status+="\nInstall Options Disabled:\n$__NET_ERRMSG"
         fi
 
         if [[ "$is_installed" -eq 1 ]]; then
             if fnExists "gui_${id}"; then
-                options+=(C "Configuration / Options")
+                options+=(C "Configuration & Options")
             fi
             options+=(X "Remove")
         fi
 
         if [[ -d "$__builddir/$id" ]]; then
-            options+=(Z "Clean source folder")
+            options+=(Z "Clean Source Folder")
         fi
 
         local help="${__mod_info[$id/desc]}\n\n${__mod_info[$id/help]}"
         if [[ -n "$help" ]]; then
-            options+=(H "Package help")
+            options+=(H "Package Help")
         fi
 
         if [[ "$is_installed" -eq 1 ]]; then
-            options+=(V "Package version information")
+            options+=(V "Package Version Information")
         fi
 
         cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --default-item "$default" --menu "Choose an option for $id\n$status" 22 76 16)
@@ -289,10 +278,10 @@ function package_setup() {
                 local text="Are you sure you want to remove $id?"
                 case "${__mod_info[$id/section]}" in
                     core)
-                        text+="\n\nWARNING - core packages are needed for ArchyPie to function!"
+                        text+="\n\nWARNING! - Core packages are needed for ArchyPie to function!"
                         ;;
                     depends)
-                        text+="\n\nWARNING - this package is required by other ArchyPie packages - removing may cause other packages to fail."
+                        text+="\n\nWARNING! - This package is required by other ArchyPie packages, removing may cause other packages to fail."
                         text+="\n\nNOTE: This will be reinstalled if missing when updating packages that require it."
                         ;;
                 esac
@@ -343,17 +332,17 @@ function section_gui_setup() {
     local ids=()
     case "$section" in
         all|inst)
-            name="packages"
+            name="Packages"
             local id
             for id in "${__mod_id[@]}"; do
-                # if we are showing installed packaged, skip those that are not installed
+                # If we are showing installed packaged, skip those that are not installed
                 [[ "$section" == "inst" ]] && ! rp_isInstalled "$id" && continue
-                # don't show packages from depends or modules with no section (admin)
+                # Don't show packages from depends or modules with no section (admin)
                 ! [[ "${__mod_info[$id/section]}" =~ ^(depends|config|)$ ]] && ids+=("$id")
             done
             ;;
          *)
-            name="${__sections[$section]} packages"
+            name="${__sections[$section]} Packages"
             ids=($(rp_getSectionIds $section))
             ;;
     esac
@@ -365,9 +354,9 @@ function section_gui_setup() {
         local options=()
         local pkgs=()
 
-        status="Please choose a package from below"
+        status="Please choose a package from the list below."
         if ! isConnected; then
-            status+="\nInstall options disabled ($__NET_ERRMSG)"
+            status+="\nInstall Options Disabled: ($__NET_ERRMSG)"
             has_net=0
         fi
 
@@ -378,7 +367,7 @@ function section_gui_setup() {
         local last_type=""
         for id in "${ids[@]}"; do
             local type="${__mod_info[$id/vendor]} - ${__mod_info[$id/type]}"
-            # do a heading for each origin and module type
+            # Create a heading for each origin and module type
             if [[ "$last_type" != "$type" ]]; then
                 info="$type"
                 pkgs+=("----" "\Z4$info ----" "Packages from $info")
@@ -401,32 +390,31 @@ function section_gui_setup() {
         done
 
         if [[ "$has_net" -eq 1 && "$num_pkgs" -gt 0 ]]; then
-            options+=(
-                U "Update all installed $name" "This will update any installed $name. The packages will be updated by the method used previously."
-            )
+            options+=(U "Update All Installed $name" "This will update any installed $name. The packages will be updated by the method used previously.")
         fi
 
-        # allow installing an entire section except for drivers and dependencies - as it's probably a bad idea
+        # Allow installing an entire section except for drivers and dependencies.
         if [[ "$has_net" -eq 1 && "$section" != "driver" && "$section" != "depends" ]]; then
-            # don't show "Install all packages" when we are showing only installed packages
+            # Don't show "Install all packages" when we are showing only installed packages.
             if [[ "$section" != "inst" ]]; then
-                options+=(I "Install all $name" "This will install all $name. If a package is not installed, and a pre-compiled binary is available it will be used. If a package is already installed, it will be updated by the method used previously.")
+                options+=(I "Install All $name" "This will install all $name. If a package is not installed and a pre-compiled binary is available it will be used. If a package is already installed, it will be updated by the method used previously.")
             fi
-            options+=(X "Remove all installed $name" "X This will remove all installed $name.")
+            options+=(X "Remove All Installed $name" "X This will remove all installed $name.")
         fi
 
         options+=("${pkgs[@]}")
 
         local cmd=(dialog --colors --backtitle "$__backtitle" --cancel-label "Back" --item-help --help-button --default-item "$default" --menu "$status" 22 76 16)
 
-        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        local choice 
+        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "$choice" ]] && break
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
-            # remove HELP
+            # Remove HELP
             choice="${choice[@]:5}"
-            # get id of menu item
+            # Get ID of menu item
             default="${choice/%\ */}"
-            # remove id
+            # Remove ID
             choice="${choice#* }"
             printMsgs "dialog" "$choice"
             continue
@@ -478,7 +466,6 @@ function section_gui_setup() {
                 package_setup "${__mod_id[$choice]}"
                 ;;
         esac
-
     done
 }
 
@@ -488,7 +475,7 @@ function config_gui_setup() {
         local options=()
         local id
         for id in "${__mod_id[@]}"; do
-            # show all configuration modules and any installed packages with a gui function
+            # Show all configuration modules and any installed packages with a GUI function
             if [[ "${__mod_info[$id/section]}" == "config" ]] || rp_isInstalled "$id" && fnExists "gui_$id"; then
                 options+=("${__mod_idx[$id]}" "$id  - ${__mod_info[$id/desc]}" "${__mod_idx[$id]} ${__mod_info[$id/desc]}")
             fi
@@ -496,7 +483,8 @@ function config_gui_setup() {
 
         local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --item-help --help-button --default-item "$default" --menu "Choose an option" 22 76 16)
 
-        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        local choice 
+        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "$choice" ]] && break
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
             choice="${choice[@]:5}"
@@ -530,7 +518,7 @@ function config_gui_setup() {
 function update_packages_setup() {
     clear
     local id
-    for id in ${__mod_id[@]}; do
+    for id in "${__mod_id[@]}"; do
         if rp_isInstalled "$id" && [[ "${__mod_info[$id/section]}" != "depends" ]]; then
             rp_installModule "$id" "_update_"
         fi
@@ -538,7 +526,8 @@ function update_packages_setup() {
 }
 
 function check_connection_gui_setup() {
-    local ip="$(getIPAddress)"
+    local ip 
+    ip="$(getIPAddress)"
     if [[ -z "$ip" ]]; then
         printMsgs "dialog" "Sorry, you don't seem to be connected to the internet, so installing/updating is not available."
         return 1
@@ -552,13 +541,13 @@ function update_packages_gui_setup() {
         ! check_connection_gui_setup && return 1
         dialog --defaultno --yesno "Are you sure you want to update installed packages?" 22 76 2>&1 >/dev/tty || return 1
         updatescript_setup || return 1
-        # restart at post_update and then call "update_packages_gui_setup update" afterwards
+        # Restart at post_update and then call "update_packages_gui_setup update" afterwards
         joy2keyStop
         exec "$scriptdir/archypie_packages.sh" setup post_update update_packages_gui_setup update
     fi
 
     local update_os=0
-    dialog --yesno "Would you like to update the underlying OS packages (eg kernel etc) ?" 22 76 2>&1 >/dev/tty && update_os=1
+    dialog --yesno "Would you like to update OS packages?" 22 76 2>&1 >/dev/tty && update_os=1
 
     clear
 
@@ -592,16 +581,16 @@ function packages_gui_setup() {
     local options=()
 
     for section in core main opt driver exp depends; do
-        options+=("$section" "Manage ${__sections[$section]} packages" "$section Choose to install/update/configure packages from the ${__sections[$section]}")
+        options+=("$section" "Manage ${__sections[$section]} Packages" "$section Choose to Install, Update and Configure Packages from the ${__sections[$section]} Section")
     done
 
     options+=("----" "" "")
-    options+=("inst" "Manage all installed packages" "Install/update/remove currently installed packages")
-    options+=("all" "Manage all packages" "Install/update/remove packages from full list")
+    options+=("inst" "Manage All Installed Packages" "Install/Update/Remove Installed Packages")
+    options+=("all" "Manage All Packages" "Install/Update/Remove All Available Packages")
 
     local cmd
     while true; do
-        cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --item-help --help-button --default-item "$default" --menu "Choose an option" 22 76 16)
+        cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --item-help --help-button --default-item "$default" --menu "Choose An Option" 22 76 16)
 
         local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
@@ -621,17 +610,17 @@ function packages_gui_setup() {
 function uninstall_setup()
 {
     dialog --defaultno --yesno "Are you sure you want to uninstall ArchyPie?" 22 76 2>&1 >/dev/tty || return 0
-    dialog --defaultno --yesno "Are you REALLY sure you want to uninstall ArchyPie?\n\n$rootdir will be removed - this includes configuration files for all ArchyPie components." 22 76 2>&1 >/dev/tty || return 0
+    dialog --defaultno --yesno "Are you REALLY sure you want to uninstall ArchyPie?\n\n$rootdir will be removed, this includes configuration files for all ArchyPie components." 22 76 2>&1 >/dev/tty || return 0
     clear
     printHeading "Uninstalling ArchyPie"
     for id in "${__mod_id[@]}"; do
-        rp_isInstalled "$id" && rp_callModule $id remove
+        rp_isInstalled "$id" && rp_callModule "$id" remove
     done
     rm -rfv "$rootdir"
-    dialog --defaultno --yesno "Do you want to remove all the files from $datadir - this includes all your installed ROMs, BIOS files and custom splashscreens." 22 76 2>&1 >/dev/tty && rm -rfv "$datadir"
-    if dialog --defaultno --yesno "Do you want to remove all the system packages that ArchyPie depends on? \n\nWARNING: this will remove packages like SDL even if they were installed before you installed ArchyPie - it will also remove any package configurations - such as those in /etc/samba for Samba.\n\nIf unsure choose No (selected by default)." 22 76 2>&1 >/dev/tty; then
+    dialog --defaultno --yesno "Do you want to remove all the files from $datadir? This includes all your installed ROMs, BIOS files and custom splashscreens." 22 76 2>&1 >/dev/tty && rm -rfv "$datadir"
+    if dialog --defaultno --yesno "Do you want to remove all system packages that ArchyPie depends on? \n\nWARNING: This will remove packages like SDL2 even if they were installed before you installed ArchyPie, it will also remove any package configurations, such as those in /etc/samba for Samba.\n\nIf unsure choose No (selected by default)." 22 76 2>&1 >/dev/tty; then
         clear
-        # remove all dependencies
+        # Remove all dependencies.
         for id in "${__mod_id[@]}"; do
             rp_isInstalled "$id" && rp_callModule "$id" depends remove
         done
@@ -645,13 +634,13 @@ function reboot_setup()
     reboot
 }
 
-# archypie-setup main menu
 function gui_setup() {
     joy2keyStart
     depends_setup
     local default
     while true; do
-        local commit=$(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
+        local commit 
+        commit=$(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
 
         cmd=(dialog --backtitle "$__backtitle" --title "ArchyPie-Setup Script" --cancel-label "Exit" --item-help --help-button --default-item "$default" --menu "Version: $__version - Last Commit: $commit\nSystem: $__platform ($__platform_arch) - Running On: $__os_desc" 22 76 16)
         options=(
@@ -660,13 +649,13 @@ function gui_setup() {
             U "Update" "U Updates ArchyPie-Setup and all currently installed packages. Will also allow to update OS packages. If binaries are available they will be used, otherwise packages will be built from source."
 
             P "Manage Packages"
-            "P Install/Remove and Configure the various components of ArchyPie, including emulators, ports, and controller drivers."
+            "P Install, Remove and Configure the various components of ArchyPie, including emulators, ports, and controller drivers."
 
             C "Configuration & Tools"
-            "C Configuration and Tools. Any packages you have installed that have additional configuration options will also appear here."
+            "C Configuration & Tools. Any packages you have installed that have additional configuration options will also appear here."
 
             S "Update ArchyPie-Setup Script"
-            "S Update this ArchyPie-Setup script. This will update this main management script only, but will not update any software packages. To update packages use the 'Update' option from the main menu, which will also update the ArchyPie-Setup script."
+            "S Update the ArchyPie-Setup script. This will update the main management script only, but will not update any software packages. To update packages use the 'Update' option from the main menu, which will also update the ArchyPie-Setup script."
 
             X "Uninstall ArchyPie"
             "X Uninstall ArchyPie completely."
@@ -712,7 +701,7 @@ function gui_setup() {
                 ;;
             S)
                 ! check_connection_gui_setup && continue
-                dialog --defaultno --yesno "Are you sure you want to update the ArchyPie-Setup script ?" 22 76 2>&1 >/dev/tty || continue
+                dialog --defaultno --yesno "Are you sure you want to update the ArchyPie-Setup script?" 22 76 2>&1 >/dev/tty || continue
                 if updatescript_setup; then
                     joy2keyStop
                     exec "$scriptdir/archypie_packages.sh" setup post_update gui_setup
@@ -727,7 +716,7 @@ function gui_setup() {
                 rps_printInfo "$logfilename"
                 ;;
             R)
-                dialog --defaultno --yesno "Are you sure you want to reboot?\n\nNote that if you reboot when Emulation Station is running, you will lose any metadata changes." 22 76 2>&1 >/dev/tty || continue
+                dialog --defaultno --yesno "Are you sure you want to reboot?\n\nNote that if you reboot when EmulationStation is running, you will lose any metadata changes." 22 76 2>&1 >/dev/tty || continue
                 reboot_setup
                 ;;
         esac
