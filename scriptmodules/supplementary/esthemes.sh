@@ -11,25 +11,11 @@ rp_module_section="config"
 function depends_esthemes() {
     if isPlatform "x11"; then
         getDepends feh
+    elif isPlatform "wayland"; then
+        getDepends imv
     else
-        getDepends fbi
+        getDepends fbida
     fi
-}
-
-function _has_pixel_pos_esthemes() {
-    local pixel_pos=0
-    # get the version of emulationstation installed so we can check whether to show
-    # themes that use the new pixel based positioning - we run as $user as the
-    # emulationstation launch script will exit if run as root
-    local es_ver="$(sudo -u "$user" /usr/bin/emulationstation --help | grep -oP "Version \K[^,]+")"
-    # if emulationstation is newer than 2.10, enable pixel based themes
-    compareVersions "$es_ver" "2.10"
-    if [[ $? == 0 || $? == -1 ]]; then
-        pixel_pos=1
-    else
-        return
-    fi
-    echo "$pixel_pos"
 }
 
 function install_theme_esthemes() {
@@ -37,16 +23,13 @@ function install_theme_esthemes() {
     local repo="$2"
     local branch="$3"
 
-    local pixel_pos="$(_has_pixel_pos_esthemes)"
-
     if [[ -z "$repo" ]]; then
         repo="RetroPie"
     fi
 
     if [[ -z "$theme" ]]; then
-        theme="carbon"
+        theme="carbon-2021"
         repo="RetroPie"
-        [[ "$pixel_pos" -eq 1 ]] && theme+="-2021"
     fi
 
     local name="$theme"
@@ -71,22 +54,10 @@ function uninstall_theme_esthemes() {
 }
 
 function gui_esthemes() {
-    local themes=()
-
-    local pixel_pos="$(_has_pixel_pos_esthemes)"
-
-    if [[ "$pixel_pos" -eq 1 ]]; then
-        themes+=(
-            'RetroPie carbon-2021'
-            'RetroPie carbon-2021 centered'
-            'RetroPie carbon-2021 nometa'
-        )
-    fi
-
-    local themes+=(
-        'RetroPie carbon'
-        'RetroPie carbon-centered'
-        'RetroPie carbon-nometa'
+    local themes=(
+        'RetroPie carbon-2021'
+        'RetroPie carbon-2021 centered'
+        'RetroPie carbon-2021 nometa'
         'RetroPie simple'
         'RetroPie simple-dark'
         'RetroPie clean-look'
@@ -317,16 +288,15 @@ function gui_esthemes() {
         'leochely Guilty-Gear'
     )
     while true; do
+        local branch
+        local default
+        local installed_themes=()
+        local name
+        local options=()
+        local repo
+        local status=()
         local theme
         local theme_dir
-        local branch
-        local name
-
-        local installed_themes=()
-        local repo
-        local options=()
-        local status=()
-        local default
 
         local gallerydir="/etc/emulationstation/es-theme-gallery"
         if [[ -d "$gallerydir" ]]; then
@@ -337,7 +307,7 @@ function gui_esthemes() {
             options+=(G "Download Theme Gallery")
         fi
 
-        options+=(U "Update all installed themes")
+        options+=(U "Update All Installed Themes")
 
         local i=1
         for theme in "${themes[@]}"; do
@@ -362,7 +332,8 @@ function gui_esthemes() {
             ((i++))
         done
         local cmd=(dialog --default-item "$default" --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
-        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        local choice 
+        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         default="$choice"
         [[ -z "$choice" ]] && break
         case "$choice" in
@@ -370,12 +341,15 @@ function gui_esthemes() {
                 if [[ "${status[0]}" == "i" ]]; then
                     options=(1 "View Theme Gallery" 2 "Update Theme Gallery" 3 "Remove Theme Gallery")
                     cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for gallery" 12 40 06)
-                    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+                    local choice 
+                    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
                     case "$choice" in
                         1)
-                            cd "$gallerydir"
+                            cd "$gallerydir" || exit
                             if isPlatform "x11"; then
                                 feh --info "echo %f" --slideshow-delay 6 --fullscreen --auto-zoom --filelist images.list
+                            elif isPlatform "wayland"; then
+                                imv-wayland -d -s full -t 6
                             else
                                 fbi --timeout 6 --once --autozoom --list images.list
                             fi
@@ -413,7 +387,8 @@ function gui_esthemes() {
                 if [[ "${status[choice]}" == "i" ]]; then
                     options=(1 "Update $name" 2 "Uninstall $name")
                     cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for theme" 12 60 06)
-                    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+                    local choice 
+                    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
                     case "$choice" in
                         1)
                             rp_callModule esthemes install_theme "$theme" "$repo" "$branch"
