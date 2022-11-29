@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="emulationstation"
-rp_module_desc="EmulationStation - Frontend for Launching Emulators"
+rp_module_desc="EmulationStation: Frontend for Launching Emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
 rp_module_repo="git https://github.com/RetroPie/EmulationStation.git stable"
 rp_module_section="core"
@@ -16,7 +16,7 @@ function _get_input_cfg_emulationstation() {
 }
 
 function _update_hook_emulationstation() {
-    # make sure the input configuration scripts and launch script are always up to date
+    # Make sure the input configuration scripts and launch script are always up to date
     if rp_isInstalled "$md_id"; then
         copy_inputscripts_emulationstation
         install_launch_emulationstation
@@ -28,7 +28,7 @@ function _sort_systems_emulationstation() {
     cp "/etc/emulationstation/es_systems.cfg" "/etc/emulationstation/es_systems.cfg.bak"
     xmlstarlet sel -D -I \
         -t -m "/" -e "systemList" \
-        -m "//system" -s A:T:U "$1" -c "." \
+        -m "//system" -s A:T:U "$field" -c "." \
         "/etc/emulationstation/es_systems.cfg.bak" >"/etc/emulationstation/es_systems.cfg"
 }
 
@@ -69,7 +69,7 @@ function _add_system_emulationstation() {
             "$conf"
     fi
 
-    # alert the user if they have a custom es_systems.cfg which doesn't contain the system we are adding
+    # Alert the user if they have a custom es_systems.cfg which doesn't contain the system we are adding
     local conf_local="$configdir/all/emulationstation/es_systems.cfg"
     if [[ -f "$conf_local" ]] && [[ "$(xmlstarlet sel -t -v "count(/systemList/system[name='$name'])" "$conf_local")" -eq 0 ]]; then
         md_ret_info+=("You have a custom override of the EmulationStation system config in:\n\n$conf_local\n\nYou will need to copy the updated $system config from $conf to your custom config for $system to show up in EmulationStation.")
@@ -130,49 +130,48 @@ function depends_emulationstation() {
         'freeimage'
         'freetype2'
         'libsm'
+        'ninja'
         'rapidjson'
         'sdl2'
         'vlc'
     )
-
-    isPlatform "x11" && depends+=('gnome-terminal' 'mesa-utils')
-    if isPlatform "dispmanx"; then
-        depends+=(omxplayer-git)
-    fi
+    isPlatform "dispmanx" && depends+=('omxplayer-git')
+    isPlatform "x11" && depends+=('mesa-utils')
     getDepends "${depends[@]}"
 }
 
 function sources_emulationstation() {
     gitPullOrClone
-    # Fix: "error: field ‘mTimeStruct’ has incomplete type ‘tm’"
-    sed '/^#include <string>/a #include <ctime>' -i ./es-core/src/utils/TimeUtil.h
 }
 
 function build_emulationstation() {
-    local params=(-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/)
-    if isPlatform "rpi"; then
-        params+=(-DRPI=On)
-        # use OpenGL on RPI/KMS for now
-        isPlatform "mesa" && params+=(-DGL=On)
-        # force GLESv1 on videocore due to performance issue with GLESv2
-        isPlatform "videocore" && params+=(-DUSE_GLES1=On)
-    elif isPlatform "x11"; then
-        local gl_ver=$(sudo -u "$user" glxinfo | grep -oP "OpenGL version string: \K(\d+)")
-        [[ "$gl_ver" -gt 1 ]] && params+=(-DUSE_GL21=On)
-    fi
-    if isPlatform "dispmanx"; then
-        params+=(-DOMX=On)
-    fi
+    local gl_ver
+    local params=('-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/')
 
+    if isPlatform "rpi"; then
+        params+=('-DRPI=On')
+        # Use OpenGL on RPI/KMS for now
+        isPlatform "mesa" && params+=('-DGL=On')
+        # Force GLESv1 on Videocore due to performance issue with GLESv2
+        isPlatform "videocore" && params+=('-DUSE_GLES1=On')
+        isPlatform "dispmanx" && params+=('-DOMX=On')
+    fi
+    
+    if isPlatform "x11"; then
+        gl_ver=$(sudo -u "$user" glxinfo | grep -oP "OpenGL version string: \K(\d+)")
+        [[ "$gl_ver" -gt 1 ]] && params+=('-DUSE_GL21=On')
+    fi
+    
     rpSwap on 1000
     cmake . \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$md_inst" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
         "${params[@]}" \
         -Wno-dev
-    make clean
-    make VERBOSE=1
+    ninja clean
+    ninja
     rpSwap off
     md_ret_require="$md_build/emulationstation"
 }
@@ -190,14 +189,15 @@ function install_emulationstation() {
 }
 
 function init_input_emulationstation() {
-    local es_config="$(_get_input_cfg_emulationstation)"
+    local es_config
+    es_config="$(_get_input_cfg_emulationstation)"
 
-    # if there is no ES config (or empty file) create it with initial inputList element
+    # If there is no ES config (or empty file) create it with initial inputList element
     if [[ ! -s "$es_config" ]]; then
         echo "<inputList />" >"$es_config"
     fi
 
-    # add/update our inputconfiguration.sh inputAction
+    # Add or update our inputconfiguration.sh inputAction
     if [[ $(xmlstarlet sel -t -v "count(/inputList/inputAction[@type='onfinish'])" "$es_config") -eq 0 ]]; then
         xmlstarlet ed -L -S \
             -s "/inputList" -t elem -n "inputActionTMP" -v "" \
@@ -225,18 +225,18 @@ function install_launch_emulationstation() {
 #!/bin/bash
 
 if [[ \$(id -u) -eq 0 ]]; then
-    echo "emulationstation should not be run as root. If you used 'sudo emulationstation' please run without sudo."
+    echo "EmulationStation should not be run as root. If you used 'sudo emulationstation' please run without sudo."
     exit 1
 fi
 
-if [[ "\$(uname --machine)" != *86* ]]; then
+if [[ "\$(uname --machine)" != x86_64 ]]; then
     if [[ -n "\$(pidof X)" ]]; then
         echo "X is running. Please shut down X in order to mitigate problems with losing keyboard input. For example, logout from LXDE."
         exit 1
     fi
 fi
 
-# save current tty/vt number for use with X so it can be launched on the correct tty
+# Save current tty/vt number for use with X so it can be launched on the correct tty
 TTY=\$(tty)
 export TTY="\${TTY:8:1}"
 
@@ -244,19 +244,19 @@ clear
 tput civis
 "$md_inst/emulationstation.sh" "\$@"
 if [[ \$? -eq 139 ]]; then
-    dialog --cr-wrap --no-collapse --msgbox "Emulation Station crashed!\n\nIf this is your first boot of ArchyPie - make sure you are using the correct image for your system.\n\\nCheck your rom file/folder permissions and if running on a Raspberry Pi, make sure your gpu_split is set high enough and/or switch back to using carbon theme.\n\nFor more help please use the ArchyPie forum." 20 60 >/dev/tty
+    dialog --cr-wrap --no-collapse --msgbox "EmulationStation crashed!\n\nIf this is your first boot of ArchyPie, make sure you are using the correct image for your system.\n\\nCheck your rom file/folder permissions and if running on a Raspberry Pi, make sure your gpu_split is set high enough and/or switch back to using carbon theme.\n\nFor more help please use the ArchyPie forum." 20 60 >/dev/tty
 fi
 tput cnorm
 _EOF_
     chmod +x /usr/bin/emulationstation
 
-    if isPlatform "x11"; then
+    if isPlatform "x11" || isPlatform "wayland"; then
         mkdir -p /usr/share/{icons,applications}
         cp "$scriptdir/scriptmodules/$md_type/emulationstation/retropie.svg" "/usr/share/icons/"
         cat > /usr/share/applications/archypie.desktop << _EOF_
 [Desktop Entry]
 Type=Application
-Exec=gnome-terminal --full-screen --hide-menubar -e emulationstation
+Exec=$TERM_PROGRAM emulationstation
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
@@ -277,19 +277,18 @@ function clear_input_emulationstation() {
 
 function remove_emulationstation() {
     rm -f "/usr/bin/emulationstation"
-    if isPlatform "x11"; then
+    if isPlatform "x11" || isPlatform "wayland"; then
         rm -rfv "/usr/share/icons/retropie.svg" "/usr/share/applications/archypie.desktop"
     fi
 }
 
 function configure_emulationstation() {
-    # move the $home/emulationstation configuration dir and symlink it
     moveConfigDir "$home/.emulationstation" "$configdir/all/emulationstation"
 
     [[ "$md_mode" == "remove" ]] && return
 
-    # remove other emulation station if it's installed, so we don't end up with
-    # both packages interfering - but leave configs alone so switching is easy
+    # Remove other EmulationStation if it's installed, so we don't end up with
+    # both packages interfering, but leave configs alone so switching is easy
     if [[ "$md_id" == "emulationstation-dev" ]]; then
         rmDirExists "$rootdir/$md_type/emulationstation"
     else
@@ -304,7 +303,7 @@ function configure_emulationstation() {
 
     mkdir -p "/etc/emulationstation"
 
-    # ensure we have a default theme
+    # Ensure we have a default theme
     rp_callModule esthemes install_theme
 
     addAutoConf "es_swap_a_b" 0
@@ -338,13 +337,14 @@ function gui_emulationstation() {
         fi
 
         local cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --menu "Choose an option" 22 76 16)
-        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        local choice 
+        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "$choice" ]] && break
         default="$choice"
 
         case "$choice" in
             1)
-                if dialog --defaultno --yesno "Are you sure you want to reset the Emulation Station controller configuration ? This will wipe all controller configs for ES and it will prompt to reconfigure on next start" 22 76 2>&1 >/dev/tty; then
+                if dialog --defaultno --yesno "Are you sure you want to reset the EmulationStation controller configuration? This will wipe all controller configs for ES and it will prompt to reconfigure on next start." 22 76 2>&1 >/dev/tty; then
                     clear_input_emulationstation
                     printMsgs "dialog" "$(_get_input_cfg_emulationstation) has been reset to default values."
                 fi
