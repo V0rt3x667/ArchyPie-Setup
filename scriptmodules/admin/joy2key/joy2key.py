@@ -8,7 +8,6 @@ import os, sys, struct, time, fcntl, termios, signal
 import curses, errno, re
 from pyudev import Context
 
-
 #    struct js_event {
 #        __u32 time;     /* event timestamp in milliseconds */
 #        __s16 value;    /* value */
@@ -64,16 +63,16 @@ def get_button_codes(dev_path):
         sysdev_path = os.path.normpath('/sys' + device.get('DEVPATH')) + '/'
         if not os.path.isfile(sysdev_path + 'name'):
             sysdev_path = os.path.normpath(sysdev_path + '/../') + '/'
-        # getting joystick name
+        # Getting joystick name
         dev_name = sysdev_get('name', sysdev_path)
-        # getting joystick vendor ID
+        # Getting joystick vendor ID
         dev_vendor_id = int(sysdev_get('id/vendor', sysdev_path), 16)
-        # getting joystick product ID
+        # Getting joystick product ID
         dev_product_id = int(sysdev_get('id/product', sysdev_path), 16)
     if not dev_name:
         return dev_button_codes
 
-    # getting retroarch config file for joystick
+    # Getting retroarch config file for joystick
     for f in os.listdir(js_cfg_dir):
         if f.endswith('.cfg'):
             input_device = ini_get('input_device', js_cfg_dir + f)
@@ -87,7 +86,7 @@ def get_button_codes(dev_path):
     if not js_cfg:
         js_cfg = RETROARCH_CFG
 
-    # getting configs for dpad, buttons A, B, X and Y
+    # Getting configs for dpad, buttons A, B, X and Y
     btn_map = [ 'left', 'right', 'up', 'down', 'a', 'b', 'x', 'y' ]
     btn_num = {}
     biggest_num = 0
@@ -106,7 +105,7 @@ def get_button_codes(dev_path):
             biggest_num = btn_num[btn]
         i += 1
 
-    # building the button codes list
+    # Building the button codes list
     btn_codes = [''] * (biggest_num + 1)
     i = 0
     for btn in btn_map:
@@ -115,7 +114,7 @@ def get_button_codes(dev_path):
         btn_codes[btn_num[btn]] = dev_button_codes[i]
         i += 1
     try:
-        # if button A is <enter> and menu_swap_ok_cancel_buttons is true, swap buttons A and B functions
+        # If button A is <enter> and menu_swap_ok_cancel_buttons is true, swap buttons A and B functions
         if (ini_get('menu_swap_ok_cancel_buttons', RETROARCH_CFG) == 'true' and
            'a' in btn_num and 'b' in btn_num and btn_codes[btn_num['a']] == '\n'):
             btn_codes[btn_num['a']] = btn_codes[btn_num['b']]
@@ -182,10 +181,9 @@ def read_event(fd):
             return event
 
 def process_event(event):
-
     (js_time, js_value, js_type, js_number) = struct.unpack(event_format, event)
 
-    # ignore init events
+    # Ignore init events
     if js_type & JS_EVENT_INIT:
         return False
 
@@ -220,7 +218,7 @@ tty_fd = []
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
-# daemonize when signal handlers are registered
+# Daemonize when signal handlers are registered
 if os.fork():
     os._exit(0)
 
