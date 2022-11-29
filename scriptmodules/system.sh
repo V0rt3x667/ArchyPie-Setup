@@ -9,7 +9,7 @@ function setup_env() {
     __INFMSGS=()
 
     # Test for the pacman command, if not found we need to fail.
-    [[ ! -f /usr/bin/pacman ]] && fatalError "Unsupported OS - No Pacman Command Found!"
+    [[ ! -f /usr/bin/pacman ]] && fatalError "Unsupported OS: No Pacman Command Found!"
 
     test_chroot
 
@@ -27,11 +27,11 @@ function setup_env() {
 }
 
 function test_chroot() {
-    # test if we are in a chroot
+    # Test if we are in a chroot
     if [[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
         [[ -z "$QEMU_CPU" && -n "$__qemu_cpu" ]] && export QEMU_CPU=$__qemu_cpu
         __chroot=1
-    # detect the usage of systemd-nspawn
+    # Detect the usage of systemd-nspawn
     elif [[ -n "$(systemd-detect-virt)" && "$(systemd-detect-virt)" == "systemd-nspawn" ]]; then
         __chroot=1
     else
@@ -56,7 +56,7 @@ function conf_memory_vars() {
 function conf_binary_vars() {
     [[ -z "$__has_binaries" ]] && __has_binaries=0
 
-    # set location of binary downloads
+    # Set location of binary downloads
     __binary_host="files.retropie.org.uk"
     __binary_base_url="https://$__binary_host/binaries"
 
@@ -68,13 +68,13 @@ function conf_binary_vars() {
     __archive_url="https://files.retropie.org.uk/archives"
     __arpie_url="https://github.com/V0rt3x667/ArchyPie-Resources/raw"
 
-    # set the gpg key used by ArchyPie
+    # Set the GPG key used by ArchyPie
     __gpg_retropie_key="retropieproject@gmail.com"
 
-    # if __gpg_signing_key is not set, set to __gpg_retropie_key
+    # If __gpg_signing_key is not set, set to __gpg_retropie_key
     [[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_retropie_key"
 
-    # if the RetroPie public key is not installed, install it.
+    # If the RetroPie public key is not installed, install it.
     if ! gpg --list-keys "$__gpg_retropie_key" &>/dev/null; then
         gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys DC9D77FF8208FFC51D8F50CCF1B030906A3B0D31
     fi
@@ -83,13 +83,13 @@ function conf_binary_vars() {
 function conf_build_vars() {
     __gcc_version=$(gcc -dumpversion)
 
-    # calculate build concurrency based on cores and available memory
+    # Calculate build concurrency based on cores and available memory
     __jobs=1
     local unit=512
     isPlatform "64bit" && unit=$(($unit + 256))
     if [[ "$(nproc)" -gt 1 ]]; then
         local nproc="$(nproc)"
-        # max one thread per unit (MB) of ram
+        # Max one thread per unit (MB) of RAM
         local max_jobs=$(($__memory_avail / $unit))
         if [[ "$max_jobs" -gt 0 ]]; then
             if [[ "$max_jobs" -lt "$nproc" ]]; then
@@ -101,43 +101,43 @@ function conf_build_vars() {
     fi
     __default_makeflags="-j${__jobs}"
 
-    # set our default gcc optimisation level
+    # Set our default GCC optimisation level
     if [[ -z "$__opt_flags" ]]; then
         __opt_flags="$__default_opt_flags"
     fi
 
-    # set default cpu flags
+    # Set default CPU flags
     [[ -z "$__cpu_flags" ]] && __cpu_flags="$__default_cpu_flags"
 
-    # if default cxxflags is empty, use our default cflags
+    # If __default_cxxflags is empty, use our __default_cflags
     [[ -z "$__default_cxxflags" ]] && __default_cxxflags="$__default_cflags"
 
-    # add our cpu and optimisation flags
+    # Add our CPU and optimisation flags
     __default_cflags+=" $__cpu_flags $__opt_flags"
     __default_cxxflags+=" $__cpu_flags $__opt_flags"
     __default_asflags+=" $__cpu_flags"
 
-    # if not overridden by user, configure our compiler flags
+    # If not overridden by user, configure our compiler flags
     [[ -z "$__cflags" ]] && __cflags="$__default_cflags"
     [[ -z "$__cxxflags" ]] && __cxxflags="$__default_cxxflags"
     [[ -z "$__asflags" ]] && __asflags="$__default_asflags"
     [[ -z "$__makeflags" ]] && __makeflags="$__default_makeflags"
     [[ -z "$__ldflags" ]] && __ldflags="$__default_ldflags"
 
-    # export our compiler flags so all child processes can see them
+    # Export our compiler flags so all child processes can see them
     export CFLAGS="$__cflags"
     export CXXFLAGS="$__cxxflags"
     export ASFLAGS="$__asflags"
     export MAKEFLAGS="$__makeflags"
     export LDFLAGS="$__ldflags"
 
-    # if using distcc, add /usr/lib/distcc to PATH/MAKEFLAGS
+    # If using distcc, add /usr/lib/distcc to PATH/MAKEFLAGS
     if [[ -n "$DISTCC_HOSTS" ]]; then
         PATH="/usr/lib/distcc:$PATH"
         MAKEFLAGS+=" PATH=$PATH"
     fi
 
-    # if __use_ccache is set, then add ccache to PATH/MAKEFLAGS
+    # If __use_ccache is set, then add ccache to PATH/MAKEFLAGS
     if [[ "$__use_ccache" -eq 1 ]]; then
         PATH="/usr/lib/ccache:$PATH"
         MAKEFLAGS+=" PATH=$PATH"
@@ -145,10 +145,10 @@ function conf_build_vars() {
 }
 
 function get_os_version() {
-    # make sure lsb_release is installed
+    # Make sure lsb_release is installed
     getDepends lsb-release
 
-    ##Get OS Distributor ID and Release
+    # Get OS Distributor ID and Release
     __os_desc=$(lsb_release -sir)
 
     # Code might be used at a future date
@@ -158,27 +158,23 @@ function get_os_version() {
     #    [[ -z "$__has_binaries" ]] && __has_binaries=1
     # fi
 
-    # configure Raspberry Pi graphics stack
+    # Configure Raspberry Pi graphics stack
     isPlatform "rpi" && get_rpi_video
 }
 
 function get_archypie_depends() {
+    local basedev
     local depends=(
         'ca-certificates'
         'curl'
         'dialog'
-        'fbset'
         'git'
         'gnupg'
         'python'
-        'python-pip'
-        'python-pyudev'
-        'python-six'
-        'subversion'
         'unzip'
         'xmlstarlet'
     )
-    local basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]}) # Do not quote
+    basedev="$(pacman -Sg base-devel | cut -d ' ' -f2)" && depends+=(${basedev[@]}) # Do not quote
 
     [[ -n "$DISTCC_HOSTS" ]] && depends+=('distcc')
 
@@ -193,26 +189,26 @@ function get_rpi_video() {
     local pkgconfig="/opt/vc/lib/pkgconfig"
 
     if [[ -z "$__has_kms" ]]; then
-        # in chroot, use kms by default for rpi4 target
+        # In chroot, use KMS by default for rpi4 target
         [[ "$__chroot" -eq 1 ]] && isPlatform "rpi4" && __has_kms=1
-        # detect driver via inserted module / platform driver setup
+        # Detect driver via inserted module/platform driver setup
         [[ -d "/sys/module/vc4" ]] && __has_kms=1
     fi
 
     if [[ "$__has_kms" -eq 1 ]]; then
-        __platform_flags+=(mesa kms)
+        __platform_flags+=('mesa' 'kms')
         if [[ -z "$__has_dispmanx" ]]; then
-            # in a chroot, unless __has_dispmanx is set, default to fkms (adding dispmanx flag)
+            # In a chroot, unless __has_dispmanx is set, default to fkms (adding dispmanx flag)
             [[ "$__chroot" -eq 1 ]] && __has_dispmanx=1
-            # if running fkms driver, add dispmanx flag
+            # If running fkms driver, add dispmanx flag
             [[ "$(ls -A /sys/bus/platform/drivers/vc4_firmware_kms/*.firmwarekms 2>/dev/null)" ]] && __has_dispmanx=1
         fi
-        [[ "$__has_dispmanx" -eq 1 ]] && __platform_flags+=(dispmanx)
+        [[ "$__has_dispmanx" -eq 1 ]] && __platform_flags+=('dispmanx')
     else
-        __platform_flags+=(videocore dispmanx)
+        __platform_flags+=('videocore' 'dispmanx')
     fi
 
-    # set pkgconfig path for vendor libraries
+    # Set pkgconfig path for vendor libraries
     export PKG_CONFIG_PATH="$pkgconfig"
 }
 
@@ -221,9 +217,9 @@ function get_platform() {
     if [[ -z "$__platform" ]]; then
         case "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" in
             BCM*)
-                # calculated based on information from https://github.com/AndrewFromMelbourne/raspberry_pi_revision
+                # Calculated based on information from https://github.com/AndrewFromMelbourne/raspberry_pi_revision
                 local rev="0x$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
-                # if bit 23 is set, get the cpu from bits 12-15
+                # If bit 23 is set, get the CPU from bits 12-15
                 local cpu=$((($rev >> 12) & 15))
                 case $cpu in
                     1)
@@ -256,7 +252,7 @@ function get_platform() {
                 __platform="armv7-mali"
                 ;;
             *)
-                # jetsons can be identified by device tree or soc0/family (depending on the L4T version used)
+                # Jetsons can be identified by device tree or soc0/family (depending on the L4T version used),
                 # refer to the nv.sh script in the L4T DTS for a similar implementation
                 if [[ -e "/proc/device-tree/compatible" ]]; then
                     case "$(tr -d '\0' < /proc/device-tree/compatible)" in
@@ -298,7 +294,7 @@ function get_platform() {
         esac
     fi
 
-    # check if we wish to target kms for platform
+    # Check if we wish to target KMS for platform
     if [[ -z "$__has_kms" ]]; then
         iniConfig " = " '"' "$configdir/all/archypie.cfg"
         iniGet "force_kms"
@@ -308,18 +304,18 @@ function get_platform() {
 
     set_platform_defaults
 
-    # if we have a function for the platform, call it, otherwise use the default "native" one.
+    # If we have a function for the platform call it, otherwise use the default "native" one.
     if fnExists "platform_${__platform}"; then
-        platform_${__platform}
+        "platform_${__platform}"
     else
         platform_native
     fi
 }
 
 function set_platform_defaults() {
-    __default_opt_flags="-O2"
+    __default_opt_flags="-O3"
 
-    # add platform name and 32bit/64bit to platform flags
+    # Add platform name and 32bit/64bit to platform flags
     __platform_flags=("$__platform" "$(getconf LONG_BIT)bit")
     __platform_arch=$(uname -m)
 }
@@ -332,7 +328,7 @@ function cpu_armv7() {
         __default_cpu_flags="-march=armv7-a -mfpu=neon-vfpv4"
         cpu="cortex-a7"
     fi
-    __platform_flags+=(arm armv7 neon)
+    __platform_flags+=('arm' 'armv7' 'neon')
     __qemu_cpu="$cpu"
 }
 
@@ -341,9 +337,9 @@ function cpu_armv8() {
     __default_cpu_flags="-mcpu=$cpu"
     if isPlatform "32bit"; then
         __default_cpu_flags+=" -mfpu=neon-fp-armv8"
-        __platform_flags+=(arm armv8 neon)
+        __platform_flags+=('arm' 'armv8' 'neon')
     else
-        __platform_flags+=(aarch64)
+        __platform_flags+=('aarch64')
     fi
     __qemu_cpu="$cpu"
 }
@@ -355,107 +351,127 @@ function cpu_arm_state() {
 }
 
 function platform_conf_glext() {
-   # required for mali-fbdev headers to define GL functions
+   # Required for mali-fbdev headers to define GL functions
     __default_cflags="-DGL_GLEXT_PROTOTYPES"
 }
 
 function platform_rpi2() {
     cpu_armv7 "cortex-a7"
-    __platform_flags+=(rpi gles)
+    __platform_flags+=('rpi' 'gles')
 }
 
 function platform_rockpro64() {
     cpu_armv8 "cortex-a53"
-    __platform_flags+=(gles kms)
+    __platform_flags+=('gles' 'kms')
 }
 
 function platform_rpi3() {
     cpu_armv8 "cortex-a53"
-    __platform_flags+=(rpi gles)
+    __platform_flags+=('rpi' 'gles')
 }
 
 function platform_rpi4() {
     cpu_armv8 "cortex-a72"
-    __platform_flags+=(rpi gles gles3 gles31)
+    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31')
 }
 
 function platform_odroid-c1() {
     cpu_armv7 "cortex-a5"
     cpu_arm_state
-    __platform_flags+=(mali gles)
+    __platform_flags+=('mali' 'gles')
 }
 
 function platform_odroid-c2() {
     cpu_armv8 "cortex-a72"
     cpu_arm_state
-    __platform_flags+=(mali gles)
+    __platform_flags+=('mali' 'gles')
 }
 
 function platform_odroid-xu() {
     cpu_armv7 "cortex-a7"
     cpu_arm_state
     platform_conf_glext
-    __platform_flags+=(mali gles)
+    __platform_flags+=('mali' 'gles')
 }
 
 function platform_tegra-x1() {
     cpu_armv8 "cortex-a57+crypto"
-    __platform_flags+=(x11 gl)
+    __platform_flags+=('x11' 'gl')
 }
 
 function platform_tegra-x2() {
     cpu_armv8 "cortex-a57+crypto"
-    __platform_flags+=(x11 gl)
+    __platform_flags+=('x11' 'gl')
 }
 
 function platform_xavier() {
     cpu_armv8 "native"
-    __platform_flags+=(x11 gl)
+    __platform_flags+=('x11' 'gl')
 }
 
 function platform_tegra-3() {
     cpu_armv7 "cortex-a9"
-    __platform_flags+=(x11 gles)
+    __platform_flags+=('x11' 'gles')
 }
 
 function platform_tegra-4() {
     cpu_armv7 "cortex-a15"
-    __platform_flags+=(x11 gles)
+    __platform_flags+=('x11' 'gles')
 }
 
 function platform_tegra-k1-32() {
     cpu_armv7 "cortex-a15"
-    __platform_flags+=(x11 gl)
+    __platform_flags+=('x11' 'gl')
 }
 
 function platform_tegra-k1-64() {
     cpu_armv8 "native"
-    __platform_flags+=(x11 gl)
+    __platform_flags+=('x11' 'gl')
 }
 
 function platform_tinker() {
     cpu_armv7 "cortex-a17"
     cpu_arm_state
     platform_conf_glext
-    __platform_flags+=(kms gles)
+    __platform_flags+=('kms' 'gles')
 }
 
 function platform_native() {
-    __default_cpu_flags="-march=native -mtune=native -pipe -fno-plt"
+    local flags=(
+        '-march=native' \
+        '-mtune=native' \
+        '-pipe' \
+        '-fno-plt' \
+        '-fexceptions' \
+        '-Wp,-D_FORTIFY_SOURCE=2' \
+        '-Wformat' \
+        '-Werror=format-security' \
+        '-fstack-clash-protection' \
+        '-fcf-protection'
+    )
+    __default_cpu_flags="${flags[*]}"
+    __default_cxxflags+=" -Wp,-D_GLIBCXX_ASSERTIONS"
     __default_ldflags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
-    __platform_flags+=(gl)
-    if [[ "$__has_kms" -eq 1 ]]; then
-        __platform_flags+=(kms)
-    else
-        __platform_flags+=(x11)
-    fi
-    # add x86 platform flag for x86/x86_64 architectures.
-    [[ "$__platform_arch" =~ (i386|i686|x86_64) ]] && __platform_flags+=(x86)
+    __platform_flags+=('gl')
+
+    for file in /run/user/1000/wayland-*; do
+        if [[ -f "$file" ]]; then
+            __platform_flags+=('wayland')
+        fi
+        if [[ "$__has_kms" -eq 1 ]]; then
+            __platform_flags+=('kms')
+        fi
+        if [[ -z "$file" && "$__has_kms" -eq 0 ]]; then
+            __platform_flags+=('x11')
+        fi
+    done
+    # Add x86 platform flag for x86/x86_64 architectures.
+    [[ "$__platform_arch" =~ (i386|i686|x86_64) ]] && __platform_flags+=('x86')
 }
 
 function platform_armv7-mali() {
     cpu_armv7
-    __platform_flags+=(mali gles)
+    __platform_flags+=('mali' 'gles')
 }
 
 function platform_imx6() {
