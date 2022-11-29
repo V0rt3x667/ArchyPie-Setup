@@ -6,7 +6,7 @@
 
 rp_module_id="advmame"
 rp_module_desc="AdvanceMAME: Arcade Machine Emulator (MAME 0.106)"
-rp_module_help="ROM Extension: .zip\n\nCopy your AdvanceMAME roms to either $romdir/mame-$md_id or\n$romdir/arcade"
+rp_module_help="ROM Extension: .zip\n\nCopy AdvanceMAME ROMs to: $romdir/mame-advmame or $romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/amadvance/advancemame/master/COPYING"
 rp_module_repo="git https://github.com/amadvance/advancemame master"
 rp_module_section="opt"
@@ -100,11 +100,11 @@ function configure_advmame() {
             iniSet "display_magnify" "1"
         else
             iniSet "device_video" "sdl"
-            # need to force keyboard device as auto will choose event driver which doesn't work with sdl
+            # Need to force keyboard device as auto will choose event driver which doesn't work with sdl
             iniSet "device_keyboard" "sdl"
-            # default for best performance
+            # Default for best performance
             iniSet "display_magnify" "1"
-            # disable threading to get rid of the crash-on-exit when using SDL, preventing config save
+            # Disable threading to get rid of the crash-on-exit when using SDL, preventing config save
             iniSet "misc_smp" "no"
             iniSet "device_video_output" "overlay"
             iniSet "display_aspectx" 16
