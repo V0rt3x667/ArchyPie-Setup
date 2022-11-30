@@ -1,0 +1,38 @@
+--- a/src/config.c	2022-11-30 13:52:51.225456649 +0000
++++ b/src/config.c	2022-11-30 13:51:34.283871950 +0000
+@@ -247,7 +247,7 @@
+ bool load_opentyrian_config(void)
+ {
+ 	// defaults
+-	fullscreen_display = -1;
++	fullscreen_display = 0;
+ 	set_scaler_by_name("Scale2x");
+ 	memcpy(keySettings, defaultKeySettings, sizeof(keySettings));
+ 	
+@@ -750,22 +750,14 @@
+ 	if (strlen(user_dir) == 0)
+ 	{
+ #ifndef TARGET_WIN32
+-		char *xdg_config_home = getenv("XDG_CONFIG_HOME");
+-		if (xdg_config_home != NULL)
++		char *home = getenv("HOME");
++		if (home != NULL)
+ 		{
+-			snprintf(user_dir, sizeof(user_dir), "%s/opentyrian", xdg_config_home);
++			snprintf(user_dir, sizeof(user_dir), "%s/ArchyPie/configs/opentyrian", home);
+ 		}
+ 		else
+ 		{
+-			char *home = getenv("HOME");
+-			if (home != NULL)
+-			{
+-				snprintf(user_dir, sizeof(user_dir), "%s/.config/opentyrian", home);
+-			}
+-			else
+-			{
+-				strcpy(user_dir, ".");
+-			}
++			strcpy(user_dir, ".");
+ 		}
+ #else
+ 		strcpy(user_dir, ".");
