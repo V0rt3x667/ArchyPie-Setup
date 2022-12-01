@@ -5,14 +5,14 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="cdogs-sdl"
-rp_module_desc="C-Dogs SDL - Classic Overhead Run-and-Gun Game"
+rp_module_desc="C-Dogs SDL: Classic Overhead Run-and-Gun Game"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/cxong/cdogs-sdl/master/COPYING"
 rp_module_repo="git https://github.com/cxong/cdogs-sdl.git :_get_branch_cdogs-sdl"
 rp_module_section="exp"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="!mali"
 
 function _get_branch_cdogs-sdl() {
-    download https://api.github.com/repos/cxong/cdogs-sdl/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/cxong/cdogs-sdl/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_cdogs-sdl() {
@@ -30,12 +30,13 @@ function depends_cdogs-sdl() {
 function sources_cdogs-sdl() {
     gitPullOrClone
 
-    download https://cxong.github.io/cdogs-sdl/missionpack.zip - | bsdtar xvf - --strip-components=1 -C "$md_build"
+    download "https://cxong.github.io/cdogs-sdl/missionpack.zip" - | bsdtar xvf - --strip-components=1 -C "${md_build}"
 
-    # Prevent warnings from aborting the build
-    sed 's| -Werror||g' -i "$md_build/CMakeLists.txt"
-    # Set default config location
-    sed 's|".config/cdogs-sdl/"|".config/archypie/ports/cdogs-sdl/"|g' -i "$md_build/CMakeLists.txt"
+    # Set Default Config Path
+    sed "s|\".config/cdogs-sdl/\"|\"ArchyPie/configs/cdogs-sdl/\"|g" -i "${md_build}/CMakeLists.txt"
+
+    # Prevent Warnings As Errors
+    sed "s| -Werror||g" -i "${md_build}/CMakeLists.txt"
 }
 
 function build_cdogs-sdl() {
@@ -43,13 +44,13 @@ function build_cdogs-sdl() {
         -Bbuild \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DCDOGS_DATA_DIR="$md_inst/" \
+        -DCDOGS_DATA_DIR="${md_inst}/" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="$md_build/build/src/cdogs-sdl"
+    md_ret_require="${md_build}/build/src/cdogs-sdl"
 }
 
 function install_cdogs-sdl() {
@@ -67,9 +68,7 @@ function install_cdogs-sdl() {
 }
 
 function configure_cdogs-sdl() {
-    addPort "$md_id" "cdogs-sdl" "C-Dogs SDL" "$md_inst/cdogs-sdl --fullscreen"
-
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/$md_id/"
-
-    [[ "$md_mode" == "install" ]] && isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
+    [[ "${md_mode}" == "install" ]] && moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+    
+    addPort "${md_id}" "${md_id}" "C-Dogs SDL" "${md_inst}/${md_id} --fullscreen"
 }
