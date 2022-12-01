@@ -10,7 +10,7 @@ rp_module_section="core"
 
 function _update_hook_joy2key() {
     # Make sure joy2key is always updated when updating archypie-setup
-    rp_isInstalled "$md_id" && rp_callModule "$md_id"
+    rp_isInstalled "${md_id}" && rp_callModule "${md_id}"
 }
 
 function depends_joy2key() {
@@ -29,12 +29,12 @@ function depends_joy2key() {
 function install_bin_joy2key() {
     local file
     for file in "joy2key.py" "joy2key_sdl.py" "osk.py"; do
-        cp "$md_data/$file" "$md_inst/"
-        chmod +x "$md_inst/$file"
-        python -m compileall "$md_inst/$file"
+        cp "${md_data}/$file" "${md_inst}/"
+        chmod +x "${md_inst}/$file"
+        python -m compileall "${md_inst}/$file"
     done
 
-    local wrapper="$md_inst/joy2key"
+    local wrapper="${md_inst}/joy2key"
     cat >"$wrapper" <<_EOF_
 #!/bin/bash
 mode="\$1"
@@ -62,7 +62,7 @@ case "\$mode" in
         if pgrep -f "\$script" &>/dev/null; then
             "\$0" stop
         fi
-        "$md_inst/\$script" "\$device" "\${params[@]}" || exit 1
+        "${md_inst}/\$script" "\$device" "\${params[@]}" || exit 1
         ;;
     stop)
         pkill -f "\$script"
