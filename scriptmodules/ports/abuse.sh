@@ -32,7 +32,7 @@ function sources_abuse() {
 
     # Set Default Config Path
     sed -e "s|strlen( homedir ) + 9 )|strlen( homedir ) + 100 )|g" -i "${md_build}/src/sdlport/setup.cpp"
-    sed -e "s|\"%s/.abuse/\",|\"%s/ArchyPie/configs/abuse/\",|g" -i "${md_build}/src/sdlport/setup.cpp"
+    sed -e "s|\"%s/.abuse/\",|\"%s/ArchyPie/configs/${md_id}/\",|g" -i "${md_build}/src/sdlport/setup.cpp"
 
     # Set Data Directory
     sed -e "s|ASSETDIR \"share/games/abuse\"|ASSETDIR \"data\"|g" -i "${md_build}/CMakeLists.txt"
@@ -57,7 +57,7 @@ function install_abuse() {
 }
 
 function configure_abuse() {
-    [[ "${md_mode}" == "install" ]] && moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     if isPlatform gl || isPlatform gles; then
         addPort "${md_id}" "${md_id}" "Abuse" "${md_inst}/bin/${md_id} -datadir ${md_inst}/data -fullscreen -gl"

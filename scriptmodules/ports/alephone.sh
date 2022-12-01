@@ -76,10 +76,9 @@ function _game_data_alephone() {
 }
 
 function configure_alephone() {
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ports/${md_id}" && _game_data_alephone
-        moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
-    fi
+    [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${md_id}" && _game_data_alephone
+    
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon" "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon/"
     addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon 2: Durandal" "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon 2/"

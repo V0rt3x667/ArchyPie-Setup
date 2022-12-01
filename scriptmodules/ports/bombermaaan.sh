@@ -74,7 +74,7 @@ function install_bombermaaan() {
 }
 
 function configure_bombermaaan() {
-    [[ "${md_mode}" == "install" ]] && moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     addPort "${md_id}" "${md_id}" "Bombermaaan" "${md_inst}/Bombermaaan"
 }

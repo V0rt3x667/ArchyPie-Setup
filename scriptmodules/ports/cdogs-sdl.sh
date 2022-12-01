@@ -68,7 +68,7 @@ function install_cdogs-sdl() {
 }
 
 function configure_cdogs-sdl() {
-    [[ "${md_mode}" == "install" ]] && moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
     
     addPort "${md_id}" "${md_id}" "C-Dogs SDL" "${md_inst}/${md_id} --fullscreen"
 }
