@@ -26,7 +26,6 @@ function sources_cannonball() {
 
     # Set Default Config Path(s)
     sed -e "s|<rompath>roms/</rompath>|<rompath>${romdir}/ports/${md_id}/</rompath>|g" -i "${md_build}/res/config.xml"
-    sed -e "s|<respath>./res/</respath>|<respath>${md_inst}/res/</respath>|g" -i "${md_build}/res/config.xml"
     sed -e "s|<savepath>./</savepath>|<savepath>${romdir}/ports/${md_id}/hiscores/${md_id}/</savepath>|g" -i "${md_build}/res/config.xml"
     
     # Set Fullscreen By Default
@@ -69,12 +68,12 @@ function configure_cannonball() {
         mkRomDir "ports/${md_id}"
         mkRomDir "ports/${md_id}/hiscores"
         mkRomDir "ports/${md_id}/hiscores/${md_id}"
+
+        copyDefaultConfig "${md_inst}/config.xml" "${md_conf_root}/${md_id}/config.xml"
+        copyDefaultConfig "${md_inst}/roms.txt" "${romdir}/ports/${md_id}/roms.txt"
     fi
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
         
-    copyDefaultConfig "${md_inst}/config.xml" "${md_conf_root}/${md_id}/config.xml"
-    copyDefaultConfig "${md_inst}/roms.txt" "${romdir}/ports/${md_id}/roms.txt"
-
-    addPort "${md_id}" "${md_id}" "Cannonball: OutRun Engine" "${md_inst}/${md_id} -cfgfile ${arpdir}/${md_id}/config.xml"
+    addPort "${md_id}" "${md_id}" "Cannonball: OutRun Engine" "pushd $md_inst; ${md_inst}/${md_id} -cfgfile ${arpdir}/${md_id}/config.xml; popd"
 }
