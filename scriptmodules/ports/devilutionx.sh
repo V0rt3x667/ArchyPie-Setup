@@ -5,14 +5,14 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="devilutionx"
-rp_module_desc="DevilutionX - Diablo & Hellfire Port"
+rp_module_desc="DevilutionX: Diablo & Diablo: Hellfire Port"
 rp_module_licence="TU https://raw.githubusercontent.com/diasurgical/devilutionX/master/LICENSE"
 rp_module_repo="git https://github.com/diasurgical/devilutionX.git :_get_branch_devilutionx"
 rp_module_section="opt"
 rp_module_flags=""
 
 function _get_branch_devilutionx() {
-    download https://api.github.com/repos/diasurgical/devilutionX/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/diasurgical/devilutionX/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_devilutionx() {
@@ -37,14 +37,14 @@ function sources_devilutionx() {
 
 function build_devilutionx() {
     local ver 
-    ver=$(_get_branch_devilutionx)
+    ver="$(_get_branch_devilutionx)"
     cmake . \
         -Bbuild \
         -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DVERSION_NUM="$ver" \
+        -DVERSION_NUM="${ver}" \
         -DDEVILUTIONX_SYSTEM_LIBFMT=ON \
         -DDEVILUTIONX_SYSTEM_LIBSODIUM=ON \
         -DBUILD_TESTING=OFF \
@@ -52,7 +52,7 @@ function build_devilutionx() {
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="$md_build/build/devilutionx"
+    md_ret_require="${md_build}/build/${md_id}"
 }
 
 function install_devilutionx() {
@@ -67,41 +67,47 @@ function _add_games_devilutionx() {
     local cmd="$1"
     local dir
     local game
+    local portname
+    
     declare -A games=(
         ['diabdat.mpq']="Diablo"
         ['hellfire.mpq']="Diablo: Hellfire"
         ['spawn.mpq']="Diablo: Spawn (Shareware)"
     )
+    portname="diablo"
 
-    # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/diablo"
-        pushd "$dir/${game%%/*}" || return
+        dir="${romdir}/ports/${portname}"
+        pushd "${dir}" || return
         perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
         popd || return
-        if [[ -f "$dir/$game" ]]; then
-            if [[ "$game" == "diabdat.mpq" ]]; then
-                addPort "$md_id" "diablo" "${games[$game]}" "$cmd --%ROM%" "diablo"
+        if [[ -f "${dir}/${game}" ]]; then
+            if [[ "${game}" == "diabdat.mpq" ]]; then
+                addPort "${md_id}" "${portname}" "${games[$game]}" "$cmd --%ROM%" "diablo"
             elif [[ "$game" == "hellfire.mpq" ]]; then
-                addPort "$md_id" "diablo" "${games[$game]}" "$cmd --%ROM%" "hellfire"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "$cmd --%ROM%" "hellfire"
             else
-                addPort "$md_id" "diablo" "${games[$game]}" "$cmd --%ROM%" "spawn"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "$cmd --%ROM%" "spawn"
             fi
         fi
     done
 }
 
 function configure_devilutionx() {
-    if [[ "$md_mode" == "install" ]]; then
-        mkRomDir "ports/diablo"
+    local portname
+    portname="diablo"
+
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "ports/${portname}"
     fi
 
-    moveConfigDir "$arpiedir/ports/$md_id" "$md_conf_root/diablo/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/"
 
     local params=(
-        "--config-dir $arpiedir/ports/$md_id"
-        "--save-dir $romdir/ports/diablo"
-        "--data-dir $md_inst/ports/devilutionx/assets"
+        "--config-dir ${arpdir}/${md_id}"
+        "--save-dir ${romdir}/ports/${portname}"
+        "--data-dir ${md_inst}/ports/${md_id}/assets/"
     )
-    _add_games_devilutionx "$md_inst/devilutionx ${params[*]}"
+    _add_games_devilutionx "${md_inst}/${md_id} ${params[*]}"
 }
