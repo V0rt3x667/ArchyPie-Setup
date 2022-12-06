@@ -22,14 +22,14 @@ diff -ru a/src/common/platform/posix/unix/i_specialpaths.cpp b/src/common/platfo
 diff -ru a/src/d_iwad.cpp b/src/d_iwad.cpp
 --- a/src/d_iwad.cpp	2022-08-19 07:00:53.000000000 +0100
 +++ b/src/d_iwad.cpp	2022-08-19 18:35:28.185146293 +0100
-@@ -714,8 +714,8 @@
+@@ -718,8 +718,8 @@
  					  "2. Edit your ~/Library/Preferences/" GAMENAMELOWERCASE ".ini and add the directories\n"
  					  "of your iwads to the list beneath [IWADSearch.Directories]");
  #else
 -					  "1. Place one or more of these wads in ~/.config/" GAMENAMELOWERCASE "/.\n"
 -					  "2. Edit your ~/.config/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
-+					  "1. Place one or more of these wads in ~/archypie/roms/ports/doom" "/.\n"
-+					  "2. Edit your ~/.config/archypie/ports/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
++					  "1. Place one or more of these wads in ~/ArchyPie/roms/ports/doom" "/.\n"
++					  "2. Edit your ~/ArchyPie/configs" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
  					  "iwads to the list beneath [IWADSearch.Directories]");
  #endif
  	}
@@ -148,7 +148,7 @@ diff -ru a/src/version.h b/src/version.h
 -#else
 -#define GAME_DIR ".config/" GAMENAMELOWERCASE
 -#endif
-+#define GAME_DIR ".config/archypie/ports/" GAMENAMELOWERCASE
++#define GAME_DIR "ArchyPie/configs/" GAMENAMELOWERCASE
  
  #define DEFAULT_DISCORD_APP_ID "951303644597325885"
  
