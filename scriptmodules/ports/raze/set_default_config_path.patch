@@ -1,6 +1,6 @@
 diff -ru a/source/common/platform/posix/unix/i_specialpaths.cpp b/source/common/platform/posix/unix/i_specialpaths.cpp
---- a/source/common/platform/posix/unix/i_specialpaths.cpp	2022-12-06 18:52:59.096551758 +0000
-+++ b/source/common/platform/posix/unix/i_specialpaths.cpp	2022-12-07 06:34:19.581072917 +0000
+--- a/source/common/platform/posix/unix/i_specialpaths.cpp	2022-08-14 02:47:25.684048000 +0100
++++ b/source/common/platform/posix/unix/i_specialpaths.cpp	2022-08-15 21:23:14.788519849 +0100
 @@ -110,9 +110,7 @@
  
  FString M_GetAppDataPath(bool create)
@@ -24,9 +24,9 @@ diff -ru a/source/common/platform/posix/unix/i_specialpaths.cpp b/source/common/
  	{
  		CreatePath(path);
 diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
---- a/source/core/gameconfigfile.cpp	2022-12-06 18:52:59.175553144 +0000
-+++ b/source/core/gameconfigfile.cpp	2022-12-07 06:41:33.433182798 +0000
-@@ -76,92 +76,28 @@
+--- a/source/core/gameconfigfile.cpp	2022-08-14 02:47:25.770049000 +0100
++++ b/source/core/gameconfigfile.cpp	2022-09-05 22:13:18.979112757 +0100
+@@ -76,92 +76,24 @@
  	if (!SetSection ("GameSearch.Directories"))
  	{
  		SetSection ("GameSearch.Directories", true);
@@ -74,8 +74,6 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
 +		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
 +		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d/*", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/raze", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/raze/*", true);
  	}
  
  	// Set default search paths if none present
@@ -102,8 +100,6 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -#endif
 +		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
 +		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d/*", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/raze", true);
-+		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/raze/*", true);
  	}
  
  	// Set default search paths if none present
@@ -130,8 +126,8 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
  
  	// Add some self-documentation.
 diff -ru a/source/core/version.h b/source/core/version.h
---- a/source/core/version.h	2022-12-06 18:52:59.192553443 +0000
-+++ b/source/core/version.h	2022-12-07 06:34:19.581072917 +0000
+--- a/source/core/version.h	2022-08-14 02:47:25.781050000 +0100
++++ b/source/core/version.h	2022-08-15 01:49:35.356946921 +0100
 @@ -84,7 +84,7 @@
  #if defined(__APPLE__) || defined(_WIN32)
  #define GAME_DIR GAMENAME
