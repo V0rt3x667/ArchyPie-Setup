@@ -5,14 +5,15 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="quake3"
-rp_module_desc="Quake 3 - Quake 3 Arena Port"
+rp_module_desc="Quake 3: Quake 3 Arena Port"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/raspberrypi/quake3/master/COPYING.txt"
 rp_module_repo="git https://github.com/raspberrypi/quake3.git master"
 rp_module_section="opt"
 rp_module_flags="!all videocore"
 
 function depends_quake3() {
-    getDepends sdl raspberrypi-firmware
+    local depends=('sdl12-compat' 'raspberrypi-firmware')
+    getDepends "${depends[@]}"
 }
 
 function sources_quake3() {
@@ -21,7 +22,7 @@ function sources_quake3() {
 
 function build_quake3() {
     ./build_rpi_raspbian.sh
-    md_ret_require="$md_build/build/release-linux-arm/ioquake3.arm"
+    md_ret_require="${md_build}/build/release-linux-arm/ioquake3.arm"
 }
 
 function install_quake3() {
@@ -32,19 +33,24 @@ function install_quake3() {
 }
 
 function _game_data_quake3() {
-    if [[ ! -f "$romdir/ports/quake3/baseq3/pak0.pk3" ]]; then
-        downloadAndExtract "$__archive_url/Q3DemoPaks.zip" "$romdir/ports/quake3/baseq3" -j
+    local portname
+    portname="quake3"
+
+    if [[ ! -f "${romdir}/ports/${portname}/baseq3/pak0.pk3" ]] && [[ ! -f "${romdir}/ports/${portname}/demoq3/pak0.pk3" ]]; then
+        downloadAndExtract "${__archive_url}/Q3DemoPaks.zip" "${romdir}/ports/${portname}/demoq3" -j
     fi
-    # always chown as moveConfigDir in the configure_ script would move the root owned demo files
-    chown -R "$user:$user" "$romdir/ports/quake3"
+    chown -R "${user}:${user}" "${romdir}/ports/${portname}"
 }
 
 function configure_quake3() {
-    mkRomDir "ports/quake3"
+    local portname
+    portname="quake3"
 
-    addPort "$md_id" "quake3" "Quake III Arena" "LD_LIBRARY_PATH=lib $md_inst/ioquake3.arm"
+    mkRomDir "ports/${portname}"
 
-    moveConfigDir "$md_inst/baseq3" "$romdir/ports/quake3/baseq3"
+    addPort "${md_id}" "${portname}" "Quake III Arena" "LD_LIBRARY_PATH=lib ${md_inst}/ioquake3.arm"
 
-    [[ "$md_mode" == "install" ]] && _game_data_quake3
+    moveConfigDir "${md_inst}/baseq3" "${romdir}/ports/${portname}/baseq3"
+
+    [[ "${md_mode}" == "install" ]] && _game_data_quake3
 }
