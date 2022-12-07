@@ -75,5 +75,5 @@ function configure_cannonball() {
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
         
-    addPort "${md_id}" "${md_id}" "Cannonball: OutRun Engine" "pushd $md_inst; ${md_inst}/${md_id} -cfgfile ${arpdir}/${md_id}/config.xml; popd"
+    addPort "${md_id}" "${md_id}" "Cannonball: OutRun Engine" "pushd ${md_inst}; ${md_inst}/${md_id} -cfgfile ${arpdir}/${md_id}/config.xml; popd"
 }

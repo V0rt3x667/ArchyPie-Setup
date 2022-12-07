@@ -12,7 +12,7 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function _get_branch_abuse() {
-    download "https://api.github.com/repos/Xenoveritas/abuse/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/Xenoveritas/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_abuse() {
@@ -30,7 +30,7 @@ function sources_abuse() {
 
     downloadAndExtract "${__arpie_url}/Abuse/abuse_assets.tar.xz" "${md_build}/data" music register sfx
 
-    # Set Default Config Path
+    # Set Default Config Path(s)
     sed -e "s|strlen( homedir ) + 9 )|strlen( homedir ) + 100 )|g" -i "${md_build}/src/sdlport/setup.cpp"
     sed -e "s|\"%s/.abuse/\",|\"%s/ArchyPie/configs/${md_id}/\",|g" -i "${md_build}/src/sdlport/setup.cpp"
 
@@ -49,7 +49,7 @@ function build_abuse() {
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="${md_build}/build/src/abuse"
+    md_ret_require="${md_build}/build/src/${md_id}"
 }
 
 function install_abuse() {
@@ -59,7 +59,7 @@ function install_abuse() {
 function configure_abuse() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
-    if isPlatform gl || isPlatform gles; then
+    if isPlatform "gl" || isPlatform "gles"; then
         addPort "${md_id}" "${md_id}" "Abuse" "${md_inst}/bin/${md_id} -datadir ${md_inst}/data -fullscreen -gl"
     else
         addPort "${md_id}" "${md_id}" "Abuse" "${md_inst}/bin/${md_id} -datadir ${md_inst}/data -fullscreen"

@@ -66,7 +66,7 @@ function _game_data_dhewm3() {
     url="https://files.holarse-linuxgaming.de/native/Spiele/Doom%203/Demo/${portname}-linux-1.1.1286-demo.x86.run"
 
     if [[ ! -f "${romdir}/ports/${portname}/base/pak000.pk4" ]] && [[ ! -f "${romdir}/ports/${portname}/demo/demo00.pk4" ]]; then
-        download "$url" "${romdir}/ports/${portname}"
+        download "${url}" "${romdir}/ports/${portname}"
         chmod +x "${romdir}/ports/${portname}/${portname}-linux-1.1.1286-demo.x86.run"
         cd "${romdir}/ports/${portname}" || return
         ./${portname}-linux-1.1.1286-demo.x86.run --tar xf demo/ && rm "${romdir}/ports/${portname}/${portname}-linux-1.1.1286-demo.x86.run"
@@ -90,9 +90,11 @@ function _add_games_dhewm3() {
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
         dir="${romdir}/ports/${portname}"
-        pushd "${dir}/${game%%/*}" || return
-        perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-        popd || return
+        if [[ "${md_mode}" == "install" ]]; then
+            pushd "${dir}/${game%%/*}" || return
+            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+            popd || return
+        fi
         if [[ -f "${dir}/${game}" ]]; then
             addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game%%/*}"
         fi

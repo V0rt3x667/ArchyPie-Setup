@@ -31,7 +31,7 @@ function depends_cgenius() {
 function sources_cgenius() {
     gitPullOrClone
 
-    # Set Default Config Path
+    # Set Default Config Path(s)
     sed -e "s|/.CommanderGenius|/ArchyPie/configs/${md_id}|g" -i "${md_build}/GsKit/base/utils/FindFile.cpp"
 }
 
@@ -80,10 +80,12 @@ function _add_games_cgenius(){
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
         dir="${romdir}/ports/${md_id}"
-        pushd "${dir}/${game%%/*}" || return
-        perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-        popd || return
-        if [[ -f "${dir}/$game" ]]; then
+        if [[ "${md_mode}" == "install" ]]; then
+            pushd "${dir}/${game%%/*}" || return
+            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+            popd || return
+        fi
+        if [[ -f "${dir}/${game}" ]]; then
             addPort "${md_id}" "${md_id}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "dir=games/${game%/*}"
         fi
     done
@@ -92,7 +94,7 @@ function _add_games_cgenius(){
         # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments.
         cat >"${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
-$cmd \$*
+${cmd} \$*
 _EOF_
         chmod +x "${md_inst}/${md_id}.sh"
     fi
@@ -116,7 +118,7 @@ function configure_cgenius() {
         iniSet "fullscreen" "true"
 
         copyDefaultConfig "${config}" "${md_conf_root}/${md_id}/cgenius.cfg"
-        rm "$config"
+        rm "${config}"
     fi
 
     _add_games_cgenius "${md_inst}/CGeniusExe"

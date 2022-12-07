@@ -12,7 +12,7 @@ rp_module_section="opt"
 rp_module_flags="!mali"
 
 function _get_branch_alephone() {
-    download "https://api.github.com/repos/Aleph-One-Marathon/alephone/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/Aleph-One-Marathon/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_alephone() {
@@ -37,7 +37,7 @@ function depends_alephone() {
 function sources_alephone() {
     gitPullOrClone
 
-    # Set Default Config Path
+    # Set Default Config Path(s)
     sed -e "s|/.alephone|/ArchyPie/configs/${md_id}|g" -i "${md_build}/Source_Files/CSeries/cspaths_sdl.cpp"
 }
 

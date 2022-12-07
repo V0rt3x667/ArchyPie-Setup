@@ -12,7 +12,7 @@ rp_module_section="exp"
 rp_module_flags="!mali"
 
 function _get_branch_cdogs-sdl() {
-    download "https://api.github.com/repos/cxong/cdogs-sdl/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/cxong/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_cdogs-sdl() {
@@ -30,10 +30,10 @@ function depends_cdogs-sdl() {
 function sources_cdogs-sdl() {
     gitPullOrClone
 
-    download "https://cxong.github.io/cdogs-sdl/missionpack.zip" - | bsdtar xvf - --strip-components=1 -C "${md_build}"
+    download "https://cxong.github.io/${md_id}/missionpack.zip" - | bsdtar xvf - --strip-components=1 -C "${md_build}"
 
-    # Set Default Config Path
-    sed "s|\".config/cdogs-sdl/\"|\"ArchyPie/configs/cdogs-sdl/\"|g" -i "${md_build}/CMakeLists.txt"
+    # # Set Default Config Path(s)
+    sed "s|\".config/${md_id}/\"|\"ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/CMakeLists.txt"
 
     # Prevent Warnings As Errors
     sed "s| -Werror||g" -i "${md_build}/CMakeLists.txt"
@@ -50,7 +50,7 @@ function build_cdogs-sdl() {
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="${md_build}/build/src/cdogs-sdl"
+    md_ret_require="${md_build}/build/src/${md_id}"
 }
 
 function install_cdogs-sdl() {

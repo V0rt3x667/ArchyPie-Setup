@@ -60,7 +60,7 @@ function _add_games_lr-prboom() {
         ['freedoom/freedoom1.wad']="Freedoom: Phase I"
         ['freedoom/freedoom2.wad']="Freedoom: Phase II"
     )
-    if [[ "${md_id}" == "gzdoom" || "${md_id}" == "lzdoom" ]]; then
+    if [[ "${md_id}" == "gzdoom" ]] || [[ "${md_id}" == "lzdoom" ]]; then
         games+=(
             ['addons/bloom/bloom.pk3']="Doom II: Bloom"
             ['addons/brutal/brutal.pk3']="Doom: Brutal Doom"
@@ -91,23 +91,24 @@ function _add_games_lr-prboom() {
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${md_id}" == "lr-prboom" ]]; then
                 addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
-            fi
-            # Add Sigil & Buckethead Soundtrack if Available
-            if [[ "${game##*/}" == "sigil.wad" && -f "${dir}/sigil_shreds.wad" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM% -file ${dir}/sigil_shreds.wad" "${game##*/}"
-            # Add Sigil 
-            elif [[ "${game##*/}" == "sigil.wad" && ! -f "${dir}/sigil_shreds.wad" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"
-            # Add Bloom
+            fi            
+            if [[ "${game##*/}" == "sigil.wad" ]] && [[ -f "${dir}/sigil_shreds.wad" ]]; then
+                # Add Sigil & Buckethead Soundtrack if Available
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM% -file ${dir}/sigil_shreds.wad" "${game##*/}"            
+            elif [[ "${game##*/}" == "sigil.wad" ]] && [[ ! -f "${dir}/sigil_shreds.wad" ]]; then
+                # Add Sigil
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"            
             elif [[ "${game##*/}" == "bloom.wad" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"
-            # Add Strain
+                # Add Bloom
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"            
             elif [[ "${game##*/}" == "strainfix.wad" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"
-            # Add Project Brutality and Other "Brutality" Mods if Available
+                # Add Strain
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"    
             elif [[ "${game##*/}" =~ "brutal" ]]; then
+                # Add Project Brutality and Other "Brutality" Mods if Available
                 addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"
             else
+                # Add Games Which Do Not Require Additional Parameters
                 addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
                 # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
                 addEmulator 0 "${md_id}-addon" "${portname}" "${games[$game]}" "${cmd} -file ${romdir}/ports/${portname}/addons/misc/*" "${game##*/}"

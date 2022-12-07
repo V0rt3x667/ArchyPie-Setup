@@ -12,7 +12,7 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function _get_branch_devilutionx() {
-    download "https://api.github.com/repos/diasurgical/devilutionX/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/diasurgical/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_devilutionx() {
@@ -79,16 +79,18 @@ function _add_games_devilutionx() {
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
         dir="${romdir}/ports/${portname}"
-        pushd "${dir}" || return
-        perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-        popd || return
+        if [[ "${md_mode}" == "install" ]]; then
+            pushd "${dir}" || return
+            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+            popd || return
+        fi
         if [[ -f "${dir}/${game}" ]]; then
             if [[ "${game}" == "diabdat.mpq" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "$cmd --%ROM%" "diablo"
-            elif [[ "$game" == "hellfire.mpq" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "$cmd --%ROM%" "hellfire"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} --%ROM%" "diablo"
+            elif [[ "${game}" == "hellfire.mpq" ]]; then
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} --%ROM%" "hellfire"
             else
-                addPort "${md_id}" "${portname}" "${games[$game]}" "$cmd --%ROM%" "spawn"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} --%ROM%" "spawn"
             fi
         fi
     done

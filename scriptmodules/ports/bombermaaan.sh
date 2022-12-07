@@ -28,13 +28,13 @@ function sources_bombermaaan() {
     # Line Endings Need To Be Converted Or Patching Will Fail.
     find . -type f -exec dos2unix {} \;
 
-    # Set Default Config Path
+    # Set Default Config Path(s)
     sed -e "s|append(\"/.Bombermaaan/\");|append(\"/ArchyPie/configs/${md_id}/\");|g" -i "${md_build}/trunk/src/CGame.cpp"
 
     # Set Fullscreen By Default
     sed -e "s|DISPLAYMODE_WINDOWED;|DISPLAYMODE_FULL3;|g" -i "${md_build}/trunk/src/COptions.cpp"
     
-    # "SDL 1 Classic" Is Required To Build Bombermaaan. The sdl12-compat Package Is Used To Run Bombermaaan.
+    # "SDL 1 Classic" is Required To Build Bombermaaan. The sdl12-compat Package is Used to Run Bombermaaan.
     _sources_sdl
 }
 

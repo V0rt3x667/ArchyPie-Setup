@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!all 64bit"
 
 function _get_branch_raze() {
-    download "https://api.github.com/repos/coelckers/raze/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/coelckers/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_raze() {
@@ -103,7 +103,7 @@ function _add_games_raze() {
         else
             portname="raze"
         fi
-            dir="${romdir}/ports/${portname}/${game%/*}"
+        dir="${romdir}/ports/${portname}/${game%/*}"
         if [[ "${md_mode}" == "install" ]]; then
             pushd "${dir}" || return
             perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
