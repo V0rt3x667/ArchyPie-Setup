@@ -22,7 +22,7 @@ function depends_eduke32() {
         'sdl2'
         'sdl2_mixer'
     )
-    isPlatform "x86" && depends+=('nasm')
+    isPlatform "x86" && isPlatform "32bit" && depends+=('nasm')
     isPlatform "gl" || isPlatform "mesa" && depends+=('mesa' 'glu')
     isPlatform "x11" && depends+=('gtk2')
     getDepends "${depends[@]}"
@@ -45,7 +45,7 @@ function build_eduke32() {
     [[ "${md_id}" == "ionfury" ]] && params+=('FURY=1')
     ! isPlatform "x86" && params+=('NOASM=1')
     ! isPlatform "x11" && params+=('HAVE_GTK2=0')
-    ! isPlatform "gl3" && params+=('POLYMER=0')
+    ! ( isPlatform "gl" || isPlatform "gles3" ) && params+=('POLYMER=0')
     ! ( isPlatform "gl" || isPlatform "mesa" ) && params+=('USE_OPENGL=0')
 
     make veryclean
@@ -152,12 +152,16 @@ _EOF_
 function configure_eduke32() {
     if [[ "${md_mode}" == "install" ]]; then
         if [[ "${md_id}" == "ionfury" ]]; then
-            mkRomDir "ports/ionfury"
+            local portname
+            portname="ionfury"
+            mkRomDir "ports/${portname}"
         elif [[ "${md_id}" == "eduke32" ]]; then
-            mkRomDir "ports/duke3d"
+            local portname
+            portname="duke3d"
             local dirs=('duke' 'nam' 'ww2gi')
+            mkRomDir "ports/${portname}"
             for dir in "${dirs[@]}"; do
-                mkRomDir "ports/duke3d/${dir}"
+                mkRomDir "ports/${portname}/${dir}"
             done
             _game_data_eduke32
         fi
@@ -167,7 +171,7 @@ function configure_eduke32() {
         moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
         _add_games_eduke32 "${md_inst}/fury"
     else
-        moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/duke3d/${md_id}/"
+        moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
         _add_games_eduke32 "${md_inst}/${md_id}"
     fi
 }
