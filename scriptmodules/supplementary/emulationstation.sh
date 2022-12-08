@@ -320,7 +320,7 @@ function gui_emulationstation() {
     local options
     while true; do
         local options=(
-            1 "Clear/Reset Emulation Station input Configuration"
+            1 "Clear/Reset EmulationStation Input Configuration"
         )
 
         if [[ "${disable}" -eq 0 ]]; then
