@@ -5,14 +5,14 @@
 # Please see the LICENSE file at the top-level directory of this distribution
 
 rp_module_id="kodi"
-rp_module_desc="Kodi - Open Source Home Theatre Software"
+rp_module_desc="Kodi: Open Source Home Theatre Software"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/xbmc/xbmc/master/LICENSE.md"
 rp_module_section="opt"
 rp_module_flags="!mali"
 
 function _update_hook_kodi() {
-    # Show as Installed in ArchyPie-Setup
-    hasPackage kodi && mkdir -p "$md_inst"
+    # Show As Installed In ArchyPie-Setup
+    hasPackage kodi && mkdir -p "${md_inst}"
 }
 
 function depends_kodi() {
@@ -20,16 +20,36 @@ function depends_kodi() {
 }
 
 function install_bin_kodi() {
-    pacmanInstall kodi kodi-eventclients kodi-platform p8-platform
+    local packages=(
+        'kodi-addon-inputstream-adaptive'
+        'kodi-addon-inputstream-rtmp'
+        'kodi-addon-peripheral-joystick'
+        'kodi-eventclients'
+        'kodi-platform'
+        'kodi'
+        'mediaelch'
+        'p8-platform'
+    )
+    pacmanInstall "${packages[@]}"
 }
 
 function remove_kodi() {
-    pacmanRemove kodi kodi-eventclients kodi-platform p8-platform
+    local packages=(
+        'kodi-addon-inputstream-adaptive'
+        'kodi-addon-inputstream-rtmp'
+        'kodi-addon-peripheral-joystick'
+        'kodi-eventclients'
+        'kodi-platform'
+        'kodi'
+        'mediaelch'
+        'p8-platform'
+    )
+    pacmanRemove "${packages[@]}"
     rp_callModule kodi depends remove
 }
 
 function configure_kodi() {
-    moveConfigDir "$home/.kodi" "$md_conf_root/kodi"
+    moveConfigDir "${home}/.kodi" "${md_conf_root}/${md_id}"
 
-    addPort "$md_id" "kodi" "Kodi" "kodi-standalone"
+    addPort "${md_id}" "${md_id}" "Kodi" "kodi-standalone"
 }
