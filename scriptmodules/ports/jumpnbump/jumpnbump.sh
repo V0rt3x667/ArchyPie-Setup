@@ -3,23 +3,23 @@ ROOTDIR=""
 MD_CONF_ROOT=""
 ROMDIR=""
 MD_INST=""
-DIALOG=(dialog --backtitle "RetroPie Jump n' Bump Launcher")
+DIALOG=(dialog --backtitle "ArchyPie Jump 'n Bump Launcher")
 
-# source ini functions from RetroPie
-source "$ROOTDIR/lib/inifuncs.sh"
+# Source Ini Functions From ArchyPie
+source "${ROOTDIR}/lib/inifuncs.sh"
 
-# init program args
+# Init Program Args
 function init_args() {
     args=(-fullscreen)
-    iniConfig " = " "" "$MD_CONF_ROOT/jumpnbump/options.cfg"
-    iniGet "nogore" && [[ "$ini_value" -eq 1 ]] && args+=(-nogore)
-    iniGet "noflies" && [[ "$ini_value" -eq 1 ]] && args+=(-noflies)
-    iniGet "scaleup" && [[ "$ini_value" -eq 1 ]] && args+=(-scaleup)
-    iniGet "musicnosound" && [[ "$ini_value" -eq 1 ]] && args+=(-musicnosound)
+    iniConfig " = " "" "${MD_CONF_ROOT}/jumpnbump/options.cfg"
+    iniGet "nogore" && [[ "${ini_value}" -eq 1 ]] && args+=(-nogore)
+    iniGet "noflies" && [[ "${ini_value}" -eq 1 ]] && args+=(-noflies)
+    iniGet "scaleup" && [[ "${ini_value}" -eq 1 ]] && args+=(-scaleup)
+    iniGet "musicnosound" && [[ "${ini_value}" -eq 1 ]] && args+=(-musicnosound)
     return 0
 }
 
-# main menu
+# Main Menu
 function main_menu() {
     local cmd
     local options
@@ -33,7 +33,7 @@ function main_menu() {
             H "Net: Help"
         )
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty) || return
-        case "$choice" in
+        case "${choice}" in
             L) init_args && select_level_menu && return ;;
             S) init_args && start_server_menu && select_level_menu && return ;;
             C) init_args && connect_server_menu && select_level_menu && return ;;
@@ -42,45 +42,45 @@ function main_menu() {
     done
 }
 
-# select level menu
+# Select Level Menu
 function select_level_menu() {
     local cmd=("${DIALOG[@]}" --ok-label "Start" --extra-button --extra-label "Start Mirror" --menu "Select Level" 16 0 16)
-    local levels=(D "(default level)")
+    local levels=(D "(Default Level)")
     local idx=1
     local choice
     local ret
-    for file in "$ROMDIR"/ports/jumpnbump/*.dat; do
-        levels+=("$idx" "${file##*/}")
+    for file in "${ROMDIR}"/ports/jumpnbump/*.dat; do
+        levels+=("${idx}" "${file##*/}")
         ((idx++))
     done
     choice=$("${cmd[@]}" "${levels[@]}" 2>&1 >/dev/tty)
     ret=$?
-    [[ "$ret" -eq 1 ]] && return 1
-    [[ "$ret" -eq 3 ]] && args+=(-mirror)
-    [[ "$choice" == "D" ]] && return
-    args+=(-dat "$ROMDIR/ports/jumpnbump/${levels[$((choice * 2 + 1))]}")
+    [[ "${ret}" -eq 1 ]] && return 1
+    [[ "${ret}" -eq 3 ]] && args+=(-mirror)
+    [[ "${choice}" == "D" ]] && return
+    args+=(-dat "${ROMDIR}/ports/jumpnbump/${levels[$((choice * 2 + 1))]}")
 }
 
-# start server menu
+# Start Server Menu
 function start_server_menu() {
-    local cmd=("${DIALOG[@]}" --menu "Number of players" 0 0 0)
+    local cmd=("${DIALOG[@]}" --menu "Number of Players" 0 0 0)
     local options=(
         1 "One Remote + One Local"
         2 "Two Remotes + One Local"
         3 "Three Remotes + One Local"
     )
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty) || return
-    args+=(-server "$choice")
+    args+=(-server "${choice}")
 }
 
-# connect to server menu
+# Connect to Server Menu
 function connect_server_menu() {
     local cmd=("${DIALOG[@]}" --inputbox "Please enter the address of the remote server" 10 35)
     choice=$("${cmd[@]}" 2>&1 >/dev/tty) || return
-    args+=(-connect "$choice")
+    args+=(-connect "${choice}")
 }
 
-# netplay help
+# Netplay Help
 function netplay_help() {
     local help
     read -r -d "" help <<"_EOF_"
@@ -90,9 +90,9 @@ function netplay_help() {
 
 3. All players (server and clients) must select the same level and mirror settings.
 _EOF_
-    "${DIALOG[@]}" --title "Net Help" --msgbox "$help" 16 50 2>&1 >/dev/tty
+    "${DIALOG[@]}" --title "Net Help" --msgbox "${help}" 16 50 2>&1 >/dev/tty
 }
 
-# start main menu
+# Start Main Menu
 main_menu || exit
-"$MD_INST"/bin/jumpnbump "${args[@]}" "$@"
+"${MD_INST}"/bin/jumpnbump "${args[@]}" "$@"
