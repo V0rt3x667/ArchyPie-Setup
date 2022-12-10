@@ -84,7 +84,7 @@ function configure_ioquake3() {
     moveConfigDir "${md_inst}/baseq3" "${romdir}/ports/${portname}/baseq3"
     moveConfigDir "${md_inst}/missionpack" "${romdir}/ports/${portname}/missionpack"
     moveConfigDir "${md_inst}/demoq3" "${romdir}/ports/${portname}/demoq3"
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
     
     local launcher=("${md_inst}/${md_id}.$(_arch_${md_id}) +set fs_game %ROM%")
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
