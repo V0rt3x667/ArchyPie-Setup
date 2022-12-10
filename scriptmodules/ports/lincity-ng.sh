@@ -45,8 +45,7 @@ function install_lincity-ng() {
 }
 
 function configure_lincity-ng() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
-    #moveConfigDir "${home}/.lincity-ng" "${md_conf_root}/lincity-ng"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     addPort "${md_id}" "${md_id}" "LinCity-NG" "${md_inst}/bin/${md_id} -g -f"
 }
