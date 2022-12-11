@@ -5,12 +5,16 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="love"
-rp_module_desc="Love - 2D Game Engine for Lua"
-rp_module_help="Copy your Love games to $romdir/love"
+rp_module_desc="Love: A 2D Game Engine for Lua"
+rp_module_help="Copy Love Games to: ${romdir}/love"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/love2d/love/master/license.txt"
-rp_module_repo="git https://github.com/love2d/love.git 11.4"
+rp_module_repo="git https://github.com/love2d/love.git :_get_branch_love"
 rp_module_section="opt"
-rp_module_flags="!aarch64"
+rp_module_flags=""
+
+function _get_branch_love() {
+    download "https://api.github.com/repos/love2d/${md_id}/releases" - | grep -m 1 tag_name | cut -d\" -f4
+}
 
 function depends_love() {
     local depends=(
@@ -32,12 +36,10 @@ function sources_love() {
 
 function build_love() {
     ./platform/unix/automagic
-    local params=(--prefix="$md_inst")
-
-    ./configure "${params[@]}"
+    ./configure --prefix="${md_inst}"
     make clean
     make
-    md_ret_require="$md_build/src/love"
+    md_ret_require="${md_build}/src/${md_id}"
 }
 
 function install_love() {
@@ -45,24 +47,26 @@ function install_love() {
 }
 
 function _game_data_love() {
-    # get Mari0 1.6.2 (freeware game data)
-    if [[ ! -f "$romdir/love/mari0.love" ]]; then
-        downloadAndExtract "https://github.com/Stabyourself/mari0/archive/1.6.2.tar.gz" "$__tmpdir/mari0" --strip-components 1
-        pushd "$__tmpdir/mari0" || return
-        zip -qr "$romdir/love/mari0.love" .
+    # Get Mari0 1.6.2 (Freeware Game Data)
+    if [[ ! -f "${romdir}/${md_id}/mari0.love" ]]; then
+        downloadAndExtract "https://github.com/Stabyourself/mari0/archive/1.6.2.tar.gz" "${__tmpdir}/mari0" --strip-components 1
+        pushd "${__tmpdir}/mari0" || return
+        zip -qr "${romdir}/${md_id}/mari0.love" .
         popd || return
-        rm -fr "$__tmpdir/mari0"
-        chown "$user:$user" "$romdir/love/mari0.love"
+        rm -fr "${__tmpdir}/mari0"
+        chown "${user}:${user}" "${romdir}/${md_id}/mari0.love"
     fi
 }
 
 function configure_love() {
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "${md_id}"
+        _game_data_love
+    fi
+
     setConfigRoot ""
 
-    mkRomDir "love"
-
-    addEmulator 1 "$md_id" "love" "$md_inst/bin/love %ROM%"
-    addSystem "love"
-
-    [[ "$md_mode" == "install" ]] && _game_data_love
+    addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/${md_id} %ROM%"
+    
+    addSystem "${md_id}"
 }
