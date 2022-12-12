@@ -1,6 +1,6 @@
 diff -ru a/source/common/platform/posix/unix/i_specialpaths.cpp b/source/common/platform/posix/unix/i_specialpaths.cpp
---- a/source/common/platform/posix/unix/i_specialpaths.cpp	2022-12-06 18:52:59.096551758 +0000
-+++ b/source/common/platform/posix/unix/i_specialpaths.cpp	2022-12-07 06:34:19.581072917 +0000
+--- a/source/common/platform/posix/unix/i_specialpaths.cpp	2022-12-11 22:50:10.237698607 +0000
++++ b/source/common/platform/posix/unix/i_specialpaths.cpp	2022-12-12 00:14:44.413444704 +0000
 @@ -110,9 +110,7 @@
  
  FString M_GetAppDataPath(bool create)
@@ -24,9 +24,9 @@ diff -ru a/source/common/platform/posix/unix/i_specialpaths.cpp b/source/common/
  	{
  		CreatePath(path);
 diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
---- a/source/core/gameconfigfile.cpp	2022-12-06 18:52:59.175553144 +0000
-+++ b/source/core/gameconfigfile.cpp	2022-12-07 06:41:33.433182798 +0000
-@@ -76,92 +76,28 @@
+--- a/source/core/gameconfigfile.cpp	2022-12-11 22:50:10.316699967 +0000
++++ b/source/core/gameconfigfile.cpp	2022-12-12 00:26:38.008305856 +0000
+@@ -76,105 +76,28 @@
  	if (!SetSection ("GameSearch.Directories"))
  	{
  		SetSection ("GameSearch.Directories", true);
@@ -37,15 +37,15 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -		SetValueForKey ("Path", user_app_support + "/EDuke32", true);
 -		SetValueForKey ("Path", user_app_support + "/JFDuke32", true);
 -		SetValueForKey ("Path", user_app_support + "/NBlood", true);
--		SetValueForKey("Path", user_app_support + "/Raze/*", true);
+-		SetValueForKey ("Path", user_app_support + "/Raze/*", true);
 -		SetValueForKey ("Path", "$PROGDIR", true);
 -		SetValueForKey ("Path", "$PROGDIR/*", true);
 -		SetValueForKey ("Path", local_app_support + "/EDuke32", true);
 -		SetValueForKey ("Path", local_app_support + "/JFDuke32", true);
 -		SetValueForKey ("Path", local_app_support + "/NBlood", true);
--		SetValueForKey("Path", local_app_support + "/JFSW", true);
--		SetValueForKey("Path", local_app_support + "/VoidSW", true);
--		SetValueForKey("Path", local_app_support + "/Raze/*", true);
+-		SetValueForKey ("Path", local_app_support + "/JFSW", true);
+-		SetValueForKey ("Path", local_app_support + "/VoidSW", true);
+-		SetValueForKey ("Path", local_app_support + "/Raze/*", true);
 -
 -#elif !defined(__unix__)
 -		SetValueForKey ("Path", "$PROGDIR", true);
@@ -56,19 +56,25 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -		// Arch Linux likes them in /usr/share/raze
 -		// Debian likes them in /usr/share/games/raze
 -		// I assume other distributions don't do anything radically different
--		SetValueForKey ("Path", "/opt/raze", true);
--		SetValueForKey ("Path", "/usr/share/games/raze", true);
--		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
+-		SetValueForKey ("Path", "/opt/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE "/*", true);
+-		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE "/*", true);
+-		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE "/*", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE "/*", true);
 -		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
--		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 -		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
--		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 -		SetValueForKey ("Path", "/usr/share/games/nblood", true);
+-		SetValueForKey ("Path", "/usr/share/games/jfsw", true);
+-		SetValueForKey ("Path", "/usr/share/games/voidsw", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 -		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
--		SetValueForKey("Path", "/usr/share/games/jfsw", true);
--		SetValueForKey("Path", "/usr/local/share/games/jfsw", true);
--		SetValueForKey("Path", "/usr/share/games/voidsw", true);
--		SetValueForKey("Path", "/usr/local/share/games/voidsw", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/jfsw", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/voidsw", true);
 -
 -#endif
 -		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
@@ -92,12 +98,19 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -		SetValueForKey ("Path", "$GAMEDIR", true);
 -#else
 -		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
--		SetValueForKey ("Path", SHARE_DIR, true);
+-		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE "/*", true);
+-		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE "/*", true);
+-		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE "/*", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE, true);
+-		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE "/*", true);
 -		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
--		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 -		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
--		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 -		SetValueForKey ("Path", "/usr/share/games/nblood", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 -		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
 -#endif
 +		SetValueForKey ("Path", "$HOME/ArchyPie/roms/ports/duke3d", true);
@@ -119,10 +132,10 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
 -		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
 -#else
 -		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
--		SetValueForKey("Path", "/usr/local/share/" GAME_DIR "/soundfonts", true);
--		SetValueForKey("Path", "/usr/local/share/games/" GAME_DIR "/soundfonts", true);
--		SetValueForKey("Path", "/usr/share/" GAME_DIR "/soundfonts", true);
--		SetValueForKey("Path", "/usr/share/games/" GAME_DIR "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/" GAMENAMELOWERCASE "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/games/" GAMENAMELOWERCASE "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/" GAMENAMELOWERCASE "/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/games/" GAMENAMELOWERCASE "/soundfonts", true);
 -#endif
 +		SetValueForKey ("Path", "$PROGDIR/soundfonts", true);
 +		SetValueForKey ("Path", "/usr/share/soundfonts", true);
@@ -130,9 +143,9 @@ diff -ru a/source/core/gameconfigfile.cpp b/source/core/gameconfigfile.cpp
  
  	// Add some self-documentation.
 diff -ru a/source/core/version.h b/source/core/version.h
---- a/source/core/version.h	2022-12-06 18:52:59.192553443 +0000
-+++ b/source/core/version.h	2022-12-07 06:34:19.581072917 +0000
-@@ -84,7 +84,7 @@
+--- a/source/core/version.h	2022-12-11 22:50:10.330700208 +0000
++++ b/source/core/version.h	2022-12-12 00:17:24.907349469 +0000
+@@ -86,7 +86,7 @@
  #if defined(__APPLE__) || defined(_WIN32)
  #define GAME_DIR GAMENAME
  #else

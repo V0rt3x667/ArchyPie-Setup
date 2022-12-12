@@ -112,25 +112,35 @@ function _add_games_raze() {
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "cryptic.ini" ]]; then
                 # Add Blood: Cryptic Passage
-                # The "-cryptic" Flag Load Order is Borked, Hence This Long Winded Workaround. See [BUG] -cryptic flag is borked on Linux. #777
-                addPort "${md_id}" "${game##*/}" "${games[$game]}" "${cmd} -iwad blood.rff -con cryptic.ini -art cpart07.ar_ -art cpart15.ar_" "${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-cryptic"
             elif [[ "${game##*/}" == "game66.con" ]]; then
                 # Add Redneck Rampage: Suckin' Grits on Route 66
-                addPort "${md_id}" "${game##*/}" "${games[$game]}" "${cmd} -route66" "${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-route66"
             elif [[ "${game##*/}" != "cryptic.ini" ]] && [[ "${game##*/}" != "game66.con" ]]; then
                 # Add Games Which Do Not Require Additional Parameters
-                addPort "${md_id}" "${game##*/}" "${games[$game]}" "${cmd} -iwad %ROM%" "${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad ${game##*/}"
                 # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
-                addEmulator 0 "${md_id}-addon" "${game##*/}" "${cmd} -iwad %ROM% -file ${romdir}/ports/${portname}/addons/misc/*"
+                addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
             fi  
         fi
     done
+
+    if [[ "${md_mode}" == "install" ]]; then
+        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments.
+        cat > "${md_inst}/${md_id}.sh" << _EOF_
+#!/bin/bash
+${cmd} \$*
+_EOF_
+        chmod +x "${md_inst}/${md_id}.sh"
+    fi
 }
 
 function configure_raze() {
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'duke3d/duke'
+            'duke3d/duke/addons'
+            'duke3d/duke/addons/misc'
             'duke3d/nam'
             'duke3d/ww2gi'
             'raze/addons'
