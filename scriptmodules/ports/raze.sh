@@ -35,6 +35,7 @@ function sources_raze() {
     gitPullOrClone
     _sources_zmusic
 
+    # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
@@ -43,13 +44,13 @@ function build_raze() {
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
         -DINSTALL_PK3_PATH="${md_inst}" \
-        -DDYN_GTK=OFF \
-        -DDYN_OPENAL=OFF \
+        -DDYN_GTK="OFF" \
+        -DDYN_OPENAL="OFF" \
         -DZMUSIC_INCLUDE_DIR="${md_build}/zmusic/include" \
         -DZMUSIC_LIBRARIES="${md_build}/zmusic/source/libzmusic.so" \
         -Wno-dev
