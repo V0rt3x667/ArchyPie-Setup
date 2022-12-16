@@ -20,8 +20,8 @@ function depends_augustus() {
         'cmake'
         'libpng'
         'ninja'
-        'sdl2'
         'sdl2_mixer'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
