@@ -31,9 +31,7 @@ function install_lr-prboom() {
 function _game_data_lr-prboom() {
     local dest="${romdir}/ports/doom"
 
-    if [[ -f "${dest}/doom1/doom1.wad" || -f "${dest}/doom1/DOOM1.WAD" ]]; then
-        return
-    else
+    if [[ ! -f "${dest}/doom1/doom1.wad" ]] && [[ ! -f "${dest}/doom1/DOOM1.WAD" ]]; then
         # Download DOOM Shareware
         download "${__archive_url}/doom1.wad" "${dest}/doom1/doom1.wad"
     fi
@@ -60,24 +58,6 @@ function _add_games_lr-prboom() {
         ['freedoom/freedoom1.wad']="Freedoom: Phase I"
         ['freedoom/freedoom2.wad']="Freedoom: Phase II"
     )
-    if [[ "${md_id}" == "gzdoom" ]] || [[ "${md_id}" == "lzdoom" ]]; then
-        games+=(
-            ['addons/bloom/bloom.pk3']="Doom II: Bloom"
-            ['addons/brutal/brutal.pk3']="Doom: Brutal Doom"
-            ['addons/brutal/brutality.pk3']="Doom: Project Brutality"
-            ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
-            ['addons/sigil/sigil.wad']="Doom: SIGIL"
-            ['addons/strain/strainfix.wad']="Doom II: Strain"
-            ['chex/chex.wad']="Chex Quest"
-            ['chex/chex2.wad']="Chex Quest 2"
-            ['chex/chex3.wad']="Chex Quest 3"
-            ['hacx/hacx.wad']="HacX"
-            ['heretic/heretic.wad']="Heretic: Shadow of the Serpent Riders"
-            ['heretic/hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
-            ['heretic/hexen.wad']="Hexen: Beyond Heretic"
-            ['strife/strife1.wad']="Strife: Quest for the Sigil"
-        )
-    fi
 
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
@@ -89,32 +69,9 @@ function _add_games_lr-prboom() {
             popd || return
         fi
         if [[ -f "${dir}/${game##*/}" ]]; then
-            if [[ "${md_id}" == "lr-prboom" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
-            fi            
-            if [[ "${game##*/}" == "sigil.wad" ]] && [[ -f "${dir}/sigil_shreds.wad" ]]; then
-                # Add Sigil & Buckethead Soundtrack if Available
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM% -file ${dir}/sigil_shreds.wad" "${game##*/}"            
-            elif [[ "${game##*/}" == "sigil.wad" ]] && [[ ! -f "${dir}/sigil_shreds.wad" ]]; then
-                # Add Sigil
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"            
-            elif [[ "${game##*/}" == "bloom.wad" ]]; then
-                # Add Bloom
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"            
-            elif [[ "${game##*/}" == "strainfix.wad" ]]; then
-                # Add Strain
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"    
-            elif [[ "${game##*/}" =~ "brutal" ]]; then
-                # Add Project Brutality and Other "Brutality" Mods if Available
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -file %ROM%" "${game##*/}"
-            else
-                # Add Games Which Do Not Require Additional Parameters
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
-                # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
-                addEmulator 0 "${md_id}-addon" "${portname}" "${games[$game]}" "${cmd} -file ${romdir}/ports/${portname}/addons/misc/*" "${game##*/}"
-            fi
+            addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
         fi
-    done 
+    done
 }
 
 function configure_lr-prboom() {
@@ -124,8 +81,9 @@ function configure_lr-prboom() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${portname}"
         mkUserDir "${biosdir}/${portname}"
+        cp "${md_inst}/prboom.wad" "${biosdir}/${portname}"
+        chown -R "${user}:${user}" "${biosdir}/${portname}"
         _game_data_lr-prboom
-        cp "${md_inst}/prboom.wad" "${biosdir}/${portname}/"
     fi
 
     setConfigRoot "ports"

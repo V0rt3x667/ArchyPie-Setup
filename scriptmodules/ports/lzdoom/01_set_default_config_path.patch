@@ -1,0 +1,151 @@
+diff -ru a/src/d_iwad.cpp b/src/d_iwad.cpp
+--- a/src/d_iwad.cpp	2022-12-14 22:31:26.408666393 +0000
++++ b/src/d_iwad.cpp	2022-12-15 01:48:43.988173439 +0000
+@@ -705,8 +705,8 @@
+ 					  "2. Edit your ~/Library/Preferences/" GAMENAMELOWERCASE ".ini and add the directories\n"
+ 					  "of your iwads to the list beneath [IWADSearch.Directories]");
+ #else
+-					  "1. Place one or more of these wads in ~/.config/" GAMENAMELOWERCASE "/.\n"
+-					  "2. Edit your ~/.config/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
++					  "1. Place one or more of these wads in ~/ArchyPie/roms/ports/doom" "/.\n"
++					  "2. Edit your ~/ArchyPie/configs/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
+ 					  "iwads to the list beneath [IWADSearch.Directories]");
+ #endif
+ 	}
+diff -ru a/src/gameconfigfile.cpp b/src/gameconfigfile.cpp
+--- a/src/gameconfigfile.cpp	2022-12-14 22:31:26.424666722 +0000
++++ b/src/gameconfigfile.cpp	2022-12-15 14:35:52.250474795 +0000
+@@ -127,78 +127,36 @@
+ 	if (!SetSection ("IWADSearch.Directories"))
+ 	{
+ 		SetSection ("IWADSearch.Directories", true);
+-		SetValueForKey ("Path", ".", true);
+-		SetValueForKey ("Path", "$DOOMWADDIR", true);
+-#ifdef __APPLE__
+-		SetValueForKey ("Path", user_docs, true);
+-		SetValueForKey ("Path", user_app_support, true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", local_app_support, true);
+-#elif !defined(__unix__)
+-		SetValueForKey ("Path", "$HOME", true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-#else
+-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+-		// Arch Linux likes them in /usr/share/doom
+-		// Debian likes them in /usr/share/games/doom
+-		// I assume other distributions don't do anything radically different
+-		SetValueForKey ("Path", "/usr/local/share/doom", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/doom", true);
+-		SetValueForKey ("Path", "/usr/share/doom", true);
+-		SetValueForKey ("Path", "/usr/share/games/doom", true);
+-#endif
++		SetValueForKey ("Path", "$DOOMWADDIR/doom1", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/doom2", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/chex", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/finaldoom", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/freedoom", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/hacx", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/heretic", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/strife", true);
++
+ 	}
+ 
+ 	// Set default search paths if none present
+ 	if (!SetSection ("FileSearch.Directories"))
+ 	{
+ 		SetSection ("FileSearch.Directories", true);
+-#ifdef __APPLE__
+-		SetValueForKey ("Path", user_docs, true);
+-		SetValueForKey ("Path", user_app_support, true);
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-		SetValueForKey ("Path", local_app_support, true);
+-#elif !defined(__unix__)
+-		SetValueForKey ("Path", "$PROGDIR", true);
+-#else
+-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+-		SetValueForKey ("Path", SHARE_DIR, true);
+-		SetValueForKey ("Path", "/usr/local/share/doom", true);
+-		SetValueForKey ("Path", "/usr/local/share/games/doom", true);
+-		SetValueForKey ("Path", "/usr/share/doom", true);
+-		SetValueForKey ("Path", "/usr/share/games/doom", true);
+-#endif
+-		SetValueForKey ("Path", "$DOOMWADDIR", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/addons", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/addons/bloom", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/addons/brutal", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/addons/sigil", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/addons/strain", true);
+ 	}
+ 
+ 	// Set default search paths if none present
+ 	if (!SetSection("SoundfontSearch.Directories"))
+ 	{
+ 		SetSection("SoundfontSearch.Directories", true);
+-#ifdef __APPLE__
+-		SetValueForKey("Path", user_docs + "/soundfonts", true);
+-		SetValueForKey("Path", user_docs + "/fm_banks", true);
+-		SetValueForKey("Path", user_app_support + "/soundfonts", true);
+-		SetValueForKey("Path", user_app_support + "/fm_banks", true);
+-		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
+-		SetValueForKey("Path", "$PROGDIR/fm_banks", true);
+-		SetValueForKey("Path", local_app_support + "/soundfonts", true);
+-		SetValueForKey("Path", local_app_support + "/fm_banks", true);
+-#elif !defined(__unix__)
+-		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
+-		SetValueForKey("Path", "$PROGDIR/fm_banks", true);
+-#else
+-		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
+-		SetValueForKey("Path", "$HOME/" GAME_DIR "/fm_banks", true);
+-		SetValueForKey("Path", "/usr/local/share/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/doom/fm_banks", true);
+-		SetValueForKey("Path", "/usr/local/share/games/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/local/share/games/doom/fm_banks", true);
+-		SetValueForKey("Path", "/usr/share/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/doom/fm_banks", true);
+-		SetValueForKey("Path", "/usr/share/games/doom/soundfonts", true);
+-		SetValueForKey("Path", "/usr/share/games/doom/fm_banks", true);
+-#endif
++		SetValueForKey ("Path", "$PROGDIR/soundfonts", true);
++		SetValueForKey ("Path", "$PROGDIR/fm_banks", true);
++		SetValueForKey ("Path", "/usr/share/soundfonts", true);
++		SetValueForKey ("Path", "/usr/share/fm_banks", true);
+ 	}
+ 
+ 	// Add some self-documentation.
+diff -ru a/src/posix/unix/i_specialpaths.cpp b/src/posix/unix/i_specialpaths.cpp
+--- a/src/posix/unix/i_specialpaths.cpp	2022-12-14 22:31:26.484667958 +0000
++++ b/src/posix/unix/i_specialpaths.cpp	2022-12-15 01:37:37.207564755 +0000
+@@ -110,7 +110,7 @@
+ {
+ 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
+ 	// share the node cache.
+-	FString path = NicePath("$HOME/.config/" GAMENAMELOWERCASE);
++	FString path = NicePath("$HOME/" GAME_DIR);
+ 	if (create)
+ 	{
+ 		CreatePath(path);
+@@ -130,7 +130,7 @@
+ {
+ 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
+ 	// share the node cache.
+-	FString path = NicePath("$HOME/.config/zdoom/cache");
++	FString path = NicePath("$HOME/" GAME_DIR "/cache");
+ 	if (create)
+ 	{
+ 		CreatePath(path);
+diff -ru a/src/version.h b/src/version.h
+--- a/src/version.h	2022-12-14 22:31:26.535669008 +0000
++++ b/src/version.h	2022-12-15 01:32:16.133766443 +0000
+@@ -97,11 +97,6 @@
+ #define FORUM_URL "http://forum.zdoom.org/"
+ #define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"
+ 
+-#if defined(__APPLE__) || defined(_WIN32)
+-#define GAME_DIR GAMENAME
+-#else
+-#define GAME_DIR ".config/" GAMENAMELOWERCASE
+-#endif
+-
++#define GAME_DIR "ArchyPie/configs/" GAMENAMELOWERCASE
+ 
+ #endif //__VERSION_H__

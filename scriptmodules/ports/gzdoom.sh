@@ -37,11 +37,14 @@ function sources_gzdoom() {
     gitPullOrClone
     _sources_zmusic
 
+    # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
 function _sources_zmusic() {
+    local tag 
     tag="$(_get_branch_zmusic)"
+
     gitPullOrClone "${md_build}/zmusic" "https://github.com/coelckers/ZMusic" "${tag}"
 
     # Fix Soundfonts Path
@@ -99,6 +102,81 @@ function install_gzdoom() {
     cp -Pv "${md_build}"/zmusic/source/*.so* "${md_inst}/lib"
 }
 
+function _add_games_gzdoom() {
+    local cmd="$1"
+    local dir
+    local game
+    local portname
+    declare -A games=(
+        ['doom1/doom.wad']="Doom: The Ultimate Doom"
+        ['doom1/doom1.wad']="Doom (Shareware)"
+        ['doom1/doomu.wad']="Doom: The Ultimate Doom"
+        ['doom2/doom2.wad']="Doom II: Hell on Earth"
+        ['doom2/masterlevels.wad']="Doom II: Master Levels"
+        ['finaldoom/plutonia.wad']="Final Doom: The Plutonia Experiment"
+        ['finaldoom/tnt.wad']="Final Doom: TNT: Evilution"
+        ['freedoom/freedoom1.wad']="Freedoom: Phase I"
+        ['freedoom/freedoom2.wad']="Freedoom: Phase II"
+        ['addons/bloom/bloom.pk3']="Doom II: Bloom"
+        ['addons/brutal/brutal.pk3']="Doom: Brutal Doom"
+        ['addons/brutal/brutality.pk3']="Doom: Project Brutality"
+        ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
+        ['addons/sigil/sigil.wad']="Doom: SIGIL"
+        ['addons/strain/strainfix.wad']="Doom II: Strain"
+        ['chex/chex.wad']="Chex Quest"
+        ['chex/chex2.wad']="Chex Quest 2"
+        ['chex/chex3.wad']="Chex Quest 3"
+        ['hacx/hacx.wad']="HacX"
+        ['heretic/heretic.wad']="Heretic: Shadow of the Serpent Riders"
+        ['heretic/hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
+        ['heretic/hexen.wad']="Hexen: Beyond Heretic"
+        ['strife/strife1.wad']="Strife: Quest for the Sigil"
+        )
+
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    for game in "${!games[@]}"; do
+        portname="doom"
+        dir="${romdir}/ports/${portname}/${game%/*}"
+        if [[ "${md_mode}" == "install" ]]; then
+            pushd "${dir}" || return
+            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+            popd || return
+        fi
+        if [[ -f "${dir}/${game##*/}" ]]; then
+            if [[ "${game##*/}" == "sigil.wad" ]] && [[ -f "${dir}/sigil_shreds.wad" ]]; then
+                # Add Sigil & Buckethead Soundtrack if Available
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file sigil.wad -file ${dir}/sigil_shreds.wad"          
+            elif [[ "${game##*/}" == "sigil.wad" ]] && [[ ! -f "${dir}/sigil_shreds.wad" ]]; then
+                # Add Sigil
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/}" 
+            elif [[ "${game##*/}" == "bloom.wad" ]]; then
+                # Add Bloom
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"         
+            elif [[ "${game##*/}" == "strainfix.wad" ]]; then
+                # Add Strain
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
+            elif [[ "${game##*/}" =~ "brutal" ]]; then
+                # Add Project Brutality and Other "Brutality" Mods if Available
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad * -file ${game##*/}"
+            else
+                # Add Games Which Do Not Require Additional Parameters
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad ${game##*/}"
+                # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
+                addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
+            fi
+        fi
+    done
+
+    if [[ "${md_mode}" == "install" ]]; then
+        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments.
+        cat > "${md_inst}/${md_id}.sh" << _EOF_
+#!/bin/bash
+${cmd} \$*
+_EOF_
+        chmod +x "${md_inst}/${md_id}.sh"
+    fi
+}
+
 function configure_gzdoom() {
     local portname
     portname=doom
@@ -131,5 +209,5 @@ function configure_gzdoom() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
     local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}"
-    _add_games_lr-prboom "${launcher_prefix} ${md_inst}/${md_id} +vid_renderer 1 +vid_fullscreen 1 -iwad %ROM%"
+    _add_games_gzdoom "${launcher_prefix} ${md_inst}/${md_id} +vid_renderer 1 +vid_fullscreen 1"
 }
