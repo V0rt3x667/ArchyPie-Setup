@@ -5,12 +5,12 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="openbor"
-rp_module_desc="OpenBOR - Beat 'Em Up Game Engine"
-rp_module_help="Copy your .pak files to: $romdir/ports/openbor"
+rp_module_desc="OpenBOR: Beat 'Em Up Game Engine"
+rp_module_help="Copy .pak Files to: ${romdir}/ports/openbor"
 rp_module_licence="BSD https://raw.githubusercontent.com/DCurrent/openbor/master/LICENSE"
 rp_module_repo="git https://github.com/DCurrent/openbor.git master"
 rp_module_section="exp"
-rp_module_flags="sdl2 !mali"
+rp_module_flags="!mali"
 
 function depends_openbor() {
     local depends=(
@@ -25,21 +25,23 @@ function depends_openbor() {
 
 function sources_openbor() {
     gitPullOrClone
+
     # Fix Locale Warning
-    sed 's|en_US.UTF-8|C|g' -i "$md_build/engine/version.sh"
+    sed -e "s|en_US.UTF-8|C|g" -i "${md_build}/engine/version.sh"
+
     # Disable Abort On Warnings & Errors
-    sed 's|-Werror||g' -i "$md_build/engine/Makefile"
+    sed -e "s|-Werror||g" -i "${md_build}/engine/Makefile"
 }
 
 function build_openbor() {
-    cd "$md_build/engine"
+    cd "${md_build}/engine"
     ./version.sh
     ./build.sh 4
 
-    cd "$md_build/tools/borpak/source"
+    cd "${md_build}/tools/borpak/source"
     chmod a+x ./build.sh
     ./build.sh lin
-    md_ret_require="$md_build/engine/releases/LINUX/OpenBOR/OpenBOR"
+    md_ret_require="${md_build}/engine/releases/LINUX/OpenBOR/OpenBOR"
 }
 
 function install_openbor() {
@@ -50,46 +52,46 @@ function install_openbor() {
 }
 
 function configure_openbor() {
-    addPort "$md_id" "openbor" "OpenBOR: Beats of Rage Engine" "$md_inst/openbor.sh"
-
-    mkRomDir "ports/$md_id"
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
-
-    cat >"$md_inst/openbor.sh" << _EOF_
+    if [[ "${md_mode}" == "install" ]]; then
+        cat >"${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
-pushd "$md_inst"
-./OpenBOR -fullscreen -keepaspectratio "\$@"
+pushd "${md_inst}"
+./OpenBOR "\$@"
 popd
 _EOF_
-    chmod +x "$md_inst/openbor.sh"
+        chmod +x "${md_inst}/${md_id}.sh"
 
-    cat >"$md_inst/extract.sh" <<_EOF_
+        cat >"${md_inst}/extract.sh" <<_EOF_
 #!/bin/bash
-PORTDIR="$md_inst"
-BORROMDIR="$romdir/ports/$md_id"
+PORTDIR="${md_inst}"
+BORROMDIR="${romdir}/ports/${md_id}"
 mkdir \$BORROMDIR/original/
 mkdir \$BORROMDIR/original/borpak/
 mv \$BORROMDIR/*.pak \$BORROMDIR/original/
 cp \$PORTDIR/borpak \$BORROMDIR/original/borpak/
 cd \$BORROMDIR/original/
-for i in *.pak
-do
-  CURRENTFILE=\`basename "\$i" .pak\`
-  \$BORROMDIR/original/borpak/borpak "\$i"
-  mkdir "\$CURRENTFILE"
-  mv data/ "\$CURRENTFILE"/
-  mv "\$CURRENTFILE"/ ../
+for i in *.pak; do
+    CURRENTFILE=\`basename "\$i" .pak\`
+    \$BORROMDIR/original/borpak/borpak "\$i"
+    mkdir "\$CURRENTFILE"
+    mv data/ "\$CURRENTFILE"/
+    mv "\$CURRENTFILE"/ ../
 done
 
 echo "Your games are extracted and ready to be played. Your originals are stored safely in $BORROMDIR/original/ but they won't be needed anymore. Everything within it can be deleted."
 _EOF_
-    chmod +x "$md_inst/extract.sh"
+        chmod +x "${md_inst}/extract.sh"
 
-    local dir
-    for dir in ScreenShots Logs Saves; do
-        mkUserDir "$md_conf_root/$md_id/$dir"
-        ln -snf "$md_conf_root/$md_id/$dir" "$md_inst/$dir"
-    done
+        local dir
+        for dir in ScreenShots Logs Saves; do
+            mkUserDir "${md_conf_root}/${md_id}/${dir}"
+            ln -snf "${md_conf_root}/${md_id}/${dir}" "${md_inst}/${dir}"
+        done
 
-    ln -snf "$romdir/ports/$md_id" "$md_inst/Paks"
+        ln -snf "${romdir}/ports/${md_id}" "${md_inst}/Paks"
+    fi
+
+    addPort "${md_id}" "${md_id}" "OpenBOR: Beats of Rage Engine" "${md_inst}/${md_id}.sh"
+
+    mkRomDir "ports/${md_id}"
 }
