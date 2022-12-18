@@ -54,7 +54,8 @@ function _build_surgescript() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DWANT_SHARED="ON" \
-        -DWANT_STATIC="OFF"
+        -DWANT_STATIC="OFF" \
+        -Wno-dev
     ninja -C surgescript clean
     ninja -C surgescript
     md_ret_require="${md_build}/surgescript/surgescript"
