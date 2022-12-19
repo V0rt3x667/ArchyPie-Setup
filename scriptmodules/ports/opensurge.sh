@@ -91,7 +91,7 @@ function install_opensurge() {
 }
 
 function configure_opensurge() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
     addPort "${md_id}" "${md_id}" "Open Surge" "${md_inst}/bin/${md_id} --fullscreen"
 }
