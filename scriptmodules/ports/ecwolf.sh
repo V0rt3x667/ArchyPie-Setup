@@ -22,8 +22,8 @@ function depends_ecwolf() {
         'libvorbis'
         'ninja'
         'opusfile'
-        'sdl2'
         'sdl2_net'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -44,12 +44,12 @@ function build_ecwolf() {
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DGPL=ON \
-        -DNO_GTK=ON \
-        -DINTERNAL_SDL_MIXER=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DGPL="ON" \
+        -DNO_GTK="ON" \
+        -DINTERNAL_SDL_MIXER="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -72,14 +72,14 @@ function configure_ecwolf() {
 
     if [[ "${md_mode}" == "install" ]]; then
         local config
-    
+
         # Set Default Settings
         config="$(mktemp)"
         iniConfig " = " "" "${config}"
         iniSet "BaseDataPaths" "\"${romdir}/ports/${portname}\";"
         iniSet "Vid_FullScreen" "1;"
         iniSet "Vid_Vsync" "1;"
-    
+
         copyDefaultConfig "${config}" "${md_conf_root}/${portname}/${md_id}/ecwolf.cfg"
         rm "${config}"
     fi
