@@ -17,9 +17,6 @@ function depends_splitwolf() {
 
 function sources_splitwolf() {
     gitPullOrClone
-
-    # Set Default Config Path(s)
-    #sed -e "s|#define WOLFDIR \"/.wolf4sdl\"|#define WOLFDIR \"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/wl_menu.cpp"
 }
 
 function _get_opts_splitwolf() {
