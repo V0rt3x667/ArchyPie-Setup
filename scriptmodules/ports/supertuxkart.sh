@@ -5,10 +5,14 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="supertuxkart"
-rp_module_desc="SuperTuxKart - 3D Kart Racing Game Featuring Tux & Friends"
+rp_module_desc="SuperTuxKart: 3D Kart Racing Game Featuring Tux & Friends"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/supertuxkart/stk-code/master/COPYING"
-rp_module_repo="git https://github.com/supertuxkart/stk-code.git master"
+rp_module_repo="git https://github.com/supertuxkart/stk-code.git :_get_branch_supertuxkart"
 rp_module_section="opt"
+
+function _get_branch_supertuxkart() {
+    download "https://api.github.com/repos/${md_id}/stk-code/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+}
 
 function depends_supertuxkart() {
     local depends=(
@@ -24,7 +28,7 @@ function depends_supertuxkart() {
         'libraqm'
         'libvorbis'
         'libvpx'
-        'libxkbcommon-x11'
+        'libxkbcommon'
         'mcpp'
         'mesa-libgl'
         'mesa'
@@ -40,23 +44,29 @@ function depends_supertuxkart() {
 }
 
 function sources_supertuxkart() {
-    gitPullOrClone "$md_build/stk-code"
-    svn checkout https://svn.code.sf.net/p/supertuxkart/code/stk-assets "$md_build/stk-assets"
+    local ver
+    ver="$(_get_branch_supertuxkart)"
+
+    downloadAndExtract "https://github.com/${md_id}/stk-code/releases/download/${ver}/${md_id}-${ver}-src.tar.xz" "${md_build}" --strip-components 1
+
+    # Set Default Config Path(s)
+    sed -e "s|\".local/share\",|\"ArchyPie/configs\",|g" -i "${md_build}/src/io/file_manager.cpp"
+    sed -e "s|m_user_config_dir += \"/.config\";|m_user_config_dir += \"/ArchyPie/configs\";|g" -i "${md_build}/src/io/file_manager.cpp"
+    sed -e "s|find \"\$HOME/.config/${md_id}\"|find \"\$HOME/ArchyPie/configs/${md_id}\"|g" -i "${md_build}/tools/run_server.sh"
 }
 
 function build_supertuxkart() {
     cmake . \
-        -Sstk-code \
-        -GNinja \
         -Bbuild \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DBUILD_RECORDER=0 \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DBUILD_RECORDER="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="$md_build/build/bin/supertuxkart"
+    md_ret_require="${md_build}/build/bin/${md_id}"
 }
 
 function install_supertuxkart() {
@@ -64,7 +74,7 @@ function install_supertuxkart() {
 }
 
 function configure_supertuxkart() {
-    addPort "$md_id" "supertuxkart" "SuperTuxKart" "$md_inst/bin/supertuxkart -f"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
-    moveConfigDir "$home/.local/share/supertuxkart" "$md_conf_root/supertuxkart"
+    addPort "${md_id}" "${md_id}" "SuperTuxKart" "${md_inst}/bin/${md_id} --fullscreen"
 }
