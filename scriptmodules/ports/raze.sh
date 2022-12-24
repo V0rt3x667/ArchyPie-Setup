@@ -139,9 +139,9 @@ _EOF_
 function configure_raze() {
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
+            'duke3d/addons'
+            'duke3d/addons/misc'
             'duke3d/duke'
-            'duke3d/duke/addons'
-            'duke3d/duke/addons/misc'
             'duke3d/nam'
             'duke3d/ww2gi'
             'raze/addons'
