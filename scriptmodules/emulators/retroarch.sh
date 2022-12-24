@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch: Libretro Frontend (Required By All lr-* Cores)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/Libretro/RetroArch v1.13.0"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.14.0"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -372,10 +372,10 @@ function keyboard_retroarch() {
 
 function hotkey_retroarch() {
     iniConfig " = " '"' "${configdir}/all/${md_id}.cfg"
-    local cmd=(dialog --backtitle "${__backtitle}" --menu "Choose the Desired Hotkey Behaviour." 22 76 16)
+    local cmd=(dialog --backtitle "${__backtitle}" --menu "Choose The Desired Hotkey Behaviour" 22 76 16)
     local options=(1 "Hotkeys Enabled (Default)"
-             2 "Press ALT to Enable Hotkeys"
-             3 "Hotkeys Disabled. Press ESCAPE to Open RGUI")
+             2 "Press ALT To Enable Hotkeys"
+             3 "Hotkeys Disabled. Press ESCAPE To Open RGUI")
     local choice 
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     if [[ -n "${choice}" ]]; then
