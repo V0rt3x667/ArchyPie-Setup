@@ -11,7 +11,8 @@ rp_module_repo="git https://github.com/libretro/tyrquake.git master"
 rp_module_section="opt"
 
 function depends_lr-tyrquake() {
-    getdepends perl-rename
+    local depends=('perl-rename')
+    getDepends "${depends[@]}"
 }
 
 function sources_lr-tyrquake() {
@@ -21,7 +22,7 @@ function sources_lr-tyrquake() {
 function build_lr-tyrquake() {
     make clean
     make
-    md_ret_require="$md_build/tyrquake_libretro.so"
+    md_ret_require="${md_build}/tyrquake_libretro.so"
 }
 
 function install_lr-tyrquake() {
@@ -34,17 +35,23 @@ function install_lr-tyrquake() {
 }
 
 function _game_data_lr-tyrquake() {
-    if [[ ! -f "$romdir/ports/quake/id1/pak0.pak" ]]; then
-        getDepends lhasa
-        local temp="$(mktemp -d)"
-        # Download, unpack & install Quake shareware files.
-        downloadAndExtract "$__archive_url/quake106.zip" "$temp"
-        pushd "$temp"
+    local portname
+    portname="quake"
+
+    if [[ ! -f "${romdir}/ports/${portname}/id1/pak0.pak" ]]; then
+        local temp
+        temp="$(mktemp -d)"
+
+        local depends=('lhasa')
+        getDepends "${depends[@]}"
+
+        downloadAndExtract "${__archive_url}/quake106.zip" "${temp}"
+        pushd "${temp}" || exit
         lha ef resource.1
-        cp -rf id1 "$romdir/ports/quake/"
-        popd
-        rm -rf "$temp"
-        chown -R "$user:$user" "$romdir/ports/quake"
+        cp -rf id1 "${romdir}/ports/${portname}/"
+        popd || exit
+        rm -rf "${temp}"
+        chown -R "${user}:${user}" "${romdir}/ports/${portname}"
     fi
 }
 
@@ -52,6 +59,7 @@ function _add_games_lr-tyrquake() {
     local cmd="$1"
     local dir
     local game
+    local portname
     declare -A games=(
         ['id1/pak0.pak']="Quake"
         ['hipnotic/pak0.pak']="Quake: Mission Pack 1: Scourge of Armagon"
@@ -59,34 +67,48 @@ function _add_games_lr-tyrquake() {
         ['dopa/pak0.pak']="Quake: Episode 5: Dimensions of the Past"
     )
 
-    # Create .sh files for each game found. Uppercase filenames will be converted to lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
-        dir="$romdir/ports/quake"
-        pushd "$dir/${game%%/*}"
-        perl-rename 'y/A-Z/a-z/' [^.-]*
-        popd
-        if [[ -f "$dir/$game" ]]; then
-            if isPlatform "rpi4"; then
-                if [[ "$cmd" =~ "darkplaces-sdl-gles" ]]; then
-                    addPort "$md_id-gles" "quake" "${games[$game]}" "$cmd" "$dir/$game"
-                else
-                    addPort "$md_id" "quake" "${games[$game]}" "$cmd" "$dir/$game"
-                fi
+        portname="quake"
+        dir="${romdir}/ports/${portname}/${game%/*}"
+        if [[ "${md_mode}" == "install" ]]; then
+            pushd "${dir}" || return
+            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+            popd || return
+        fi
+        if [[ -f "${dir}/${game##*/}" ]]; then
+            if [[ "${cmd}" =~ "darkplaces-sdl-gles" ]]; then
+                addPort "${md_id}-gles" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
+            elif [[ "${md_id}" == "lr-tyrquake" ]]; then
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${dir}/${game##*/}"
             else
-                addPort "$md_id" "quake" "${games[$game]}" "$cmd" "$dir/$game"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
             fi
         fi
     done
 }
 
 function configure_lr-tyrquake() {
-    setConfigRoot "ports"
-
-    mkRomDir "ports/quake"
-
-    defaultRAConfig "quake"
+    local portname
+    portname="quake"
 
     if [[ "$md_mode" == "install" ]]; then
-        _game_data_lr-tyrquake && _add_games_lr-tyrquake "$md_inst/tyrquake_libretro.so"
+        local dirs=(
+            'dopa'
+            'hipnotic'
+            'id1'
+            'rogue'
+        )
+        mkRomDir "ports/${portname}"
+        for dir in "${dirs[@]}"; do
+            mkRomDir "ports/${portname}/${dir}"
+        done
+        _game_data_lr-tyrquake
     fi
+
+    setConfigRoot "ports"
+
+    defaultRAConfig "${portname}"
+
+    _add_games_lr-tyrquake "${md_inst}/tyrquake_libretro.so"
 }
