@@ -5,14 +5,14 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="vvvvvv"
-rp_module_desc="VVVVVV - 2D Puzzle Game"
+rp_module_desc="VVVVVV: A 2D Puzzle Game"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/TerryCavanagh/VVVVVV/master/LICENSE.md"
 rp_module_repo="git https://github.com/TerryCavanagh/VVVVVV master"
-rp_module_help="Copy data.zip from a purchased or Make and Play edition of VVVVVV to $romdir/ports/vvvvvv"
+rp_module_help="Copy data.zip From A Retail Or Make And Play Edition Of VVVVVV To: ${romdir}/ports/vvvvvv"
 rp_module_section="exp"
 
 function depends_vvvvvv() {
-        local depends=(
+    local depends=(
         'cmake'
         'ninja'
         'sdl2_mixer'
@@ -23,8 +23,14 @@ function depends_vvvvvv() {
 
 function sources_vvvvvv() {
     gitPullOrClone
-    # default to fullscreen
-    sed -i "s/fullscreen = false/fullscreen = true/" "$md_build/desktop_version/src/Game.cpp"
+
+    # Set Default Config Path(s)
+    applyPatch "${md_data}/01_set_default_config_path.patch"
+
+    # Set Fullscreen By Default
+    sed -e "s|_this->fullscreen = false;|_this->fullscreen = true;|g" -i "${md_build}/desktop_version/src/Screen.cpp"
+
+    curl -sSL "https://github.com/gabomdq/SDL_GameControllerDB/archive/refs/heads/master.zip" | bsdtar xvf - --strip-components=1 -C "${md_build}"
 }
 
 function build_vvvvvv() {
@@ -33,31 +39,32 @@ function build_vvvvvv() {
         -Sdesktop_version \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
     rpSwap off
-    md_ret_require="$md_build/build/VVVVVV"
+    md_ret_require="${md_build}/build/VVVVVV"
 }
 
 function install_vvvvvv() {
     md_ret_files=(
         'build/VVVVVV'
+        'gamecontrollerdb.txt'
         'LICENSE.md'
     )
 }
 
 function configure_vvvvvv() {
-    addPort "$md_id" "vvvvvv" "VVVVVV" "$md_inst/VVVVVV"
+    if [[ "$md_mode" == "install" ]]; then
+        mkRomDir "/ports/${md_id}"
+        # Symlink Game Data
+        ln -snf "${romdir}/ports/${md_id}/data.zip" "${md_inst}/data.zip"
+    fi
 
-    [[ "$md_mode" != "install" ]] && return
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
-    moveConfigDir "$home/.local/share/VVVVVV" "$md_conf_root/vvvvvv"
-
-    mkUserDir "$romdir/ports/$md_id"
-    # symlink game data
-    ln -snf "$romdir/ports/$md_id/data.zip" "$md_inst/data.zip"
+    addPort "${md_id}" "${md_id}" "VVVVVV" "${md_inst}/VVVVVV"
 }
