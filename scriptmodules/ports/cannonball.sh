@@ -27,7 +27,7 @@ function sources_cannonball() {
     # Set Default Config Path(s)
     sed -e "s|<rompath>roms/</rompath>|<rompath>${romdir}/ports/${md_id}/</rompath>|g" -i "${md_build}/res/config.xml"
     sed -e "s|<savepath>./</savepath>|<savepath>${romdir}/ports/${md_id}/hiscores/${md_id}/</savepath>|g" -i "${md_build}/res/config.xml"
-    
+
     # Set Fullscreen By Default
     sed -e "s|<mode>0</mode>|<mode>1</mode>|g" -i "${md_build}/res/config.xml"
 }
@@ -44,9 +44,9 @@ function build_cannonball() {
         -Scmake \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DTARGET="${target}" \
         -Wno-dev
     ninja -C build clean
@@ -68,12 +68,13 @@ function configure_cannonball() {
         mkRomDir "ports/${md_id}"
         mkRomDir "ports/${md_id}/hiscores"
         mkRomDir "ports/${md_id}/hiscores/${md_id}"
+        mkUserDir "${md_conf_root}/${md_id}"
 
         copyDefaultConfig "${md_inst}/config.xml" "${md_conf_root}/${md_id}/config.xml"
         copyDefaultConfig "${md_inst}/roms.txt" "${romdir}/ports/${md_id}/roms.txt"
     fi
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
-        
+
     addPort "${md_id}" "${md_id}" "Cannonball: OutRun Engine" "pushd ${md_inst}; ${md_inst}/${md_id} -cfgfile ${arpdir}/${md_id}/config.xml; popd"
 }
