@@ -19,15 +19,16 @@ function depends_alephone() {
     local depends=(
         'autoconf-archive'
         'boost-libs'
+        'boost'
         'ffmpeg'
         'glu'
         'libmad'
         'libvorbis'
         'miniupnpc'
-        'sdl2'
         'sdl2_image'
         'sdl2_net'
         'sdl2_ttf'
+        'sdl2'
         'speex'
         'zziplib'
     )
@@ -54,7 +55,7 @@ function install_alephone() {
 }
 
 function _game_data_alephone() {
-    local version 
+    local version
     local release_url
 
     version="$(_get_branch_alephone)"
@@ -76,8 +77,11 @@ function _game_data_alephone() {
 }
 
 function configure_alephone() {
-    [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${md_id}" && _game_data_alephone
-    
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "ports/${md_id}"
+        _game_data_alephone
+    fi
+
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon" "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon/"
