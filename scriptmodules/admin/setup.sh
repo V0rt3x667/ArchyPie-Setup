@@ -15,7 +15,7 @@ function _setup_gzip_log() {
 function rps_logInit() {
     if [[ ! -d "$__logdir" ]]; then
         if mkdir -p "$__logdir"; then
-            chown "$user:$user" "$__logdir"
+            chown "${user}:${user}" "$__logdir"
         else
             fatalError "Couldn't make directory $__logdir"
         fi
@@ -24,17 +24,17 @@ function rps_logInit() {
     # Remove all but the last 20 logs.
     find "$__logdir" -type f | sort | head -n -20 | xargs -d '\n' --no-run-if-empty rm
 
-    local now 
+    local now
     now=$(date +'%Y-%m-%d_%H%M%S')
     logfilename="$__logdir/rps_$now.log.gz"
     touch "$logfilename"
-    chown "$user:$user" "$logfilename"
+    chown "${user}:${user}" "$logfilename"
     time_start=$(date +"%s")
 }
 
 function rps_logStart() {
     echo -e "Log Started At: $(date -d @"$time_start")\n"
-    echo "ArchyPie-Setup Version: $__version ($(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:%h))"
+    echo "ArchyPie-Setup Version: $__version ($(sudo -u "${user}" git -C "$scriptdir" log -1 --pretty=format:%h))"
     echo "System: $__platform ($__platform_arch) - $__os_desc - $(uname -a)"
 }
 
@@ -64,22 +64,29 @@ function rps_printInfo() {
 }
 
 function depends_setup() {
-    # Check for VERSION file, if it does not exist the post_update script will be triggered.
-    if [[ ! -f "$rootdir/VERSION" ]]; then
+    # Check For "VERSION" File, If It Does Not Exist The "post_update" Function Will Be Triggered.
+    if [[ ! -f "${rootdir}/VERSION" ]]; then
         joy2keyStop
-        exec "$scriptdir/archypie_packages.sh" setup post_update gui_setup
+        exec "${scriptdir}/archypie_packages.sh" setup post_update gui_setup
     fi
 
-    # Set global __setup to 1 which is used to adjust package function behaviour if called from the setup GUI.
+    # Required For Use With "udev"
+    local group
+    group="input"
+    if ! hasFlag "$(groups "${user}")" "$group"; then
+        usermod -a -G "${group}" "${user}"
+    fi
+
+    # Set "__setup" To 1 Which Is Used To Adjust Package Function Behaviour If Called From The Setup GUI
     __setup=1
 
-    # Print any pending messages.
+    # Print Any Pending Messages
     rps_printInfo
 }
 
 function updatescript_setup() {
     clear
-    chown -R "$user:$user" "$scriptdir"
+    chown -R "${user}:${user}" "$scriptdir"
     printHeading "Fetching the latest version of the ArchyPie Setup Script."
     pushd "$scriptdir" >/dev/null || exit
     if [[ ! -d ".git" ]]; then
@@ -88,7 +95,7 @@ function updatescript_setup() {
         return 1
     fi
     local error
-    if ! error=$(sudo -u "$user" git pull --ff-only 2>&1 >/dev/null); then
+    if ! error=$(sudo -u "${user}" git pull --ff-only 2>&1 >/dev/null); then
         printMsgs "dialog" "Update Failed:\n\n$error"
         popd >/dev/null || exit
         return 1
@@ -406,7 +413,7 @@ function section_gui_setup() {
 
         local cmd=(dialog --colors --backtitle "$__backtitle" --cancel-label "Back" --item-help --help-button --default-item "$default" --menu "$status" 22 76 16)
 
-        local choice 
+        local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "$choice" ]] && break
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
@@ -483,7 +490,7 @@ function config_gui_setup() {
 
         local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --item-help --help-button --default-item "$default" --menu "Choose an option" 22 76 16)
 
-        local choice 
+        local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "$choice" ]] && break
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
@@ -526,7 +533,7 @@ function update_packages_setup() {
 }
 
 function check_connection_gui_setup() {
-    local ip 
+    local ip
     ip="$(getIPAddress)"
     if [[ -z "$ip" ]]; then
         printMsgs "dialog" "Sorry, you don't seem to be connected to the internet, so installing/updating is not available."
@@ -639,8 +646,8 @@ function gui_setup() {
     depends_setup
     local default
     while true; do
-        local commit 
-        commit=$(sudo -u "$user" git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
+        local commit
+        commit=$(sudo -u "${user}" git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
 
         cmd=(dialog --backtitle "$__backtitle" --title "ArchyPie-Setup Script" --cancel-label "Exit" --item-help --help-button --default-item "$default" --menu "Version: $__version - Last Commit: $commit\nSystem: $__platform ($__platform_arch) - Running On: $__os_desc" 22 76 16)
         options=(
