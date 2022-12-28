@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="cgenius"
-rp_module_desc="Commander Genius: Modern Interpreter for the Commander Keen Games (Vorticon and Galaxy Games)"
+rp_module_desc="Commander Genius: Modern Interpreter For The Commander Keen Games (Vorticon and Galaxy Games)"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/gerstrong/Commander-Genius/master/COPYRIGHT"
 rp_module_repo="git https://gitlab.com/Dringgstein/Commander-Genius.git :_get_branch_cgenius"
 rp_module_section="exp"
@@ -20,10 +20,10 @@ function depends_cgenius() {
         'curl'
         'ninja'
         'perl-rename'
-        'sdl2'
-        'sdl2_image' 
+        'sdl2_image'
         'sdl2_mixer'
         'sdl2_ttf'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -42,11 +42,11 @@ function build_cgenius() {
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DNOTYPESAVE=ON \
-        -DBUILD_COSMOS=1 \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DNOTYPESAVE="ON" \
+        -DBUILD_COSMOS="ON" \
         "${params[*]}" \
         -Wno-dev
     ninja -C build clean
@@ -102,7 +102,19 @@ _EOF_
 
 function configure_cgenius() {
     if [[ "${md_mode}" == "install" ]]; then
+        local dirs=(
+            'kdreams'
+            'keen1'
+            'keen2'
+            'keen3'
+            'keen4'
+            'keen5'
+            'keen6'
+        )
         mkRomDir "ports/${md_id}"
+        for dir in "${dirs[@]}"; do
+            mkRomDir "ports/${md_id}/${dir}"
+        done
     fi
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
