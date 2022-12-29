@@ -33,8 +33,8 @@ function sources_dhewm3() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|%s/.local/share/${md_id}|/ArchyPie/configs/${md_id}|g" -i "${md_build}/neo/sys/linux/main.cpp"
-    sed -e "s|%s/.config/${md_id}|/ArchyPie/configs/${md_id}|g" -i "${md_build}/neo/sys/linux/main.cpp"
+    sed -e "s|%s/.local/share/${md_id}|%s/ArchyPie/configs/${md_id}|g" -i "${md_build}/neo/sys/linux/main.cpp"
+    sed -e "s|%s/.config/${md_id}|%s/ArchyPie/configs/${md_id}|g" -i "${md_build}/neo/sys/linux/main.cpp"
 }
 
 function build_dhewm3() {
@@ -42,13 +42,13 @@ function build_dhewm3() {
         -Sneo \
         -GNinja \
         -Bbuild \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
-        -DREPRODUCIBLE_BUILD=1 \
-        -DD3XP=1 \
-        -DDEDICATED=1 \
+        -DREPRODUCIBLE_BUILD="ON" \
+        -DD3XP="ON" \
+        -DDEDICATED="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -85,10 +85,10 @@ function _add_games_dhewm3() {
         ['demo/demo00.pk4']="Doom3 (Demo)"
         ['d3xp/pak000.pk4']="Doom3: Resurrection of Evil"
     )
-    portname="doom3"
 
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
+        portname="doom3"
         dir="${romdir}/ports/${portname}"
         if [[ "${md_mode}" == "install" ]]; then
             pushd "${dir}/${game%%/*}" || return
@@ -106,10 +106,10 @@ function configure_dhewm3() {
     portname="doom3"
 
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ports/${portname}" 
+        mkRomDir "ports/${portname}"
         mkRomDir "ports/${portname}/base"
         mkRomDir "ports/${portname}/d3xp"
-        
+
         _game_data_dhewm3
     fi
 
