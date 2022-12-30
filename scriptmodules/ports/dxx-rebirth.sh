@@ -49,7 +49,8 @@ function build_dxx-rebirth() {
     else
         params+=('opengl=yes' 'sdl2=yes')
     fi
-    
+
+    export CPPFLAGS+=" -D_HAVE_STDINT_H"
     scons -c
     scons "${params[@]}" prefix="${md_inst}" -j"${__jobs}"
 
@@ -66,17 +67,17 @@ function install_dxx-rebirth() {
     mv -f "${md_build}/d2x-rebirth/RELEASE-NOTES.txt" "${md_build}/d2x-rebirth/D2X-RELEASE-NOTES.txt"
 
     md_ret_files=(
-        'COPYING.txt'
-        'GPL-3.txt'
         'build/d1x-rebirth/d1x-rebirth'
         'build/d2x-rebirth/d2x-rebirth'
+        'COPYING.txt'
         'd1x-rebirth/D1X-INSTALL.txt'
         'd1x-rebirth/D1X-RELEASE-NOTES.txt'
-        'd1x-rebirth/README.RPi'
         'd1x-rebirth/d1x.ini'
+        'd1x-rebirth/README.RPi'
         'd2x-rebirth/D2X-INSTALL.txt'
         'd2x-rebirth/D2X-RELEASE-NOTES.txt'
         'd2x-rebirth/d2x.ini'
+        'GPL-3.txt'
     )
 }
 
@@ -121,23 +122,23 @@ function configure_dxx-rebirth() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/descent1"
         mkRomDir "ports/descent2"
+        _game_data_dxx-rebirth
     fi
 
-    moveConfigDir "${arpdir}/ports/dxx1-rebirth" "${md_conf_root}/descent1/"
-    moveConfigDir "${arpdir}/ports/dxx2-rebirth" "${md_conf_root}/descent2/"
+    moveConfigDir "${arpdir}/dxx1-rebirth" "${md_conf_root}/descent1/"
+    moveConfigDir "${arpdir}/dxx2-rebirth" "${md_conf_root}/descent2/"
 
     addPort "${md_id}" "descent1" "Descent Rebirth" "${md_inst}/d1x-rebirth -hogdir ${romdir}/ports/descent1"
     addPort "${md_id}" "descent2" "Descent II Rebirth" "${md_inst}/d2x-rebirth -hogdir ${romdir}/ports/descent2"
 
     if [[ "${md_mode}" == "install" ]]; then
         if isPlatform "kms"; then
-            for ver in 1 2; do 
+            for ver in 1 2; do
                 config="${md_conf_root}/descent${ver}/descent.cfg"
                 iniConfig "=" '' "${config}"
                 iniSet "VSync" "1"
                 chown "${user}:${user}" "${config}"
             done
         fi
-        _game_data_dxx-rebirth
     fi
 }
