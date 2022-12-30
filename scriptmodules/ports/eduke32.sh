@@ -6,7 +6,7 @@
 
 rp_module_id="eduke32"
 rp_module_desc="EDuke32: Duke Nukem 3D, 'NAM & World War II GI Port"
-rp_module_help="ROM Extensions: .grp\n\nCopy Game Files to:\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/ww2gi"
+rp_module_help="Copy .grp Files To:\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/ww2gi"
 rp_module_licence="GPL2 https://voidpoint.io/terminx/eduke32/-/raw/master/package/common/gpl-2.0.txt?inline=false"
 rp_module_repo="git https://voidpoint.io/terminx/eduke32.git master"
 rp_module_section="opt"
@@ -19,8 +19,8 @@ function depends_eduke32() {
         'libvorbis'
         'libvpx'
         'perl-rename'
-        'sdl2'
         'sdl2_mixer'
+        'sdl2'
     )
     isPlatform "x86" && isPlatform "32bit" && depends+=('nasm')
     isPlatform "gl" || isPlatform "mesa" && depends+=('mesa' 'glu')
@@ -43,13 +43,14 @@ function build_eduke32() {
     local params=('LTO=1' 'SDL_TARGET=2' 'SDL_STATIC=0')
 
     [[ "${md_id}" == "ionfury" ]] && params+=('FURY=1')
-    ! isPlatform "x86" && params+=('NOASM=1')
+    ! isPlatform "x86" && ! isPlatform "32bit" && params+=('NOASM=1')
     ! isPlatform "x11" && params+=('HAVE_GTK2=0')
-    ! ( isPlatform "gl" || isPlatform "gles3" ) && params+=('POLYMER=0')
-    ! ( isPlatform "gl" || isPlatform "mesa" ) && params+=('USE_OPENGL=0')
+    ! isPlatform "x86" && params+=('POLYMER=0')
+    ! isPlatform "gl" || ! isPlatform "mesa" && params+=('USE_OPENGL=0')
 
+    export CFLAGS+=" -DSDL_USEFOLDER"
     make veryclean
-    CFLAGS+=" -DSDL_USEFOLDER" make "${params[@]}"
+    make "${params[@]}"
 
     if [[ "${md_id}" == "ionfury" ]]; then
         md_ret_require="${md_build}/fury"
@@ -69,10 +70,10 @@ function install_eduke32() {
 }
 
 function _game_data_eduke32() {
-    local dest 
+    local dest
     dest="${romdir}/ports/duke3d/duke"
 
-    if [[ -f "${dest}/duke3d.grp" || -f "${dest}/DUKE3D.GRP" ]]; then
+    if [[ -f "${dest}/duke3d.grp" ]] || [[ -f "${dest}/DUKE3D.GRP" ]]; then
         return
     else
         downloadAndExtract "${__arpie_url}/Duke3D/duke3d_assets_sw.tar.xz" "${dest}"
@@ -118,7 +119,7 @@ function _add_games_eduke32() {
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "fury.grp" ]]; then
                 addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir}"
-            fi 
+            fi
             if [[ "${game##*/}" == "duke3d.grp" ]]; then
                 addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 0"
             elif [[ "${game##*/}" == "dukedc.grp" ]]; then
