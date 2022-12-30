@@ -9,10 +9,13 @@ rp_module_desc="Quake 3: Quake 3 Arena Port"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/raspberrypi/quake3/master/COPYING.txt"
 rp_module_repo="git https://github.com/raspberrypi/quake3.git master"
 rp_module_section="opt"
-rp_module_flags="!all videocore"
+rp_module_flags="!all rpi"
 
 function depends_quake3() {
-    local depends=('sdl12-compat' 'raspberrypi-firmware')
+    local depends=(
+        'sdl12-compat'
+        'raspberrypi-firmware'
+    )
     getDepends "${depends[@]}"
 }
 
@@ -46,11 +49,12 @@ function configure_quake3() {
     local portname
     portname="quake3"
 
-    mkRomDir "ports/${portname}"
-
-    addPort "${md_id}" "${portname}" "Quake III Arena" "LD_LIBRARY_PATH=lib ${md_inst}/ioquake3.arm"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "ports/${portname}"
+        _game_data_quake3
+    fi
 
     moveConfigDir "${md_inst}/baseq3" "${romdir}/ports/${portname}/baseq3"
 
-    [[ "${md_mode}" == "install" ]] && _game_data_quake3
+    addPort "${md_id}" "${portname}" "Quake III Arena" "LD_LIBRARY_PATH=lib ${md_inst}/ioquake3.arm"
 }
