@@ -54,7 +54,7 @@ function _params_reicast() {
         # generic flags
         isPlatform "x11" && params+=("USE_X11=1")
         isPlatform "kms" || isPlatform "gles" && params+=("USE_GLES=1")
-        isPlatform "kms" || isPlatform "tinker" && params+=("USE_X11=" "HAS_SOFTREND=" "USE_SDL=1")
+        isPlatform "kms" && params+=("USE_X11=" "HAS_SOFTREND=" "USE_SDL=1")
     fi
 
     echo "${params[*]}"

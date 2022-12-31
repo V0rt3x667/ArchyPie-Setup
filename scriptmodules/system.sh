@@ -245,9 +245,6 @@ function get_platform() {
             *ODROID-XU[34])
                 __platform="odroid-xu"
                 ;;
-            "Rockchip (Device Tree)")
-                __platform="tinker"
-                ;;
             "Allwinner sun8i Family")
                 __platform="armv7-mali"
                 ;;
@@ -427,13 +424,6 @@ function platform_tegra-k1-32() {
 function platform_tegra-k1-64() {
     cpu_armv8 "native"
     __platform_flags+=('x11' 'gl')
-}
-
-function platform_tinker() {
-    cpu_armv7 "cortex-a17"
-    cpu_arm_state
-    platform_conf_glext
-    __platform_flags+=('kms' 'gles')
 }
 
 function platform_native() {
