@@ -171,7 +171,7 @@ function build_mupen64plus() {
     isPlatform "neon" && params+=("-DNEON_OPT=On")
     isPlatform "mesa" && params+=("-DMESA=On" "-DEGL=On")
     isPlatform "armv8" && params+=("-DCRC_ARMV8=On")
-    isPlatform "mali" && params+=("-DVERO4K=On" "-DCRC_OPT=On" "-DEGL=On")
+    isPlatform "mali" && params+=("-DCRC_OPT=On" "-DEGL=On")
     isPlatform "x86" && params+=("-DCRC_OPT=On")
 
     cmake . \
