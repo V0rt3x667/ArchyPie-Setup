@@ -210,7 +210,7 @@ function get_archypie_depends() {
     [[ "${__use_ccache}" -eq 1 ]] && depends+=('ccache')
 
     if ! getDepends "${depends[@]}"; then
-        fatalError "Unable To Install Packages Required By: $0 - ${md_ret_errors[@]}"
+        fatalError "Unable To Install Packages Required By: $0 - ${md_ret_errors[*]}"
     fi
 }
 

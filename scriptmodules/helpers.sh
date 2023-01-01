@@ -34,7 +34,7 @@ function printHeading() {
 }
 
 ## @fn fatalError()
-## @param message string or array of messages to display
+## @param message string & array of messages to display
 ## @brief Calls PrintMsgs with "heading" type, and exits immediately.
 function fatalError() {
     printHeading "Error"
@@ -216,7 +216,7 @@ function getDepends() {
         return 0
     fi
 
-    printMsgs "console" "Did not find needed dependencies: ${all_pkgs[*]}. Trying to install them now."
+    printMsgs "console" "Did Not Find Needed Dependencies: ${all_pkgs[*]}. Trying To Install Them Now."
 
     pacmanInstall "${pacman_pkgs[@]}"
 
@@ -230,7 +230,7 @@ function getDepends() {
     done
 
     if [[ ${#failed[@]} -gt 0 ]]; then
-        md_ret_errors+=("Could not install package(s): ${failed[*]}.")
+        md_ret_errors+=("Could Not Install Package(s): ${failed[*]}")
         return 1
     fi
 
@@ -1320,7 +1320,7 @@ _EOF_
 ## @param cmd commandline to launch
 ## @brief Adds a new emulator for a system.
 ## @details This is the primary function for adding emulators to a system which can be
-## switched between via the runcommand launch menu 
+## switched between via the runcommand launch menu
 ##
 ##     addEmulator 1 "vice-x64" "c64" "$md_inst/bin/x64 %ROM%"
 ##     addEmulator 0 "vice-xvic" "c64" "$md_inst/bin/xvic %ROM%"
