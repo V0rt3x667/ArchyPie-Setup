@@ -203,7 +203,6 @@ function get_archypie_depends() {
         'unzip'
         'which'
         'xmlstarlet'
-        'brokenpackagethatdoesnotexist'
 )
     [[ -n "${DISTCC_HOSTS}" ]] && depends+=('distcc')
 
