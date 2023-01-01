@@ -27,10 +27,8 @@ function depends_retroarch() {
         'systemd-libs'
         'zlib'
     )
-    isPlatform "gles" && depends+=('libglvnd')
+    #isPlatform "gles" && depends+=('libglvnd')
     isPlatform "kms" && depends+=('mesa')
-    isPlatform "mali" && depends+=('mali-utgard-meson-libgl-fb')
-    isPlatform "mesa" && depends+=('libxcb')
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
     isPlatform "wayland" && depends+=('wayland' 'wayland-protocols')
     isPlatform "x11" && depends+=(
@@ -82,21 +80,14 @@ function build_retroarch() {
         --enable-dbus
         --enable-sdl2
     )
-
-    if ! isPlatform "x11" || ! isPlatform "wayland"; then
-        params+=('--disable-pulse' '--disable-vulkan')
-        ! isPlatform "mesa" && params+=('--disable-x11' '--disable-wayland')
-    fi
-
     isPlatform "arm" && params+=('--enable-floathard')
     isPlatform "gles" && params+=('--enable-opengles')
     isPlatform "gles3" && params+=('--enable-opengles3')
     isPlatform "gles31" && params+=('--enable-opengles3_1')
     isPlatform "gles32" && params+=('--enable-opengles3_2')
-    isPlatform "kms" && params+=('--enable-kms' '--enable-egl')
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
-    isPlatform "rpi" && isPlatform "mesa" && params+=('--disable-videocore')
+    isPlatform "rpi" && isPlatform "mesa" && params+=('--disable-videocore' '--disable-vulkan')
     isPlatform "wayland" && params+=(
         '--disable-x11'
         '--disable-xinerama'
@@ -104,9 +95,21 @@ function build_retroarch() {
         '--enable-egl'
         '--enable-kms'
         '--enable-vulkan'
-        '--enable-wayland' 
-        )
-    isPlatform "x11" && params+=('--enable-vulkan' '--enable-x11' '--disable-wayland')
+        '--enable-wayland'
+    )
+    isPlatform "kms" && params+=(
+        '--disable-wayland'
+        '--disable-x11'
+        '--disable-xinerama'
+        '--disable-xrandr'
+        '--enable-egl'
+        '--enable-kms'
+    )
+    isPlatform "x11" && params+=(
+        '--disable-wayland'
+        '--enable-vulkan'
+        '--enable-x11'
+    )
 
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
@@ -355,7 +358,7 @@ function keyboard_retroarch() {
         ((i++))
     done < <(grep "^[[:space:]]*input_player[0-9]_[a-z]*" "${configdir}/all/${md_id}.cfg")
     local cmd=(dialog --backtitle "${__backtitle}" --form "RetroArch Keyboard Configuration" 22 48 16)
-    local choice 
+    local choice
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     if [[ -n "${choice}" ]]; then
         local value
@@ -376,7 +379,7 @@ function hotkey_retroarch() {
     local options=(1 "Hotkeys Enabled (Default)"
              2 "Press ALT To Enable Hotkeys"
              3 "Hotkeys Disabled. Press ESCAPE To Open RGUI")
-    local choice 
+    local choice
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     if [[ -n "${choice}" ]]; then
         case "${choice}" in
@@ -427,7 +430,7 @@ function gui_retroarch() {
             7 "Configure Keyboard Hotkey Behaviour For RetroArch"
         )
         local cmd=(dialog --backtitle "${__backtitle}" --menu "Choose An Option" 22 76 16)
-        local choice 
+        local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         case "${choice}" in
             1|2|3|4|5)
