@@ -35,7 +35,7 @@ function rps_logInit() {
 function rps_logStart() {
     echo -e "Log Started At: $(date -d @"$time_start")\n"
     echo "ArchyPie-Setup Version: $__version ($(sudo -u "${user}" git -C "$scriptdir" log -1 --pretty=format:%h))"
-    echo "System: $__platform ($__platform_arch) - $__os_desc - $(uname -a)"
+    echo "System: "${__platform}" ("${__platform_arch}") - "${__os_desc}" "${__os_release}" - $(uname -a)"
 }
 
 function rps_logEnd() {
