@@ -154,11 +154,7 @@ function get_os_version() {
     getDepends lsb-release
 
     # Set: OS Distributor ID, Description & Release Number
-    local os
-    mapfile -t os < <(lsb_release -s -i -d -r)
-    __os_id="${os[0]}"
-    __os_desc="${os[1]}"
-    __os_release="${os[2]}"
+    __os_desc=$(lsb_release -s -i -d -r)
 
     # Code Might Be Used In Future
     # if isPlatform "rpi" && isPlatform "32bit"; then
