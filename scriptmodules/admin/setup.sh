@@ -21,32 +21,32 @@ function rps_logInit() {
         fi
     fi
 
-    # Remove all but the last 20 logs.
-    find "$__logdir" -type f | sort | head -n -20 | xargs -d '\n' --no-run-if-empty rm
+    # Remove All But The Last 20 Logs
+    find "${__logdir}" -type f | sort | head -n -20 | xargs -d '\n' --no-run-if-empty rm
 
     local now
     now=$(date +'%Y-%m-%d_%H%M%S')
-    logfilename="$__logdir/rps_$now.log.gz"
-    touch "$logfilename"
-    chown "${user}:${user}" "$logfilename"
+    logfilename="${__logdir}/rps_${now}.log.gz"
+    touch "${logfilename}"
+    chown "${user}:${user}" "${logfilename}"
     time_start=$(date +"%s")
 }
 
 function rps_logStart() {
-    echo -e "Log Started At: $(date -d @"$time_start")\n"
-    echo "ArchyPie-Setup Version: $__version ($(sudo -u "${user}" git -C "$scriptdir" log -1 --pretty=format:%h))"
-    echo "System: "${__platform}" ("${__platform_arch}") - "${__os_desc}" "${__os_release}" - $(uname -a)"
+    echo -e "Log Started At: $(date -d @"${time_start}")\n"
+    echo "ArchyPie-Setup Version: ${__version} ($(sudo -u "${user}" git -C "${scriptdir}" log -1 --pretty=format:%h))"
+    echo "System: ${__platform} (${__platform_arch}) - ${__os_desc} - $(uname -a)"
 }
 
 function rps_logEnd() {
     time_end=$(date +"%s")
     echo
-    echo "Log Ended At: $(date -d @"$time_end")"
+    echo "Log Ended At: $(date -d @"${time_end}")"
     date_total=$((time_end-time_start))
     local hours=$((date_total / 60 / 60 % 24))
     local mins=$((date_total / 60 % 60))
     local secs=$((date_total % 60))
-    echo "Total Running Time: $hours hours, $mins mins, $secs secs"
+    echo "Total Running Time: ${hours} hours, ${mins} mins, ${secs} secs"
 }
 
 function rps_printInfo() {
