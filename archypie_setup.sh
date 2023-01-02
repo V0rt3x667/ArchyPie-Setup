@@ -5,7 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 if [ "$(id -u)" -ne 0 ]; then
-  sudo -E "$0"
+    display="${XDG_SESSION_TYPE}"
+    sudo __XDG_SESSION_TYPE="${display}" "$0"
   exit $?
 fi
 

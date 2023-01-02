@@ -387,18 +387,14 @@ function platform_native() {
         __platform_flags+=('gl3')
     fi
 
-    # To Run Under KMS: "sudo __has_kms=1 ./archypie_setup"
-    #if [[ "$__has_kms" -eq 1 ]]; then
-    #        __platform_flags+=('kms')
-    #fi
-
     local display
-    display="$(runuser -l "${user}" -c "env | grep XDG_SESSION_TYPE")"
+    display="${__XDG_SESSION_TYPE}"
     if [[ "${display}" == "x11" ]]; then
         __platform_flags+=('x11')
     elif [[ "${display}" == "wayland" ]]; then
         __platform_flags+=('wayland')
-    else __platform_flags+=('kms') && __has_kms=1
+    else
+        __platform_flags+=('kms') && __has_kms=1
     fi
 
     # Add x86 Platform Flag For x86/x86_64 Architectures
