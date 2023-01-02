@@ -398,7 +398,7 @@ function platform_native() {
         __platform_flags+=('x11')
     elif [[ "${display}" == "wayland" ]]; then
         __platform_flags+=('wayland')
-    else __platform_flags+=('kms') && __has_kms -eq 1
+    else __platform_flags+=('kms') && __has_kms=1
     fi
 
     # Add x86 Platform Flag For x86/x86_64 Architectures
