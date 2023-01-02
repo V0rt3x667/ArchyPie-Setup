@@ -14,7 +14,7 @@ rp_module_flags=""
 
 function depends_advmame() {
     local depends=('sdl2')
-    if isPlatform "videocore"; then
+    if isPlatform "rpi"; then
         depends+=('raspberrypi-firmware')
     fi
     getDepends "${depends[@]}"
@@ -27,11 +27,11 @@ function sources_advmame() {
 
 function build_advmame() {
     local params=('--enable-sdl2' '--disable-sdl' '--disable-oss')
-    if isPlatform "videocore"; then
-        params+=('--enable-vc')
-    else
+    #if isPlatform "videocore"; then
+    #    params+=('--enable-vc')
+    #else
         params+=('--disable-vc')
-    fi
+    #fi
 
     ./autogen.sh
     ./configure CFLAGS="$CFLAGS -fno-stack-protector" --prefix="$md_inst" "${params[@]}"
@@ -88,29 +88,28 @@ function configure_advmame() {
         iniSet "dir_snap" "$romdir/mame-$md_id/snap"
         iniSet "dir_sta" "$romdir/mame-$md_id/nvram"
 
-        if isPlatform "videocore"; then
-            iniSet "device_video" "fb"
-            iniSet "device_video_cursor" "off"
-            iniSet "device_keyboard" "raw"
-            iniSet "device_sound" "alsa"
-            iniSet "display_vsync" "no"
-            iniSet "sound_normalize" "no"
-            iniSet "display_resizeeffect" "none"
-            iniSet "display_resize" "integer"
-            iniSet "display_magnify" "1"
-        else
-            iniSet "device_video" "sdl"
-            # Need to force keyboard device as auto will choose event driver which doesn't work with sdl
-            iniSet "device_keyboard" "sdl"
-            # Default for best performance
-            iniSet "display_magnify" "1"
-            # Disable threading to get rid of the crash-on-exit when using SDL, preventing config save
-            iniSet "misc_smp" "no"
-            iniSet "device_video_output" "overlay"
-            iniSet "display_aspectx" 16
-            iniSet "display_aspecty" 9
-            iniSet "sound_samplerate" "44100"
-        fi
+        # if isPlatform "videocore"; then
+        #     iniSet "device_video" "fb"
+        #     iniSet "device_video_cursor" "off"
+        #     iniSet "device_keyboard" "raw"
+        #     iniSet "device_sound" "alsa"
+        #     iniSet "display_vsync" "no"
+        #     iniSet "sound_normalize" "no"
+        #     iniSet "display_resizeeffect" "none"
+        #     iniSet "display_resize" "integer"
+        #     iniSet "display_magnify" "1"
+        # else
+        iniSet "device_video" "sdl"
+        # Need to force keyboard device as auto will choose event driver which doesn't work with sdl
+        iniSet "device_keyboard" "sdl"
+        # Default for best performance
+        iniSet "display_magnify" "1"
+        # Disable threading to get rid of the crash-on-exit when using SDL, preventing config save
+        iniSet "misc_smp" "no"
+        iniSet "device_video_output" "overlay"
+        iniSet "display_aspectx" 16
+        iniSet "display_aspecty" 9
+        iniSet "sound_samplerate" "44100"
     fi
 
     addEmulator 1 "$md_id" "arcade" "$md_inst/bin/$md_id %BASENAME%"
