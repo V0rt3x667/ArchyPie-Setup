@@ -28,9 +28,8 @@ function depends_retroarch() {
         'zlib'
     )
     #isPlatform "gles" && depends+=('libglvnd')
-    isPlatform "kms" && depends+=('mesa')
+    isPlatform "kms" || isPlatform "x11" || isPlatform "wayland" && depends+=('mesa')
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
-    isPlatform "wayland" && depends+=('wayland' 'wayland-protocols')
     isPlatform "x11" && depends+=(
         'libx11'
         'libxcb'
@@ -45,6 +44,8 @@ function depends_retroarch() {
         'libpulse'
         'spirv-tools'
         'vulkan-icd-loader'
+        'wayland-protocols'
+        'wayland'
     )
     getDepends "${depends[@]}"
 }
@@ -87,7 +88,7 @@ function build_retroarch() {
     isPlatform "gles32" && params+=('--enable-opengles3_2')
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
-    isPlatform "rpi" && isPlatform "mesa" && params+=('--disable-videocore' '--disable-vulkan')
+    isPlatform "rpi" && ! isPlatform "rpi4" && params+=('--disable-vulkan')
     isPlatform "wayland" && params+=(
         '--disable-x11'
         '--disable-xinerama'
@@ -106,7 +107,6 @@ function build_retroarch() {
         '--enable-kms'
     )
     isPlatform "x11" && params+=(
-        '--disable-wayland'
         '--enable-vulkan'
         '--enable-x11'
     )
@@ -226,7 +226,7 @@ function configure_retroarch() {
     iniSet "video_font_size" "24"
     iniSet "core_options_path" "${configdir}/all/${md_id}-core-options.cfg"
     iniSet "global_core_options" "true"
-    isPlatform "x11" || isPlatform "wayland" || isPlatform "mesa" && iniSet "video_fullscreen" "true"
+    iniSet "video_fullscreen" "true"
 
     # Enable Hotkey ("select" Button)
     iniSet "input_enable_hotkey" "nul"
