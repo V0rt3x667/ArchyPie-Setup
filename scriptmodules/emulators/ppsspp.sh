@@ -25,7 +25,7 @@ function depends_ppsspp() {
         'snappy'
         'zlib'
     )
-    isPlatform "videocore" && depends+=(raspberrypi-firmware)
+    isPlatform "rpi" && depends+=(raspberrypi-firmware)
     isPlatform "mesa" && depends+=(libglvnd)
     getDepends "${depends[@]}"
 }
@@ -38,7 +38,7 @@ function build_ppsspp() {
     local ppsspp_binary="PPSSPPSDL"
     rm -rf CMakeCache.txt CMakeFiles
     local params=()
-    if isPlatform "videocore"; then
+    if isPlatform "rpi"; then
         params+=(-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/raspberry.armv7.cmake)
     elif isPlatform "mesa"; then
         params+=(-DUSING_GLES2=ON -DUSING_EGL=OFF)

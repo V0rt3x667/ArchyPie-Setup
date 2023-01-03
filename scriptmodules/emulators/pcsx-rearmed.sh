@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .bin .cue .cbn .img .iso .m3u .mdf .pbp .toc .z 
 rp_module_licence="GPL2 https://raw.githubusercontent.com/notaz/pcsx_rearmed/master/COPYING"
 rp_module_repo="git https://github.com/notaz/pcsx_rearmed.git master"
 rp_module_section="opt"
-rp_module_flags="sdl1 !all videocore"
+rp_module_flags="!all rpi"
 
 function depends_pcsx-rearmed() {
     getDepends sdl ffmpeg libpng libx11

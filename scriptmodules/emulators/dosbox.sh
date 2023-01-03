@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy your DOS games 
 rp_module_licence="GPL2 https://sourceforge.net/p/dosbox/code-0/HEAD/tree/dosbox/trunk/COPYING"
 rp_module_repo="svn https://svn.code.sf.net/p/dosbox/code-0/dosbox/trunk - 4465"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="!mali"
 
 function depends_dosbox() {
     local depends=(
@@ -70,8 +70,6 @@ function configure_dosbox() {
             def=1
             # needs software synth for midi; limit to Pi for now
             isPlatform "rpi" && needs_synth=1
-            # set dispmanx by default on rpi with fkms
-            isPlatform "dispmanx" && ! isPlatform "videocore" && setBackend "$md_id" "dispmanx"
             ;;
         dosbox-staging)
             launcher_name="+Start DOSBox-Staging.sh"
@@ -80,7 +78,7 @@ function configure_dosbox() {
         dosbox-x)
             launcher_name="+Start DOSBox-X.sh"
             config_dir="$home/.config/dosbox-x"
-            ;; 
+            ;;
         *)
             return 1
             ;;
@@ -143,7 +141,7 @@ if [[ "$md_id" == "dosbox-x" ]]; then
     "$md_inst/bin/dosbox-x" "\${params[@]}"
 else
     "$md_inst/bin/dosbox" "\${params[@]}"
-fi    
+fi
 midi_synth stop
 _EOF_
     chmod +x "$romdir/pc/$launcher_name"

@@ -14,7 +14,7 @@ rp_module_flags=""
 
 function depends_lr-flycast() {
     local depends=(zlib)
-    isPlatform "videocore" && depends+=(libraspberrypi-dev)
+    isPlatform "rpi" && depends+=(libraspberrypi-dev)
     isPlatform "mesa" && depends+=(libgles2-mesa-dev)
     getDepends "${depends[@]}"
 }
@@ -29,7 +29,7 @@ function build_lr-flycast() {
     local params=("HAVE_LTCG=0")
     local add_flags=()
     if isPlatform "gles"; then
-        if isPlatform "videocore"; then
+        if isPlatform "rpi"; then
             params+=(
                 "GLES=1"
                 "GL_LIB=-L/opt/vc/lib -lbrcmGLESv2")

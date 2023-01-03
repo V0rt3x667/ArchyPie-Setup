@@ -37,7 +37,7 @@ function sources_dxx-rebirth() {
 function build_dxx-rebirth() {
     local params=()
     isPlatform "arm" && params+=('words_need_alignment=yes')
-    if isPlatform "videocore"; then
+    if isPlatform "rpi"; then
         params+=('raspberrypi=yes')
     elif isPlatform "mesa"; then
         params+=(

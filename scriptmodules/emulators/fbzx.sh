@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd
 rp_module_licence="GPL3 https://gitlab.com/rastersoft/fbzx/-/raw/master/COPYING"
 rp_module_repo="git https://gitlab.com/rastersoft/fbzx.git :_get_branch_fbzx"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali !kms"
+rp_module_flags="!mali !kms"
 
 function _get_branch_fbzx() {
     local branch

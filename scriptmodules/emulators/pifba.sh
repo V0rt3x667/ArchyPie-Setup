@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .zip\n\nCopy your FBA roms to\n$romdir/fba or\n$r
 rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/pifba/master/FBAcapex_src/COPYING"
 rp_module_repo="git https://github.com/RetroPie/pifba.git master"
 rp_module_section="opt"
-rp_module_flags="!all videocore"
+rp_module_flags="!all rpi"
 
 function depends_pifba() {
     getDepends ffmpeg sdl raspberrypi-firmware

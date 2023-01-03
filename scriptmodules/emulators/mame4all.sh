@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .zip\n\nCopy your MAME4all-Pi roms to either $rom
 rp_module_licence="NONCOM https://raw.githubusercontent.com/RetroPie/mame4all-pi/master/readme.txt"
 rp_module_repo="git https://github.com/RetroPie/mame4all-pi.git master"
 rp_module_section="opt"
-rp_module_flags="!all videocore"
+rp_module_flags="!all rpi"
 
 function depends_mame4all() {
     getDepends ffmpeg sdl raspberrypi-firmware

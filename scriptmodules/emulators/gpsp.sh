@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .gba .zip\n\nCopy your Game Boy Advance roms to 
 rp_module_licence="GPL2 https://raw.githubusercontent.com/gizmo98/gpsp/master/COPYING.DOC"
 rp_module_repo="git https://github.com/gizmo98/gpsp.git master"
 rp_module_section="opt"
-rp_module_flags="noinstclean !all videocore"
+rp_module_flags="noinstclean !all rpi"
 
 function depends_gpsp() {
     getDepends sdl raspberrypi-firmware #gcc-6

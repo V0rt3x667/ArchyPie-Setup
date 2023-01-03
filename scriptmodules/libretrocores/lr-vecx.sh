@@ -14,7 +14,7 @@ rp_module_section="main"
 function depends_lr-vecx() {
     local depends=()
     isPlatform "mesa" && depends+=(libglvnd)
-    isPlatform "videocore" && depends+=(libraspberrypi-firmware)
+    isPlatform "rpi" && depends+=(libraspberrypi-firmware)
     getDepends "${depends[@]}"
 }
 
@@ -24,7 +24,7 @@ function sources_lr-vecx() {
 
 function build_lr-vecx() {
     local params
-    isPlatform "videocore" && params+="platform=rpi"
+    isPlatform "rpi" && params+="platform=rpi"
     isPlatform "gles" && params+=" HAS_GLES=1"
 
     make clean

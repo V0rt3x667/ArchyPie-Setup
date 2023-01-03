@@ -16,7 +16,7 @@ function depends_lr-mupen64plus-next() {
     local depends=()
     isPlatform "x11" && depends+=(glew libglvnd)
     isPlatform "x86" && depends+=(nasm)
-    isPlatform "videocore" && depends+=(raspberrypi-firmware)
+    isPlatform "rpi" && depends+=(raspberrypi-firmware)
     isPlatform "mesa" && depends+=(libglvnd)
     getDepends "${depends[@]}"
 }
@@ -28,7 +28,7 @@ function sources_lr-mupen64plus-next() {
 function build_lr-mupen64plus-next() {
     local params=()
     if isPlatform "arm"; then
-        if isPlatform "videocore"; then
+        if isPlatform "rpi"; then
             params+=(platform="$__platform")
         elif isPlatform "mesa"; then
             params+=(platform="$__platform-mesa")

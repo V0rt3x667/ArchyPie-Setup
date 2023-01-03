@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .daphne\n\nCopy your Daphne roms to $romdir/daphn
 rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/daphne-emu/master/COPYING"
 rp_module_repo="git https://github.com/RetroPie/daphne-emu.git retropie"
 rp_module_section="opt"
-rp_module_flags="sdl1 !x86 !mali"
+rp_module_flags="!x86 !mali"
 
 function depends_daphne() {
     getDepends sdl libvorbis glew zlib

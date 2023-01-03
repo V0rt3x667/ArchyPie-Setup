@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your 
 rp_module_licence="NONCOM https://raw.githubusercontent.com/RetroPie/pisnes/master/snes9x.h"
 rp_module_repo="git https://github.com/RetroPie/pisnes.git master"
 rp_module_section="opt"
-rp_module_flags="!all videocore"
+rp_module_flags="!all rpi"
 
 function depends_pisnes() {
     getDepends ffmpeg sdl raspberrypi-firmware libjpeg

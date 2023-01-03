@@ -39,7 +39,7 @@ function _get_repos_mupen64plus() {
         'mupen64plus mupen64plus-rsp-hle master'
     )
 
-    if isPlatform "videocore" && isPlatform "32bit"; then
+    if isPlatform "rpi" && isPlatform "32bit"; then
         repos+=('gizmo98 mupen64plus-audio-omx master')
     fi
 
@@ -146,7 +146,7 @@ function build_mupen64plus() {
     for dir in *; do
         if [[ -f "$dir/projects/unix/Makefile" ]]; then
             params=()
-            isPlatform "videocore" || [[ "$dir" == "mupen64plus-audio-omx" ]] && params+=("VC=1")
+            isPlatform "rpi" || [[ "$dir" == "mupen64plus-audio-omx" ]] && params+=("VC=1")
             if isPlatform "mesa" || isPlatform "mali"; then
                 params+=("USE_GLES=1")
             fi
@@ -197,7 +197,7 @@ function build_mupen64plus() {
         'GLideN64/build/plugin/Release/mupen64plus-video-GLideN64.so'
     )
 
-    if isPlatform "videocore" && ! isPlatform " 64bit"; then
+    if isPlatform "rpi" && ! isPlatform " 64bit"; then
         md_ret_require+=('mupen64plus-audio-omx/projects/unix/mupen64plus-audio-omx.so')
     fi
 
@@ -229,7 +229,7 @@ function install_mupen64plus() {
         if [[ -f "$source/projects/unix/Makefile" ]]; then
             # optflags is needed due to the fact the core seems to rebuild 2 files and relink during install stage most likely due to a buggy makefile
             local params=()
-            isPlatform "videocore" || [[ "$dir" == "mupen64plus-audio-omx" ]] && params+=("VC=1")
+            isPlatform "rpi" || [[ "$dir" == "mupen64plus-audio-omx" ]] && params+=("VC=1")
             if isPlatform "mesa" || isPlatform "mali"; then
                 params+=("USE_GLES=1")
             fi
@@ -357,7 +357,7 @@ function configure_mupen64plus() {
         # Use fast but less accurate shaders. Can help with low-end GPUs.
         iniSet "EnableInaccurateTextureCoordinates" "True"
 
-        if isPlatform "videocore"; then
+        if isPlatform "rpi"; then
             # Disable gles2n64 autores feature and use dispmanx upscaling
             iniConfig "=" "" "$md_conf_root/n64/gles2n64.conf"
             iniSet "auto resolution" "0"

@@ -14,7 +14,7 @@ rp_module_section="exp x86=main"
 function depends_lr-parallel-n64() {
     local depends=()
     isPlatform "x11" && depends+=('libglvnd')
-    isPlatform "videocore" && depends+=('raspberrypi-firmware')
+    isPlatform "rpi" && depends+=('raspberrypi-firmware')
     isPlatform "kms" && isPlatform "gles" && depends+=('libglvnd')
     getDepends "${depends[@]}"
 }
@@ -26,7 +26,7 @@ function sources_lr-parallel-n64() {
 function build_lr-parallel-n64() {
     rpSwap on 1000
     local params=()
-    if isPlatform "videocore" || isPlatform "odroid-c1"; then
+    if isPlatform "rpi" || isPlatform "odroid-c1"; then
         params+=(platform="$__platform")
     else
         isPlatform "gles" && params+=(GLES=1 GL_LIB:=-lGLESv2)

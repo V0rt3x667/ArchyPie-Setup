@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .a52 .atr .atr.gz .bas .bin .car .dcm .xex .xfd 
 rp_module_licence="GPL2 https://raw.githubusercontent.com/atari800/atari800/master/COPYING"
 rp_module_repo="git https://github.com/atari800/atari800.git :_get_branch_atari800"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="!mali"
 
 function _get_branch_atari800() {
     download https://api.github.com/repos/atari800/atari800/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
@@ -36,7 +36,7 @@ function sources_atari800() {
 function build_atari800() {
     local params=()
     ./autogen.sh
-    isPlatform "videocore" && params+=(--target=rpi)
+    isPlatform "rpi" && params+=(--target=rpi)
     ./configure --prefix="$md_inst" ${params[@]}
     make clean
     make
@@ -60,8 +60,6 @@ function _add_emulators_atari800() {
             fi
             ;;
         default|x11*)
-            # if backend is set to sdl1 default and we are on kms, we need to set fullscreen
-            # and add width/height params to be filled out by runcommand or else it won't fill the screen
             isPlatform "kms" && params+=("-fullscreen" "-fs-width %XRES%" "-fs-height %YRES%")
             ;;
     esac
@@ -93,8 +91,6 @@ function configure_atari800() {
     fi
 
     local params=()
-    # if we are on fkms, use the sdl1 dispmanx backend by default for good performance without using X11/opengl
-    isPlatform kms && isPlatform "dispmanx" && _backend_set_atari800 "dispmanx"
 
     # this is split out so we can call it via _backend_set_atari800
     _add_emulators_atari800

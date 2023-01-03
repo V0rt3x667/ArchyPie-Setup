@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .cdt .cpc .dsk\n\nCopy your Amstrad CPC games to
 rp_module_licence="GPL2 https://raw.githubusercontent.com/KaosOverride/CapriceRPI/master/COPYING.txt"
 rp_module_repo="git https://github.com/KaosOverride/CapriceRPI.git master"
 rp_module_section="opt"
-rp_module_flags="sdl1 !all videocore"
+rp_module_flags="!all rpi"
 
 function depends_capricerpi() {
     local depends=(

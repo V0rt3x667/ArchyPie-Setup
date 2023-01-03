@@ -123,7 +123,7 @@ function _add_rom_attractmode() {
 
 function depends_attractmode() {
     local depends=('cmake' 'ffmpeg' 'libarchive' 'libxinerama' 'sfml')
-    isPlatform "videocore" && depends+=('libraspberrypi-firmware')
+    isPlatform "rpi" && depends+=('libraspberrypi-firmware')
     isPlatform "kms" && depends+=('mesa' 'libglvnd' 'glu' 'libdrm')
     getDepends "${depends[@]}"
 }
@@ -135,7 +135,7 @@ function sources_attractmode() {
 function build_attractmode() {
     make clean
     local params=(prefix="$md_inst")
-    isPlatform "videocore" && params+=(USE_GLES=1)
+    isPlatform "rpi" && params+=(USE_GLES=1)
     isPlatform "kms" && params+=(USE_DRM=1)
     isPlatform "rpi" && params+=(USE_MMAL=1)
     isPlatform "x11" && params+=(FE_HWACCEL_VAAPI=1 FE_HWACCEL_VDPAU=1)

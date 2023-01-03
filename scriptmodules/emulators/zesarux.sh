@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd
 rp_module_licence="GPL3 https://raw.githubusercontent.com/chernandezba/zesarux/master/src/LICENSE"
 rp_module_repo="git https://github.com/chernandezba/zesarux.git :_get_branch_zesarux"
 rp_module_section="opt"
-rp_module_flags="sdl2 sdl1-videocore"
+rp_module_flags=""
 
 function _get_branch_zesarux() {
     download https://api.github.com/repos/chernandezba/zesarux/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
@@ -23,11 +23,11 @@ function depends_zesarux() {
         'openssl'
     )
     isPlatform "x11" && depends+=('libpulse' 'libxxf86vm')
-    if isPlatform "videocore"; then
-        depends+=('sdl')
-    else
+    #if isPlatform "videocore"; then
+    #    depends+=('sdl')
+    #else
         depends+=('sdl2')
-    fi
+    #fi
     getDepends "${depends[@]}"
 }
 
@@ -37,9 +37,9 @@ function sources_zesarux() {
 
 function build_zesarux() {
     local params=()
-    isPlatform "videocore" && params+=(--enable-raspberry)
+    isPlatform "rpi" && params+=(--enable-raspberry)
     ! isPlatform "x11" && params+=(--disable-pulse)
-    ! isPlatform "videocore" && params+=(--enable-sdl2)
+    ! isPlatform "rpi" && params+=(--enable-sdl2)
 
     cd src
     ./configure \
@@ -106,8 +106,6 @@ _EOF_
 
     copyDefaultConfig "$config" "$md_conf_root/zxspectrum/.zesaruxrc"
     rm "$config"
-
-    isPlatform "videocore" && setBackend "$md_id" "dispmanx"
 
     addEmulator 1 "$md_id" "zxspectrum" "bash $romdir/zxspectrum/+Start\ ZEsarUX.sh %ROM%"
     addEmulator 1 "$md_id" "samcoupe" "bash $romdir/zxspectrum/+Start\ ZEsarUX.sh --machine sam %ROM%"

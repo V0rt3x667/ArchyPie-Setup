@@ -9,7 +9,7 @@ rp_module_desc="ioquake3: Quake 3 Arena Port"
 rp_module_licence="GPL2 https://github.com/ioquake/ioq3/blob/master/COPYING.txt"
 rp_module_repo="git https://github.com/ioquake/ioq3.git main"
 rp_module_section="opt"
-rp_module_flags="!videocore"
+rp_module_flags="!rpi"
 
 function depends_ioquake3() {
     local depends=(
@@ -71,13 +71,13 @@ function _add_games_ioquake3() {
 function configure_ioquake3() {
     local portname
     portname="quake3"
-    
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${portname}"
         mkRomDir "ports/${portname}/baseq3"
         mkRomDir "ports/${portname}/demoq3"
         mkRomDir "ports/${portname}/missionpack"
-        
+
         _game_data_quake3
     fi
 
@@ -85,7 +85,7 @@ function configure_ioquake3() {
     moveConfigDir "${md_inst}/missionpack" "${romdir}/ports/${portname}/missionpack"
     moveConfigDir "${md_inst}/demoq3" "${romdir}/ports/${portname}/demoq3"
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
-    
+
     local launcher=("${md_inst}/${md_id}.$(_arch_${md_id}) +set fs_game %ROM%")
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")

@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .bin .col .rom .zip\n\nCopy your Colecovision ro
 rp_module_licence="PROP"
 rp_module_repo="file $__archive_url/coolcv.tar.gz"
 rp_module_section="opt"
-rp_module_flags="!all videocore"
+rp_module_flags="!all rpi"
 
 function depends_coolcv() {
     getDepends sdl2

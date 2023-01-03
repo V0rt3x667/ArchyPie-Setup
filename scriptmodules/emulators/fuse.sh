@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd
 rp_module_licence="GPL2 https://sourceforge.net/p/fuse-emulator/fuse/ci/master/tree/COPYING"
 rp_module_repo="file https://sourceforge.net/projects/fuse-emulator/files/fuse/1.6.0/fuse-1.6.0.tar.gz"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="!mali"
 
 function depends_fuse() {
     getDepends sdl libpng zlib lbzip2 audiofile bison flex

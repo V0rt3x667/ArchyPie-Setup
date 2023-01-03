@@ -10,7 +10,7 @@ rp_module_help="Copy your ScummVM games to $romdir/scummvm"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/scummvm/scummvm/master/COPYING"
 rp_module_repo="git https://github.com/scummvm/scummvm.git v2.5.1"
 rp_module_section="opt"
-rp_module_flags="sdl2"
+rp_module_flags=""
 
 function depends_scummvm() {
     local depends=(
@@ -26,12 +26,9 @@ function depends_scummvm() {
         'libspeechd'
         'libtheora'
         'libvorbis'
+        'sdl2_net'
+        'sdl2'
     )
-    if [[ "$md_id" == "scummvm-sdl1" ]]; then
-        depends+=('sdl' 'sdl_net')
-    else
-        depends+=('sdl2' 'sdl2_net')
-    fi
     getDepends "${depends[@]}"
 }
 
@@ -80,7 +77,6 @@ function configure_scummvm() {
     # Create startup script
     rm -f "$romdir/scummvm/+Launch GUI.sh"
     local name="ScummVM"
-    [[ "$md_id" == "scummvm-sdl1" ]] && name="ScummVM-SDL1"
     cat > "$romdir/scummvm/+Start $name.sh" << _EOF_
 #!/bin/bash
 game="\$1"

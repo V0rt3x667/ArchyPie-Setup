@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .dsk\n\nCopy your Apple 2 games to $romdir/apple
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dabonetn/linapple-pie/master/LICENSE"
 rp_module_repo="git https://github.com/dabonetn/linapple-pie.git master"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali"
+rp_module_flags="!mali"
 
 function depends_linapple() {
     getDepends libzip sdl sdl_image curl

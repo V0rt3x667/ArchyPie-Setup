@@ -122,7 +122,7 @@ _EOF_
 
     if [[ "$md_mode" == "install" ]]; then
         # possible audio backends: alsa, oss, omx
-        if isPlatform "videocore"; then
+        if isPlatform "rpi"; then
             backends=(omx oss)
         else
             backends=(alsa)

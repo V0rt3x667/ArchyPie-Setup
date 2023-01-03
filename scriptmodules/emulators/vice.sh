@@ -24,7 +24,7 @@ function depends_vice() {
         'flac'
         'libjpeg'
         'mpg123'
-        'libpcap' 
+        'libpcap'
         'libpng'
         'libvorbis'
         'libxaw'
@@ -127,7 +127,7 @@ _EOF_
         iniSet "SDLWindowWidth" "384"
         iniSet "SDLWindowHeight" "272"
     fi
-    
+
     if isPlatform "arm"; then
         iniSet "SidEngine" "0"
     fi
@@ -140,7 +140,6 @@ _EOF_
     rm "$config"
 
     if ! isPlatform "x11"; then
-        # enforce a few settings to ensure a smooth upgrade from sdl1
         iniConfig "=" "" "$md_conf_root/c64/sdl-vicerc"
         iniDel "SDLBitdepth"
         iniSet "VICIIDoubleSize" "0"

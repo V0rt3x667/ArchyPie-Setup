@@ -17,7 +17,7 @@ function depends_lr-mupen64plus() {
     isPlatform "x11" && depends+=(glew mesa)
     isPlatform "x86" && depends+=(nasm)
     isPlatform "mesa" && depends+=(libglvnd)
-    isPlatform "videocore" && depends+=(raspberrypi-firmware)
+    isPlatform "rpi" && depends+=(raspberrypi-firmware)
     getDepends "${depends[@]}"
 }
 
@@ -28,7 +28,7 @@ function sources_lr-mupen64plus() {
 function build_lr-mupen64plus() {
     rpSwap on 750
     local params=()
-    if isPlatform "videocore"; then
+    if isPlatform "rpi"; then
         params+=(platform="$__platform")
     elif isPlatform "mesa"; then
         params+=(platform="$__platform-mesa")

@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .32x .iso .cue .smd .bin .gen .md .sg .zip\n\nCo
 rp_module_licence="GPL2 https://sourceforge.net/p/dgen/dgen/ci/master/tree/COPYING"
 rp_module_repo="file $__archive_url/dgen-sdl-1.33.tar.gz"
 rp_module_section="opt"
-rp_module_flags="sdl1 !mali !kms"
+rp_module_flags="!mali !kms"
 
 function depends_dgen() {
     getDepends sdl libarchive
