@@ -121,7 +121,7 @@ function gui_autostart() {
                         x11_autostart=$((x11_autostart ^ 1))
                     else
                         enable_autostart
-                        printMsgs "dialog" "Emulation tation Is Set To Launch At Boot"
+                        printMsgs "dialog" "EmulationStation Is Set To Launch At Boot"
                     fi
                     ;;
                 2)
