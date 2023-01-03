@@ -18,4 +18,4 @@ The script is executed with:
 
 ```shell
 cd ArchyPie-Setup
-sudo ./archypie_setup.sh
+./archypie_setup.sh
