@@ -88,6 +88,7 @@ function build_retroarch() {
     isPlatform "gles32" && params+=('--enable-opengles3_2')
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
+    isPlatform "rpi" && params+=('--disable-videocore')
     isPlatform "rpi" && ! isPlatform "rpi4" && params+=('--disable-vulkan')
     isPlatform "wayland" && params+=(
         '--disable-x11'

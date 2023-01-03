@@ -301,10 +301,14 @@ function get_platform() {
 }
 
 function set_platform_defaults() {
-    #__default_opt_flags="-O3"
-    #__default_cc_opt_flags="-pipe -fno-plt -fexceptions -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -fstack-clash-protection -fcf-protection"
-    #__default_cxx_opt_flags="-Wp,-D_GLIBCXX_ASSERTIONS"
-    #__default_ld_opt_flags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
+    if isPlatform "x86"; then
+        __default_opt_flags="-O3"
+    else
+        __default_opt_flags="-O2"
+    fi
+    __default_cc_opt_flags="-pipe -fno-plt -fexceptions -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -fstack-clash-protection"
+    __default_cxx_opt_flags="-Wp,-D_GLIBCXX_ASSERTIONS"
+    __default_ld_opt_flags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
     # Add Platform Name & 32bit Or 64bit To Platform Flags
     __platform_flags=("${__platform}" "$(getconf LONG_BIT)bit")
