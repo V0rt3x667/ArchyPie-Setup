@@ -316,7 +316,7 @@ function cpu_armv7() {
     #if [[ -n "${cpu}" ]]; then
     #    __default_cpu_flags="-mcpu=${cpu} -mfpu=neon-vfpv4"
     #else
-        __default_cpu_flags="-march=armv7-a -mfpu=neon-vfpv4"
+        __default_cpu_flags="-march=armv7-a -mfpu=neon"
         cpu="cortex-a7"
     #fi
     __platform_flags+=('arm' 'armv7' 'neon')
