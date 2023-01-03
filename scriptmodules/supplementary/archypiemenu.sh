@@ -17,6 +17,7 @@ function _update_hook_archypiemenu() {
 
 function depends_archypiemenu() {
     local depends=('mc')
+
     getDepends "${depends[@]}"
 }
 
@@ -25,7 +26,7 @@ function install_bin_archypiemenu() {
 }
 
 function configure_archypiemenu() {
-    if [[ "$md_mode" == "install" ]]; then
+    if [[ "${md_mode}" == "install" ]]; then
         local dir="${home}/ArchyPie/${md_id}"
         mkdir -p "${dir}"
         cp -Rv "${md_data}/icons" "${dir}/"
@@ -114,7 +115,7 @@ function launch_archypiemenu() {
             joy2keyStop
             cp "${configdir}/all/retroarch.cfg" "${configdir}/all/retroarch.cfg.bak"
             chown "${user}:${user}" "${configdir}/all/retroarch.cfg.bak"
-            su "${user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_USER} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\"" > ~/test.txt
+            su "${user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_USER} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\""
             iniConfig " = " '"' "${configdir}/all/retroarch.cfg"
             iniSet "config_save_on_exit" "false"
             ;;
