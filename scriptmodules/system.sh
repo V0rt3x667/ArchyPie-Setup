@@ -313,12 +313,12 @@ function set_platform_defaults() {
 
 function cpu_armv7() {
     local cpu="$1"
-    if [[ -n "${cpu}" ]]; then
-        __default_cpu_flags="-mcpu=${cpu} -mfpu=neon-vfpv4"
-    else
+    #if [[ -n "${cpu}" ]]; then
+    #    __default_cpu_flags="-mcpu=${cpu} -mfpu=neon-vfpv4"
+    #else
         __default_cpu_flags="-march=armv7-a -mfpu=neon-vfpv4"
         cpu="cortex-a7"
-    fi
+    #fi
     __platform_flags+=('arm' 'armv7' 'neon')
     __qemu_cpu="${cpu}"
 }
