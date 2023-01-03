@@ -4,14 +4,14 @@
 #
 # Please see the LICENSE file at the top-level directory of this distribution.
 
-__version="4.9.0"
+__version="4.9.0_beta"
 
 [[ "${__debug}" -eq 1 ]] && set -x
 
-# Main ArchyPie Install Location
+# ArchyPie Install Location
 rootdir="/opt/archypie"
 
-# If "__user" is set, try and install for that user, else use "SUDO_USER"
+# Install For "__user" Else Use "SUDO_USER"
 if [[ -n "${__user}" ]]; then
     user="${__user}"
     if ! id -u "${__user}" &>/dev/null; then
@@ -39,10 +39,13 @@ __tmpdir="${scriptdir}/tmp"
 __builddir="${__tmpdir}/build"
 __swapdir="${__tmpdir}"
 
-# Check if "sudo" is Used
+# Launch Script
+launch_dir=$(dirname archypie_setup)
+launch_dir="$(cd "${scriptdir}" && pwd)"
 if [[ "$(id -u)" -ne 0 ]]; then
-    echo "Script must be run under sudo from the user you want to install for. Try 'sudo $0'"
-    exit 1
+     display="${XDG_SESSION_TYPE}"
+     sudo __XDG_SESSION_TYPE="${display}" "${launch_dir}/archypie_setup.sh"
+     exit $?
 fi
 
 __backtitle="ArchyPie Setup - Installation Folder: ${rootdir} User: ${user}"
@@ -57,18 +60,16 @@ setup_env
 rp_registerAllModules
 
 rp_ret=0
-if [[ $# -gt 0 ]]; then
+if [[ "$#" -gt 0 ]]; then
     setupDirectories
     rp_callModule "$@"
-    rp_ret=$?
+    rp_ret="$?"
 else
     rp_printUsageinfo
 fi
 
 if [[ "${#__ERRMSGS[@]}" -gt 0 ]]; then
-    # Override return code if ERRMSGS is set, for example in the case of calling basic_install from the setup menu.
-    # We won't get the return code, as we don't handle return codes when calling non packaging functions
-    # as it would require all modules functions to handle errors differently, and make things more complicated.
+    # Override Return Code If ERRMSGS Is Set
     [[ "$rp_ret" -eq 0 ]] && rp_ret=1
     printMsgs "console" "Errors:\n" "${__ERRMSGS[@]}"
 fi
@@ -77,4 +78,4 @@ if [[ "${#__INFMSGS[@]}" -gt 0 ]]; then
     printMsgs "console" "Info:\n" "${__INFMSGS[@]}"
 fi
 
-exit $rp_ret
+exit ${rp_ret}

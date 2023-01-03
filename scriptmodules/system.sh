@@ -387,11 +387,9 @@ function platform_native() {
         __platform_flags+=('gl3')
     fi
 
-    local display
-    display="${__XDG_SESSION_TYPE}"
-    if [[ "${display}" == "x11" ]]; then
+    if [[ "${__XDG_SESSION_TYPE}" == "x11" ]]; then
         __platform_flags+=('x11')
-    elif [[ "${display}" == "wayland" ]]; then
+    elif [[ "${__XDG_SESSION_TYPE}" == "wayland" ]]; then
         __platform_flags+=('wayland')
     else
         __platform_flags+=('kms') && __has_kms=1
