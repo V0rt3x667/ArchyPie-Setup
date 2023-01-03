@@ -301,10 +301,10 @@ function get_platform() {
 }
 
 function set_platform_defaults() {
-    __default_opt_flags="-O3"
-    __default_cc_opt_flags="-pipe -fno-plt -fexceptions -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -fstack-clash-protection -fcf-protection"
-    __default_cxx_opt_flags="-Wp,-D_GLIBCXX_ASSERTIONS"
-    __default_ld_opt_flags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
+    #__default_opt_flags="-O3"
+    #__default_cc_opt_flags="-pipe -fno-plt -fexceptions -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -fstack-clash-protection -fcf-protection"
+    #__default_cxx_opt_flags="-Wp,-D_GLIBCXX_ASSERTIONS"
+    #__default_ld_opt_flags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
     # Add Platform Name & 32bit Or 64bit To Platform Flags
     __platform_flags=("${__platform}" "$(getconf LONG_BIT)bit")
@@ -313,12 +313,12 @@ function set_platform_defaults() {
 
 function cpu_armv7() {
     local cpu="$1"
-    #if [[ -n "${cpu}" ]]; then
-    #    __default_cpu_flags="-mcpu=${cpu} -mfpu=neon-vfpv4"
-    #else
-        __default_cpu_flags="-march=armv7-a -mfpu=neon"
+    if [[ -n "${cpu}" ]]; then
+        __default_cpu_flags="-mcpu=${cpu} -mfpu=neon-vfpv4"
+    else
+        __default_cpu_flags="-march=armv7-a -mfpu=neon-vfpv4"
         cpu="cortex-a7"
-    #fi
+    fi
     __platform_flags+=('arm' 'armv7' 'neon')
     __qemu_cpu="${cpu}"
 }
