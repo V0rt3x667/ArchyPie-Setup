@@ -117,24 +117,21 @@ function conf_build_vars() {
     [[ -z "${__default_cxxflags}" ]] && __default_cxxflags="${__default_cflags}"
 
     # Add: CPU & Optimisation Flags
-    __default_cflags="${__cpu_flags} ${__opt_flags} ${__default_cc_opt_flags}"
-    __default_cxxflags="${__cpu_flags} ${__opt_flags} ${__default_cxx_opt_flags}"
+    __default_cflags="${__cpu_flags} ${__opt_flags}"
+    __default_cxxflags="${__cpu_flags} ${__opt_flags}"
     __default_asflags="${__cpu_flags}"
-    __default_ldflags="${__default_ld_opt_flags}"
 
     # If Not Overridden By User, Configure Compiler Flags
     [[ -z "${__cflags}" ]] && __cflags="${__default_cflags}"
     [[ -z "${__cxxflags}" ]] && __cxxflags="${__default_cxxflags}"
     [[ -z "${__asflags}" ]] && __asflags="${__default_asflags}"
     [[ -z "${__makeflags}" ]] && __makeflags="${__default_makeflags}"
-    [[ -z "${__ldflags}" ]] && __ldflags="${__default_ldflags}"
 
     # Export: Compiler Flags
     export CFLAGS="${__cflags}"
     export CXXFLAGS="${__cxxflags}"
     export ASFLAGS="${__asflags}"
     export MAKEFLAGS="${__makeflags}"
-    export LDFLAGS="${__ldflags}"
 
     # If Using "distcc" Add "/usr/lib/distcc" To PATH & MAKEFLAGS
     if [[ -n "${DISTCC_HOSTS}" ]]; then
@@ -232,7 +229,7 @@ function get_rpi_video() {
 
 function get_platform() {
     local architecture
-    architecture="$(uname --machine)"
+    architecture="$(uname -m)"
     if [[ -z "${__platform}" ]]; then
         case "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" in
             BCM*)
@@ -301,18 +298,11 @@ function get_platform() {
 }
 
 function set_platform_defaults() {
-    if isPlatform "x86"; then
-        __default_opt_flags="-O3"
-    else
-        __default_opt_flags="-O2"
-    fi
-    __default_cc_opt_flags="-pipe -fno-plt -fexceptions -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -fstack-clash-protection"
-    __default_cxx_opt_flags="-Wp,-D_GLIBCXX_ASSERTIONS"
-    __default_ld_opt_flags="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
+    __default_opt_flags="-O2"
 
     # Add Platform Name & 32bit Or 64bit To Platform Flags
     __platform_flags=("${__platform}" "$(getconf LONG_BIT)bit")
-    __platform_arch=$(uname --machine)
+    __platform_arch="$(uname -m)"
 }
 
 function cpu_armv7() {
@@ -384,7 +374,7 @@ function platform_rockpro64() {
 }
 
 function platform_native() {
-    __default_cpu_flags="-march=native -mtune=native"
+    __default_cpu_flags="-march=native -mtune=native -pipe"
     __platform_flags+=('gl')
 
     if isPlatform "64bit"; then
