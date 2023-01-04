@@ -43,6 +43,7 @@ function configure_archypiemenu() {
             'arpisetup'
             'runcommand'
             'showip'
+            'wifi'
         )
 
         local names=(
@@ -55,18 +56,20 @@ function configure_archypiemenu() {
             'ArchyPie Setup'
             'Run Command Configuration'
             'Show IP'
+            'Wi-Fi'
         )
 
         local descs=(
-            'Configure Audio Settings: Select From Auto, 3.5mm Jack, or HDMI.'
-            'Change And Edit RetroArch And Non-RetroArch Options.'
-            'Install, Uninstall Or Update EmulationStation Themes.'
-            'ASCII File Manager For Linux.'
-            'Launches The RetroArch GUI So You Can Change RetroArch Options. Note: Changes Will Not Be Saved Unless You Have Enabled The "Save Configuration On Exit" Option.'
-            'Configure RetroArch Netplay Options.'
+            'Configure audio settings.'
+            'Change and edit RetroArch and other options.'
+            'Install, uninstall or update EmulationStation themes.'
+            'ASCII file manager for Linux.'
+            'Launches the RetroArch GUI so you can change RetroArch options. Note: Changes will not be saved unless you have enabled the "Save Configuration On Exit" option.'
+            'Configure RetroArch Netplay options.'
             'Install ArchyPie Packages, Edit Samba Shares And Other ArchyPie Configurations.'
-            'Configure Runcommand, Enable Or Disable The Menu, Enable Or Disable Box Art And Change CPU Configuration.'
-            'Displays Your Current IP Address And Other Information Provided By The Command "ip addr show."'
+            'Configure Runcommand, enable or disable the menu, enable or disable box art and change CPU configuration.'
+            'Displays your current IP address and other information provided by the command "ip addr show".'
+            'Connect to or disconnect from a Wi-Fi network and configure Wi-Fi settings.'
         )
 
         setESSystem "ArchyPie" "archypie" "${dir}" ".rp .sh" "sudo ${scriptdir}/archypie_packages.sh ${md_id} launch %ROM% </dev/tty >/dev/tty" "" "${md_id}"
@@ -115,7 +118,7 @@ function launch_archypiemenu() {
             joy2keyStop
             cp "${configdir}/all/retroarch.cfg" "${configdir}/all/retroarch.cfg.bak"
             chown "${user}:${user}" "${configdir}/all/retroarch.cfg.bak"
-            su "${user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_USER} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\""
+            su "${user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_UID} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\""
             iniConfig " = " '"' "${configdir}/all/retroarch.cfg"
             iniSet "config_save_on_exit" "false"
             ;;
