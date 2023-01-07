@@ -28,6 +28,7 @@ function depends_fs-uae() {
         'python'
         'python-lhafile'
         'python-rx'
+        'python-pyqt5'
         'sdl2'
         'shared-mime-info'
         'zip'
@@ -148,7 +149,7 @@ function configure_fs-uae() {
         local script="+Start FS-UAE.sh"
         cat > "$romdir/amiga/$script" << _EOF_
 #!/bin/bash
-FS_UAE_BASE_DIR="$arpiedir/emulators/$md_id" "$md_inst/bin/fs-uae-launcher"
+FS_UAE_BASE_DIR="/opt/archypie/configs/amiga/$md_id" "$md_inst/bin/fs-uae-launcher"
 _EOF_
         chmod a+x "$romdir/amiga/$script"
         chown "$user:$user" "$romdir/amiga/$script"
