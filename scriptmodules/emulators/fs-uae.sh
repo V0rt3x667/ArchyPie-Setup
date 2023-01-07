@@ -149,7 +149,7 @@ function configure_fs-uae() {
         local script="+Start FS-UAE.sh"
         cat > "$romdir/amiga/$script" << _EOF_
 #!/bin/bash
-FS_UAE_BASE_DIR="/opt/archypie/configs/amiga/$md_id" "$md_inst/bin/fs-uae-launcher"
+FS_UAE_BASE_DIR="$HOME/.config/archypie/emulators/fs-uae/$md_id" "$md_inst/bin/fs-uae-launcher"
 _EOF_
         chmod a+x "$romdir/amiga/$script"
         chown "$user:$user" "$romdir/amiga/$script"
