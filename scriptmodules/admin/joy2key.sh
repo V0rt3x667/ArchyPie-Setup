@@ -9,7 +9,7 @@ rp_module_desc="Provides Joystick to Keyboard Conversion for Navigation of Archy
 rp_module_section="core"
 
 function _update_hook_joy2key() {
-    # Make sure joy2key is always updated when updating archypie-setup
+    # Make Sure joy2key Is Always Updated
     rp_isInstalled "${md_id}" && rp_callModule "${md_id}"
 }
 
@@ -23,55 +23,55 @@ function depends_joy2key() {
     )
     getDepends "${depends[@]}"
 
-    pip install -U git+https://github.com/marcusva/py-sdl2.git
+    pip install -U git+"https://github.com/marcusva/py-sdl2.git"
 }
 
 function install_bin_joy2key() {
     local file
     for file in "joy2key.py" "joy2key_sdl.py" "osk.py"; do
-        cp "${md_data}/$file" "${md_inst}/"
-        chmod +x "${md_inst}/$file"
-        python -m compileall "${md_inst}/$file"
+        cp "${md_data}/${file}" "${md_inst}/"
+        chmod +x "${md_inst}/${file}"
+        python -m compileall "${md_inst}/${file}"
     done
 
     local wrapper="${md_inst}/joy2key"
-    cat >"$wrapper" <<_EOF_
+    cat >"${wrapper}" <<_EOF_
 #!/bin/bash
 mode="\$1"
-[[ -z "\$mode" ]] && mode="start"
+[[ -z "\${mode}" ]] && mode="start"
 shift
 
-# Allow overriding joystick device via __joy2key_dev env (by default will use /dev/input/jsX which will scan all)
+# Allow Overriding Joystick Device Via __joy2key_dev env (By Default Will Use /dev/input/jsX Which Will Scan All)
 device="/dev/input/jsX"
 [[ -n "\$__joy2key_dev" ]] && device="\$__joy2key_dev"
 
 params=("\$@")
 if [[ "\${#params[@]}" -eq 0 ]]; then
-    # Default button-to-keyboard mappings:
-    # * cursor keys for axis/dpad
-    # * enter, space, esc and tab for buttons 'a', 'b', 'x' and 'y'
-    # * page up/page down for buttons 5,6 (shoulder buttons)
+    # Default Button-to-keyboard Mappings:
+    # * Cursor Keys for Axis/Dpad
+    # * enter, space, esc & tab For Buttons 'a', 'b', 'x' and 'y'
+    # * page up/page down For Buttons 5,6 (Shoulder Buttons)
     params=(kcub1 kcuf1 kcuu1 kcud1 0x0a 0x20 0x1b 0x09 kpp knp)
 fi
 
 script="joy2key_sdl.py"
 ! python -c "import sdl2" 2>/dev/null && script="joy2key.py"
 
-case "\$mode" in
+case "\${mode}" in
     start)
-        if pgrep -f "\$script" &>/dev/null; then
+        if pgrep -f "\${script}" &>/dev/null; then
             "\$0" stop
         fi
-        "${md_inst}/\$script" "\$device" "\${params[@]}" || exit 1
+        "${md_inst}/\${script}" "\${device}" "\${params[@]}" || exit 1
         ;;
     stop)
-        pkill -f "\$script"
+        pkill -f "\${script}"
         sleep 1
         ;;
 esac
 exit 0
 _EOF_
-    chmod +x "$wrapper"
+    chmod +x "${wrapper}"
 
     joy2keyStart
 }
