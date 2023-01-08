@@ -40,12 +40,12 @@ __builddir="${__tmpdir}/build"
 __swapdir="${__tmpdir}"
 
 # Launch Script
-launch_dir=$(dirname archypie_setup)
-launch_dir="$(cd "${scriptdir}" && pwd)"
+launch_dir=$(dirname archypie_packages)
+launch_dir="$(pwd)"
 if [[ "$(id -u)" -ne 0 ]]; then
-     display="${XDG_SESSION_TYPE}"
-     sudo __XDG_SESSION_TYPE="${display}" "${launch_dir}/archypie_setup.sh"
-     exit $?
+    display="${XDG_SESSION_TYPE}"
+    sudo __XDG_SESSION_TYPE="${display}" "${launch_dir}/archypie_packages.sh" "$@"
+    exit $?
 fi
 
 __backtitle="ArchyPie Setup - Installation Folder: ${rootdir} User: ${user}"
