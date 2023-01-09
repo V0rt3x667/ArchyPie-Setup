@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .adf .adl .csw .dsd .fdi .img .ssd .uef\n\nCopy B
 rp_module_licence="GPL2 https://raw.githubusercontent.com/stardot/b-em/master/COPYING"
 rp_module_repo="git https://github.com/stardot/b-em.git master"
 rp_module_section="main"
-rp_module_flags=""
+rp_module_flags="!all x11 xwayland"
 
 function depends_b-em() {
     local depends=(
@@ -22,6 +22,9 @@ function depends_b-em() {
 
 function sources_b-em() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|(path, \".config\");|(path, \"ArchyPie/configs\");|g" -i "${md_build}/src/linux.c"
 }
 
 function build_b-em() {
@@ -51,7 +54,7 @@ function configure_b-em() {
         mkRomDir "bbcmicro"
     fi
 
-    moveConfigDir "$home/.config/${md_id}" "${md_conf_root}/bbcmicro/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/bbcmicro/${md_id}/"
 
     addEmulator 1 "${md_id}-modelb" "bbcmicro" "${md_inst}/${md_id} %ROM% -m3 -autoboot"
     addEmulator 0 "${md_id}-modela" "bbcmicro" "${md_inst}/${md_id} %ROM% -m0 -autoboot"
