@@ -36,7 +36,7 @@ function sources_ags() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|.Concat(\".local/share\");|.Concat(\"ArchyPie/configs/${md_id}\");|g" -i "${md_build}/Engine/platform/linux/acpllnx.cpp"
+    sed -e "s|.Concat(\".local/share\");|.Concat(\"ArchyPie/configs\");|g" -i "${md_build}/Engine/platform/linux/acpllnx.cpp"
 }
 
 function build_ags() {
