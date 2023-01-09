@@ -46,7 +46,7 @@ function configure_lr-scummvm() {
 
     # download and extract auxiliary data (theme, extra)
     downloadAndExtract "https://github.com/libretro/scummvm/raw/master/backends/platform/libretro/aux-data/scummvm.zip" "$biosdir"
-    chown -R "$user:$user" "$biosdir/scummvm"
+    chown -R "${user}:${user}" "$biosdir/scummvm"
 
     # basic initial configuration (if config file not found)
     if [[ ! -f "$biosdir/scummvm.ini" ]]; then
@@ -59,7 +59,7 @@ function configure_lr-scummvm() {
         iniSet "subtitles" "true"
         iniSet "multi_midi" "true"
         iniSet "gm_device" "fluidsynth"
-        chown "$user:$user" "$biosdir/scummvm.ini"
+        chown "${user}:${user}" "$biosdir/scummvm.ini"
     fi
 
     # enable speed hack core option if running in arm platform

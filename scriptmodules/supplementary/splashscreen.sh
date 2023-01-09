@@ -66,11 +66,11 @@ _EOF_
         iniConfig "=" '"' "$configdir/all/$md_id.cfg"
         iniSet "RANDOMIZE" "disabled"
     fi
-    chown "$user:$user" "$configdir/all/$md_id.cfg"
+    chown "${user}:${user}" "$configdir/all/$md_id.cfg"
 
     mkUserDir "$datadir/splashscreens"
     echo "Place your own splashscreens in here." >"$datadir/splashscreens/README.txt"
-    chown "$user:$user" "$datadir/splashscreens/README.txt"
+    chown "${user}:${user}" "$datadir/splashscreens/README.txt"
 }
 
 function enable_plymouth_splashscreen() {
@@ -135,15 +135,15 @@ function set_append_splashscreen() {
         path="$(choose_path_splashscreen)"
         [[ -z "$path" ]] && break
         file=$(choose_splashscreen "$path")
-        if [[ -n "$file" ]]; then
+        if [[ -n "${file}" ]]; then
             if [[ "$mode" == "set" ]]; then
-                echo "$file" >/etc/splashscreen.list
-                printMsgs "dialog" "Splashscreen set to '$file'"
+                echo "${file}" >/etc/splashscreen.list
+                printMsgs "dialog" "Splashscreen set to '${file}'"
                 break
             fi
             if [[ "$mode" == "append" ]]; then
-                echo "$file" >>/etc/splashscreen.list
-                printMsgs "dialog" "Splashscreen '$file' appended to /etc/splashscreen.list"
+                echo "${file}" >>/etc/splashscreen.list
+                printMsgs "dialog" "Splashscreen '${file}' appended to /etc/splashscreen.list"
             fi
         fi
     done
@@ -185,7 +185,7 @@ function randomize_splashscreen() {
     local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     iniConfig "=" '"' "$configdir/all/$md_id.cfg"
-    chown "$user:$user" "$configdir/all/$md_id.cfg"
+    chown "${user}:${user}" "$configdir/all/$md_id.cfg"
 
     case "$choice" in
         0)
@@ -231,24 +231,24 @@ function preview_splashscreen() {
             case "$choice" in
                 1)
                     file=$(choose_splashscreen "$path" "image")
-                    [[ -z "$file" ]] && break
-                    $omxiv -b "$file"
+                    [[ -z "${file}" ]] && break
+                    $omxiv -b "${file}"
                     ;;
                 2)
                     file=$(mktemp)
-                    find "$path" -type f ! -regex ".*/\..*" ! -regex ".*LICENSE" ! -regex ".*README.*" ! -regex ".*\.sh" | sort > "$file"
-                    if [[ -s "$file" ]]; then
-                        $omxiv -t 6 -T blend -b --once -f "$file"
+                    find "$path" -type f ! -regex ".*/\..*" ! -regex ".*LICENSE" ! -regex ".*README.*" ! -regex ".*\.sh" | sort > "${file}"
+                    if [[ -s "${file}" ]]; then
+                        $omxiv -t 6 -T blend -b --once -f "${file}"
                     else
                         printMsgs "dialog" "There are no splashscreens installed in $path"
                     fi
-                    rm -f "$file"
+                    rm -f "${file}"
                     break
                     ;;
                 3)
                     file=$(choose_splashscreen "$path" "video")
-                    [[ -z "$file" ]] && break
-                    omxplayer --no-osd -b --layer 10000 "$file"
+                    [[ -z "${file}" ]] && break
+                    omxplayer --no-osd -b --layer 10000 "${file}"
                     ;;
             esac
         done
@@ -257,7 +257,7 @@ function preview_splashscreen() {
 
 function download_extra_splashscreen() {
     gitPullOrClone "$datadir/splashscreens/retropie-extra" https://github.com/HerbFargus/retropie-splashscreens-extra
-    chown -R "$user:$user" "$datadir/splashscreens/retropie-extra"
+    chown -R "${user}:${user}" "$datadir/splashscreens/retropie-extra"
 }
 
 function gui_splashscreen() {

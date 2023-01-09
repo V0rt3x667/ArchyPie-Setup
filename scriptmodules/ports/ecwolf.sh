@@ -7,7 +7,7 @@
 rp_module_id="ecwolf"
 rp_module_desc="ECWolf: Advanced Source Port for Wolfenstein 3D, Spear of Destiny & Super 3D Noah's Ark"
 rp_module_licence="GPL2 https://bitbucket.org/ecwolf/ecwolf/raw/5065aaefe055bff5a8bb8396f7f2ca5f2e2cab27/docs/license-gpl.txt"
-rp_module_help="Copy your Wolfenstein 3D, Spear of Destiny & Super 3D Noah's Ark Game Files to ${romdir}/ports/wolf3d/"
+rp_module_help="Copy your Wolfenstein 3D, Spear of Destiny & Super 3D Noah's Ark Game Files To: ${romdir}/ports/wolf3d/"
 rp_module_repo="git https://bitbucket.org/ecwolf/ecwolf.git master"
 rp_module_section="opt"
 rp_module_flags=""
@@ -29,7 +29,7 @@ function depends_ecwolf() {
 }
 
 function sources_ecwolf() {
-    # "updaterevision" Will Fail With: "fatal: No names found, cannot describe anything", A Full Clone of the Repo is Required.
+    # "updaterevision" Will Fail With: "fatal: No names found, cannot describe anything", A Full Clone Of The Repo is Required.
     gitPullOrClone "${md_build}" "${md_repo_url}" "${md_repo_branch}" "" 0
 
     # Set Default Config Path(s)
@@ -65,7 +65,8 @@ function configure_ecwolf() {
     portname="wolf3d"
 
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ports/${portname}" && _game_data_wolf4sdl
+        mkRomDir "ports/${portname}"
+        _game_data_wolf4sdl
     fi
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
@@ -75,7 +76,7 @@ function configure_ecwolf() {
 
         # Set Default Settings
         config="$(mktemp)"
-        iniConfig " = " "" "${config}"
+        iniConfig ' = ' '' "${config}"
         iniSet "BaseDataPaths" "\"${romdir}/ports/${portname}\";"
         iniSet "Vid_FullScreen" "1;"
         iniSet "Vid_Vsync" "1;"

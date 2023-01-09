@@ -134,10 +134,12 @@ function configure_dxx-rebirth() {
     if [[ "${md_mode}" == "install" ]]; then
         if isPlatform "kms"; then
             for ver in 1 2; do
-                config="${md_conf_root}/descent${ver}/descent.cfg"
-                iniConfig "=" '' "${config}"
+                config="$(mktemp)"
+                iniConfig '=' '' "${config}"
                 iniSet "VSync" "1"
-                chown "${user}:${user}" "${config}"
+
+                copyDefaultConfig "${config}" "${md_conf_root}/descent${ver}/descent.cfg"
+                rm "${config}"
             done
         fi
     fi

@@ -51,7 +51,7 @@ function archypie_welcome() {
     local df_out=()
     local line
     while read line; do
-        df_out+=("$line")
+        df_out+=("${line}")
     done < <(df -h /)
 
     local rst="$(tput sgr0)"
@@ -147,8 +147,8 @@ function gui_bashwelcometweak() {
         2 "Remove Bash Welcome Tweak"
     )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        case "$choice" in
+    if [[ -n "${choice}" ]]; then
+        case "${choice}" in
             1)
                 rp_callModule bashwelcometweak install
                 printMsgs "dialog" "Installed Bash Welcome Tweak."

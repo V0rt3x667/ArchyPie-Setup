@@ -31,7 +31,7 @@ function configure_redream() {
 
     [[ "$md_mode" == "remove" ]] && return
 
-    chown -R "$user:$user" "$md_inst"
+    chown -R "${user}:${user}" "$md_inst"
 
     local dest="$md_conf_root/dreamcast/redream"
     mkUserDir "$dest"

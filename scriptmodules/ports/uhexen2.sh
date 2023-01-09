@@ -142,7 +142,6 @@ function configure_uhexen2() {
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
-
     local binary
     local params=("-basedir ${romdir}/ports/${portname}" '-f' '-vsync')
 

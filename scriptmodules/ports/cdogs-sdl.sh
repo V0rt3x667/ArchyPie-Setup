@@ -20,9 +20,9 @@ function depends_cdogs-sdl() {
         'cmake'
         'libarchive'
         'ninja'
-        'sdl2'
         'sdl2_image'
         'sdl2_mixer'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -43,9 +43,9 @@ function build_cdogs-sdl() {
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCDOGS_DATA_DIR="${md_inst}/" \
         -Wno-dev
     ninja -C build clean
@@ -54,7 +54,7 @@ function build_cdogs-sdl() {
 }
 
 function install_cdogs-sdl() {
-    md_ret_files=(        
+    md_ret_files=(
         'build/src/cdogs-sdl'
         'build/src/cdogs-sdl-editor'
         'data'
@@ -64,11 +64,11 @@ function install_cdogs-sdl() {
         'missions'
         'music'
         'sounds'
-    )  
+    )
 }
 
 function configure_cdogs-sdl() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
-    
+
     addPort "${md_id}" "${md_id}" "C-Dogs SDL" "${md_inst}/${md_id} --fullscreen"
 }

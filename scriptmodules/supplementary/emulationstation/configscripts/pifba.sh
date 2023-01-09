@@ -83,7 +83,7 @@ function map_pifba_keyboard() {
             ;;
     esac
 
-    iniSet "$key" "${sdl1_map[$input_id]}"
+    iniSet "${key}" "${sdl1_map[$input_id]}"
 }
 
 function map_pifba_joystick() {
@@ -135,7 +135,7 @@ function map_pifba_joystick() {
             ;;
     esac
 
-    iniSet "$key" "$input_id"
+    iniSet "${key}" "$input_id"
 }
 
 function onend_pifba_joystick() {

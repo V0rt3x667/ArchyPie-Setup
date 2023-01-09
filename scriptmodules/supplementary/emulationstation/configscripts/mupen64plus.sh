@@ -115,11 +115,11 @@ function map_mupen64plus_joystick() {
     #iniConfig " = " "" "/tmp/mp64keys.cfg"
     for key in "${keys[@]}"; do
         # read key value. Axis takes two key/axis values.
-        iniGet "$key"
+        iniGet "${key}"
         case "$input_type" in
             axis)
                 # key "X/Y Axis" needs different button naming
-                if [[ "$key" == *Axis* ]]; then
+                if [[ "${key}" == *Axis* ]]; then
                     # if there is already a "-" axis add "+" axis value
                     if   [[ "$ini_value" == *\(* ]]; then
                         value="${ini_value}${input_id}+)"
@@ -139,7 +139,7 @@ function map_mupen64plus_joystick() {
                 fi
                 ;;
             hat)
-                if [[ "$key" == *Axis* ]]; then
+                if [[ "${key}" == *Axis* ]]; then
                     if   [[ "$ini_value" == *\(* ]]; then
                         value="${ini_value}${dir})"
                     elif [[ "$ini_value" == *\)* ]]; then
@@ -156,7 +156,7 @@ function map_mupen64plus_joystick() {
                 fi
                 ;;
             *)
-                if [[ "$key" == *Axis* ]]; then
+                if [[ "${key}" == *Axis* ]]; then
                     if   [[ "$ini_value" == *\(* ]]; then
                         value="${ini_value}${input_id})"
                     elif [[ "$ini_value" == *\)* ]]; then
@@ -172,7 +172,7 @@ function map_mupen64plus_joystick() {
                 ;;
         esac
 
-        iniSet "$key" "$value"
+        iniSet "${key}" "$value"
     done
 }
 
@@ -222,16 +222,16 @@ function onend_mupen64plus_joystick() {
     # abort if old device config cannot be deleted.
     # keep original mupen64plus-input-sdl configs.
     local file="$configdir/n64/InputAutoCfg.ini"
-    if [[ -f "$file" ]]; then
+    if [[ -f "${file}" ]]; then
         # backup current config file
-        cp "$file" "${file}.bak"
-        sed -i /"${DEVICE_NAME}_START"/,/"${DEVICE_NAME}_END"/d "$file"
-        if grep -q "$DEVICE_NAME" "$file" ; then
+        cp "${file}" "${file}.bak"
+        sed -i /"${DEVICE_NAME}_START"/,/"${DEVICE_NAME}_END"/d "${file}"
+        if grep -q "$DEVICE_NAME" "${file}" ; then
             rm /tmp/mp64tempconfig.cfg
             return
         fi
     else
-        cat > "$file" << _EOF_
+        cat > "${file}" << _EOF_
 ; InputAutoCfg.ini for Mupen64Plus SDL Input plugin
 
 ; Keyboard_START
@@ -263,6 +263,6 @@ _EOF_
     fi
 
     # append temp device configuration to InputAutoCfg.ini
-    cat /tmp/mp64tempconfig.cfg >> "$file"
+    cat /tmp/mp64tempconfig.cfg >> "${file}"
     rm /tmp/mp64tempconfig.cfg
 }

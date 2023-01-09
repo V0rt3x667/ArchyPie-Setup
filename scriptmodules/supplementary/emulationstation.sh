@@ -221,7 +221,7 @@ if [[ \$(id -u) -eq 0 ]]; then
     exit 1
 fi
 
-if [[ "\$(uname --machine)" != x86_64 ]]; then
+if [[ "\$(uname -m)" != x86_64 ]]; then
     if [[ -n "\$(pidof X)" ]]; then
         echo "X is running. Please shut down X in order to mitigate problems with losing keyboard input. For example, logout from LXDE."
         exit 1

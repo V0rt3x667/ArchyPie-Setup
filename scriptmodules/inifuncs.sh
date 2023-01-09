@@ -43,44 +43,44 @@ function iniProcess() {
     local key="$2"
     local value="$3"
     local file="$4"
-    [[ -z "$file" ]] && file="$__ini_cfg_file"
+    [[ -z "${file}" ]] && file="$__ini_cfg_file"
     local delim="$__ini_cfg_delim"
     local quote="$__ini_cfg_quote"
 
-    [[ -z "$file" ]] && fatalError "No file provided for ini/config change"
-    [[ -z "$key" ]] && fatalError "No key provided for ini/config change on $file"
+    [[ -z "${file}" ]] && fatalError "No file provided for ini/config change"
+    [[ -z "${key}" ]] && fatalError "No key provided for ini/config change on ${file}"
 
     # we strip the delimiter of spaces, so we can "fussy" match existing entries that have the wrong spacing
     local delim_strip=${delim// /}
     # if the stripped delimiter is empty - such as in the case of a space, just use the delimiter instead
     [[ -z "$delim_strip" ]] && delim_strip="$delim"
-    local match_re="^[[:space:]#]*$key[[:space:]]*$delim_strip.*$"
+    local match_re="^[[:space:]#]*${key}[[:space:]]*$delim_strip.*$"
 
     local match
-    if [[ -f "$file" ]]; then
-        match=$(grep -i "$match_re" "$file" | tail -1)
+    if [[ -f "${file}" ]]; then
+        match=$(grep -i "$match_re" "${file}" | tail -1)
     else
-        touch "$file"
+        touch "${file}"
     fi
 
     if [[ "$cmd" == "del" ]]; then
-        [[ -n "$match" ]] && sed -i --follow-symlinks "\|$(sedQuote "$match")|d" "$file"
+        [[ -n "$match" ]] && sed -i --follow-symlinks "\|$(sedQuote "$match")|d" "${file}"
         return 0
     fi
 
-    [[ "$cmd" == "unset" ]] && key="# $key"
+    [[ "$cmd" == "unset" ]] && key="# ${key}"
 
-    local replace="$key$delim$quote$value$quote"
+    local replace="${key}$delim$quote$value$quote"
     if [[ -z "$match" ]]; then
         # make sure there is a newline then add the key-value pair
-        sed -i --follow-symlinks '$a\' "$file"
-        echo "$replace" >> "$file"
+        sed -i --follow-symlinks '$a\' "${file}"
+        echo "$replace" >> "${file}"
     else
         # replace existing key-value pair
-        sed -i --follow-symlinks "s|$(sedQuote "$match")|$(sedQuote "$replace")|g" "$file"
+        sed -i --follow-symlinks "s|$(sedQuote "$match")|$(sedQuote "$replace")|g" "${file}"
     fi
 
-    [[ "$file" =~ retroarch\.cfg$ ]] && retroarchIncludeToEnd "$file"
+    [[ "${file}" =~ retroarch\.cfg$ ]] && retroarchIncludeToEnd "${file}"
     return 0
 }
 
@@ -126,8 +126,8 @@ function iniDel() {
 function iniGet() {
     local key="$1"
     local file="$2"
-    [[ -z "$file" ]] && file="$__ini_cfg_file"
-    if [[ ! -f "$file" ]]; then
+    [[ -z "${file}" ]] && file="$__ini_cfg_file"
+    if [[ ! -f "${file}" ]]; then
         ini_value=""
         return 1
     fi
@@ -147,7 +147,7 @@ function iniGet() {
         value_m="\([^\r]*\)"
     fi
 
-    ini_value="$(sed -n "s/^[ |\t]*$key[ |\t]*$delim_strip[ |\t]*$value_m.*/\1/p" "$file" | tail -1)"
+    ini_value="$(sed -n "s/^[ |\t]*${key}[ |\t]*$delim_strip[ |\t]*$value_m.*/\1/p" "${file}" | tail -1)"
 }
 
 # @fn retroarchIncludeToEnd()
@@ -188,12 +188,12 @@ function addAutoConf() {
        default="1"
     fi
 
-    iniConfig " = " '"' "$file"
-    iniGet "$key"
+    iniConfig " = " '"' "${file}"
+    iniGet "${key}"
     ini_value="${ini_value// /}"
     if [[ -z "$ini_value" ]]; then
-        iniSet "$key" "$default"
-        chown "$user:$user" "$file"
+        iniSet "${key}" "$default"
+        chown "${user}:${user}" "${file}"
     fi
 }
 
@@ -203,9 +203,9 @@ function setAutoConf() {
     local value="$2"
     local file="$configdir/all/autoconf.cfg"
 
-    iniConfig " = " '"' "$file"
-    iniSet "$key" "$value"
-    chown "$user:$user" "$file"
+    iniConfig " = " '"' "${file}"
+    iniSet "${key}" "$value"
+    chown "${user}:${user}" "${file}"
 }
 
 # arg 1: key
@@ -213,7 +213,7 @@ function getAutoConf(){
     local key="$1"
 
     iniConfig " = " '"' "$configdir/all/autoconf.cfg"
-    iniGet "$key"
+    iniGet "${key}"
 
     [[ "$ini_value" == "1" ]] && return 0
     return 1

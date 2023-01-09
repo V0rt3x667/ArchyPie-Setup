@@ -39,7 +39,7 @@ function build_mesa-drm() {
     meson builddir --prefix="$md_inst" "${params[@]}"
     ninja -C builddir
 
-    md_ret_require="$md_build/builddir/tests/modetest/modetest"
+    md_ret_require="${md_build}/builddir/tests/modetest/modetest"
 }
 
 function install_mesa-drm() {

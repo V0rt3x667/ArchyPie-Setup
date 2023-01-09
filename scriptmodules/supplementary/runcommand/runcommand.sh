@@ -212,12 +212,12 @@ function get_all_tvs_modes() {
     local group
     for group in CEA DMT; do
         while read -r line; do
-            local id="$(echo "$line" | grep -oE "mode [0-9]*" | cut -d" " -f2)"
-            local info="$(echo "$line" | cut -d":" -f2-)"
+            local id="$(echo "${line}" | grep -oE "mode [0-9]*" | cut -d" " -f2)"
+            local info="$(echo "${line}" | cut -d":" -f2-)"
             info=${info/ /}
-            if [[ -n "$id" ]]; then
-                MODE_ID+=($group-$id)
-                MODE[$group-$id]="$info"
+            if [[ -n "${id}" ]]; then
+                MODE_ID+=($group-${id})
+                MODE[$group-${id}]="$info"
             fi
         done < <($TVSERVICE -m $group)
     done
@@ -245,15 +245,15 @@ function get_all_kms_modes() {
 
     while read -r line; do
         # encoder id
-        encoder_id="$(echo "$line" | awk '{ print $(NF-1) }')"
+        encoder_id="$(echo "${line}" | awk '{ print $(NF-1) }')"
 
         # only match encoders that are linked to the currently active crtc
         if [[ "$encoder_id" == "$crtc_encoder" ]]; then
             # mode id
-            mode_id="$(echo "$line" | awk '{ print $NF }')"
+            mode_id="$(echo "${line}" | awk '{ print $NF }')"
 
             # make output more human-readable
-            info="$(echo "$line" | awk '{--NF --NF --NF; print}' | cut -c7-)"
+            info="$(echo "${line}" | awk '{--NF --NF --NF; print}' | cut -c7-)"
 
             # populate resolution into arrays (using mapped crtc encoder value)
             MODE_ID+=($crtc-$mode_id)
@@ -272,11 +272,11 @@ function get_all_x11_modes()
     local line
     while read -r id; do
         # populate CONNECTOR:0xID into an array
-        MODE_ID+=($id) # output:id as in (hdmi:0x44)
+        MODE_ID+=(${id}) # output:id as in (hdmi:0x44)
 
         read -r line
         # array is x/y resolution @ vertical refresh rate ( details )
-        MODE[$id]="$line"
+        MODE[${id}]="${line}"
     done < <( $XRANDR --verbose | awk '
         # defines the type of line
         # true is the "header" (output and id)
@@ -430,14 +430,14 @@ function default_process() {
     iniConfig " = " '"' "$config"
     case "$mode" in
         get)
-            iniGet "$key"
+            iniGet "${key}"
             echo "$ini_value"
             ;;
         set)
-            iniSet "$key" "$value"
+            iniSet "${key}" "$value"
             ;;
         del)
-            iniDel "$key"
+            iniDel "${key}"
             ;;
     esac
 }
@@ -448,7 +448,7 @@ function default_mode() {
     local value="$3"
 
     local key
-    case "$type" in
+    case "${type}" in
         vid_emu)
             key="$SAVE_EMU"
             ;;
@@ -471,7 +471,7 @@ function default_mode() {
             key="${SAVE_EMU}_render"
             ;;
     esac
-    default_process "$VIDEO_CONF" "$mode" "$key" "$value"
+    default_process "$VIDEO_CONF" "$mode" "${key}" "$value"
 }
 
 function default_emulator() {
@@ -482,7 +482,7 @@ function default_emulator() {
     local key
     local config="$EMU_SYS_CONF"
 
-    case "$type" in
+    case "${type}" in
         emu_sys)
             key="default"
             ;;
@@ -498,7 +498,7 @@ function default_emulator() {
             config="$EMU_CONF"
             ;;
     esac
-    default_process "$config" "$mode" "$key" "$value"
+    default_process "$config" "$mode" "${key}" "$value"
 }
 
 function load_mode_defaults() {
@@ -535,13 +535,13 @@ function load_mode_defaults() {
     fi
 
     # get default fb_res (if not running on X)
-    FB_ORIG=()
-    if [[ -z "$DISPLAY" ]]; then
-        local status=($(fbset | tr -s '\n'))
-        FB_ORIG[0]="${status[3]}"
-        FB_ORIG[1]="${status[4]}"
-        FB_ORIG[2]="${status[7]}"
-    fi
+    # FB_ORIG=()
+    # if [[ -z "$DISPLAY" ]]; then
+    #     local status=($(fbset | tr -s '\n'))
+    #     FB_ORIG[0]="${status[3]}"
+    #     FB_ORIG[1]="${status[4]}"
+    #     FB_ORIG[2]="${status[7]}"
+    # fi
 
     # default retroarch render res to config file
     RENDER_RES="config"
@@ -657,9 +657,9 @@ function main_menu() {
 
         cmd=(dialog --nocancel --default-item "$default" --menu "System: $SYSTEM\nEmulator: $EMULATOR\nVideo Mode: $temp_mode\nROM: $ROM_BN"  22 76 16 )
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
+        default="${choice}"
 
-        case "$choice" in
+        case "${choice}" in
             ES)
                 choose_emulator "emu_sys" "$emu_sys"
                 ;;
@@ -679,7 +679,7 @@ function main_menu() {
                 touch "$ROM.cfg"
                 cmd=(dialog --editbox "$ROM.cfg" 22 76)
                 choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-                [[ -n "$choice" ]] && echo "$choice" >"$ROM.cfg"
+                [[ -n "${choice}" ]] && echo "${choice}" >"$ROM.cfg"
                 [[ ! -s "$ROM.cfg" ]] && rm "$ROM.cfg"
                 ;;
             FE)
@@ -726,12 +726,12 @@ function choose_mode() {
     if [[ "$mode" == vid_* ]]; then
         mode_desc="video mode for "
         for key in "${MODE_ID[@]}"; do
-            options+=("$key" "${MODE[$key]}")
+            options+=("${key}" "${MODE[${key}]}")
         done
     elif [[ "$mode" == fb_* ]]; then
         mode_desc="framebuffer resolution for "
         for key in $(get_resolutions); do
-            options+=("$key" "$key")
+            options+=("${key}" "${key}")
         done
     fi
 
@@ -750,12 +750,12 @@ function choose_mode() {
 
     local cmd=(dialog --default-item "$default" --menu "$menu_title"  22 76 16 )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    [[ -z "$choice" ]] && return
+    [[ -z "${choice}" ]] && return
 
-    if [[ "$choice" == "X" ]]; then
+    if [[ "${choice}" == "X" ]]; then
         default_mode del "$mode"
     else
-        default_mode set "$mode" "$choice"
+        default_mode set "$mode" "${choice}"
     fi
     load_mode_defaults
 }
@@ -780,12 +780,12 @@ function choose_emulator() {
         # convert key=value to array
         local line=(${line/=/ })
         local id=${line[0]}
-        [[ "$id" == "default" ]] && continue
-        local apps[$i]="$id"
-        if [[ "$id" == "$default" ]]; then
+        [[ "${id}" == "default" ]] && continue
+        local apps[$i]="${id}"
+        if [[ "${id}" == "$default" ]]; then
             default_id="$i"
         fi
-        options+=($i "$id")
+        options+=($i "${id}")
         ((i++))
     done < <(sort "$EMU_SYS_CONF")
     if [[ "${#options[@]}" -eq 0 ]]; then
@@ -804,12 +804,12 @@ function choose_emulator() {
 
     local cmd=(dialog $cancel --default-item "$default_id" --menu "$menu_title"  22 76 16 )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    [[ -z "$choice" ]] && return
+    [[ -z "${choice}" ]] && return
 
-    if [[ "$choice" == "X" ]]; then
+    if [[ "${choice}" == "X" ]]; then
         default_emulator del "$mode"
     else
-        default_emulator set "$mode" "${apps[$choice]}"
+        default_emulator set "$mode" "${apps[${choice}]}"
     fi
     get_sys_command
     set_save_vars
@@ -863,8 +863,8 @@ function choose_render_res() {
     [[ "$default" == "config" ]] && default="C"
     local cmd=(dialog --default-item "$default" --menu "Choose RetroArch render resolution" 22 76 16 )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    [[ -z "$choice" ]] && return
-    case "$choice" in
+    [[ -z "${choice}" ]] && return
+    case "${choice}" in
         O)
             choice="output"
             ;;
@@ -872,11 +872,11 @@ function choose_render_res() {
             choice="config"
             ;;
         *)
-            choice="${res[$choice-1]}"
+            choice="${res[${choice}-1]}"
             ;;
     esac
 
-    default_mode set "$mode" "$choice"
+    default_mode set "$mode" "${choice}"
     load_mode_defaults
 }
 
@@ -898,8 +898,8 @@ function user_menu() {
     while true; do
         cmd=(dialog --default-item "$default" --cancel-label "Back" --menu "Choose option"  22 76 16)
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        [[ -z "$choice" ]] && return 0
-        default="$choice"
+        [[ -z "${choice}" ]] && return 0
+        default="${choice}"
         script="runcommand-menu/${options[choice*2-1]}.sh"
         user_script "$script"
         ret="$?"
@@ -907,21 +907,21 @@ function user_menu() {
     done
 }
 
-function switch_fb_res() {
-    local res=(${1/x/ })
-    local res_x="${res[0]}"
-    local res_y="${res[1]}"
-    local depth="$2"
-    [[ -z "$depth" ]] && depth="${FB_ORIG[2]}"
+# function switch_fb_res() {
+#     local res=(${1/x/ })
+#     local res_x="${res[0]}"
+#     local res_y="${res[1]}"
+#     local depth="$2"
+#     [[ -z "$depth" ]] && depth="${FB_ORIG[2]}"
 
-    if [[ -z "$res_x" || -z "$res_y" ]]; then
-        fbset --all -depth 8
-        fbset --all -depth $depth
-    else
-        fbset --all -depth 8
-        fbset --all --geometry $res_x $res_y $res_x $res_y $depth
-    fi
-}
+#     if [[ -z "$res_x" || -z "$res_y" ]]; then
+#         fbset --all -depth 8
+#         fbset --all -depth $depth
+#     else
+#         fbset --all -depth 8
+#         fbset --all --geometry $res_x $res_y $res_x $res_y $depth
+#     fi
+# }
 
 function build_xinitrc() {
     local mode="$1"
@@ -1030,10 +1030,10 @@ function mode_switch() {
     return 1
 }
 
-function restore_fb() {
-    sleep 1
-    switch_fb_res "${FB_ORIG[0]}x${FB_ORIG[1]}" "${FB_ORIG[2]}"
-}
+# function restore_fb() {
+#     sleep 1
+#     switch_fb_res "${FB_ORIG[0]}x${FB_ORIG[1]}" "${FB_ORIG[2]}"
+# }
 
 function config_backend() {
     # if we are running under X then don't try and use a different backend
@@ -1242,7 +1242,6 @@ function show_launch() {
     done
 
     if [[ -n "$image" ]]; then
-        # if we are running under X use feh otherwise try and use fbi
         if [[ -n "$DISPLAY" ]]; then
             feh -F -N -Z -Y -q "$image" & &>/dev/null
             IMG_PID=$!
@@ -1265,7 +1264,7 @@ function check_menu() {
     local dont_launch=0
     # check for key pressed to enter configuration
     IFS= read -s -t 2 -N 1 key </dev/tty
-    if [[ -n "$key" ]]; then
+    if [[ -n "${key}" ]]; then
         [[ -n "$IMG_PID" ]] && kill -SIGINT "$IMG_PID"
         tput cnorm
         main_menu
@@ -1360,7 +1359,7 @@ function runcommand() {
     # resave info after menu and resolution replacements so runcommand.info is up to date
     log_info
 
-    [[ -n "$FB_NEW" ]] && switch_fb_res $FB_NEW
+    #[[ -n "$FB_NEW" ]] && switch_fb_res $FB_NEW
 
     config_backend "$SAVE_EMU"
 

@@ -52,12 +52,12 @@ function game_data_frotz() {
         local temp="$(mktemp -d)"
         local file
         for file in zork1 zork2 zork3; do
-            downloadAndExtract "$__archive_url/$file.zip" "$temp" -L
-            cp "$temp/data/$file.dat" "$dest"
+            downloadAndExtract "$__archive_url/${file}.zip" "$temp" -L
+            cp "$temp/data/${file}.dat" "$dest"
             rm -rf "$temp"
         done
         rm -rf "$temp"
-        chown -R "$user:$user" "$romdir/zmachine"
+        chown -R "${user}:${user}" "$romdir/zmachine"
     fi
 }
 

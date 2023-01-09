@@ -108,7 +108,7 @@ function chroot_build_builder() {
 
 
         if [[ ! -d "$chroot_rps_dir" ]]; then
-            sudo -u $user git clone "$scriptdir" "$chroot_rps_dir"
+            sudo -u ${user} git clone "$scriptdir" "$chroot_rps_dir"
             gpg --export-secret-keys "$__gpg_signing_key" >"$chroot_dir/retropie.key"
             rp_callModule image chroot "$chroot_dir" bash -c "\
                 sudo gpg --import "/retropie.key"; \
@@ -120,7 +120,7 @@ function chroot_build_builder() {
             mkdir -p "$chroot_rps_dir/$archive_dir"
             rsync -av "$scriptdir/$archive_dir/" "$chroot_rps_dir/$archive_dir/"
         else
-            sudo -u $user git -C "$chroot_rps_dir" pull
+            sudo -u ${user} git -C "$chroot_rps_dir" pull
         fi
 
         for platform in $platforms; do

@@ -39,7 +39,7 @@ function _build_depends_usbromservice() {
     local builddir="$scriptdir/pkgbuild"
     mkUserDir "$builddir"
     for pkg in pmount usbromservice; do
-        su "$user" -c 'cd '"$md_build/$pkg"' && \
+        su "${user}" -c 'cd '"$md_build/$pkg"' && \
         BUILDDIR='"$builddir"' \
         PKGDEST='"$builddir"' \
         SRCDEST='"$builddir"' \
@@ -60,7 +60,7 @@ function install_scripts_usbromservice() {
     local dest
     for file in "$md_data/"*; do
         dest="/etc/usbmount/mount.d/${file##*/}"
-        sed "s/USERTOBECHOSEN/$user/g" "$file" >"$dest"
+        sed "s/USERTOBECHOSEN/${user}/g" "${file}" >"$dest"
         chmod +x "$dest"
     done
 }
@@ -74,7 +74,7 @@ function disable_usbromservice() {
     local file
     for file in "$md_data/"*; do
         file="/etc/usbmount/mount.d/${file##*/}"
-        rm -f "$file"
+        rm -f "${file}"
     done
     [[ -d "$md_inst" ]] && touch "$md_inst/disabled"
 }
@@ -101,7 +101,7 @@ function configure_usbromservice() {
     iniSet "MOUNTOPTIONS" "nodev,noexec,noatime"
 
     # set per filesystem mount options
-    local options="uid=$(id -u $user),gid=$(id -g $user),rw"
+    local options="uid=$(id -u ${user}),gid=$(id -g ${user}),rw"
     local fs_options
     local fs
     for fs in vfat hfsplus ntfs exfat; do

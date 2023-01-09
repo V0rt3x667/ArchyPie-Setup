@@ -25,7 +25,7 @@ function sources_skyscraper() {
 function build_skyscraper() {
     QT_SELECT=5 qmake
     make
-    md_ret_require="$md_build/Skyscraper"
+    md_ret_require="${md_build}/Skyscraper"
 }
 
 function install_skyscraper() {
@@ -81,9 +81,9 @@ function _clear_platform_skyscraper() {
     [[ ! -d "$configdir/all/skyscraper/$cache_folder/$platform" ]] && return
 
     if [[ $mode == "vacuum" ]]; then
-        sudo -u "$user" stdbuf -o0 $md_inst/Skyscraper --flags unattend -p "$platform" --cache vacuum
+        sudo -u "${user}" stdbuf -o0 $md_inst/Skyscraper --flags unattend -p "$platform" --cache vacuum
     else
-        sudo -u "$user" stdbuf -o0 $md_inst/Skyscraper --flags unattend -p "$platform" --cache purge:all
+        sudo -u "${user}" stdbuf -o0 $md_inst/Skyscraper --flags unattend -p "$platform" --cache purge:all
     fi
     sleep 5
 }
@@ -129,7 +129,7 @@ function _get_ver_skyscraper() {
 function _check_ver_skyscraper() {
     ver=$(_get_ver_skyscraper)
 
-    compareVersions "$ver" "3.5"
+    compareVersions "${ver}" "3.5"
 
     if [[ $? == -1 ]]; then
         printMsgs "dialog" "The version of Skyscraper you currently have installed is incompatible with options used by this script. Please update Skyscraper to the latest version to continue."
@@ -191,7 +191,7 @@ function configure_skyscraper() {
     done
 
     _init_config_skyscraper
-    chown -R "$user:$user" "$configdir/all/skyscraper"
+    chown -R "${user}:${user}" "$configdir/all/skyscraper"
 }
 
 function _init_config_skyscraper() {
@@ -212,14 +212,14 @@ function _init_config_skyscraper() {
 
     # Try to find the rest of the necessary files from the qmake build file
     # They should be listed in the `unix:examples.file` configuration line
-    if [[ $(grep unix:examples.files "$md_build/skyscraper.pro" 2>/dev/null | cut -d= -f2-) ]]; then
-        local files=$(grep unix:examples.files "$md_build/skyscraper.pro" | cut -d= -f2-)
+    if [[ $(grep unix:examples.files "${md_build}/skyscraper.pro" 2>/dev/null | cut -d= -f2-) ]]; then
+        local files=$(grep unix:examples.files "${md_build}/skyscraper.pro" | cut -d= -f2-)
         local file
 
         for file in $files; do
             # Copy the files to the configuration folder. Skip config.ini, artwork.xml and aliasMap.csv
-            if [[ $file != "artwork.xml" && $file != "config.ini" && $file != "aliasMap.csv" ]]; then
-                cp -f "$md_build/$file" "$scraper_conf_dir"
+            if [[ ${file} != "artwork.xml" && ${file} != "config.ini" && ${file} != "aliasMap.csv" ]]; then
+                cp -f "${md_build}/${file}" "$scraper_conf_dir"
             fi
         done
     else
@@ -303,7 +303,7 @@ function _scrape_skyscraper() {
 
     # trap ctrl+c and return if pressed (rather than exiting archypie-setup etc)
     trap 'trap 2; return 1' INT
-        sudo -u "$user" stdbuf -o0  "$md_inst/Skyscraper" "${params[@]}"
+        sudo -u "${user}" stdbuf -o0  "$md_inst/Skyscraper" "${params[@]}"
         echo -e "\nCOMMAND LINE USED:\n $md_inst/Skyscraper" "${params[@]}"
         sleep 2
     trap 2
@@ -339,12 +339,12 @@ function _scrape_chosen_skyscraper() {
     # Confirm with the user that scraping can start
     dialog --clear --colors --yes-label "Proceed" --no-label "Abort" --yesno "This will start the gathering process, which can take a long time if you have a large game collection.\n\nYou can interrupt this process anytime by pressing \ZbCtrl+C\Zn.\nProceed ?" 12 70 2>&1 >/dev/tty
     [[ ! $? -eq 0 ]] && return 1
-    
+
     local choice
 
     for choice in "${choices[@]}"; do
         choice="${options[choice*3-2]}"
-        _scrape_skyscraper "$choice" "$@"
+        _scrape_skyscraper "${choice}" "$@"
     done
 }
 
@@ -368,7 +368,7 @@ function _generate_chosen_skyscraper() {
     fi
 
     local choices
-    local cmd=(dialog --backtitle "$__backtitle" --ok-label "Start" --cancel-label "Back" --checklist " Select platforms for gamelist(s) generation\n\n" 22 60 16) 
+    local cmd=(dialog --backtitle "$__backtitle" --ok-label "Start" --cancel-label "Back" --checklist " Select platforms for gamelist(s) generation\n\n" 22 60 16)
 
     choices=($("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty))
 
@@ -377,7 +377,7 @@ function _generate_chosen_skyscraper() {
 
     for choice in "${choices[@]}"; do
         choice="${options[choice*3-2]}"
-        _scrape_skyscraper "$choice" "cache" "$@"
+        _scrape_skyscraper "${choice}" "cache" "$@"
     done
 }
 
@@ -400,7 +400,7 @@ function _load_config_skyscraper() {
 function _open_editor_skyscraper() {
   local editor
   editor="${EDITOR:-nano}"
-  sudo -u "$user" "$editor" "$1" >/dev/tty </dev/tty
+  sudo -u "${user}" "$editor" "$1" >/dev/tty </dev/tty
 }
 
 function _gui_advanced_skyscraper() {
@@ -426,10 +426,10 @@ function _gui_advanced_skyscraper() {
 
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
 
-        if [[ -n "$choice" ]]; then
-            local default="$choice"
+        if [[ -n "${choice}" ]]; then
+            local default="${choice}"
 
-            case "$choice" in
+            case "${choice}" in
 
                 E)
                     _open_editor_skyscraper "$configdir/all/skyscraper/config.ini"
@@ -464,7 +464,7 @@ function gui_skyscraper() {
 
     iniConfig " = " '"' "$configdir/all/skyscraper.cfg"
     eval $(_load_config_skyscraper)
-    chown "$user":"$user" "$configdir/all/skyscraper.cfg"
+    chown "${user}":"${user}" "$configdir/all/skyscraper.cfg"
 
     local -a s_source
     local -a s_source_names
@@ -512,9 +512,9 @@ function gui_skyscraper() {
     ver=$(_get_ver_skyscraper)
 
     while true; do
-        [[ -z "$ver" ]] && ver="v(Git)"
+        [[ -z "${ver}" ]] && ver="v(Git)"
 
-        local cmd=(dialog --backtitle "$__backtitle"  --colors --cancel-label "Exit" --help-button --no-collapse --cr-wrap --default-item "$default" --menu "   Skyscraper: game scraper by Lars Muldjord ($ver)\\n \\n" 22 60 12)
+        local cmd=(dialog --backtitle "$__backtitle"  --colors --cancel-label "Exit" --help-button --no-collapse --cr-wrap --default-item "$default" --menu "   Skyscraper: game scraper by Lars Muldjord (${ver})\\n \\n" 22 60 12)
 
         local options=(
             "-" "GATHER and cache resources"
@@ -563,10 +563,10 @@ function gui_skyscraper() {
         # Run the GUI
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
-        if [[ -n "$choice" ]]; then
-            local default="$choice"
+        if [[ -n "${choice}" ]]; then
+            local default="${choice}"
 
-            case "$choice" in
+            case "${choice}" in
 
                 1)
                     if _scrape_chosen_skyscraper; then
@@ -643,11 +643,11 @@ function gui_skyscraper() {
                 U)
                     local latest_ver="$(_get_branch_skyscraper)"
                     # check for update
-                    compareVersions "$latest_ver" "$ver"
+                    compareVersions "$latest_ver" "${ver}"
                     if [[ $? == -1 ]]; then
-                        printMsgs "dialog" "There is a new version available. Latest released version is $latest_ver (You are running $ver).\n\nYou can update the package from ArchyPie-Setup -> Manage Packages"
+                        printMsgs "dialog" "There is a new version available. Latest released version is $latest_ver (You are running ${ver}).\n\nYou can update the package from ArchyPie-Setup -> Manage Packages"
                     else
-                        printMsgs "dialog" "You are running the latest version ($ver)."
+                        printMsgs "dialog" "You are running the latest version (${ver})."
                     fi
                     ;;
 
@@ -736,10 +736,10 @@ function _gui_cache_skyscraper() {
 
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
 
-        if [[ -n "$choice" ]]; then
-            local default="$choice"
+        if [[ -n "${choice}" ]]; then
+            local default="${choice}"
 
-            case "$choice" in
+            case "${choice}" in
 
                 1)
                     cache_screenshots="$((cache_screenshots ^ 1))"
@@ -836,10 +836,10 @@ function _gui_generate_skyscraper() {
 
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
 
-        if [[ -n "$choice" ]]; then
-            local default="$choice"
+        if [[ -n "${choice}" ]]; then
+            local default="${choice}"
 
-            case "$choice" in
+            case "${choice}" in
 
                 1)
                     rom_name="$((rom_name ^ 1))"

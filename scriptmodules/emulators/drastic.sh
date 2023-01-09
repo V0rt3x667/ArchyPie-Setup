@@ -57,6 +57,6 @@ _EOF_
 
     local file
     for file in game_database.xml system/drastic_bios_arm7.bin system/drastic_bios_arm9.bin usrcheat.dat drastic_logo_0.raw drastic_logo_1.raw; do
-        ln -sfv "$md_inst/$file" "$md_conf_root/nds/drastic/$file"
+        ln -sfv "$md_inst/${file}" "$md_conf_root/nds/drastic/${file}"
     done
 }

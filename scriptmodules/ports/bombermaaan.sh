@@ -17,7 +17,8 @@ function depends_bombermaaan() {
         'dos2unix'
         'ninja'
         'sdl_mixer'
-        'sdl12-compat' 
+        'sdl12-compat'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -33,8 +34,8 @@ function sources_bombermaaan() {
 
     # Set Fullscreen By Default
     sed -e "s|DISPLAYMODE_WINDOWED;|DISPLAYMODE_FULL3;|g" -i "${md_build}/trunk/src/COptions.cpp"
-    
-    # "SDL 1 Classic" is Required To Build Bombermaaan. The sdl12-compat Package is Used to Run Bombermaaan.
+
+    # "SDL 1 Classic" Is Required To Build Bombermaaan. The "sdl12-compat" Package Is Used to Run Bombermaaan.
     _sources_sdl
 }
 
@@ -56,13 +57,13 @@ function build_bombermaaan() {
         -Strunk \
         -Btrunk/build \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DSDLMAIN_LIBRARY="${md_build}/sdl/build/.libs/libSDLmain.a" \
         -DSDL_LIBRARY="${md_build}/sdl/build/.libs/libSDL.so" \
         -DSDL_INCLUDE_DIR="${md_build}/sdl/include" \
-        -DLOAD_RESOURCES_FROM_FILES=ON \
+        -DLOAD_RESOURCES_FROM_FILES="ON" \
         -Wno-dev
     ninja -C trunk/build clean
     ninja -C trunk/build

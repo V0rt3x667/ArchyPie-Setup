@@ -23,14 +23,14 @@ function remove_mobilegamepad() {
 
 function sources_mobilegamepad() {
     gitPullOrClone "$md_inst"
-    chown -R "$user:$user" "$md_inst"
+    chown -R "${user}:${user}" "$md_inst"
 }
 
 function install_mobilegamepad() {
     npm install -g grunt-cli
     npm install pm2 -g --unsafe-perm
     cd "$md_inst"
-    sudo -u $user npm install
+    sudo -u ${user} npm install
 }
 
 function configure_mobilegamepad() {

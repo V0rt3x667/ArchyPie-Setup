@@ -42,7 +42,7 @@ function install_bin_gamecondriver() {
         gitPullOrClone "$module_name" "$github_url/$module_name"
 
         pushd "$module_name"
-        dkmsManager remove "$module_name" 
+        dkmsManager remove "$module_name"
         ln -sfn "`pwd`/$module_name-$module_ver" /usr/src/"$module_name-$module_ver"
         dkms install --force -m "$module_name" -v "$module_ver"
         popd
@@ -175,9 +175,9 @@ function gui_gamecondriver() {
     while true; do
         local cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --menu "Choose an option." 22 86 16)
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
-        if [[ -n "$choice" ]]; then
-            case "$choice" in
+        default="${choice}"
+        if [[ -n "${choice}" ]]; then
+            case "${choice}" in
                 1)
                     dialog --defaultno --yesno "Gamecon driver supports RetroPie GPIO adapter board for 2 SNES controllers. Do you want to configure gamecon for 2 SNES controllers?"  22 76 >/dev/tty || continue
                     dual_snes_gamecondriver

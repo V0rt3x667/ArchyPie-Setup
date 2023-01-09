@@ -58,7 +58,7 @@ function enable_at_start_snesdev() {
 function set_adapter_version_snesdev() {
     local ver="$1"
     iniConfig "=" "" "/etc/snesdev.cfg"
-    if [[ "$ver" -eq 1 ]]; then
+    if [[ "${ver}" -eq 1 ]]; then
         iniSet "adapter_version" "1x"
     else
         iniSet "adapter_version" "2x"
@@ -81,8 +81,8 @@ function gui_snesdev() {
         D "Disable SNESDev on boot and SNESDev keyboard mapping"
     )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        case "$choice" in
+    if [[ -n "${choice}" ]]; then
+        case "${choice}" in
             1)
                 enable_at_start_snesdev 3
                 make -C "$md_inst" installservice

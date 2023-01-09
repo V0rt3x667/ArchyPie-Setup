@@ -29,13 +29,13 @@ function getBind() {
     local m64p_hotkey="J$2"
     local file="$3"
 
-    iniConfig " = " "" "$file"
+    iniConfig " = " "" "${file}"
 
     # search hotkey enable button
     local hotkey
     local input_type
     local i=0
-    for hotkey in input_enable_hotkey "$key"; do
+    for hotkey in input_enable_hotkey "${key}"; do
         for input_type in "_btn" "_axis"; do
             iniGet "${hotkey}${input_type}"
             ini_value="${ini_value// /}"
@@ -113,12 +113,12 @@ function remap() {
             # get name of retroarch auto config file
             file=$(grep -lF "\"${devices[$device_num]}\"" "$configdir/all/retroarch-joypads/"*.cfg)
             atebitdo_hack=0
-            [[ "$file" == *8Bitdo* ]] && getAutoConf "8bitdo_hack" && atebitdo_hack=1
-            if [[ -f "$file" ]]; then
+            [[ "${file}" == *8Bitdo* ]] && getAutoConf "8bitdo_hack" && atebitdo_hack=1
+            if [[ -f "${file}" ]]; then
                 if [[ -n "$bind" && "$bind" != *, ]]; then
                     bind+=","
                 fi
-                bind+=$(getBind "${hotkeys_rp[$i]}" "${device_num}" "$file")
+                bind+=$(getBind "${hotkeys_rp[$i]}" "${device_num}" "${file}")
             fi
         done
         # write hotkey to mupen64plus.cfg
@@ -167,7 +167,7 @@ function testCompatibility() {
     # fallback for glesn64 and rice plugin
     # some roms lead to a black screen of death
     local game
-    
+
     # these games need RSP-LLE
     local blacklist=(
         naboo

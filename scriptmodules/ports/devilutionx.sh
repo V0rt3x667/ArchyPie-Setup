@@ -24,9 +24,9 @@ function depends_devilutionx() {
         'libsodium'
         'ninja'
         'perl-rename'
-        'sdl2'
         'sdl2_mixer'
         'sdl2_ttf'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -36,19 +36,19 @@ function sources_devilutionx() {
 }
 
 function build_devilutionx() {
-    local ver 
+    local ver
     ver="$(_get_branch_devilutionx)"
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DVERSION_NUM="${ver}" \
-        -DDEVILUTIONX_SYSTEM_LIBFMT=ON \
-        -DDEVILUTIONX_SYSTEM_LIBSODIUM=ON \
-        -DBUILD_TESTING=OFF \
-        -DPIE=ON \
+        -DDEVILUTIONX_SYSTEM_LIBFMT="ON" \
+        -DDEVILUTIONX_SYSTEM_LIBSODIUM="ON" \
+        -DBUILD_TESTING="OFF" \
+        -DPIE="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -58,8 +58,8 @@ function build_devilutionx() {
 function install_devilutionx() {
     md_ret_files=(
         'build/devilutionx'
-        'Packaging/resources/assets/'
         'Packaging/nix/README.txt'
+        'Packaging/resources/assets/'
     )
 }
 
@@ -68,16 +68,16 @@ function _add_games_devilutionx() {
     local dir
     local game
     local portname
-    
+
     declare -A games=(
         ['diabdat.mpq']="Diablo"
         ['hellfire.mpq']="Diablo: Hellfire"
         ['spawn.mpq']="Diablo: Spawn (Shareware)"
     )
-    portname="diablo"
 
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
     for game in "${!games[@]}"; do
+        portname="diablo"
         dir="${romdir}/ports/${portname}"
         if [[ "${md_mode}" == "install" ]]; then
             pushd "${dir}" || return

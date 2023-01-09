@@ -118,7 +118,7 @@ function _pkg_info_mupen64plus() {
                 repo=($repo) # Do not quote
                 out=$(rp_getRemoteRepoHash git https://github.com/${repo[0]}/${repo[1]} ${repo[2]})
                 if [[ -z "$out" ]]; then
-                    printMsgs "console" "$id repository failed - https://github.com/${repo[0]}/${repo[1]} ${repo[2]}"
+                    printMsgs "console" "${id} repository failed - https://github.com/${repo[0]}/${repo[1]} ${repo[2]}"
                     ret=1
                 fi
             done < <(_get_repos_mupen64plus)
@@ -317,12 +317,12 @@ function configure_mupen64plus() {
     # a default config for reference
     if [[ -f "$config" ]]; then
         mv "$config" "$config.user"
-        su "$user" -c "$cmd"
+        su "${user}" -c "$cmd"
         mv "$config" "$config.rp-dist"
         mv "$config.user" "$config"
         config+=".rp-dist"
     else
-        su "$user" -c "$cmd"
+        su "${user}" -c "$cmd"
     fi
 
     # RPI main/GLideN64 settings
@@ -376,5 +376,5 @@ function configure_mupen64plus() {
     addAutoConf mupen64plus_hotkeys 1
     addAutoConf mupen64plus_texture_packs 1
 
-    chown -R "$user:$user" "$md_conf_root/n64"
+    chown -R "${user}:${user}" "$md_conf_root/n64"
 }

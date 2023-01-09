@@ -76,7 +76,7 @@ function _add_games_lr-prboom() {
 
 function configure_lr-prboom() {
     local portname
-    portname=doom
+    portname="doom"
 
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${portname}"

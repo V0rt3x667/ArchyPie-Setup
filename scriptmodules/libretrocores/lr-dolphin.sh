@@ -66,7 +66,7 @@ function configure_lr-dolphin() {
     mkUserDir "$biosdir/dolphin-emu"
 
     cp -r "$md_inst/Sys" "$biosdir/dolphin-emu"
-    chown -R "$user:$user" "$biosdir/dolphin-emu"
+    chown -R "${user}:${user}" "$biosdir/dolphin-emu"
 
     addEmulator 0 "$md_id" "gc" "$md_inst/dolphin_libretro.so"
     addEmulator 0 "$md_id" "wii" "$md_inst/dolphin_libretro.so"

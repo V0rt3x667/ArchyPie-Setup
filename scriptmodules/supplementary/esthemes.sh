@@ -9,13 +9,7 @@ rp_module_desc="Install Themes for EmulationStation"
 rp_module_section="config"
 
 function depends_esthemes() {
-    if isPlatform "x11"; then
-        getDepends feh
-    elif isPlatform "wayland"; then
-        getDepends imv
-    else
-        getDepends fbida
-    fi
+    getDepends imv
 }
 
 function install_theme_esthemes() {
@@ -332,26 +326,24 @@ function gui_esthemes() {
             ((i++))
         done
         local cmd=(dialog --default-item "$default" --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
-        local choice 
+        local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
-        [[ -z "$choice" ]] && break
-        case "$choice" in
+        default="${choice}"
+        [[ -z "${choice}" ]] && break
+        case "${choice}" in
             G)
                 if [[ "${status[0]}" == "i" ]]; then
                     options=(1 "View Theme Gallery" 2 "Update Theme Gallery" 3 "Remove Theme Gallery")
                     cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for gallery" 12 40 06)
-                    local choice 
+                    local choice
                     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                    case "$choice" in
+                    case "${choice}" in
                         1)
                             cd "$gallerydir" || exit
-                            if isPlatform "x11"; then
-                                feh --info "echo %f" --slideshow-delay 6 --fullscreen --auto-zoom --filelist images.list
+                            if isPlatform "x11" || isPlatform "kms"; then
+                                imv -d -s full -t 6
                             elif isPlatform "wayland"; then
                                 imv-wayland -d -s full -t 6
-                            else
-                                fbi --timeout 6 --once --autozoom --list images.list
                             fi
                             ;;
                         2)
@@ -387,9 +379,9 @@ function gui_esthemes() {
                 if [[ "${status[choice]}" == "i" ]]; then
                     options=(1 "Update $name" 2 "Uninstall $name")
                     cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for theme" 12 60 06)
-                    local choice 
+                    local choice
                     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                    case "$choice" in
+                    case "${choice}" in
                         1)
                             rp_callModule esthemes install_theme "$theme" "$repo" "$branch"
                             ;;

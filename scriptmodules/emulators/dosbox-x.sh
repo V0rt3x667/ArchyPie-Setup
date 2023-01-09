@@ -59,7 +59,7 @@ function configure_dosbox-x() {
 
     [[ "$md_id" == "remove" ]] && return
 
-    local config_path=$(su "$user" -c "\"$md_inst/bin/dosbox-x\" -printconf")
+    local config_path=$(su "${user}" -c "\"$md_inst/bin/dosbox-x\" -printconf")
     if [[ -f "$config_path" ]]; then
         iniConfig " = " "" "$config_path"
         if isPlatform "rpi"; then

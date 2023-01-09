@@ -388,7 +388,7 @@ function combine_json_image() {
         local i=0
         while read file; do
             [[ "$i" -gt 0 ]] && echo -en ",\n"
-            template="$(<$file)"
+            template="$(<${file})"
             echo -n "$template"
             ((i++))
         done < <(find "$dest" -name "*.img.json" | sort)

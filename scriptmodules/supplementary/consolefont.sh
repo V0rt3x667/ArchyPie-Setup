@@ -46,8 +46,8 @@ function gui_consolefont() {
         D "Default (Kernel font 8x16 - Restart needed)"
     )
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        case "$choice" in
+    if [[ -n "${choice}" ]]; then
+        case "${choice}" in
             1)
                 set_consolefont "VGA" "16x32"
                 ;;
@@ -70,7 +70,7 @@ function gui_consolefont() {
                 set_consolefont "" ""
                 ;;
         esac
-        if [[ "$choice" == "D" ]]; then
+        if [[ "${choice}" == "D" ]]; then
             printMsgs "dialog" "Default font will be used (provided by the Kernel).\n\nYou will need to reboot to see the change."
         else
             printMsgs "dialog" "New font configuration applied: $(check_consolefont)"

@@ -133,8 +133,8 @@ function package_setup() {
     local id="$1"
     local default=""
 
-    if ! rp_isEnabled "$id"; then
-        printMsgs "dialog" "Sorry but package '$id' is not available for your system ($__platform)\n\nPackage Flags: ${__mod_info[$id/flags]}\n\nYour $__platform Flags: ${__platform_flags[*]}"
+    if ! rp_isEnabled "${id}"; then
+        printMsgs "dialog" "Sorry but package '${id}' is not available for your system ($__platform)\n\nPackage Flags: ${__mod_info[${id}/flags]}\n\nYour $__platform Flags: ${__platform_flags[*]}"
         return 1
     fi
 
@@ -155,11 +155,11 @@ function package_setup() {
         isConnected && has_net=1
 
         # For modules with nonet flag that don't need to download data, we force has_net to 1, so we get install options
-        hasFlag "${__mod_info[$id/flags]}" "nonet" && has_net=1
+        hasFlag "${__mod_info[${id}/flags]}" "nonet" && has_net=1
 
         if [[ "$has_net" -eq 1 ]]; then
-            dialog --backtitle "$__backtitle" --infobox "Checking for updates for $id ..." 3 60 >/dev/tty
-            rp_hasBinary "$id"
+            dialog --backtitle "$__backtitle" --infobox "Checking for updates for ${id} ..." 3 60 >/dev/tty
+            rp_hasBinary "${id}"
             local ret="$?"
             [[ "$ret" -eq 0 ]] && has_binary=1
             [[ "$ret" -eq 2 ]] && has_net=0
@@ -169,14 +169,14 @@ function package_setup() {
 
         local pkg_origin=""
         local pkg_date=""
-        if ! rp_isInstalled "$id"; then
+        if ! rp_isInstalled "${id}"; then
             status="Not Installed"
         else
             is_installed=1
 
-            rp_loadPackageInfo "$id"
-            pkg_origin="${__mod_info[$id/pkg_origin]}"
-            pkg_date="${__mod_info[$id/pkg_date]}"
+            rp_loadPackageInfo "${id}"
+            pkg_origin="${__mod_info[${id}/pkg_origin]}"
+            pkg_date="${__mod_info[${id}/pkg_date]}"
             [[ -n "$pkg_date" ]] && pkg_date="$(date -u -d "$pkg_date" 2>/dev/null)"
 
             status="Installed from $pkg_origin"
@@ -184,7 +184,7 @@ function package_setup() {
             [[ -n "$pkg_date" ]] && status+=" (Built: $pkg_date)"
 
             if [[ "$has_net" -eq 1 ]]; then
-                rp_hasNewerModule "$id" "$pkg_origin"
+                rp_hasNewerModule "${id}" "$pkg_origin"
                 local has_newer="$?"
                 case "$has_newer" in
                     0)
@@ -236,11 +236,11 @@ function package_setup() {
             options+=(X "Remove")
         fi
 
-        if [[ -d "$__builddir/$id" ]]; then
+        if [[ -d "$__builddir/${id}" ]]; then
             options+=(Z "Clean Source Folder")
         fi
 
-        local help="${__mod_info[$id/desc]}\n\n${__mod_info[$id/help]}"
+        local help="${__mod_info[${id}/desc]}\n\n${__mod_info[${id}/help]}"
         if [[ -n "$help" ]]; then
             options+=(H "Package Help")
         fi
@@ -249,16 +249,16 @@ function package_setup() {
             options+=(V "Package Version Information")
         fi
 
-        cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --default-item "$default" --menu "Choose an option for $id\n$status" 22 76 16)
+        cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --default-item "$default" --menu "Choose an option for ${id}\n$status" 22 76 16)
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
+        default="${choice}"
         local logfilename
 
-        case "$choice" in
+        case "${choice}" in
             U|B|S)
-                dialog --defaultno --yesno "Are you sure you want to ${option_msgs[$choice]}?" 22 76 2>&1 >/dev/tty || continue
+                dialog --defaultno --yesno "Are you sure you want to ${option_msgs[${choice}]}?" 22 76 2>&1 >/dev/tty || continue
                 local mode
-                case "$choice" in
+                case "${choice}" in
                     U) mode="_auto_" ;;
                     B) mode="_binary_" ;;
                     S) mode="_source_" ;;
@@ -267,7 +267,7 @@ function package_setup() {
                 rps_logInit
                 {
                     rps_logStart
-                    rp_installModule "$id" "$mode"
+                    rp_installModule "${id}" "$mode"
                     rps_logEnd
                 } &> >(_setup_gzip_log "$logfilename")
                 rps_printInfo "$logfilename"
@@ -276,14 +276,14 @@ function package_setup() {
                 rps_logInit
                 {
                     rps_logStart
-                    rp_callModule "$id" gui
+                    rp_callModule "${id}" gui
                     rps_logEnd
                 } &> >(_setup_gzip_log "$logfilename")
                 rps_printInfo "$logfilename"
                 ;;
             X)
-                local text="Are you sure you want to remove $id?"
-                case "${__mod_info[$id/section]}" in
+                local text="Are you sure you want to remove ${id}?"
+                case "${__mod_info[${id}/section]}" in
                     core)
                         text+="\n\nWARNING! - Core packages are needed for ArchyPie to function!"
                         ;;
@@ -297,7 +297,7 @@ function package_setup() {
                 {
                     rps_logStart
                     clear
-                    rp_callModule "$id" remove
+                    rp_callModule "${id}" remove
                     rps_logEnd
                 } &> >(_setup_gzip_log "$logfilename")
                 rps_printInfo "$logfilename"
@@ -307,24 +307,24 @@ function package_setup() {
                 ;;
             V)
                 local info
-                rp_loadPackageInfo "$id"
+                rp_loadPackageInfo "${id}"
                 read -r -d '' info << _EOF_
-Package Origin: ${__mod_info[$id/pkg_origin]}
-Build Date: ${__mod_info[$id/pkg_date]}
+Package Origin: ${__mod_info[${id}/pkg_origin]}
+Build Date: ${__mod_info[${id}/pkg_date]}
 
 Built from Source:
 
-Type: ${__mod_info[$id/pkg_repo_type]}
-URL: ${__mod_info[$id/pkg_repo_url]}
-Branch: ${__mod_info[$id/pkg_repo_branch]}
-Commit: ${__mod_info[$id/pkg_repo_commit]}
-Date: ${__mod_info[$id/pkg_repo_date]}
+Type: ${__mod_info[${id}/pkg_repo_type]}
+URL: ${__mod_info[${id}/pkg_repo_url]}
+Branch: ${__mod_info[${id}/pkg_repo_branch]}
+Commit: ${__mod_info[${id}/pkg_repo_commit]}
+Date: ${__mod_info[${id}/pkg_repo_date]}
 _EOF_
                printMsgs "dialog" "$info"
                ;;
             Z)
-                rp_callModule "$id" clean
-                printMsgs "dialog" "$__builddir/$id has been removed."
+                rp_callModule "${id}" clean
+                printMsgs "dialog" "$__builddir/${id} has been removed."
                 ;;
             *)
                 break
@@ -343,9 +343,9 @@ function section_gui_setup() {
             local id
             for id in "${__mod_id[@]}"; do
                 # If we are showing installed packaged, skip those that are not installed
-                [[ "$section" == "inst" ]] && ! rp_isInstalled "$id" && continue
+                [[ "$section" == "inst" ]] && ! rp_isInstalled "${id}" && continue
                 # Don't show packages from depends or modules with no section (admin)
-                ! [[ "${__mod_info[$id/section]}" =~ ^(depends|config|)$ ]] && ids+=("$id")
+                ! [[ "${__mod_info[${id}/section]}" =~ ^(depends|config|)$ ]] && ids+=("${id}")
             done
             ;;
          *)
@@ -373,27 +373,27 @@ function section_gui_setup() {
         local type
         local last_type=""
         for id in "${ids[@]}"; do
-            local type="${__mod_info[$id/vendor]} - ${__mod_info[$id/type]}"
+            local type="${__mod_info[${id}/vendor]} - ${__mod_info[${id}/type]}"
             # Create a heading for each origin and module type
-            if [[ "$last_type" != "$type" ]]; then
-                info="$type"
+            if [[ "$last_type" != "${type}" ]]; then
+                info="${type}"
                 pkgs+=("----" "\Z4$info ----" "Packages from $info")
-                last_type="$type"
+                last_type="${type}"
             fi
-            if ! rp_isEnabled "$id"; then
-                info="\Z1$id\Zn"
+            if ! rp_isEnabled "${id}"; then
+                info="\Z1${id}\Zn"
             else
-                if rp_isInstalled "$id"; then
-                    rp_loadPackageInfo "$id" "pkg_origin"
-                    local pkg_origin="${__mod_info[$id/pkg_origin]}"
+                if rp_isInstalled "${id}"; then
+                    rp_loadPackageInfo "${id}" "pkg_origin"
+                    local pkg_origin="${__mod_info[${id}/pkg_origin]}"
 
-                    info="$id (Installed - via $pkg_origin)"
+                    info="${id} (Installed - via $pkg_origin)"
                     ((num_pkgs++))
                 else
-                    info="$id"
+                    info="${id}"
                 fi
             fi
-            pkgs+=("${__mod_idx[$id]}" "$info" "$id - ${__mod_info[$id/desc]}"$'\n\n'"${__mod_info[$id/help]}")
+            pkgs+=("${__mod_idx[${id}]}" "$info" "${id} - ${__mod_info[${id}/desc]}"$'\n\n'"${__mod_info[${id}/help]}")
         done
 
         if [[ "$has_net" -eq 1 && "$num_pkgs" -gt 0 ]]; then
@@ -415,7 +415,7 @@ function section_gui_setup() {
 
         local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        [[ -z "$choice" ]] && break
+        [[ -z "${choice}" ]] && break
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
             # Remove HELP
             choice="${choice[@]:5}"
@@ -423,30 +423,30 @@ function section_gui_setup() {
             default="${choice/%\ */}"
             # Remove ID
             choice="${choice#* }"
-            printMsgs "dialog" "$choice"
+            printMsgs "dialog" "${choice}"
             continue
         fi
 
-        default="$choice"
+        default="${choice}"
 
         local logfilename
-        case "$choice" in
+        case "${choice}" in
             U|I)
                 local mode="update"
-                [[ "$choice" == "I" ]] && mode="install"
+                [[ "${choice}" == "I" ]] && mode="install"
                 dialog --defaultno --yesno "Are you sure you want to $mode all installed $name?" 22 76 2>&1 >/dev/tty || continue
                 rps_logInit
                 {
                     rps_logStart
                     for id in "${ids[@]}"; do
-                        ! rp_isEnabled "$id" && continue
+                        ! rp_isEnabled "${id}" && continue
                         # if we are updating, skip packages that are not installed
                         if [[ "$mode" == "update" ]]; then
-                            if rp_isInstalled "$id"; then
-                                rp_installModule "$id" "_update_"
+                            if rp_isInstalled "${id}"; then
+                                rp_installModule "${id}" "_update_"
                             fi
                         else
-                            rp_installModule "$id" "_auto_"
+                            rp_installModule "${id}" "_auto_"
                         fi
                     done
                     rps_logEnd
@@ -461,7 +461,7 @@ function section_gui_setup() {
                 {
                     rps_logStart
                     for id in "${ids[@]}"; do
-                        rp_isInstalled "$id" && rp_callModule "$id" remove
+                        rp_isInstalled "${id}" && rp_callModule "${id}" remove
                     done
                     rps_logEnd
                 } &> >(_setup_gzip_log "$logfilename")
@@ -470,7 +470,7 @@ function section_gui_setup() {
             ----)
                 ;;
             *)
-                package_setup "${__mod_id[$choice]}"
+                package_setup "${__mod_id[${choice}]}"
                 ;;
         esac
     done
@@ -483,8 +483,8 @@ function config_gui_setup() {
         local id
         for id in "${__mod_id[@]}"; do
             # Show all configuration modules and any installed packages with a GUI function
-            if [[ "${__mod_info[$id/section]}" == "config" ]] || rp_isInstalled "$id" && fnExists "gui_$id"; then
-                options+=("${__mod_idx[$id]}" "$id  - ${__mod_info[$id/desc]}" "${__mod_idx[$id]} ${__mod_info[$id/desc]}")
+            if [[ "${__mod_info[${id}/section]}" == "config" ]] || rp_isInstalled "${id}" && fnExists "gui_${id}"; then
+                options+=("${__mod_idx[${id}]}" "${id}  - ${__mod_info[${id}/desc]}" "${__mod_idx[${id}]} ${__mod_info[${id}/desc]}")
             fi
         done
 
@@ -492,29 +492,29 @@ function config_gui_setup() {
 
         local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        [[ -z "$choice" ]] && break
+        [[ -z "${choice}" ]] && break
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
             choice="${choice[@]:5}"
             default="${choice/%\ */}"
             choice="${choice#* }"
-            printMsgs "dialog" "$choice"
+            printMsgs "dialog" "${choice}"
             continue
         fi
 
-        [[ -z "$choice" ]] && break
+        [[ -z "${choice}" ]] && break
 
-        default="$choice"
-        id="${__mod_id[$choice]}"
+        default="${choice}"
+        id="${__mod_id[${choice}]}"
         local logfilename
         rps_logInit
         {
             rps_logStart
-            if fnExists "gui_$id"; then
-                rp_callModule "$id" depends
-                rp_callModule "$id" gui
+            if fnExists "gui_${id}"; then
+                rp_callModule "${id}" depends
+                rp_callModule "${id}" gui
             else
-                rp_callModule "$id" clean
-                rp_callModule "$id"
+                rp_callModule "${id}" clean
+                rp_callModule "${id}"
             fi
             rps_logEnd
         } &> >(_setup_gzip_log "$logfilename")
@@ -526,8 +526,8 @@ function update_packages_setup() {
     clear
     local id
     for id in "${__mod_id[@]}"; do
-        if rp_isInstalled "$id" && [[ "${__mod_info[$id/section]}" != "depends" ]]; then
-            rp_installModule "$id" "_update_"
+        if rp_isInstalled "${id}" && [[ "${__mod_info[${id}/section]}" != "depends" ]]; then
+            rp_installModule "${id}" "_update_"
         fi
     done
 }
@@ -577,7 +577,7 @@ function update_packages_gui_setup() {
 function basic_install_setup() {
     local id
     for id in $(rp_getSectionIds core) $(rp_getSectionIds main); do
-        rp_installModule "$id"
+        rp_installModule "${id}"
     done
     return 0
 }
@@ -601,16 +601,16 @@ function packages_gui_setup() {
 
         local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        [[ -z "$choice" ]] && break
+        [[ -z "${choice}" ]] && break
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
             choice="${choice[@]:5}"
             default="${choice/%\ */}"
             choice="${choice#* }"
-            printMsgs "dialog" "$choice"
+            printMsgs "dialog" "${choice}"
             continue
         fi
-        [[ "$choice" != "----" ]] && section_gui_setup "$choice"
-        default="$choice"
+        [[ "${choice}" != "----" ]] && section_gui_setup "${choice}"
+        default="${choice}"
     done
 }
 
@@ -621,7 +621,7 @@ function uninstall_setup()
     clear
     printHeading "Uninstalling ArchyPie"
     for id in "${__mod_id[@]}"; do
-        rp_isInstalled "$id" && rp_callModule "$id" remove
+        rp_isInstalled "${id}" && rp_callModule "${id}" remove
     done
     rm -rfv "$rootdir"
     dialog --defaultno --yesno "Do you want to remove all the files from $datadir? This includes all your installed ROMs, BIOS files and custom splashscreens." 22 76 2>&1 >/dev/tty && rm -rfv "$datadir"
@@ -629,7 +629,7 @@ function uninstall_setup()
         clear
         # Remove all dependencies.
         for id in "${__mod_id[@]}"; do
-            rp_isInstalled "$id" && rp_callModule "$id" depends remove
+            rp_isInstalled "${id}" && rp_callModule "${id}" depends remove
         done
     fi
     printMsgs "dialog" "ArchyPie has been uninstalled."
@@ -672,18 +672,18 @@ function gui_setup() {
         )
 
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        [[ -z "$choice" ]] && break
+        [[ -z "${choice}" ]] && break
 
         if [[ "${choice[@]:0:4}" == "HELP" ]]; then
             choice="${choice[@]:5}"
             default="${choice/%\ */}"
             choice="${choice#* }"
-            printMsgs "dialog" "$choice"
+            printMsgs "dialog" "${choice}"
             continue
         fi
-        default="$choice"
+        default="${choice}"
 
-        case "$choice" in
+        case "${choice}" in
             I)
                 ! check_connection_gui_setup && continue
                 dialog --defaultno --yesno "Are you sure you want to do a basic install?\n\nThis will install all packages from the 'Core' and 'Main' package sections." 22 76 2>&1 >/dev/tty || continue

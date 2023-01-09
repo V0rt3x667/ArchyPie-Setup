@@ -23,10 +23,10 @@ function onstart_reicast_joystick() {
     mkdir -p "$configdir/dreamcast/mappings"
 
     # remove old config file
-    rm -f "$file"
+    rm -f "${file}"
 
     # write config template
-    cat > "$file" << _EOF_
+    cat > "${file}" << _EOF_
 [emulator]
 mapping_name =
 btn_escape =
@@ -67,7 +67,7 @@ axis_trigger_right_inverted =
 _EOF_
 
     # write temp file header
-    iniConfig " = " "" "$file"
+    iniConfig " = " "" "${file}"
     iniSet "mapping_name" "$DEVICE_NAME"
 }
 
@@ -158,19 +158,19 @@ function map_reicast_joystick() {
         case "$input_type" in
             axis)
                 # key "X/Y Axis" needs different button naming
-                if [[ "$key" == "btn_trigger_left" ]] ; then
+                if [[ "${key}" == "btn_trigger_left" ]] ; then
                     iniSet "axis_trigger_left" "$input_id"
                     iniSet "axis_trigger_left_inverted" "no"
-                elif [[ "$key" == "btn_trigger_right" ]] ; then
+                elif [[ "${key}" == "btn_trigger_right" ]] ; then
                     iniSet "axis_trigger_right" "$input_id"
                     iniSet "axis_trigger_right_inverted" "no"
-                elif [[ "$key" == "btn_dpad1_up" || "$key" == "btn_dpad1_down" ]]; then
+                elif [[ "${key}" == "btn_dpad1_up" || "${key}" == "btn_dpad1_down" ]]; then
                     iniSet "axis_y" "$input_id"
                     iniSet "axis_y_inverted" "no"
-                elif [[ "$key" == "btn_dpad1_left" || "$key" == "btn_dpad1_right" ]]; then
+                elif [[ "${key}" == "btn_dpad1_left" || "${key}" == "btn_dpad1_right" ]]; then
                     iniSet "axis_x" "$input_id"
                     iniSet "axis_x_inverted" "no"
-                elif [[ "$key" == *axis* ]] ; then
+                elif [[ "${key}" == *axis* ]] ; then
                     case "$DEVICE_NAME" in
                         "Xbox 360 Controller (xpad driver)"|"Xbox 360 Controller (xboxdrv userspace driver)"|"Microsoft X-Box 360 pad"|"Xbox Gamepad (userspace driver)"|"Xbox 360 Wireless Receiver (XBOX)"|"Microsoft X-Box One pad"|"Microsoft X-Box pad (Japan)"|"Chinese-made Xbox Controller")
                             if [[ "$input_id" -gt 2 && "$input_id" -lt 5 ]]; then
@@ -185,7 +185,7 @@ function map_reicast_joystick() {
             hat)
                 ;;
             *)
-                if [[ "$key" != *axis* ]] ; then
+                if [[ "${key}" != *axis* ]] ; then
                     # input_id must be recalculated: 288d = button 0
                     input_id=$(($input_id+288))
                     # workaround for specific controller button mismatch
@@ -198,7 +198,7 @@ function map_reicast_joystick() {
                             fi
                             ;;
                     esac
-                    iniSet "$key" "$input_id"
+                    iniSet "${key}" "$input_id"
                 fi
                 ;;
         esac
@@ -221,5 +221,5 @@ function onend_reicast_joystick() {
     esac
 
     # add empty end line
-    echo "" >> "$file"
+    echo "" >> "${file}"
 }

@@ -67,9 +67,9 @@ function map_emulationstation_joystick() {
     local es_conf="$home/.emulationstation/es_input.cfg"
 
     # add or update element
-    if [[ $(xmlstarlet sel -t -v "count(/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"])" "$es_conf") -eq 0 ]]; then
+    if [[ $(xmlstarlet sel -t -v "count(/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"])" "$es_conf") -eq 0 ]]; then
         xmlstarlet ed -L -s "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]" -t elem -n newinput -v "" \
-            -i //newinput -t attr -n "name" -v "$key" \
+            -i //newinput -t attr -n "name" -v "${key}" \
             -i //newinput -t attr -n "type" -v "$input_type" \
             -i //newinput -t attr -n "id" -v "$input_id" \
             -i //newinput -t attr -n "value" -v "$input_value" \
@@ -77,9 +77,9 @@ function map_emulationstation_joystick() {
             "$es_conf"
     else  # if device already exists, update it
         xmlstarlet ed -L \
-            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"]/@type" -v "$input_type" \
-            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"]/@id" -v "$input_id" \
-            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"]/@value" -v "$input_value" \
+            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"]/@type" -v "$input_type" \
+            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"]/@id" -v "$input_id" \
+            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"]/@value" -v "$input_value" \
             "$es_conf"
     fi
 }

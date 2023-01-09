@@ -63,8 +63,8 @@ function inputconfiguration() {
 
     local line
     while read line; do
-        if [[ -n "$line" ]]; then
-            local input=($line)
+        if [[ -n "${line}" ]]; then
+            local input=(${line})
             mapping["${input[0]}"]=${input[@]:1}
         fi
     done < <(xmlstarlet sel --text -t -m "/inputList/inputConfig/input"  -v "concat(@name,' ',@type,' ',@id,' ',@value)" -n "$es_conf")
@@ -201,7 +201,7 @@ function sdl1_map() {
 ###### main ######
 
 user=$(id -un)
-home="$(eval echo ~$user)"
+home="$(eval echo ~${user})"
 
 rootdir="/opt/archypie"
 configdir="$rootdir/configs"

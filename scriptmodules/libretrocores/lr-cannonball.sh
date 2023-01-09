@@ -49,7 +49,7 @@ function configure_lr-cannonball() {
 
     cp -v roms.txt "$romdir/ports/cannonball/"
 
-    chown -R "$user:$user" "$romdir/ports/cannonball" "$md_conf_root/cannonball"
+    chown -R "${user}:${user}" "$romdir/ports/cannonball" "$md_conf_root/cannonball"
 
     ln -snf "$romdir/ports/cannonball" "$md_inst/roms"
 }

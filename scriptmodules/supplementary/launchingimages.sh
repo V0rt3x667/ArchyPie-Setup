@@ -12,12 +12,12 @@ rp_module_section="exp"
 rp_module_flags="noinstclean"
 
 function depends_launchingimages() {
-    local depends=(imagemagick librsvg)
-    if isPlatform "x11"; then
-        depends+=(feh)
-    else
-        depends+=(fbi)
-    fi
+    local depends=(
+        'imagemagick'
+        'imv'
+        'librsvg'
+    )
+
     getDepends "${depends[@]}"
 }
 
@@ -107,10 +107,10 @@ function _set_system_launchingimages() {
             "List of available systems.\n\nSelect the system you want to generate a launching image or \"all\" to generate for all systems." \
             "${options[@]}"
     )
-    case "$choice" in
+    case "${choice}" in
         "all")  echo "" ;;
         "")     echo "$system" ;;
-        *)      echo "--system $choice" ;;
+        *)      echo "--system ${choice}" ;;
     esac
 }
 
@@ -171,7 +171,7 @@ function _set_solid_bg_color_launchingimages() {
     )
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
-    case "$choice" in
+    case "${choice}" in
         0)  echo
             ;;
         1)  echo "--solid-bg-color"
@@ -251,7 +251,7 @@ function _settings_launchingimages() {
     while true; do
         eval $(_load_config_launchingimages)
 
-        options=( 
+        options=(
             config_file "$(
                [[ "$config_file" == *"$theme.cfg" ]] && echo "$(basename "$config_file")"
             )"
@@ -284,14 +284,14 @@ function _settings_launchingimages() {
         )
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
-        [[ -z "$choice" ]] && break
+        [[ -z "${choice}" ]] && break
 
-        if [[ "$choice" = "config_file" ]]; then
+        if [[ "${choice}" = "config_file" ]]; then
             config_file=$(_manage_config_file_launchingimages)
             continue
         fi
 
-        iniSet "$choice" "$(_set_${choice}_launchingimages)"
+        iniSet "${choice}" "$(_set_${choice}_launchingimages)"
     done
 }
 
@@ -310,7 +310,7 @@ function _manage_config_file_launchingimages() {
                 2>&1 >/dev/tty
         )
 
-        case "$choice" in
+        case "${choice}" in
             1)  # load config
                 config_file=$(_get_config_file_launchingimages) || continue
                 cat "$config_file" > "$current_cfg"
@@ -373,7 +373,7 @@ function _generate_launchingimages() {
     fi
 
     for file in $(_get_all_launchingimages); do
-        chown "$user:$user" "$file"
+        chown "${user}:${user}" "${file}"
     done
 }
 
@@ -386,15 +386,15 @@ function gui_launchingimages() {
     rm -f "$current_cfg"
     while true; do
         cmd=(dialog --backtitle "$__backtitle" --title " runcommand launching images generation " --menu "Choose an option." 22 86 16)
-        options=( 
+        options=(
             1 "Image generation settings"
             2 "Generate launching images"
             3 "View slideshow of all current launching images"
             4 "View a specific system's launching image"
         )
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        if [[ -n "$choice" ]]; then
-            case "$choice" in
+        if [[ -n "${choice}" ]]; then
+            case "${choice}" in
                 1) # Image generation settings
                     _settings_launchingimages
                     ;;
@@ -405,13 +405,13 @@ function gui_launchingimages() {
 
                 3) # View slideshow of all current launching images
                     local file=$(mktemp)
-                    _get_all_launchingimages > "$file"
-                    if [[ -s "$file" ]]; then
-                        _show_images_launchingimages 1 "$file"
+                    _get_all_launchingimages > "${file}"
+                    if [[ -s "${file}" ]]; then
+                        _show_images_launchingimages 1 "${file}"
                     else
                         printMsgs "dialog" "No launching image found."
                     fi
-                    rm -f "$file"
+                    rm -f "${file}"
                     ;;
 
                 4) # View the launching image of a specific system
@@ -422,8 +422,8 @@ function gui_launchingimages() {
                             break
                         fi
                         choice=$(_dialog_menu_launchingimages "Choose the system" "${img_list[@]}")
-                        [[ -z "$choice" ]] && break
-                        _show_images_launchingimages "$choice"
+                        [[ -z "${choice}" ]] && break
+                        _show_images_launchingimages "${choice}"
                     done
                     ;;
 

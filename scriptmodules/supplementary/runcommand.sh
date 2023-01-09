@@ -19,10 +19,8 @@ function _update_hook_runcommand() {
 }
 
 function depends_runcommand() {
-    local depends=()
+    local depends=('imv')
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
-    isPlatform "rpi" || isPlatform "kms" && depends+=('fbida' 'fbset')
-    isPlatform "x11" && depends+=('feh')
     getDepends "${depends[@]}"
 }
 
@@ -38,11 +36,11 @@ function install_bin_runcommand() {
         iniSet "governor" ""
         iniSet "disable_menu" "0"
         iniSet "image_delay" "2"
-        chown "$user:$user" "$configdir/all/runcommand.cfg"
+        chown "${user}:${user}" "$configdir/all/runcommand.cfg"
     fi
     if [[ ! -f "$configdir/all/runcommand-launch-dialog.cfg" ]]; then
         dialog --create-rc "$configdir/all/runcommand-launch-dialog.cfg"
-        chown "$user:$user" "$configdir/all/runcommand-launch-dialog.cfg"
+        chown "${user}:${user}" "$configdir/all/runcommand-launch-dialog.cfg"
         rp_installModule "mesa-drm" "_autoupdate_"
     fi
 
@@ -78,17 +76,17 @@ function governor_runcommand() {
     fi
     cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --cancel-label "Back" --menu "Configure CPU Governor on command launch\nCurrently: $status" 22 86 16)
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        governor="${governors[$choice]}"
+    if [[ -n "${choice}" ]]; then
+        governor="${governors[${choice}]}"
         iniSet "governor" "$governor"
-        chown "$user:$user" "$config"
+        chown "${user}:${user}" "$config"
     fi
 }
 
 function gui_runcommand() {
     local config="$configdir/all/runcommand.cfg"
     iniConfig " = " '"' "$config"
-    chown "$user:$user" "$config"
+    chown "${user}:${user}" "$config"
 
     local cmd
     local option
@@ -130,9 +128,9 @@ function gui_runcommand() {
         options+=(5 "CPU governor configuration (currently: $governor)")
 
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        [[ -z "$choice" ]] && break
-        default="$choice"
-        case "$choice" in
+        [[ -z "${choice}" ]] && break
+        default="${choice}"
+        case "${choice}" in
             1)
                 iniSet "disable_menu" "$((disable_menu ^ 1))"
                 ;;
@@ -145,7 +143,7 @@ function gui_runcommand() {
             4)
                 cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the delay in seconds" 10 60 "$image_delay")
                 choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-                iniSet "image_delay" "$choice"
+                iniSet "image_delay" "${choice}"
                 ;;
             5)
                 governor_runcommand

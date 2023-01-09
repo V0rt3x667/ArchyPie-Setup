@@ -270,18 +270,18 @@ function map_retroarch_joystick() {
                 ;;
         esac
         if [[ "$input_name" == "select" && "$_retroarch_select_hotkey" -eq 1 ]]; then
-            _retroarch_select_type="$type"
+            _retroarch_select_type="${type}"
         fi
-        key+="_$type"
-        iniSet "$key" "$value"
+        key+="_${type}"
+        iniSet "${key}" "$value"
 
         # set button labels from autoconfig preset (if available), when binding matches the preset
         if [[ -f "$autoconfig_preset" ]]; then
-            iniGet "$key" "$autoconfig_preset"
+            iniGet "${key}" "$autoconfig_preset"
             if [[ "$ini_value" == "$value" ]]; then
                 key+="_label"
-                iniGet "$key" "$autoconfig_preset"
-                [[ -n "$ini_value" ]] && iniSet "$key" "$ini_value"
+                iniGet "${key}" "$autoconfig_preset"
+                [[ -n "$ini_value" ]] && iniSet "${key}" "$ini_value"
             fi
         fi
     done
@@ -353,7 +353,7 @@ function map_retroarch_keyboard() {
     esac
 
     for key in "${keys[@]}"; do
-        iniSet "$key" "${retroarchkeymap[$input_id]}"
+        iniSet "${key}" "${retroarchkeymap[$input_id]}"
     done
 }
 
@@ -370,7 +370,7 @@ function onend_retroarch_joystick() {
     if ! grep -q "input_enable_hotkey" /tmp/tempconfig.cfg; then
         local key
         for key in input_state_slot_decrease input_state_slot_increase input_reset input_menu_toggle input_load_state input_save_state input_exit_emulator; do
-            sed -i "/$key/d" /tmp/tempconfig.cfg
+            sed -i "/${key}/d" /tmp/tempconfig.cfg
         done
     fi
 
@@ -378,16 +378,16 @@ function onend_retroarch_joystick() {
     local file
     local dir="$configdir/all/retroarch-joypads"
     while read -r file; do
-        mv "$file" "$file.bak"
+        mv "${file}" "${file}.bak"
     done < <(grep -Fl "\"$DEVICE_NAME\"" "$dir/"*.cfg 2>/dev/null)
 
     # sanitise filename
     file="${DEVICE_NAME//[\?\<\>\\\/:\*\|]/}.cfg"
 
-    if [[ -f "$dir/$file" ]]; then
-        mv "$dir/$file" "$dir/$file.bak"
+    if [[ -f "$dir/${file}" ]]; then
+        mv "$dir/${file}" "$dir/${file}.bak"
     fi
-    mv "/tmp/tempconfig.cfg" "$dir/$file"
+    mv "/tmp/tempconfig.cfg" "$dir/${file}"
 }
 
 function onend_retroarch_keyboard() {

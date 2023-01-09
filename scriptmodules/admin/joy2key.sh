@@ -43,7 +43,7 @@ shift
 
 # Allow Overriding Joystick Device Via __joy2key_dev env (By Default Will Use /dev/input/jsX Which Will Scan All)
 device="/dev/input/jsX"
-[[ -n "\$__joy2key_dev" ]] && device="\$__joy2key_dev"
+[[ -n "\${__joy2key_dev}" ]] && device="\${__joy2key_dev}"
 
 params=("\$@")
 if [[ "\${#params[@]}" -eq 0 ]]; then

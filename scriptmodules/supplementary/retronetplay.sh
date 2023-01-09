@@ -17,7 +17,7 @@ __netplayhostip="$__netplayhostip"
 __netplayhostip_cfile="$__netplayhostip_cfile"
 __netplaynickname="'$__netplaynickname'"
 _EOF_
-    chown "$user:$user" "$conf"
+    chown "${user}:${user}" "$conf"
     printMsgs "dialog" "Configuration has been saved to $conf"
 }
 
@@ -39,8 +39,8 @@ function rps_retronet_mode() {
     options=(1 "Set as HOST"
              2 "Set as CLIENT" )
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        case "$choice" in
+    if [[ -n "${choice}" ]]; then
+        case "${choice}" in
              1) __netplaymode="H"
                 __netplayhostip_cfile=""
                 ;;
@@ -54,16 +54,16 @@ function rps_retronet_mode() {
 function rps_retronet_port() {
     cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the port to be used for netplay (default: 55435)." 22 76 $__netplayport)
     choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        __netplayport="$choice"
+    if [[ -n "${choice}" ]]; then
+        __netplayport="${choice}"
     fi
 }
 
 function rps_retronet_hostip() {
     cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the IP address of the host." 22 76 $__netplayhostip)
     choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        __netplayhostip="$choice"
+    if [[ -n "${choice}" ]]; then
+        __netplayhostip="${choice}"
         if [[ $__netplaymode == "H" ]]; then
             __netplayhostip_cfile=""
         else
@@ -75,8 +75,8 @@ function rps_retronet_hostip() {
 function rps_retronet_nickname() {
     cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the nickname you wish to use (default: ArchyPie)" 22 76 $__netplaynickname)
     choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        __netplaynickname="$choice"
+    if [[ -n "${choice}" ]]; then
+        __netplaynickname="${choice}"
     fi
 }
 
@@ -96,8 +96,8 @@ function gui_retronetplay() {
             5 "Save configuration"
         )
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        if [[ -n "$choice" ]]; then
-            case "$choice" in
+        if [[ -n "${choice}" ]]; then
+            case "${choice}" in
                 1)
                     rps_retronet_mode
                     ;;

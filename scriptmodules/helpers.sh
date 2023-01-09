@@ -15,13 +15,13 @@
 function printMsgs() {
     local type="$1"
     shift
-    if [[ "$__nodialog" == "1" && "$type" == "dialog" ]]; then
+    if [[ "$__nodialog" == "1" && "${type}" == "dialog" ]]; then
         type="console"
     fi
     for msg in "$@"; do
-        [[ "$type" == "dialog" ]] && dialog --backtitle "$__backtitle" --cr-wrap --no-collapse --msgbox "$msg" 20 60 >/dev/tty
-        [[ "$type" == "console" ]] && echo -e "$msg"
-        [[ "$type" == "heading" ]] && echo -e "\n= = = = = = = = = = = = = = = = = = = = =\n$msg\n= = = = = = = = = = = = = = = = = = = = =\n"
+        [[ "${type}" == "dialog" ]] && dialog --backtitle "$__backtitle" --cr-wrap --no-collapse --msgbox "$msg" 20 60 >/dev/tty
+        [[ "${type}" == "console" ]] && echo -e "$msg"
+        [[ "${type}" == "heading" ]] && echo -e "\n= = = = = = = = = = = = = = = = = = = = =\n$msg\n= = = = = = = = = = = = = = = = = = = = =\n"
     done
     return 0
 }
@@ -123,9 +123,9 @@ function addLineToFile() {
 ## @brief Opens an editing dialog for specified file.
 function editFile() {
     local file="$1"
-    local cmd=(dialog --backtitle "$__backtitle" --editbox "$file" 22 76)
+    local cmd=(dialog --backtitle "$__backtitle" --editbox "${file}" 22 76)
     local choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-    [[ -n "$choice" ]] && echo "$choice" >"$file"
+    [[ -n "${choice}" ]] && echo "${choice}" >"${file}"
 }
 
 ## @fn hasPackage()
@@ -278,7 +278,7 @@ function rpSwap() {
 ## A depth parameter of 0 will do a full clone with all history.
 function gitPullOrClone() {
     local dir="$1"
-    [[ -z "$dir" ]] && dir="$md_build"
+    [[ -z "$dir" ]] && dir="${md_build}"
     local repo="$2"
     local branch="$3"
     local commit="$4"
@@ -368,12 +368,12 @@ function setupDirectories() {
         fi
     done
 
-    # create template for autoconf.cfg and make sure it is owned by $user
+    # create template for autoconf.cfg and make sure it is owned by ${user}
     local config="$configdir/all/autoconf.cfg"
     if [[ ! -f "$config" ]]; then
         echo "# this file can be used to enable/disable archypie autoconfiguration features" >"$config"
     fi
-    chown "$user:$user" "$config"
+    chown "${user}:${user}" "$config"
 }
 
 ## @fn rmDirExists()
@@ -390,7 +390,7 @@ function rmDirExists() {
 ## @brief Creates a directory owned by the current user.
 function mkUserDir() {
     mkdir -p "$1"
-    chown "$user:$user" "$1"
+    chown "${user}:${user}" "$1"
 }
 
 ## @fn mkRomDir()
@@ -426,8 +426,8 @@ function moveConfigDir() {
         rm -rf "$from"
     fi
     ln -snf "$to" "$from"
-    # set ownership of the actual link to $user
-    chown -h "$user:$user" "$from"
+    # set ownership of the actual link to ${user}
+    chown -h "${user}:${user}" "$from"
 }
 
 ## @fn moveConfigFile()
@@ -449,8 +449,8 @@ function moveConfigFile() {
         mv "$from" "$to"
     fi
     ln -sf "$to" "$from"
-    # set ownership of the actual link to $user
-    chown -h "$user:$user" "$from"
+    # set ownership of the actual link to ${user}
+    chown -h "${user}:${user}" "$from"
 }
 
 ## @fn diffFiles()
@@ -512,7 +512,7 @@ function copyDefaultConfig() {
         cp "$from" "$to"
     fi
 
-    chown "$user:$user" "$to"
+    chown "${user}:${user}" "$to"
 }
 
 ## @fn renameModule()
@@ -545,51 +545,6 @@ function addUdevInputRules() {
     if [[ ! -f /etc/udev/rules.d/99-input.rules ]]; then
         echo 'SUBSYSTEM=="input", GROUP="input", MODE="0660"' > /etc/udev/rules.d/99-input.rules
     fi
-}
-
-## @fn setBackend()
-## @param emulator.cfg key to configure backend for
-## @param backend name of the backend to set
-## @param force set to 1 to force the change
-## @brief Set a backend rendering driver for a module
-## @details Set a backend rendering driver for a module - can be currently default, dispmanx or x11.
-## This function will only set a backend if
-##   - It's not already configured, or
-##   - The 3rd parameter (force) is set to 1
-## The emulator.cfg key is usually the module_id but some modules add multiple emulator.cfg entries
-## which are all handled separately. A module can use a _backend_set_MODULE function hook which is called
-## from the backends module to handle calling setBackend for additional emulator.cfg entries.
-## See "fuse" scriptmodule for an example.
-function setBackend() {
-    local config="$configdir/all/backends.cfg"
-    local id="$1"
-    local mode="$2"
-    local force="$3"
-    iniConfig "=" "\"" "$config"
-    iniGet "$id"
-    if [[ "$force" -eq 1 || -z "$ini_value" ]]; then
-        iniSet "$id" "$mode"
-        chown "$user:$user" "$config"
-    fi
-}
-
-## @fn getBackend()
-## @param emulator.cfg key to get backend for
-## @brief Get a backend rendering driver for a module
-## @details Get a backend rendering driver for a module
-## The function echos the result so the value can be captured using var=$(getBackend "$module_id")
-function getBackend() {
-    local config="$configdir/all/backends.cfg"
-    local id="$1"
-    iniConfig " = " '"' "$config"
-    iniGet "$id"
-    if [[ -n "$ini_value" ]]; then
-        # translate old value of 1 as dispmanx for backward compatibility
-        [[ "$ini_value" == "1" ]] && ini_value="dispmanx"
-     else
-        ini_value="default"
-     fi
-     echo "$ini_value"
 }
 
 ## @fn iniFileEditor()
@@ -671,16 +626,16 @@ function iniFileEditor() {
             # split into new array (globbing safe)
             read -ra option <<<"$option"
             key="${option[0]}"
-            keys+=("$key")
+            keys+=("${key}")
             params+=("${option[*]:1}")
 
             # if the first parameter is _function_ we call the second parameter as a function
             # so we can handle some options with a custom menu etc
-            if [[ "$key" == "_function_" ]]; then
+            if [[ "${key}" == "_function_" ]]; then
                 value="$(${option[1]} get)"
             else
                 # get current value
-                iniGet "$key"
+                iniGet "${key}"
                 if [[ -n "$ini_value" ]]; then
                     value="$ini_value"
                 else
@@ -699,7 +654,7 @@ function iniFileEditor() {
             if [[ -n "${ini_titles[i]}" ]]; then
                 title="${ini_titles[i]}"
             else
-                title="$key"
+                title="${key}"
             fi
 
             options+=("$i" "$title ($value)" "${ini_descs[i]}")
@@ -741,9 +696,9 @@ function iniFileEditor() {
                 local path="${params[*]:2}"
                 local file
                 while read file; do
-                    [[ "${values[sel]}" == "$file" ]] && default="$i"
+                    [[ "${values[sel]}" == "${file}" ]] && default="$i"
                     file="${file//$path\//}"
-                    options+=("$i" "$file")
+                    options+=("$i" "${file}")
                     ((i++))
                 done < <(find -L "$path" -type f -name "$match" | sort)
                 ;;
@@ -766,17 +721,17 @@ function iniFileEditor() {
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
         # if it is a _string_ type we will open an inputbox dialog to get a manual value
-        if [[ -z "$choice" ]]; then
+        if [[ -z "${choice}" ]]; then
             continue
-        elif [[ "$choice" == "E" ]]; then
+        elif [[ "${choice}" == "E" ]]; then
             [[ "${values[sel]}" == "unset" ]] && values[sel]=""
             cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the value for ${keys[sel]}" 10 60 "${values[sel]}")
             value=$("${cmd[@]}" 2>&1 >/dev/tty)
-        elif [[ "$choice" == "U" ]]; then
+        elif [[ "${choice}" == "U" ]]; then
             value=""
         else
             if [[ "$mode" == "_id_" ]]; then
-                value="$choice"
+                value="${choice}"
             else
                 # get the actual value from the options array
                 local index=$((choice*2+3))
@@ -788,7 +743,7 @@ function iniFileEditor() {
             fi
         fi
 
-        if [[ "$choice" == "U" ]]; then
+        if [[ "${choice}" == "U" ]]; then
             iniUnset "${keys[sel]}" "$value"
         else
             iniSet "${keys[sel]}" "$value"
@@ -845,7 +800,7 @@ function defaultRAConfig() {
     local key
     local value
     while read key value; do
-        [[ -n "$key" ]] && iniSet "$key" "$value"
+        [[ -n "${key}" ]] && iniSet "${key}" "$value"
     done <<< "${defaults[@]}"
 
     # include the main retroarch config
@@ -867,7 +822,7 @@ function setRetroArchCoreOption() {
     if [[ -z "$ini_value" ]]; then
         iniSet "$option" "$value"
     fi
-    chown "$user:$user" "$configdir/all/retroarch-core-options.cfg"
+    chown "${user}:${user}" "$configdir/all/retroarch-core-options.cfg"
 }
 
 ## @fn setConfigRoot()
@@ -910,12 +865,12 @@ function loadModuleConfig() {
         option=(${option/=/ })
         key="${option[0]}"
         value="${option[@]:1}"
-        iniGet "$key"
+        iniGet "${key}"
         if [[ -z "$ini_value" ]]; then
-            iniSet "$key" "$value"
-            echo "local $key=\"$value\""
+            iniSet "${key}" "$value"
+            echo "local ${key}=\"$value\""
         else
-            echo "local $key=\"$ini_value\""
+            echo "local ${key}=\"$ini_value\""
         fi
     done
 }
@@ -999,10 +954,10 @@ function download() {
     local file="${url##*/}"
 
     # if no destination, get the basename from the url
-    [[ -z "$dest" ]] && dest="${PWD}/$file"
+    [[ -z "$dest" ]] && dest="${PWD}/${file}"
 
     # if the destination is a folder, download to that with filename from url
-    [[ -d "$dest" ]] && dest="$dest/$file"
+    [[ -d "$dest" ]] && dest="$dest/${file}"
 
     local params=(--location)
     if [[ "$dest" == "-" ]]; then
@@ -1042,7 +997,7 @@ function downloadAndVerify() {
     local file="${url##*/}"
 
     # if no destination, get the basename from the url (supported by GNU basename)
-    [[ -z "$dest" ]] && dest="${PWD}/$file"
+    [[ -z "$dest" ]] && dest="${PWD}/${file}"
 
     local cmd_out
     local ret=1
@@ -1076,7 +1031,7 @@ function downloadAndExtract() {
 
     local temp="$(mktemp -d)"
     # download file, removing temporary folder and returning on error
-    if ! download "$url" "$temp/$file"; then
+    if ! download "$url" "$temp/${file}"; then
         rm -rf "$temp"
         return 1
     fi
@@ -1086,10 +1041,10 @@ function downloadAndExtract() {
     local ret
     case "$ext" in
         exe|zip)
-            runCmd unzip "${opts[@]}" -o "$temp/$file" -d "$dest"
+            runCmd unzip "${opts[@]}" -o "$temp/${file}" -d "$dest"
             ;;
         *)
-            tar -xvf "$temp/$file" -C "$dest" "${opts[@]}"
+            tar -xvf "$temp/${file}" -C "$dest" "${opts[@]}"
             ;;
     esac
     ret=$?
@@ -1172,11 +1127,11 @@ function getPlatformConfig() {
     for conf in "$configdir/all/platforms.cfg" "$scriptdir/platforms.cfg"; do
         [[ ! -f "$conf" ]] && continue
         iniConfig "=" '"' "$conf"
-        iniGet "$key"
+        iniGet "${key}"
         [[ -n "$ini_value" ]] && break
     done
     # workaround for archypie platform
-    [[ "$key" == "archypie_fullname" ]] && ini_value="ArchyPie"
+    [[ "${key}" == "archypie_fullname" ]] && ini_value="ArchyPie"
     echo "$ini_value"
 }
 
@@ -1287,10 +1242,10 @@ function addPort() {
 
     # remove the emulator / port
     if [[ "$md_mode" == "remove" ]]; then
-        delEmulator "$id" "$port"
+        delEmulator "${id}" "$port"
 
         # remove launch script if in remove mode and the ports emulators.cfg is empty
-        [[ ! -f "$md_conf_root/$port/emulators.cfg" ]] && rm -f "$file"
+        [[ ! -f "$md_conf_root/$port/emulators.cfg" ]] && rm -f "${file}"
 
         # if there are no more port launch scripts we can remove ports from emulation station
         if [[ "$(find "$romdir/ports" -maxdepth 1 -name "*.sh" | wc -l)" -eq 0 ]]; then
@@ -1301,15 +1256,15 @@ function addPort() {
 
     mkUserDir "$romdir/ports"
 
-    cat >"$file" << _EOF_
+    cat >"${file}" << _EOF_
 #!/bin/bash
 "$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "$game"
 _EOF_
 
-    chown "$user:$user" "$file"
-    chmod +x "$file"
+    chown "${user}:${user}" "${file}"
+    chmod +x "${file}"
 
-    [[ -n "$cmd" ]] && addEmulator 1 "$id" "$port" "$cmd"
+    [[ -n "$cmd" ]] && addEmulator 1 "${id}" "$port" "$cmd"
     addSystem "ports"
 }
 
@@ -1346,12 +1301,12 @@ function addEmulator() {
 
     # check if we are removing the system
     if [[ "$md_mode" == "remove" ]]; then
-        delEmulator "$id" "$system"
+        delEmulator "${id}" "$system"
         return
     fi
 
     # automatically add parameters for libretro modules
-    if [[ "$id" == lr-* && "$cmd" =~ ^"$md_inst"[^[:space:]]*\.so ]]; then
+    if [[ "${id}" == lr-* && "$cmd" =~ ^"$md_inst"[^[:space:]]*\.so ]]; then
         cmd="$emudir/retroarch/bin/retroarch -L $cmd --config $md_conf_root/$system/retroarch.cfg %ROM%"
     fi
 
@@ -1361,13 +1316,13 @@ function addEmulator() {
     # add the emulator to the $conf_dir/emulators.cfg if a commandline exists (not used for some ports)
     if [[ -n "$cmd" ]]; then
         iniConfig " = " '"' "$md_conf_root/$system/emulators.cfg"
-        iniSet "$id" "$cmd"
+        iniSet "${id}" "$cmd"
         # set a default unless there is one already set
         iniGet "default"
         if [[ -z "$ini_value" && "$default" -eq 1 ]]; then
-            iniSet "default" "$id"
+            iniSet "default" "${id}"
         fi
-        chown "$user:$user" "$md_conf_root/$system/emulators.cfg"
+        chown "${user}:${user}" "$md_conf_root/$system/emulators.cfg"
     fi
 }
 
@@ -1384,13 +1339,13 @@ function delEmulator() {
 
     local config="$md_conf_root/$system/emulators.cfg"
     # remove from apps list for system
-    if [[ -f "$config" && -n "$id" ]]; then
+    if [[ -f "$config" && -n "${id}" ]]; then
         # delete emulator entry
         iniConfig " = " '"' "$config"
-        iniDel "$id"
+        iniDel "${id}"
         # if it is the default - remove it - runcommand will prompt to select a new default
         iniGet "default"
-        [[ "$ini_value" == "$id" ]] && iniDel "default"
+        [[ "$ini_value" == "${id}" ]] && iniDel "default"
         # if we no longer have any entries in the emulators.cfg file we can remove it
         grep -q "=" "$config" || rm -f "$config"
     fi
@@ -1432,7 +1387,7 @@ function dkmsManager() {
             ;;
         remove)
             for ver in $(dkms status "$module_name" | cut -d"," -f2 | cut -d":" -f1); do
-                dkms remove -m "$module_name" -v "$ver" --all
+                dkms remove -m "$module_name" -v "${ver}" --all
                 rm -f "/usr/src/${module_name}-${ver}"
             done
             dkmsManager unload "$module_name" "$module_ver"

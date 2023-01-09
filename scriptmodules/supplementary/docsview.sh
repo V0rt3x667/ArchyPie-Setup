@@ -31,12 +31,12 @@ function choose_page_docsview() {
     while true; do
         local cmd=(dialog --default-item "$default" --backtitle "$__backtitle" --menu "Which page would you like to view?" 22 76 16)
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
-        if [[ -n "$choice" ]]; then
+        default="${choice}"
+        if [[ -n "${choice}" ]]; then
             file="${pages[choice]}"
             joy2keyStop
             joy2keyStart 0x00 0x00 kich1 kdch1 0x20 0x71
-            pandoc "$dir/docs/$file" | lynx -localhost -restrictions=all -stdin >/dev/tty
+            pandoc "$dir/docs/${file}" | lynx -localhost -restrictions=all -stdin >/dev/tty
             joy2keyStop
             joy2keyStart
         else
@@ -60,8 +60,8 @@ function gui_docsview() {
             options+=("1" "Download RetroPie-Setup Docs")
         fi
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        if [[ -n "$choice" ]]; then
-            case "$choice" in
+        if [[ -n "${choice}" ]]; then
+            case "${choice}" in
                 1)
                     gitPullOrClone "$dir" "https://github.com/RetroPie/RetroPie-Docs.git"
                     ;;

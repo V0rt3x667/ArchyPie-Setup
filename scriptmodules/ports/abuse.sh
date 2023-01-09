@@ -19,8 +19,8 @@ function depends_abuse() {
     local depends=(
         'cmake'
         'ninja'
-        'sdl2'
         'sdl2_ttf'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -35,7 +35,7 @@ function sources_abuse() {
     sed -e "s|\"%s/.abuse/\",|\"%s/ArchyPie/configs/${md_id}/\",|g" -i "${md_build}/src/sdlport/setup.cpp"
 
     # Set Data Directory
-    sed -e "s|ASSETDIR \"share/games/abuse\"|ASSETDIR \"data\"|g" -i "${md_build}/CMakeLists.txt"
+    sed -e "s|ASSETDIR \"share/games/${md_id}\"|ASSETDIR \"data\"|g" -i "${md_build}/CMakeLists.txt"
 }
 
 function build_abuse() {

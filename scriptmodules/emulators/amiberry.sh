@@ -5,30 +5,21 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="amiberry"
-rp_module_desc="Amiberry - Commodore Amiga Emulator"
-rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy your Amiga games to $romdir/amiga\n\nCopy the required BIOS files\nkick13.rom\nkick20.rom\nkick31.rom\nto $biosdir/amiga"
+rp_module_desc="Amiberry: Commodore Amiga Emulator"
+rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy Amiga Games To: ${romdir}/amiga\n\nCopy BIOS Files:\n\nkick13.rom\nkick20.rom\nkick31.rom\n\nTo: ${biosdir}/amiga"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
-rp_module_repo="git https://github.com/BlitterStudio/amiberry v5.4"
+rp_module_repo="git https://github.com/BlitterStudio/amiberry :_get_branch_amiberry"
 rp_module_section="opt"
 rp_module_flags="!all arm rpi3 rpi4 64bit"
 
-function _update_hook_amiberry() {
-    local rom
-    mkUserDir "$biosdir/amiga"
-    for rom in kick13.rom kick20.rom kick31.rom; do
-        # if we have a kickstart rom in $biosdir, move it to $biosdir/amiga and symlink the old location
-        if [[ -f "$biosdir/$rom" && ! -h "$biosdir/$rom" ]]; then
-            moveConfigFile "$biosdir/$rom" "$biosdir/amiga/$rom"
-        fi
-    done
+function _get_branch_amiberry() {
+    download "https://api.github.com/repos/BlitterStudio/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function _get_platform_amiberry() {
-    local platform="$__platform-sdl2"
+    local platform="${__platform}-sdl2"
     if isPlatform "aarch64" && isPlatform "rpi"; then
-        platform="$__platform-64-sdl2"
-    elif isPlatform "dispmanx"; then
-        platform="$__platform"
+        platform="${__platform}-64-sdl2"
     elif isPlatform "odroid-xu"; then
         platform="xu4"
     elif isPlatform "odroid-c1"; then
@@ -36,44 +27,45 @@ function _get_platform_amiberry() {
     elif isPlatform "x86" && isPlatform "64bit"; then
         platform="x86-64"
     fi
-    echo "$platform"
+    echo "${platform}"
 }
 
 function depends_amiberry() {
     local depends=(
         'flac'
         'libmpeg2'
-        'libmpg123'
         'libpng'
         'libxml2'
-        'sdl2'
+        'mpg123'
         'sdl2_image'
         'sdl2_ttf'
+        'sdl2'
         'wget'
         'zlib'
     )
-    isPlatform "dispmanx" && depends+=('raspberrypi-firmware')
     getDepends "${depends[@]}"
 }
 
 function sources_amiberry() {
     gitPullOrClone
-    applyPatch "$md_data/01_preserve_env.diff"
-    # use our default optimisation level
-    sed -i "/CFLAGS += -O3/d" "$md_build/Makefile"
+
+    applyPatch "${md_data}/01_preserve_env.patch"
 }
 
 function build_amiberry() {
-    local platform=$(_get_platform_amiberry)
-    cd external/capsimg
+    local platform
+    platform="$(_get_platform_amiberry)"
+
+    cd external/capsimg || exit
     ./bootstrap
     ./configure
     make clean
     make
-    cd "$md_build"
+
+    cd "${md_build}" || exit
     make clean
-    make PLATFORM="$platform" CPUFLAGS="$__cpu_flags"
-    md_ret_require="$md_build/amiberry"
+    make PLATFORM="${platform}" CPUFLAGS="${__cpu_flags}"
+    md_ret_require="${md_build}/${md_id}"
 }
 
 function install_amiberry() {
@@ -85,61 +77,57 @@ function install_amiberry() {
         'kickstarts'
     )
 
-    cp -R "$md_build/whdboot" "$md_inst/whdboot-dist"
+    cp -R "${md_build}/whdboot" "${md_inst}/whdboot-dist"
 }
 
 function configure_amiberry() {
-    addEmulator 1 "amiberry" "amiga" "$md_inst/amiberry.sh %ROM%"
-    addEmulator 0 "amiberry-a500" "amiga" "$md_inst/amiberry.sh %ROM% --model A500"
-    addEmulator 0 "amiberry-a500plus" "amiga" "$md_inst/amiberry.sh %ROM% --model A500P"
-    addEmulator 0 "amiberry-a1200" "amiga" "$md_inst/amiberry.sh %ROM% --model A1200"
-    addEmulator 0 "amiberry-a4000" "amiga" "$md_inst/amiberry.sh %ROM% --model A4000"
-    addEmulator 0 "amiberry-cdtv" "amiga" "$md_inst/amiberry.sh %ROM% --model CDTV"
-    addEmulator 0 "amiberry-cd32" "amiga" "$md_inst/amiberry.sh %ROM% --model CD32"
-    addSystem "amiga"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "amiga"
+        mkUserDir "${biosdir}/amiga"
+        mkUserDir "${md_conf_root}/amiga"
+        mkUserDir "${md_conf_root}/amiga/${md_id}"
 
-    [[ "$md_mode" == "remove" ]] && return
+        # Move Data Folders & Files
+        local dir
+        for dir in conf nvram savestates screenshots; do
+            moveConfigDir "${md_inst}/${dir}" "${md_conf_root}/amiga/${md_id}/${dir}"
+        done
+        moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amiga/${md_id}/"
+        moveConfigDir "${md_inst}/kickstarts" "${biosdir}/amiga"
+        moveConfigDir "${md_inst}/whdboot" "${md_conf_root}/amiga/${md_id}/whdboot"
+        moveConfigFile "${md_inst}/data/cd32.nvr" "${md_conf_root}/amiga/${md_id}/cd32.nvr"
 
-    mkRomDir "amiga"
+        # Copy Data
+        cp -R "${md_inst}"/whdboot-dist/{game-data,save-data,boot-data.zip,WHDLoad} "${md_conf_root}/amiga/${md_id}/whdboot/"
 
-    mkUserDir "$md_conf_root/amiga"
-    mkUserDir "$md_conf_root/amiga/amiberry"
+        # Symlink Retroarch Configs For Amiberry To Use
+        ln -sf "${configdir}/all/retroarch/autoconfig" "${md_inst}/controllers"
+        ln -sf "${configdir}/all/retroarch.cfg" "${md_inst}/conf/retroarch.cfg"
 
-    # move config / save folders to $md_conf_root/amiga/amiberry
-    local dir
-    for dir in conf savestates screenshots; do
-        moveConfigDir "$md_inst/$dir" "$md_conf_root/amiga/amiberry/$dir"
-    done
+        # Fix Permissions on BIOS & WHDLoad Directories
+        chown -R "${user}:${user}" "${biosdir}/amiga"
+        chown -R "${user}:${user}" "${md_conf_root}/amiga/${md_id}/whdboot"
 
-    # symlink cd32.nvr from $md_inst/data to "$md_conf_root/amiga/amiberry
-    moveConfigFile "$md_inst/data/cd32.nvr" "$md_conf_root/amiga/amiberry/cd32.nvr"
+        # Use Shared UAE4ARM/Amiberry Launcher Script While ${md_id}=1
+        sed -e "s|is_${md_id}=0|is_${md_id}=1|g" "${md_data}/../uae4arm/uae4arm.sh" >"${md_inst}/amiberry.sh"
+        chmod a+x "${md_inst}/${md_id}.sh"
 
-    moveConfigDir "$md_inst/kickstarts" "$biosdir/amiga"
-    chown -R "$user:$user" "$biosdir/amiga"
-
-    # symlink the retroarch config / autoconfigs for amiberry to use
-    ln -sf "$configdir/all/retroarch/autoconfig" "$md_inst/controllers"
-    ln -sf "$configdir/all/retroarch.cfg" "$md_inst/conf/retroarch.cfg"
-
-    local config_dir="$md_conf_root/amiga/amiberry"
-
-    # create whdboot config area
-    moveConfigDir "$md_inst/whdboot" "$config_dir/whdboot"
-
-    # copy game-data, save-data folders, boot-data.zip and WHDLoad
-    cp -R "$md_inst/whdboot-dist/"{game-data,save-data,boot-data.zip,WHDLoad} "$config_dir/whdboot/"
-
-    chown -R "$user:$user" "$config_dir/whdboot"
-
-    # copy shared uae4arm/amiberry launch script while setting is_amiberry=1
-    sed "s/is_amiberry=0/is_amiberry=1/" "$md_data/../uae4arm/uae4arm.sh" >"$md_inst/amiberry.sh"
-    chmod a+x "$md_inst/amiberry.sh"
-
-    local script="+Start Amiberry.sh"
-    cat > "$romdir/amiga/$script" << _EOF_
+        local script="+Start ${md_id}.sh"
+        cat > "${romdir}/amiga/${script}" << _EOF_
 #!/bin/bash
-"$md_inst/amiberry.sh"
+"${md_inst}/${md_id}.sh"
 _EOF_
-    chmod a+x "$romdir/amiga/$script"
-    chown "$user:$user" "$romdir/amiga/$script"
+        chmod a+x "${romdir}/amiga/${script}"
+        chown "${user}:${user}" "${romdir}/amiga/${script}"
+    fi
+
+    addEmulator 1 "${md_id}" "amiga" "${md_inst}/${md_id}.sh %ROM%"
+    addEmulator 0 "${md_id}-a500" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500"
+    addEmulator 0 "${md_id}-a500plus" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500P"
+    addEmulator 0 "${md_id}-a1200" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A1200"
+    addEmulator 0 "${md_id}-a4000" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A4000"
+    addEmulator 0 "${md_id}-cdtv" "amiga" "${md_inst}/${md_id}.sh %ROM% --model CDTV"
+    addEmulator 0 "${md_id}-cd32" "amiga" "${md_inst}/${md_id}.sh %ROM% --model CD32"
+
+    addSystem "amiga"
 }

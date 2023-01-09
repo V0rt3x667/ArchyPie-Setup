@@ -28,8 +28,8 @@ function sources_retropie-manager() {
 
 function install_retropie-manager() {
     cd "$md_inst"
-    chown -R "$user:$user" "$md_inst"
-    sudo -u $user make install
+    chown -R "${user}:${user}" "$md_inst"
+    sudo -u ${user} make install
 }
 
 function _is_enabled_retropie-manager() {
@@ -38,7 +38,7 @@ function _is_enabled_retropie-manager() {
 }
 
 function enable_retropie-manager() {
-    local config="\"$md_inst/rpmanager.sh\" --start --user $user 2>\&1 > /dev/shm/rpmanager.log \&"
+    local config="\"$md_inst/rpmanager.sh\" --start --user ${user} 2>\&1 > /dev/shm/rpmanager.log \&"
 
     if _is_enabled_retropie-manager; then
         dialog \
@@ -91,8 +91,8 @@ function gui_retropie-manager() {
         fi
         cmd=(dialog --backtitle "$__backtitle" --menu "$rpmanager_status\n\nChoose an option." 22 86 16)
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        if [[ -n "$choice" ]]; then
-            case "$choice" in
+        if [[ -n "${choice}" ]]; then
+            case "${choice}" in
                 1)
                     dialog --infobox "Starting RetroPie-Manager" 4 30 2>&1 >/dev/tty
                     error_msg="$("$md_inst/rpmanager.sh" --start 2>&1 >/dev/null)" \

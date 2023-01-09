@@ -47,8 +47,8 @@ function gui_controlblock() {
 
     )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        case "$choice" in
+    if [[ -n "${choice}" ]]; then
+        case "${choice}" in
             1)
                 make -C "$md_inst/build" installservice
                 printMsgs "dialog" "Enabled ControlBlock driver."

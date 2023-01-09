@@ -1,8 +1,7 @@
-diff --git a/Makefile b/Makefile
-index 29969690..dc798edf 100644
---- a/Makefile
-+++ b/Makefile
-@@ -17,10 +17,10 @@ SDL_CONFIG ?= sdl2-config
+diff -ru a/Makefile b/Makefile
+--- a/Makefile	2023-01-08 20:37:53.447530987 +0000
++++ b/Makefile	2023-01-08 20:46:53.709237181 +0000
+@@ -21,10 +21,10 @@
  export SDL_CFLAGS := $(shell $(SDL_CONFIG) --cflags)
  export SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
  
@@ -15,4 +14,12 @@ index 29969690..dc798edf 100644
 +LDFLAGS += $(SDL_LDFLAGS) -lSDL2_image -lSDL2_ttf -lguisan -Lexternal/libguisan/lib
  ifneq ($(strip $(USE_LD)),)
  	LDFLAGS += -fuse-ld=$(USE_LD)
+ endif
+@@ -42,7 +42,6 @@
+ endif
+ 
+ ifndef DEBUG
+-	CFLAGS += -O3
+ else
+ 	CFLAGS += -g -rdynamic -funwind-tables -DDEBUG -Wl,--export-dynamic
  endif

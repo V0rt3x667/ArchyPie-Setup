@@ -151,7 +151,7 @@ function configure_fs-uae() {
 FS_UAE_BASE_DIR="$arpiedir/emulators/$md_id" "$md_inst/bin/fs-uae-launcher"
 _EOF_
         chmod a+x "$romdir/amiga/$script"
-        chown "$user:$user" "$romdir/amiga/$script"
+        chown "${user}:${user}" "$romdir/amiga/$script"
     fi
 
     addEmulator 0 "$md_id-a1200" "amiga" "$md_inst/bin/fs-uae.sh %ROM% A1200"

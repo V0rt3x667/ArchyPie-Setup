@@ -53,11 +53,11 @@ function configure_ti99sim() {
     ln -sf "$biosdir/TI-994A.ctg" "$md_inst/TI-994A.ctg"
 
     local file="$md_inst/ti99sim.sh"
-    cat >"$file" << _EOF_
+    cat >"${file}" << _EOF_
 #!/bin/bash
 pushd "$md_inst"
 ./ti99sim-sdl "\$@"
 popd
 _EOF_
-    chmod +x "$file"
+    chmod +x "${file}"
 }

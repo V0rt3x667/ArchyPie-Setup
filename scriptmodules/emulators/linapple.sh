@@ -51,7 +51,7 @@ function configure_linapple() {
     # copy default config/disk if user doesn't have them installed
     local file
     for file in Master.dsk linapple.conf; do
-        copyDefaultConfig "$file" "$md_conf_root/apple2/$file"
+        copyDefaultConfig "${file}" "$md_conf_root/apple2/${file}"
     done
 
     isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
@@ -60,11 +60,11 @@ function configure_linapple() {
     moveConfigDir "$home/.linapple" "$md_conf_root/apple2"
 
     local file="$md_inst/linapple.sh"
-    cat >"$file" << _EOF_
+    cat >"${file}" << _EOF_
 #!/bin/bash
 pushd "$romdir/apple2"
 $md_inst/linapple "\$@"
 popd
 _EOF_
-    chmod +x "$file"
+    chmod +x "${file}"
 }

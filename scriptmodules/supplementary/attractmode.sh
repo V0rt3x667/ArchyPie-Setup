@@ -52,11 +52,11 @@ function _add_system_attractmode() {
     iniSet "artwork snap" "$path/$snap"
     iniSet "artwork wheel" "$path/wheel"
 
-    chown "$user:$user" "$config"
+    chown "${user}:${user}" "$config"
 
     # if no gameslist, generate one
     if [[ ! -f "$attract_dir/romlists/$fullname.txt" ]]; then
-        sudo -u "$user" attract --build-romlist "$fullname" -o "$fullname"
+        sudo -u "${user}" attract --build-romlist "$fullname" -o "$fullname"
     fi
 
     local config="$attract_dir/attract.cfg"
@@ -68,7 +68,7 @@ display${tab}$fullname
 ${tab}layout               Basic
 ${tab}romlist              $fullname
 _EOF_
-        chown "$user:$user" "$config"
+        chown "${user}:${user}" "$config"
     fi
 }
 
@@ -118,7 +118,7 @@ function _add_rom_attractmode() {
     fi
 
     echo "$path;$name;$system_fullname;;;;;;;;;;;;;;" >>"$config"
-    chown "$user:$user" "$config"
+    chown "${user}:${user}" "$config"
 }
 
 function depends_attractmode() {
@@ -142,15 +142,15 @@ function build_attractmode() {
     make "${params[@]}"
 
     # remove example configs
-    rm -rf "$md_build/config/emulators/"*
+    rm -rf "${md_build}/config/emulators/"*
 
-    md_ret_require="$md_build/attract"
+    md_ret_require="${md_build}/attract"
 }
 
 function install_attractmode() {
     mkdir -p "$md_inst"/{bin,share,share/attract}
-    cp -v "$md_build/attract" "$md_inst/bin/"
-    cp -Rv "$md_build/config/"* "$md_inst/share/attract"
+    cp -v "${md_build}/attract" "$md_inst/bin/"
+    cp -Rv "${md_build}/config/"* "$md_inst/share/attract"
 }
 
 function remove_attractmode() {
@@ -177,8 +177,8 @@ _EOF_
 
     local id
     for id in "${__mod_id[@]}"; do
-        if rp_isInstalled "$id" && [[ -n "${__mod_info[$id/section]}" ]] && ! hasFlag "${__mod_info[$id/flags]}" "frontend"; then
-            rp_callModule "$id" configure
+        if rp_isInstalled "${id}" && [[ -n "${__mod_info[${id}/section]}" ]] && ! hasFlag "${__mod_info[${id}/flags]}" "frontend"; then
+            rp_callModule "${id}" configure
         fi
     done
 }

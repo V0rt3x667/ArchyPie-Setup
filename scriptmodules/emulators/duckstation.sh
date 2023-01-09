@@ -80,7 +80,7 @@ function configure_duckstation() {
   )
 
   for file in "${bios[@]}"; do
-    ln -sf "$biosdir/$file" "$md_conf_root/psx/bios/$file"
+    ln -sf "$biosdir/${file}" "$md_conf_root/psx/bios/${file}"
   done
 
   addEmulator 1 "$md_id" "psx" "$md_inst/duckstation-nogui -fullscreen %ROM%"

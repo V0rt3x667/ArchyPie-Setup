@@ -101,7 +101,7 @@ function configure_lr-fbneo() {
 
     # copy hiscore.dat
     cp "$md_inst/metadata/hiscore.dat" "$biosdir/fbneo/"
-    chown "$user:$user" "$biosdir/fbneo/hiscore.dat"
+    chown "${user}:${user}" "$biosdir/fbneo/hiscore.dat"
 
     # Set core options
     setRetroArchCoreOption "fbneo-diagnostic-input" "Hold Start"

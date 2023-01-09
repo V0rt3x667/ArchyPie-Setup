@@ -53,23 +53,23 @@ function _video_fullscreen_configedit() {
             [[ "$value" == "unset" ]] && default="U"
             [[ -z "$default" ]] && default="C"
             local cmd=(dialog --default-item "$default" --cancel-label "Back" --menu "Choose RetroArch render resolution" 22 76 16 )
-            local choice 
+            local choice
             choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-            [[ -z "$choice" ]] && return
+            [[ -z "${choice}" ]] && return
             local res
-            if [[ "$choice" == "U" ]]; then
+            if [[ "${choice}" == "U" ]]; then
                 iniUnset "video_fullscreen_x"
                 iniUnset "video_fullscreen_y"
-            elif [[ "$choice" == "O" ]]; then
+            elif [[ "${choice}" == "O" ]]; then
                 iniSet "video_fullscreen_x" "0"
                 iniSet "video_fullscreen_y" "0"
             else
-                if [[ "$choice" == "C" ]]; then
+                if [[ "${choice}" == "C" ]]; then
                     cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --inputbox "Please enter the render resolution as WIDTHxHEIGHT" 10 60)
                     res=$("${cmd[@]}" 2>&1 >/dev/tty)
                     [[ -z "$res" || ! "$res" =~ ^[0-9]+x[0-9]+$ ]] && return
                 else
-                    res="${res[$choice-1]}"
+                    res="${res[${choice}-1]}"
                 fi
                 res=(${res/x/ })
                 iniSet "video_fullscreen_x" "${res[0]}"
@@ -136,8 +136,8 @@ function _joypad_index_configedit() {
                 done
                 local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --menu "Choose a player to adjust" 22 76 16)
                 local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                [[ -z "$choice" ]] && return
-                player="$choice"
+                [[ -z "${choice}" ]] && return
+                player="${choice}"
                 options=(U Unset)
                 local i=0
                 for dev in "${devs_name[@]}"; do
@@ -145,15 +145,15 @@ function _joypad_index_configedit() {
                     ((i++))
                 done
                 local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --menu "Choose a gamepad" 22 76 16)
-                local choice 
+                local choice
                 choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                [[ -z "$choice" ]] && continue
-                case "$choice" in
+                [[ -z "${choice}" ]] && continue
+                case "${choice}" in
                     U)
                         iniUnset "input_player${player}_joypad_index"
                         ;;
                     *)
-                        iniSet "input_player${player}_joypad_index" "$choice"
+                        iniSet "input_player${player}_joypad_index" "${choice}"
                         ;;
                 esac
                 ;;
@@ -337,9 +337,9 @@ function choose_config_configedit() {
         options+=("$i" "$config")
         ((i++))
     done < <(find "$path" -type f -regex "$include" ! -regex "$exclude" ! -regex ".*/downloaded_images/.*" | sort)
-    local choice 
+    local choice
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
+    if [[ -n "${choice}" ]]; then
         echo "${configs[choice]}"
     fi
 }
@@ -365,9 +365,9 @@ function basic_menu_configedit() {
             options+=("$i" "$desc")
             ((i++))
         done < <(find "$configdir" -type f -regex ".*/retroarch.cfg" | sort)
-        local choice 
+        local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        if [[ -n "$choice" ]]; then
+        if [[ -n "${choice}" ]]; then
             basic_configedit "${configs[choice]}"
         else
             break
@@ -385,32 +385,32 @@ function advanced_menu_configedit() {
             4 "Manually Edit Non-RetroArch Configurations"
             5 "Manually Edit All Configurations"
         )
-        local choice 
+        local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         local file="-"
-        if [[ -n "$choice" ]]; then
+        if [[ -n "${choice}" ]]; then
             local ra_exclude='.*/all/retroarch/\(assets\|shaders\)/.*'
-            while [[ -n "$file" ]]; do
-                case "$choice" in
+            while [[ -n "${file}" ]]; do
+                case "${choice}" in
                     1)
                         file=$(choose_config_configedit "$configdir" ".*/retroarch.cfg")
-                        advanced_configedit "$configdir/$file" 2
+                        advanced_configedit "$configdir/${file}" 2
                         ;;
                     2)
                         file=$(choose_config_configedit "$configdir" ".*/retroarch.*" "$ra_exclude")
-                        editFile "$configdir/$file"
+                        editFile "$configdir/${file}"
                         ;;
                     3)
                         file=$(choose_config_configedit "$configdir" ".*/all/.*" "$ra_exclude")
-                        editFile "$configdir/$file"
+                        editFile "$configdir/${file}"
                         ;;
                     4)
                         file=$(choose_config_configedit "$configdir" ".*" ".*retroarch.*")
-                        editFile "$configdir/$file"
+                        editFile "$configdir/${file}"
                         ;;
                     5)
                         file=$(choose_config_configedit "$configdir" ".*" "$ra_exclude")
-                        editFile "$configdir/$file"
+                        editFile "$configdir/${file}"
                         ;;
                 esac
             done
@@ -430,8 +430,8 @@ function gui_configedit() {
         local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         local file="-"
-        if [[ -n "$choice" ]]; then
-            case $choice in
+        if [[ -n "${choice}" ]]; then
+            case ${choice} in
                 1)
                     basic_menu_configedit
                     ;;

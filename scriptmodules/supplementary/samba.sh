@@ -31,7 +31,7 @@ writeable = yes
 guest ok = yes
 create mask = 0644
 directory mask = 0755
-force user = $user
+force user = ${user}
 _EOF_
 }
 
@@ -73,8 +73,8 @@ function gui_samba() {
             5 "Remove Samba & Configuration"
         )
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        if [[ -n "$choice" ]]; then
-            case "$choice" in
+        if [[ -n "${choice}" ]]; then
+            case "${choice}" in
                 1)
                     rp_callModule "$md_id" depends
                     rp_callModule "$md_id" install_shares

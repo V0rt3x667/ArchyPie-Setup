@@ -7,7 +7,7 @@
 ## config / defaults
 user="USERTOBECHOSEN"
 
-home="$(eval echo ~$user)"
+home="$(eval echo ~${user})"
 archypie_path="$home/ArchyPie"
 
 usb_path="$UM_MOUNTPOINT/archypie-mount"

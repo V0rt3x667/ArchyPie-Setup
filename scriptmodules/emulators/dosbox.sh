@@ -145,10 +145,10 @@ fi
 midi_synth stop
 _EOF_
     chmod +x "$romdir/pc/$launcher_name"
-    chown "$user:$user" "$romdir/pc/$launcher_name"
+    chown "${user}:${user}" "$romdir/pc/$launcher_name"
 
     if [[ "$md_id" == "dosbox" || "$md_id" == "dosbox-sdl2" ]]; then
-        local config_path=$(su "$user" -c "\"$md_inst/bin/dosbox\" -printconf")
+        local config_path=$(su "${user}" -c "\"$md_inst/bin/dosbox\" -printconf")
         if [[ -f "$config_path" ]]; then
             iniConfig " = " "" "$config_path"
             iniSet "usescancodes" "false"
