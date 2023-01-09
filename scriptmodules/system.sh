@@ -388,6 +388,7 @@ function platform_native() {
     else
         __platform_flags+=('kms') && __has_kms=1
     fi
+    hasPackage "xorg-xwayland" && __platform_flags+=('xwayland')
 
     # Add x86 Platform Flag For x86/x86_64 Architectures
     [[ "$__platform_arch" =~ (i386|i686|x86_64) ]] && __platform_flags+=('x86')
