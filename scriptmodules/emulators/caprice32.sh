@@ -26,13 +26,13 @@ function depends_caprice32() {
 function sources_caprice32() {
     gitPullOrClone
 
-    # Configure Default ROM and Resources Paths
+    # Set Default ROM & Resource Paths
     sed -e "s|\prefix = /usr/local|prefix = ${md_inst}|g" -i "${md_build}/makefile"
     sed -e "s|rom_path=.*|rom_path=${md_inst}/rom|g" -i "${md_build}/cap32.cfg"
     sed -e "s|cart_path=.*|cart_path=${md_inst}/rom|g" -i "${md_build}/cap32.cfg"
     sed -e "s|resources_path=.*|resources_path=${md_inst}/resources|g" -i "${md_build}/cap32.cfg"
 
-    # Enable Full Screen by Default
+    # Set Fullscreen By Default
     sed -e "s|scr_window=1|scr_window=0|g" -i "${md_build}/cap32.cfg"
 
     downloadAndExtract "http://softpres.org/_media/files:ipflib42_linux-x86_64.tar.gz" "${md_build}/capsimage" --strip-components 1
@@ -43,13 +43,15 @@ function sources_caprice32() {
 }
 
 function build_caprice32() {
-    make clean
-    make \
-        LDFLAGS="${LDFLAGS}" \
-        ARCH="linux" \
-        RELEASE="TRUE" \
-        APP_PATH="${arpdir}/${md_id}" \
+    local params=(
+        ARCH="linux"
+        LDFLAGS="${LDFLAGS}"
+        RELEASE="TRUE"
         WITH_IPF="TRUE"
+    )
+    make clean
+    make "${params[@]}"
+
     md_ret_require="${md_build}"
 }
 
@@ -65,14 +67,15 @@ function install_caprice32() {
 }
 
 function configure_caprice32() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amstradcpc/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amstradcpc/${md_id}/"
 
     if [[ "$md_mode" == "install" ]]; then
         mkRomDir "amstradcpc"
-        moveConfigFile "${md_inst}/cap32.cfg" "${md_conf_root}/amstradcpc"
+        cp "${md_inst}/cap32.cfg" "${arpdir}/${md_id}"
+        chown "${user}:${user}" "${arpdir}/${md_id}/cap32.cfg"
     fi
 
-    addEmulator 1 "${md_id}" "amstradcpc" "${md_inst}/cap32 %ROM%"
+    addEmulator 1 "${md_id}" "amstradcpc" "${md_inst}/cap32 --cfg_file=${md_conf_root}/amstradcpc/${md_id}/cap32.cfg %ROM%"
 
     addSystem "amstradcpc"
 }
