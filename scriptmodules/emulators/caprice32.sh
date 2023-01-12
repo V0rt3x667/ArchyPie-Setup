@@ -69,7 +69,7 @@ function install_caprice32() {
 function configure_caprice32() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amstradcpc/${md_id}/"
 
-    if [[ "$md_mode" == "install" ]]; then
+    if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "amstradcpc"
         cp "${md_inst}/cap32.cfg" "${arpdir}/${md_id}"
         chown "${user}:${user}" "${arpdir}/${md_id}/cap32.cfg"
