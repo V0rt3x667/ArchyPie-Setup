@@ -23,6 +23,7 @@ function depends_advmame() {
 function sources_advmame() {
     gitPullOrClone
 
+    # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
