@@ -59,8 +59,6 @@ function configure_mutsu() {
         mkUserDir "${biosdir}/fm7"
     fi
 
-    #moveConfigDir "$home/.config/CommonSourceCodeProject" "$md_conf_root/fm7"
-
     addEmulator 1 "${md_id}" "fm7" "${md_inst}/Mutsu_CUI ${biosdir}/fm7 -FULLSCREEN -FD0 %ROM%"
     addEmulator 0 "${md_id}-tape" "fm7" "${md_inst}/Mutsu_CUI ${biosdir}/fm7 -FULLSCREEN -AUTOSTARTTAPE -TAPE %ROM%"
 
