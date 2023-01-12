@@ -26,7 +26,7 @@ function sources_mutsu() {
 
     _sources_tsugaru
 
-    #Set Location Of External Dependencies
+    # Set Location Of External Dependencies
     sed -e "s|TOWNSEMU|tsugaru|g" -i "${md_build}/src/CMakeLists.txt"
 }
 
