@@ -1,0 +1,15 @@
+diff -ru a/BasiliskII/src/Unix/prefs_unix.cpp b/BasiliskII/src/Unix/prefs_unix.cpp
+--- a/BasiliskII/src/Unix/prefs_unix.cpp	2023-01-12 14:57:02.929780793 +0000
++++ b/BasiliskII/src/Unix/prefs_unix.cpp	2023-01-12 15:31:41.535127334 +0000
+@@ -72,10 +72,8 @@
+ static string get_xdg_config_dir(void)
+ {
+ 	char *env;
+-	if (env = getenv("XDG_CONFIG_HOME"))
+-		return string(env) + XDG_CONFIG_SUBDIR;
+ 	if (env = getenv("HOME"))
+-		return string(env) + "/.config" + XDG_CONFIG_SUBDIR;
++		return string(env) + "/ArchyPie/configs" + XDG_CONFIG_SUBDIR;
+ 	return "";
+ }
+ 
