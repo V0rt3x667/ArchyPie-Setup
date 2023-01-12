@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="citra"
-rp_module_desc="Citra - Nintendo 3DS Emulator"
-rp_module_help="ROM Extensions: .3ds .3dsx .app .axf .cci .cxi .elf\n\nCopy Your Decrypted Nintendo 3DS ROMs to: $romdir/3ds"
+rp_module_desc="Citra: Nintendo 3DS Emulator"
+rp_module_help="ROM Extensions: .3ds .3dsx .app .axf .cci .cia .cxi .elf\n\nCopy Nintendo 3DS ROMs To: ${romdir}/3ds\n\nNote: .cia ROMs Will Only Work If A 'aes_keys.txt' File Exists In The 'sysdata' Folder"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/citra-emu/citra/master/license.txt"
 rp_module_repo="git https://github.com/citra-emu/citra master"
 rp_module_section="main"
@@ -30,22 +30,32 @@ function depends_citra() {
 
 function sources_citra() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    #applyPatch "${md_data}/01_set_default_config_path.patch"
+
 }
 
 function build_citra() {
+    # "ninja -C build clean" Removes An Object From The Build Dir Resulting In A Compliation Failure:
+    # "fatal error: shaders/depth_to_color.frag: No such file or directory"
+    if [[ -d "${md_build}/build" ]]; then
+        rm -rf "${md_build}/build"
+    fi
+
     cmake . \
-        -GNinja \
         -Bbuild \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DENABLE_FFMPEG_AUDIO_DECODER=ON \
-        -DCITRA_USE_BUNDLED_SDL2=OFF \
+        -GNinja \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DENABLE_FFMPEG_AUDIO_DECODER="ON" \
+        -DENABLE_WEB_SERVICE="OFF" \
+        -DUSE_SYSTEM_BOOST="ON" \
+        -DUSE_SYSTEM_SDL2="ON" \
         -Wno-dev
-    # ninja -C build clean removes an object from the build dir resulting in a compliation failure:
-    # fatal error: shaders/depth_to_color.frag: No such file or directory
     ninja -C build
-    md_ret_require="$md_build/build/bin/Release/citra"
+    md_ret_require="${md_build}/build/bin/Release/${md_id}"
 }
 
 function install_citra() {
@@ -53,12 +63,14 @@ function install_citra() {
 }
 
 function configure_citra() {
-    mkRomDir "3ds"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "3ds"
+    fi
 
-    moveConfigDir "$home/.local/share/citra-emu" "$md_conf_root/3ds/citra"
+    #moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/3ds/${md_id}"
 
-    addEmulator 1 "$md_id" "3ds" "$md_inst/bin/citra -f %ROM%"
-    addEmulator 0 "$md_id-gui" "3ds" "$md_inst/bin/citra-qt -f %ROM%"
+    addEmulator 1 "${md_id}" "3ds" "${md_inst}/bin/${md_id} -f %ROM%"
+    addEmulator 0 "${md_id}-gui" "3ds" "${md_inst}/bin/${md_id}-qt -f %ROM%"
 
     addSystem "3ds"
 }
