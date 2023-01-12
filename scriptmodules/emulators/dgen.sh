@@ -5,99 +5,89 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dgen"
-rp_module_desc="DGEN - Sega Megadrive (Genesis) Emulator"
-rp_module_help="ROM Extensions: .32x .iso .cue .smd .bin .gen .md .sg .zip\n\nCopy your  Megadrive / Genesis roms to $romdir/megadrive\nSega 32X roms to $romdir/sega32x\nand SegaCD roms to $romdir/segacd\nThe Sega CD requires the BIOS files bios_CD_U.bin, bios_CD_E.bin, and bios_CD_J.bin copied to $biosdir"
+rp_module_desc="DGEN: Sega Megadrive (Genesis) Emulator"
+rp_module_help="ROM Extensions: .32x .iso .cue .smd .bin .gen .md .sg .zip\n\nCopy Sega Megadrive (Genesis) ROMs To: ${romdir}/megadrive\nSega 32X ROMs To: ${romdir}/sega32x\nSegaCD ROMs To: ${romdir}/segacd\nSega CD Requires BIOS Files (bios_CD_U.bin, bios_CD_E.bin, & bios_CD_J.bin) Copied To: ${biosdir}/segacd"
 rp_module_licence="GPL2 https://sourceforge.net/p/dgen/dgen/ci/master/tree/COPYING"
-rp_module_repo="file $__archive_url/dgen-sdl-1.33.tar.gz"
+rp_module_repo="file ${__archive_url}/dgen-sdl-1.33.tar.gz"
 rp_module_section="opt"
-rp_module_flags="!mali !kms"
+rp_module_flags=""
 
 function depends_dgen() {
-    getDepends sdl libarchive
+    local depends=(
+        'libarchive'
+        'sdl12-compat'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_dgen() {
-    downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
+    downloadAndExtract "${md_repo_url}" "${md_build}" --strip-components 1
+
+    # Set Default Config Path(s)
+    sed -e "s|#define DGEN_BASEDIR \".dgen\"|#define DGEN_BASEDIR \"ArchyPie/configs/dgen\"|g" -i "${md_build}/system.h"
 }
 
 function build_dgen() {
-    local params=()
-    isPlatform "rpi" && params+=(--disable-opengl --disable-hqx)
-    # dgen contains obsoleted arm assembler that gcc/as will not like for armv8 cpu targets
+    # DGEN Contains Obsoleted ARM Assembler That GCC/AS Will Not Like For armv8 CPU Targets
     if isPlatform "armv8"; then
-        CFLAGS="-O2 -march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard" ./configure --prefix="$md_inst"
+        CFLAGS="-O2 -march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard" ./configure --prefix="${md_inst}"
     else
-        ./configure --prefix="$md_inst"
+        ./configure --prefix="${md_inst}"
     fi
     make clean
     make
-    md_ret_require="$md_build/dgen"
+    md_ret_require="${md_build}/${md_id}"
 }
 
 function install_dgen() {
     make install
-    cp "sample.dgenrc" "$md_inst/"
-    md_ret_require="$md_inst/bin/dgen"
 }
 
 function configure_dgen() {
-    local system
-    for system in megadrive segacd sega32x; do
-        mkRomDir "$system"
-        addEmulator 0 "$md_id" "$system" "$md_inst/bin/dgen -r $md_conf_root/megadrive/dgenrc %ROM%"
-        addSystem "$system"
-    done
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/megadrive/${md_id}/"
 
-    [[ "$md_mode" == "remove" ]] && return
+    if [[ "${md_mode}" == "install" ]]; then
+        local dirs=(
+            'megadrive'
+            'sega32x'
+            'segacd'
+        )
+        for dir in "${dirs[@]}"; do
+            mkRomDir "${dir}"
+        done
 
-    mkUserDir "$md_conf_root/megadrive"
+        local config
+        config="$(mktemp)"
 
-    # move config from previous location
-    if [[ -f "$configdir/all/dgenrc" ]]; then
-        mv -v "$configdir/all/dgenrc" "$md_conf_root/megadrive/dgenrc"
+        iniConfig ' = ' '' "${config}"
+
+        iniSet "joy_pad1_a" "joystick0-button0"
+        iniSet "joy_pad1_b" "joystick0-button1"
+        iniSet "joy_pad1_c" "joystick0-button2"
+        iniSet "joy_pad1_x" "joystick0-button3"
+        iniSet "joy_pad1_y" "joystick0-button4"
+        iniSet "joy_pad1_z" "joystick0-button5"
+        iniSet "joy_pad1_mode" "joystick0-button6"
+        iniSet "joy_pad1_start" "joystick0-button7"
+
+        iniSet "joy_pad2_a" "joystick1-button0"
+        iniSet "joy_pad2_b" "joystick1-button1"
+        iniSet "joy_pad2_c" "joystick1-button2"
+        iniSet "joy_pad2_x" "joystick1-button3"
+        iniSet "joy_pad2_y" "joystick1-button4"
+        iniSet "joy_pad2_z" "joystick1-button5"
+        iniSet "joy_pad2_mode" "joystick1-button6"
+        iniSet "joy_pad2_start" "joystick1-button7"
+
+        copyDefaultConfig "${config}" "${md_conf_root}/megadrive/${md_id}/dgenrc"
+        rm "${config}"
     fi
 
-    if [[ ! -f "$md_conf_root/megadrive/dgenrc" ]]; then
-        cp "sample.dgenrc" "$md_conf_root/megadrive/dgenrc"
-        chown "${user}:${user}" "$md_conf_root/megadrive/dgenrc"
-    fi
+    addEmulator 0 "${md_id}" "megadrive" "${md_inst}/bin/${md_id} -f -r ${md_conf_root}/megadrive/${md_id}/dgenrc %ROM%"
+    addEmulator 0 "${md_id}" "sega32x" "${md_inst}/bin/${md_id} -f -r ${md_conf_root}/megadrive/${md_id}/dgenrc %ROM%"
+    addEmulator 0 "${md_id}" "segacd" "${md_inst}/bin/${md_id} -f -r ${md_conf_root}/megadrive/${md_id}/dgenrc %ROM%"
 
-    iniConfig " = " "" "$md_conf_root/megadrive/dgenrc"
-
-    if isPlatform "rpi"; then
-        iniSet "int_width" "320"
-        iniSet "int_height" "240"
-        iniSet "bool_doublebuffer" "no"
-        iniSet "bool_screen_thread" "yes"
-        iniSet "scaling_startup" "none"
-
-        # we don't have opengl (or build dgen with it)
-        iniSet "bool_opengl" "no"
-
-        # lower sample rate
-        iniSet "int_soundrate" "22050"
-
-        iniSet "emu_z80_startup" "drz80"
-        iniSet "emu_m68k_startup" "cyclone"
-    fi
-
-    iniSet "joy_pad1_a" "joystick0-button0"
-    iniSet "joy_pad1_b" "joystick0-button1"
-    iniSet "joy_pad1_c" "joystick0-button2"
-    iniSet "joy_pad1_x" "joystick0-button3"
-    iniSet "joy_pad1_y" "joystick0-button4"
-    iniSet "joy_pad1_z" "joystick0-button5"
-    iniSet "joy_pad1_mode" "joystick0-button6"
-    iniSet "joy_pad1_start" "joystick0-button7"
-
-    iniSet "joy_pad2_a" "joystick1-button0"
-    iniSet "joy_pad2_b" "joystick1-button1"
-    iniSet "joy_pad2_c" "joystick1-button2"
-    iniSet "joy_pad2_x" "joystick1-button3"
-    iniSet "joy_pad2_y" "joystick1-button4"
-    iniSet "joy_pad2_z" "joystick1-button5"
-    iniSet "joy_pad2_mode" "joystick1-button6"
-    iniSet "joy_pad2_start" "joystick1-button7"
-
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
+    addSystem "megadrive"
+    addSystem "sega32x"
+    addSystem "segacd"
 }
