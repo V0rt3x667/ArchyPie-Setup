@@ -24,7 +24,7 @@ function depends_dolphin() {
         'minizip'
         'ninja'
         'pugixml'
-        'qt5-base'
+        'qt6-base'
         'sfml'
     )
     getDepends "${depends[@]}"
