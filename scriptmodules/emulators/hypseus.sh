@@ -26,7 +26,6 @@ function depends_hypseus() {
         'libmpeg2'
         'libogg'
         'libvorbis'
-        'ninja'
         'sdl2_image'
         'sdl2_ttf'
         'sdl2'
