@@ -69,7 +69,7 @@ function configure_dolphin() {
         mkRomDir "wii"
 
         mkUserDir "${biosdir}/gc"
-        mkUserDir "$md_conf_root/gc/${md_id}/Config"
+        mkUserDir "${arpdir}/${md_id}/Config"
 
         local config
 
@@ -81,14 +81,16 @@ function configure_dolphin() {
         iniSet "FullscreenResolution" "Auto"
         iniSet "Fullscreen" "True"
 
-        copyDefaultConfig "${config}" "${md_conf_root}/gc/${md_id}/Config/Dolphin.ini"
+        copyDefaultConfig "${config}" "${arpdir}/${md_id}/Config/Dolphin.ini"
         rm "${config}"
     fi
 
-    addEmulator 1 "${md_id}" "gc" "$md_inst/bin/${md_id}-emu-nogui -u ${md_conf_root}/gc/${md_id} -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "gc" "$md_inst/bin/${md_id}-emu -u ${md_conf_root}/gc/${md_id} -b -e %ROM%"
-    addEmulator 1 "${md_id}" "wii" "$md_inst/bin/${md_id}-emu-nogui -u ${md_conf_root}/gc/${md_id} -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "wii" "$md_inst/bin/${md_id}-emu -u ${md_conf_root}/gc/${md_id} -b -e %ROM%"
+    local launcher_prefix="DOLPHIN_EMU_USERPATH=${arpdir}/${md_id}"
+
+    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} $md_inst/bin/${md_id}-emu-nogui -e %ROM%"
+    addEmulator 0 "${md_id}-gui" "gc" "${launcher_prefix} $md_inst/bin/${md_id}-emu -b -e %ROM%"
+    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} $md_inst/bin/${md_id}-emu-nogui -e %ROM%"
+    addEmulator 0 "${md_id}-gui" "wii" "${launcher_prefix} $md_inst/bin/${md_id}-emu -b -e %ROM%"
 
     addSystem "gc"
     addSystem "wii"
