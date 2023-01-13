@@ -6,9 +6,9 @@
 
 rp_module_id="atari800"
 rp_module_desc="Atari 800: Atari 400, 800, 600XL, 800XL, 130XE & 5200 Emulator"
-rp_module_help="ROM Extensions: .a52 .atr .bas .bin .car .dcm .xex .xfd\n\nCopy Atari800 Games To: ${romdir}/atari800\n\nCopy Atari 5200 ROMs To: ${romdir}/atari5200\n\nCopy BIOS Files (5200.ROM, ATARIBAS.ROM, ATARIOSB.ROM & ATARIXL.ROM) To: ${biosdir}\atari800\n\nOn First Launch Configure Atari800 To Scan The BIOS Folder For ROMs (F1 -> Emulator Configuration -> System ROM Settings)"
+rp_module_help="ROM Extensions: .a52 .atr .bas .bin .car .dcm .xex .xfd\n\nCopy Atari800 Games To: ${romdir}/atari800\n\nCopy Atari 5200 ROMs To: ${romdir}/atari5200\n\nCopy BIOS Files:\n\n5200.ROM\nATARIBAS.ROM\nATARIOSB.ROM\nATARIXL.ROM) To: ${biosdir}\atari800\n\nOn First Launch Configure Atari800 To Scan The BIOS Folder For ROMs (F1 -> Emulator Configuration -> System ROM Settings)"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/atari800/atari800/master/COPYING"
-rp_module_repo="git https://github.com/atari800/atari800.git :_get_branch_atari800"
+rp_module_repo="git https://github.com/atari800/atari800 :_get_branch_atari800"
 rp_module_section="opt"
 rp_module_flags=""
 
@@ -48,6 +48,7 @@ function configure_atari800() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "atari800"
         mkRomDir "atari5200"
+        mkUserDir "${biosdir}/atari800"
 
         # Copy Launcher Script
         sed "s#EMULATOR#/bin/${md_id}#" "${md_data}/atari800.sh" >"${md_inst}/${md_id}.sh"
