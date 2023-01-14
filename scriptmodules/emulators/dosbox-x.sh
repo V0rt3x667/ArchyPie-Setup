@@ -5,69 +5,93 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="dosbox-x"
-rp_module_desc="DOSBox-X - MS-DOS\x86 Emulator Includes Additional Patches & Features"
-rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy Your DOS Games to $romdir/pc"
+rp_module_desc="DOSBox-X: MS-DOS Emulator Includes Additional Patches & Features"
+rp_module_help="ROM Extensions: .bat .com .conf .exe .sh\n\nCopy DOS Games To: ${romdir}/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/joncampbell123/dosbox-x/master/COPYING"
-rp_module_repo="git https://github.com/joncampbell123/dosbox-x.git :_get_branch_dosbox-x"
-rp_module_section="main"
+rp_module_repo="git https://github.com/joncampbell123/dosbox-x :_get_branch_dosbox-x"
+rp_module_section="opt"
+rp_module_flags="!all x86 rpi3 rpi4"
 
 function _get_branch_dosbox-x() {
-    download https://api.github.com/repos/joncampbell123/dosbox-x/releases/latest - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/joncampbell123/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_dosbox-x() {
     local depends=(
+        'alsa-lib'
         'alsa-utils'
-        'ffmpeg4.4'
+        'ffmpeg'
         'fluidsynth'
         'glu'
+        'gzip'
         'libpcap'
         'libpng'
         'libslirp'
         'libxkbfile'
         'libxrandr'
-        'mesa'
-        'physfs'
+        'ncurses'
+        'opusfile'
+        'sdl2_image'
+        'sdl2_net'
+        'sdl2'
+        'speexdsp'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_dosbox-x() {
     gitPullOrClone
-    sed -i 's|"$LIBS -lavcodec -lavformat -lavutil -lswscale "`pkg-config libavcodec --libs`|`pkg-config libavcodec libavformat libavutil libswscale libswresample --libs`"$LIBS"|' configure.ac
+
+    # Set Default Config Path(s)
+    sed -e "s|\"%s/.config\",|\"%s/ArchyPie/configs\",|g" -i "${md_build}/vs/sdl2/src/core/linux/SDL_ibus.c"
 }
 
 function build_dosbox-x() {
+    local params=(
+        '--disable-debug'
+        '--enable-avcodec'
+        '--enable-core-inline'
+        '--enable-sdl2'
+    )
+    ! isPlatform "x11" && params+=('--disable-x11')
+
     ./autogen.sh
-    PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig" ./configure \
-        --prefix="$md_inst" \
-        --enable-sdl2 \
-        --enable-core-inline \
-        --disable-debug \
-        --enable-avcodec
+    ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
     make
-    md_ret_require=("$md_build/src/dosbox-x")
+    md_ret_require=("${md_build}/src/dosbox-x")
 }
 
 function install_dosbox-x() {
     make install
+    md_ret_require=("${md_inst}/bin/dosbox-x")
 }
 
 function configure_dosbox-x() {
     configure_dosbox
 
-    [[ "$md_id" == "remove" ]] && return
+    if [[ "${md_id}" == "install" ]]; then
+        local config_dir="${md_conf_root}/pc"
+        chown -R "${user}": "${config_dir}"
 
-    local config_path=$(su "${user}" -c "\"$md_inst/bin/dosbox-x\" -printconf")
-    if [[ -f "$config_path" ]]; then
-        iniConfig " = " "" "$config_path"
-        if isPlatform "rpi"; then
-            iniSet "fullscreen" "true"
-            iniSet "fullresolution" "desktop"
-            iniSet "output" "texturenb"
-            iniSet "core" "dynamic"
-            iniSet "cycles" "25000"
+        local staging_output="texturenb"
+        if isPlatform "kms"; then
+            staging_output="openglnb"
+        fi
+
+        local config_path
+        config_path=$(su "${user}" -c "\"${md_inst}/bin/dosbox-x\" -printconf")
+        if [[ -f "${config_path}" ]]; then
+            iniConfig " = " "" "${config_path}"
+            if isPlatform "rpi"; then
+                iniSet "fullscreen" "true"
+                iniSet "fullresolution" "original"
+                iniSet "vsync" "true"
+                iniSet "output" "${staging_output}"
+                iniSet "core" "dynamic"
+                iniSet "blocksize" "2048"
+                iniSet "prebuffer" "50"
+            fi
         fi
     fi
 }
