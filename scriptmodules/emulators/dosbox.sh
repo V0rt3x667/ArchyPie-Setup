@@ -65,11 +65,9 @@ function configure_dosbox() {
                 ;;
             dosbox-staging)
                 launcher_name="+Start DOSBox-Staging.sh"
-                #config_dir="$home/.config/dosbox"
                 ;;
             dosbox-x)
                 launcher_name="+Start DOSBox-X.sh"
-                #config_dir="$home/.config/dosbox-x"
                 ;;
             *)
                 return 1
