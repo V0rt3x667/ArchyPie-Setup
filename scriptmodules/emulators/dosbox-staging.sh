@@ -39,12 +39,19 @@ function depends_dosbox-staging() {
 
 function sources_dosbox-staging() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|: \"~/.config\";|: \"ArchyPie/configs\";|g" -i "${md_build}/src/misc/cross.cpp"
 }
 
 function build_dosbox-staging() {
-    local params=(-Dprefix="${md_inst}" -Ddatadir="resources" -Dbuildtype="release" -Dtry_static_libs="mt32emu")
+    local params=(
+        -Dbuildtype="release"
+        -Ddatadir="resources"
+        -Dtry_static_libs="mt32emu"
+    )
 
-    meson setup "${params[@]}" build
+    meson setup -Dprefix="${md_inst}" "${params[@]}" build
     meson compile -j"${__jobs}" -C build
 
     md_ret_require=("${md_build}/build/dosbox")
@@ -52,6 +59,7 @@ function build_dosbox-staging() {
 
 function install_dosbox-staging() {
     ninja -C build install
+    md_ret_require=("${md_inst}/bin/dosbox")
 }
 
 function configure_dosbox-staging() {
