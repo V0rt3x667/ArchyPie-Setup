@@ -5,85 +5,82 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="duckstation"
-rp_module_desc="DuckStation - Sony PlayStation Emulator"
-rp_module_help="ROM Extensions: .bin .cue .chd .img\n\nCopy Your PSX ROMs to: $romdir/psx\n\nCopy the required BIOS file(s) ps-30a, ps-30e, ps-30j, scph5500.bin, scph5501.bin, and scph5502.bin to: $biosdir"
+rp_module_desc="DuckStation: Sony PlayStation Emulator"
+rp_module_help="ROM Extensions: .bin .chd .cue .img\n\nCopy PSX ROMs To: ${romdir}/psx\n\nCopy BIOS file(s):\n\nps-30a\nps-30e\nps-30j\nscph5500.bin\nscph5501.bin\nscph5502.bin\nTo: ${biosdir}/psx"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/stenzek/duckstation/master/LICENSE"
 rp_module_section="main"
 rp_module_repo="git https://github.com/stenzek/duckstation master"
-rp_module_flags="!all arm aarch64 64bit"
+rp_module_flags="!all arm x86_64"
 
 function depends_duckstation() {
     local depends=(
         'cmake'
+        'curl'
         'extra-cmake-modules'
-        'libdrm'
+        'libxkbcommon'
         'ninja'
-        'qt5-base'
-        'qt5-tools'
+        'qt6-base'
+        'qt6-tools'
         'sdl2'
-        'xorg-xrandr'
     )
+    isPlatform "kms" || isPlatform "wayland" && depends+=('libdrm')
+    isPlatform "x11" && depends+=('xorg-xrandr')
     getDepends "${depends[@]}"
 }
 
 function sources_duckstation() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    applyPatch "${md_data}/01_set_default_config_path.patch"
+
+    # Get Latest "gamecontrollerdb.txt" File
+    curl -sSL "https://github.com/gabomdq/SDL_GameControllerDB/archive/refs/heads/master.zip" | bsdtar xvf - --strip-components=1 -C "${md_build}"
 }
 
 function build_duckstation() {
+    local params=()
+    # Enabling: ! isPlatform "x11" && params+=(-DUSE_X11="OFF") breaks building DuckStation
+    isPlatform "wayland" && params+=(-DUSE_WAYLAND="ON")
+    isPlatform "kms" && params+=(-DUSE_DRMKMS="ON")
+
     cmake . \
         -Bbuild \
         -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DBUILD_TESTING=NO \
-        -DUSE_DRMKMS=ON \
-        -DUSE_WAYLAND=ON \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DBUILD_NOGUI_FRONTEND="OFF" \
+        -DBUILD_QT_FRONTEND="ON" \
+        -DUSE_SDL2="ON" \
+        "${params[@]}" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
 
-    md_ret_require=(
-        'build/bin/duckstation-nogui'
-        'build/bin/duckstation-qt'
-    )
+    md_ret_require=("build/bin/${md_id}-qt")
 }
 
 function install_duckstation() {
     md_ret_files=(
-        'build/bin/duckstation-nogui' 
-        'build/bin/duckstation-qt'
-        'build/bin/database'
-        'build/bin/inputprofiles'
-        'build/bin/resources'
-        'build/bin/shaders'
-        'build/bin/translations'
+        "build/bin/${md_id}-qt"
+        "build/bin/resources"
+        "build/bin/translations"
+        "gamecontrollerdb.txt"
     )
 }
 
 function configure_duckstation() {
-  mkRomDir "psx"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/psx/${md_id}"
 
-  moveConfigDir "$home/.local/share/duckstation" "$md_conf_root/psx"
-  
-  mkUserDir "$md_conf_root/psx/bios"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "psx"
+        mkUserDir "${biosdir}/psx"
+        ln -sf "${biosdir}/psx" "${md_conf_root}/psx/${md_id}/bios"
+    fi
 
-  local bios
-  bios=(
-    'ps-30a'
-    'ps-30e'
-    'ps-30j'
-    'scph5500.bin'
-    'scph5501.bin'
-    'scph5502.bin'
-  )
+    addEmulator 1 "${md_id}" "psx" "${md_inst}/${md_id}-qt -nogui -batch -fullscreen %ROM%"
+    addEmulator 0 "${md_id}-gui" "psx" "${md_inst}/${md_id}-qt -fullscreen"
 
-  for file in "${bios[@]}"; do
-    ln -sf "$biosdir/${file}" "$md_conf_root/psx/bios/${file}"
-  done
-
-  addEmulator 1 "$md_id" "psx" "$md_inst/duckstation-nogui -fullscreen %ROM%"
-  addEmulator 0 "$md_id-gui" "psx" "$md_inst/duckstation-qt -fullscreen %ROM%"
-  addSystem "psx"
+    addSystem "psx"
 }

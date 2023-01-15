@@ -1,0 +1,72 @@
+diff -ru a/src/duckstation-nogui/nogui_host.cpp b/src/duckstation-nogui/nogui_host.cpp
+--- a/src/duckstation-nogui/nogui_host.cpp	2023-01-14 23:18:31.258184586 +0000
++++ b/src/duckstation-nogui/nogui_host.cpp	2023-01-15 00:05:26.746136303 +0000
+@@ -184,25 +184,14 @@
+     CoTaskMemFree(documents_directory);
+   }
+ #elif defined(__linux__)
+-  // Use $XDG_CONFIG_HOME/duckstation if it exists.
+-  const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
+-  if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
++  const char* home_dir = getenv("HOME");
++  if (home_dir)
+   {
+-    EmuFolders::DataRoot = Path::Combine(xdg_config_home, "duckstation");
+-  }
+-  else
+-  {
+-    // Use ~/.local/share/duckstation otherwise.
+-    const char* home_dir = getenv("HOME");
+-    if (home_dir)
+-    {
+-      // ~/.local/share should exist, but just in case it doesn't and this is a fresh profile..
+-      const std::string local_dir(Path::Combine(home_dir, ".local"));
+-      const std::string share_dir(Path::Combine(local_dir, "share"));
+-      FileSystem::EnsureDirectoryExists(local_dir.c_str(), false);
+-      FileSystem::EnsureDirectoryExists(share_dir.c_str(), false);
+-      EmuFolders::DataRoot = Path::Combine(share_dir, "duckstation");
+-    }
++    const std::string local_dir(Path::Combine(home_dir, "ArchyPie"));
++    const std::string share_dir(Path::Combine(local_dir, "configs"));
++    FileSystem::EnsureDirectoryExists(local_dir.c_str(), false);
++    FileSystem::EnsureDirectoryExists(share_dir.c_str(), false);
++    EmuFolders::DataRoot = Path::Combine(share_dir, "duckstation");
+   }
+ #elif defined(__APPLE__)
+   static constexpr char MAC_DATA_DIR[] = "Library/Application Support/DuckStation";
+diff -ru a/src/duckstation-qt/qthost.cpp b/src/duckstation-qt/qthost.cpp
+--- a/src/duckstation-qt/qthost.cpp	2023-01-14 23:18:31.272184886 +0000
++++ b/src/duckstation-qt/qthost.cpp	2023-01-15 00:09:23.930266163 +0000
+@@ -270,25 +270,14 @@
+     CoTaskMemFree(documents_directory);
+   }
+ #elif defined(__linux__)
+-  // Use $XDG_CONFIG_HOME/duckstation if it exists.
+-  const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
+-  if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
++  const char* home_dir = getenv("HOME");
++  if (home_dir)
+   {
+-    EmuFolders::DataRoot = Path::Combine(xdg_config_home, "duckstation");
+-  }
+-  else
+-  {
+-    // Use ~/.local/share/duckstation otherwise.
+-    const char* home_dir = getenv("HOME");
+-    if (home_dir)
+-    {
+-      // ~/.local/share should exist, but just in case it doesn't and this is a fresh profile..
+-      const std::string local_dir(Path::Combine(home_dir, ".local"));
+-      const std::string share_dir(Path::Combine(local_dir, "share"));
+-      FileSystem::EnsureDirectoryExists(local_dir.c_str(), false);
+-      FileSystem::EnsureDirectoryExists(share_dir.c_str(), false);
+-      EmuFolders::DataRoot = Path::Combine(share_dir, "duckstation");
+-    }
++    const std::string local_dir(Path::Combine(home_dir, "ArchyPie"));
++    const std::string share_dir(Path::Combine(local_dir, "configs"));
++    FileSystem::EnsureDirectoryExists(local_dir.c_str(), false);
++    FileSystem::EnsureDirectoryExists(share_dir.c_str(), false);
++    EmuFolders::DataRoot = Path::Combine(share_dir, "duckstation");
+   }
+ #elif defined(__APPLE__)
+   static constexpr char MAC_DATA_DIR[] = "Library/Application Support/DuckStation";
