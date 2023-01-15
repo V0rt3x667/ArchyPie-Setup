@@ -26,7 +26,6 @@ function depends_fbzx() {
 
 function sources_fbzx() {
     gitPullOrClone
-    #! isPlatform "x86" && sed -i 's|PREFIX2=$(PREFIX)/usr|PREFIX2=$(PREFIX)|' Makefile
 }
 
 function build_fbzx() {
