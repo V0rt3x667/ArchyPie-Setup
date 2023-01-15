@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy Amiga Games To: 
 rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
 rp_module_repo="git https://github.com/BlitterStudio/amiberry :_get_branch_amiberry"
 rp_module_section="opt"
-rp_module_flags="!all arm rpi3 rpi4 64bit"
+rp_module_flags="!all arm x86_64"
 
 function _get_branch_amiberry() {
     download "https://api.github.com/repos/BlitterStudio/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
@@ -76,23 +76,21 @@ function install_amiberry() {
         'external/capsimg/capsimg.so'
         'kickstarts'
     )
-
     cp -R "${md_build}/whdboot" "${md_inst}/whdboot-dist"
 }
 
 function configure_amiberry() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amiga/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "amiga"
         mkUserDir "${biosdir}/amiga"
-        mkUserDir "${md_conf_root}/amiga"
-        mkUserDir "${md_conf_root}/amiga/${md_id}"
 
         # Move Data Folders & Files
         local dir
         for dir in conf nvram savestates screenshots; do
             moveConfigDir "${md_inst}/${dir}" "${md_conf_root}/amiga/${md_id}/${dir}"
         done
-        moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amiga/${md_id}/"
         moveConfigDir "${md_inst}/kickstarts" "${biosdir}/amiga"
         moveConfigDir "${md_inst}/whdboot" "${md_conf_root}/amiga/${md_id}/whdboot"
         moveConfigFile "${md_inst}/data/cd32.nvr" "${md_conf_root}/amiga/${md_id}/cd32.nvr"
@@ -108,7 +106,7 @@ function configure_amiberry() {
         chown -R "${user}:${user}" "${biosdir}/amiga"
         chown -R "${user}:${user}" "${md_conf_root}/amiga/${md_id}/whdboot"
 
-        # Use Shared UAE4ARM/Amiberry Launcher Script While ${md_id}=1
+        # Use Shared UAE4ARM/Amiberry Launcher Script While '${md_id}=1'
         sed -e "s|is_${md_id}=0|is_${md_id}=1|g" "${md_data}/../uae4arm/uae4arm.sh" >"${md_inst}/amiberry.sh"
         chmod a+x "${md_inst}/${md_id}.sh"
 
@@ -121,13 +119,15 @@ _EOF_
         chown "${user}:${user}" "${romdir}/amiga/${script}"
     fi
 
-    addEmulator 1 "${md_id}" "amiga" "${md_inst}/${md_id}.sh %ROM%"
-    addEmulator 0 "${md_id}-a500" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500"
-    addEmulator 0 "${md_id}-a500plus" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500P"
     addEmulator 0 "${md_id}-a1200" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A1200"
     addEmulator 0 "${md_id}-a4000" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A4000"
-    addEmulator 0 "${md_id}-cdtv" "amiga" "${md_inst}/${md_id}.sh %ROM% --model CDTV"
-    addEmulator 0 "${md_id}-cd32" "amiga" "${md_inst}/${md_id}.sh %ROM% --model CD32"
+    addEmulator 0 "${md_id}-a500" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500"
+    addEmulator 0 "${md_id}-a500plus" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500P"
+    addEmulator 1 "${md_id}-cd32" "cd32" "${md_inst}/${md_id}.sh %ROM% --model CD32"
+    addEmulator 1 "${md_id}-cdtv" "cdtv" "${md_inst}/${md_id}.sh %ROM% --model CDTV"
+    addEmulator 1 "${md_id}" "amiga" "${md_inst}/${md_id}.sh %ROM%"
 
     addSystem "amiga"
+    addSystem "cd32"
+    addSystem "cdtv"
 }
