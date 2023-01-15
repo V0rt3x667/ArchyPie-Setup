@@ -6,10 +6,10 @@
 
 rp_module_id="vvvvvv"
 rp_module_desc="VVVVVV: A 2D Puzzle Game"
+rp_module_help="Copy 'data.zip' From A Retail Or Make And Play Edition Of VVVVVV To: ${romdir}/ports/vvvvvv"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/TerryCavanagh/VVVVVV/master/LICENSE.md"
 rp_module_repo="git https://github.com/TerryCavanagh/VVVVVV master"
-rp_module_help="Copy data.zip From A Retail Or Make And Play Edition Of VVVVVV To: ${romdir}/ports/vvvvvv"
-rp_module_section="exp"
+rp_module_section="opt"
 
 function depends_vvvvvv() {
     local depends=(
@@ -30,6 +30,7 @@ function sources_vvvvvv() {
     # Set Fullscreen By Default
     sed -e "s|_this->fullscreen = false;|_this->fullscreen = true;|g" -i "${md_build}/desktop_version/src/Screen.cpp"
 
+    # Get Latest "gamecontrollerdb.txt" File
     curl -sSL "https://github.com/gabomdq/SDL_GameControllerDB/archive/refs/heads/master.zip" | bsdtar xvf - --strip-components=1 -C "${md_build}"
 }
 
@@ -58,7 +59,7 @@ function install_vvvvvv() {
 }
 
 function configure_vvvvvv() {
-    if [[ "$md_mode" == "install" ]]; then
+    if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "/ports/${md_id}"
         # Symlink Game Data
         ln -snf "${romdir}/ports/${md_id}/data.zip" "${md_inst}/data.zip"
