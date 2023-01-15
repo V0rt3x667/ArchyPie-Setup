@@ -43,7 +43,8 @@ function launch_amiga() {
             --fullscreen \
             --no-gui \
             --floppies_dir="${biosdir}/amiga/workbench" \
-            --kickstarts_dir="${biosdir}/amiga"
+            --kickstarts_dir="${biosdir}/amiga" \
+            --no-auto-detect-game \
             "${ROM}"
             ;;
         A500|A500+|A600|A1200)
