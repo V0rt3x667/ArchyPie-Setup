@@ -1,0 +1,16 @@
+diff -ru a/compat/unix/paths.c b/compat/unix/paths.c
+--- a/compat/unix/paths.c	2023-01-15 21:20:02.479488595 +0000
++++ b/compat/unix/paths.c	2023-01-16 10:34:57.730343874 +0000
+@@ -48,8 +48,10 @@
+ const char*
+ compat_get_config_path( void )
+ {
+-  const char *dir;
+-  dir = getenv( "HOME" ); if( dir ) return dir;
++  const char *envpath = getenv( "HOME" );
++  const char *cpath = ( "/ArchyPie/configs/fuse" );
++  const char *dir = strcat( envpath, cpath ); 
++  if( dir ) return dir;
+   return ".";
+ }
+ 

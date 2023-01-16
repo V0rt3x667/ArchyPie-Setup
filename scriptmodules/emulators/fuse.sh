@@ -5,39 +5,59 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="fuse"
-rp_module_desc="Fuse - ZX Spectrum Emulator"
-rp_module_help="ROM Extensions: .sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk .zip\n\nCopy your ZX Spectrum games to $romdir/zxspectrum"
+rp_module_desc="Fuse: ZX Spectrum Emulator"
+rp_module_help="ROM Extensions: .dsk .gz .img .mgt .scl .sh .sna .szx .tap .trd .tzx .udi .z80 .zip\n\nCopy ZX Spectrum Games To: ${romdir}/zxspectrum"
 rp_module_licence="GPL2 https://sourceforge.net/p/fuse-emulator/fuse/ci/master/tree/COPYING"
-rp_module_repo="file https://sourceforge.net/projects/fuse-emulator/files/fuse/1.6.0/fuse-1.6.0.tar.gz"
+rp_module_repo="git https://git.code.sf.net/p/fuse-emulator/fuse master"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function depends_fuse() {
-    getDepends sdl libpng zlib lbzip2 audiofile bison flex
+    local depends=(
+        'audiofile'
+        'bison'
+        'flex'
+        'lbzip2'
+        'libpng'
+        'sdl12-compat'
+        'zlib'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_fuse() {
-    downloadAndExtract "$md_repo_url" "$md_build" --strip-components 1
-    downloadAndExtract "https://sourceforge.net/projects/fuse-emulator/files/libspectrum/1.5.0/libspectrum-1.5.0.tar.gz" "$md_build/libspectrum" --strip-components 1
+    gitPullOrClone
+
+    _sources_libspectrum
+}
+
+function _sources_libspectrum() {
+    gitPullOrClone "${md_build}/libspectrum" "https://git.code.sf.net/p/fuse-emulator/libspectrum"
+
+    # Set Default Config Path(s)
+    applyPatch "${md_data}/01_set_default_config_path.patch"
+
     if ! isPlatform "x11"; then
-        applyPatch "$md_data/01_disable_cursor.diff"
+        applyPatch "${md_data}/02_disable_cursor.patch"
     fi
 }
 
-function _build_libspectrum_fuse() {
-    cd "$md_build/libspectrum"
+function _build_libspectrum() {
+    cd "${md_build}/libspectrum" || exit
+    ./autogen.sh
     ./configure --disable-shared
     make clean
     make
+    md_ret_require="${md_build}/libspectrum.so"
 }
 
 function build_fuse() {
-    _build_libspectrum_fuse
+    _build_libspectrum
 
-    cd "$md_build"
-    ./autogen
-    ./configure LIBSPECTRUM_CFLAGS="-I$md_build/libspectrum" LIBSPECTRUM_LIBS="-L$md_build/libspectrum/.libs -lspectrum" \
-        --prefix="$md_inst" \
+    cd "${md_build}" || exit
+    ./autogen.sh
+    ./configure LIBSPECTRUM_CFLAGS="-I${md_build}/libspectrum" LIBSPECTRUM_LIBS="-L${md_build}/libspectrum/.libs -lspectrum" \
+        --prefix="${md_inst}" \
         --without-libao \
         --without-gpm \
         --without-gtk \
@@ -45,41 +65,31 @@ function build_fuse() {
         --with-sdl
     make clean
     make
-    md_ret_require="$md_build/fuse"
+    md_ret_require="${md_build}/${md_id}"
 }
 
 function install_fuse() {
     make install
+    md_ret_require="${md_inst}/bin/${md_id}"
 }
 
 function configure_fuse() {
-    mkRomDir "zxspectrum"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/zxspectrum/${md_id}"
 
-    addEmulator 0 "$md_id-48k" "zxspectrum" "$md_inst/bin/fuse --machine 48 --full-screen %ROM%"
-    addEmulator 0 "$md_id-128k" "zxspectrum" "$md_inst/bin/fuse --machine 128 --full-screen %ROM%"
-    addSystem "zxspectrum"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "zxspectrum"
 
-    [[ "$md_mode" == "remove" ]] && return
-
-    mkUserDir "$md_conf_root/zxspectrum"
-    moveConfigFile "$home/.fuserc" "$md_conf_root/zxspectrum/.fuserc"
-
-    # default to dispmanx backend
-    isPlatform "dispmanx" && _backend_set_fuse "dispmanx"
-
-    local script="$romdir/zxspectrum/+Start Fuse.sh"
-    cat > "$script" << _EOF_
+        local script="${romdir}/zxspectrum/+Start Fuse.sh"
+    cat > "${script}" << _EOF_
 #!/bin/bash
-$md_inst/bin/fuse --machine 128 --full-screen
+${md_inst}/bin/${md_id} --machine 128 --full-screen
 _EOF_
-    chown "${user}:${user}" "$script"
-    chmod +x "$script"
-}
+    chown "${user}:${user}" "${script}"
+    chmod +x "${script}"
+    fi
 
-function _backend_set_fuse() {
-    local mode="$1"
-    local force="$2"
-    setBackend "$md_id" "$mode" "$force"
-    setBackend "$md_id-48k" "$mode" "$force"
-    setBackend "$md_id-128k" "$mode" "$force"
+    addEmulator 0 "${md_id}-48k" "zxspectrum" "${md_inst}/bin/fuse --machine 48 --full-screen %ROM%"
+    addEmulator 0 "${md_id}-128k" "zxspectrum" "${md_inst}/bin/fuse --machine 128 --full-screen %ROM%"
+
+    addSystem "zxspectrum"
 }
