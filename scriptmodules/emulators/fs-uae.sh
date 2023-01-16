@@ -107,16 +107,19 @@ function build_fs-uae() {
 
 function _install_capsimg() {
     install -Dm644 "${md_build}/capsimg/CAPSImg/capsimg.so" "${md_inst}/bin/"
+    md_ret_require="${md_inst}/bin/capsimg.so"
 }
 
 function _install_fs-uae-launcher() {
     make -C "${md_build}/launcher" install
+    md_ret_require="${md_inst}/bin/${md_id}-launcher"
 }
 
 function install_fs-uae() {
     make install
     _install_capsimg
     _install_fs-uae-launcher
+    md_ret_require="${md_inst}/bin/${md_id}"
 }
 
 function configure_fs-uae() {
