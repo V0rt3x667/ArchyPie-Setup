@@ -5,26 +5,34 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="linapple"
-rp_module_desc="LinApple-Pie - Apple 2 & 2e Emulator"
-rp_module_help="ROM Extensions: .dsk\n\nCopy your Apple 2 games to $romdir/apple2"
+rp_module_desc="LinApple-Pie: Apple II & IIe Emulator"
+rp_module_help="ROM Extensions: .dsk .nib .po .sh .zip\n\nCopy Apple 2 Games To: ${romdir}/apple2"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dabonetn/linapple-pie/master/LICENSE"
-rp_module_repo="git https://github.com/dabonetn/linapple-pie.git master"
+rp_module_repo="git https://github.com/dabonetn/linapple-pie master"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function depends_linapple() {
-    getDepends libzip sdl sdl_image curl
+    local depends=(
+        'curl'
+        'libzip'
+        'sdl_image'
+        'sdl12-compat'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_linapple() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|/.linapple/|${md_conf_root}/apple2/${md_id}/|g" -i "${md_build}/src"/*.cpp
 }
 
 function build_linapple() {
-    cd src
-    make clean
-    make
-    md_ret_require="$md_build/linapple"
+    make -C src clean
+    make -C src
+    md_ret_require="${md_build}/${md_id}"
 }
 
 function install_linapple() {
@@ -32,39 +40,28 @@ function install_linapple() {
         'CHANGELOG'
         'INSTALL'
         'LICENSE'
-        'linapple'
         'linapple.conf'
+        'linapple'
         'Master.dsk'
-        'README'
         'README-linapple-pie'
+        'README'
     )
 }
 
 function configure_linapple() {
-    mkRomDir "apple2"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/apple2/${md_id}"
 
-    addEmulator 1 "$md_id" "apple2" "$md_inst/linapple.sh -1 %ROM%"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "apple2"
+
+        # Copy Default Config & Disk If Not Installed
+        local file
+        for file in linapple.conf Master.dsk; do
+            copyDefaultConfig "${file}" "${md_conf_root}/apple2/${md_id}/${file}"
+        done
+    fi
+
+    addEmulator 1 "${md_id}" "apple2" "pushd ${md_conf_root}/apple2/${md_id}; ${md_inst}/${md_id} -f -1 %ROM% -r; popd"
+
     addSystem "apple2"
-
-    [[ "$md_mode" == "remove" ]] && return
-
-    # copy default config/disk if user doesn't have them installed
-    local file
-    for file in Master.dsk linapple.conf; do
-        copyDefaultConfig "${file}" "$md_conf_root/apple2/${file}"
-    done
-
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
-
-    mkUserDir "$md_conf_root/apple2"
-    moveConfigDir "$home/.linapple" "$md_conf_root/apple2"
-
-    local file="$md_inst/linapple.sh"
-    cat >"${file}" << _EOF_
-#!/bin/bash
-pushd "$romdir/apple2"
-$md_inst/linapple "\$@"
-popd
-_EOF_
-    chmod +x "${file}"
 }
