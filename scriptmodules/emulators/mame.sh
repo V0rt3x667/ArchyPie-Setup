@@ -42,7 +42,7 @@ function sources_mame() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|# SDL_INI_PATH = .;\$HOME/.mame/;ini;|SDL_INI_PATH = \$HOME/ArchyPie/configs/${md_id}/|g" -i "${md_build}/makefile"
+    sed -e "s|# SDL_INI_PATH = .;\$HOME/.mame/;ini;|SDL_INI_PATH = \$HOME/ArchyPie/configs/${md_id}/;|g" -i "${md_build}/makefile"
 
     # Use System Libraries
     sed -e "s|\# USE_SYSTEM_LIB|USE_SYSTEM_LIB|g" -i "${md_build}/makefile"
