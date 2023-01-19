@@ -26,7 +26,7 @@ function map_mupen64plus_joystick() {
 
     local keys
     local dir
-    case "$input_name" in
+    case "${input_name}" in
         up)
             keys=("DPad U")
             dir=("Up")
@@ -112,27 +112,27 @@ function map_mupen64plus_joystick() {
 
     local key
     local value
-    #iniConfig " = " "" "/tmp/mp64keys.cfg"
+    iniConfig " = " "" "/tmp/mp64keys.cfg"
     for key in "${keys[@]}"; do
-        # read key value. Axis takes two key/axis values.
+        # Read Key Value Axis Takes Two Key/Axis Values
         iniGet "${key}"
-        case "$input_type" in
+        case "${input_type}" in
             axis)
-                # key "X/Y Axis" needs different button naming
+                # Key 'X/Y Axis' Needs Different Button Naming
                 if [[ "${key}" == *Axis* ]]; then
-                    # if there is already a "-" axis add "+" axis value
-                    if   [[ "$ini_value" == *\(* ]]; then
+                    # If There Is Already A '-'' Axis Add '+'' Axis Value
+                    if   [[ "${ini_value}" == *\(* ]]; then
                         value="${ini_value}${input_id}+)"
-                    # if there is already a "+" axis add "-" axis value
-                    elif [[ "$ini_value" == *\)* ]]; then
+                    # If There Is Already A '+'' Axis Add '-'' Axis Value
+                    elif [[ "${ini_value}" == *\)* ]]; then
                         value="axis(${input_id}-,${ini_value}"
-                    # if there is no ini_value add "+" axis value
-                    elif [[ "$input_value" == "1" ]]; then
+                    # If There Is No 'ini_value' Add '+'' Axis Value
+                    elif [[ "${input_value}" == "1" ]]; then
                         value="${input_id}+)"
                     else
                         value="axis(${input_id}-,"
                     fi
-                elif [[ "$input_value" == "1" ]]; then
+                elif [[ "${input_value}" == "1" ]]; then
                     value="axis(${input_id}+) ${ini_value}"
                 else
                     value="axis(${input_id}-) ${ini_value}"
@@ -140,30 +140,30 @@ function map_mupen64plus_joystick() {
                 ;;
             hat)
                 if [[ "${key}" == *Axis* ]]; then
-                    if   [[ "$ini_value" == *\(* ]]; then
+                    if   [[ "${ini_value}" == *\(* ]]; then
                         value="${ini_value}${dir})"
-                    elif [[ "$ini_value" == *\)* ]]; then
+                    elif [[ "${ini_value}" == *\)* ]]; then
                         value="hat(${input_id} ${dir} ${ini_value}"
-                    elif [[ "$dir" == "Up" || "$dir" == "Left" ]]; then
+                    elif [[ "${dir}" == "Up" || "${dir}" == "Left" ]]; then
                         value="hat(${input_id} ${dir} "
-                    elif [[ "$dir" == "Right" || "$dir" == "Down" ]]; then
+                    elif [[ "${dir}" == "Right" || "${dir}" == "Down" ]]; then
                         value="${dir})"
                     fi
                 else
-                    if [[ -n "$dir" ]]; then
+                    if [[ -n "${dir}" ]]; then
                         value="hat(${input_id} ${dir}) ${ini_value}"
                     fi
                 fi
                 ;;
             *)
                 if [[ "${key}" == *Axis* ]]; then
-                    if   [[ "$ini_value" == *\(* ]]; then
+                    if   [[ "${ini_value}" == *\(* ]]; then
                         value="${ini_value}${input_id})"
-                    elif [[ "$ini_value" == *\)* ]]; then
+                    elif [[ "${ini_value}" == *\)* ]]; then
                         value="button(${input_id},${ini_value}"
-                    elif [[ "$dir" == "Up" || "$dir" == "Left" ]]; then
+                    elif [[ "${dir}" == "Up" || "${dir}" == "Left" ]]; then
                         value="button(${input_id},"
-                    elif [[ "$dir" == "Right" || "$dir" == "Down" ]]; then
+                    elif [[ "${dir}" == "Right" || "${dir}" == "Down" ]]; then
                         value="${input_id})"
                     fi
                 else
@@ -172,7 +172,7 @@ function map_mupen64plus_joystick() {
                 ;;
         esac
 
-        iniSet "${key}" "$value"
+        iniSet "${key}" "${value}"
     done
 }
 
@@ -182,7 +182,7 @@ function onend_mupen64plus_joystick() {
     local axis_neg
     local axis_pos
     for axis in "X Axis" "Y Axis"; do
-        if [[ "$axis" == *X* ]]; then
+        if [[ "${axis}" == *X* ]]; then
             axis_neg="DPad L"
             axis_pos="DPad R"
         else
@@ -190,10 +190,10 @@ function onend_mupen64plus_joystick() {
             axis_pos="DPad D"
         fi
 
-        # analog stick sanity check
-        # replace Axis values with DPAD values if there is no Axis
-        # device setup
-        if ! grep -q "$axis" /tmp/mp64tempconfig.cfg ; then
+        # Analog Stick Sanity Check
+        # Replace Axis Values With DPAD Values If There Is No Axis
+        # Device Setup
+        if ! grep -q "${axis}" /tmp/mp64tempconfig.cfg ; then
             iniGet "${axis_neg}"
             bind=${ini_value//)/,}
             iniGet "${axis_pos}"
@@ -201,15 +201,15 @@ function onend_mupen64plus_joystick() {
             ini_value=${ini_value//hat(/}
             ini_value=${ini_value//button(/}
             bind="${bind}${ini_value}"
-            iniSet "$axis" "$bind"
+            iniSet "$axis" "${bind}"
             iniDel "${axis_neg}"
             iniDel "${axis_pos}"
         fi
     done
 
-    # If there is no Z Trig try to map the L shoulder
-    # button to it via copying over the existing L Trig
-    # value and deleting it (L Trig) after
+    # If There Is No Z Trigger Try To Map The L Shoulder
+    # Button To It Via Copying Over The Existing L Trigger
+    # Value And Deleting L Trigger After
     if ! grep -q "Z Trig" /tmp/mp64tempconfig.cfg ; then
         iniGet "L Trig"
         iniSet "Z Trig" "${ini_value}"
@@ -219,14 +219,14 @@ function onend_mupen64plus_joystick() {
     echo "; ${DEVICE_NAME}_END " >> /tmp/mp64tempconfig.cfg
     echo "" >> /tmp/mp64tempconfig.cfg
 
-    # abort if old device config cannot be deleted.
-    # keep original mupen64plus-input-sdl configs.
-    local file="$configdir/n64/InputAutoCfg.ini"
+    # Abort If Old Device Config Cannot Be Deleted
+    # Keep Original 'mupen64plus-input-sdl' Configs
+    local file="${configdir}/n64/mupen64plus/InputAutoCfg.ini"
     if [[ -f "${file}" ]]; then
-        # backup current config file
+        # Backup Current Config File
         cp "${file}" "${file}.bak"
         sed -i /"${DEVICE_NAME}_START"/,/"${DEVICE_NAME}_END"/d "${file}"
-        if grep -q "$DEVICE_NAME" "${file}" ; then
+        if grep -q "${DEVICE_NAME}" "${file}" ; then
             rm /tmp/mp64tempconfig.cfg
             return
         fi
@@ -262,7 +262,7 @@ Y Axis = key(273,274)
 _EOF_
     fi
 
-    # append temp device configuration to InputAutoCfg.ini
+    # Append Temp Device Configuration To InputAutoCfg.ini
     cat /tmp/mp64tempconfig.cfg >> "${file}"
     rm /tmp/mp64tempconfig.cfg
 }
