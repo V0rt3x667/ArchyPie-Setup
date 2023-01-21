@@ -1,6 +1,38 @@
---- a/pcsx2-qt/QtHost.cpp	2022-08-02 19:32:22.679863000 +0100
-+++ b/pcsx2-qt/QtHost.cpp	2022-08-02 21:59:37.556045232 +0100
-@@ -147,47 +147,13 @@
+diff -ru a/pcsx2/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c b/pcsx2/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c
+--- a/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c	2023-01-21 01:11:12.165286319 +0000
++++ b/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c	2023-01-21 13:17:06.689670956 +0000
+@@ -397,7 +397,7 @@
+             SDL_free(display);
+             return NULL;
+         }
+-        SDL_snprintf(config_dir, sizeof(config_dir), "%s/.config", home_env);
++        SDL_snprintf(config_dir, sizeof(config_dir), "%s/ArchyPie/configs", home_env);
+     }
+     
+     key = dbus->get_local_machine_id();
+diff -ru a/pcsx2/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c b/pcsx2/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c
+--- a/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c	2023-01-21 01:11:12.177286529 +0000
++++ b/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c	2023-01-21 13:18:28.447725698 +0000
+@@ -293,14 +293,13 @@
+     }
+ 
+     if (!envr) {
+-        /* You end up with "$HOME/.local/share/Game Name 2" */
+         envr = SDL_getenv("HOME");
+         if (!envr) {
+             /* we could take heroic measures with /etc/passwd, but oh well. */
+             SDL_SetError("neither XDG_DATA_HOME nor HOME environment is set");
+             return NULL;
+         }
+-        append = "/.local/share/";
++        append = "/ArchyPie/configs/";
+     } else {
+         append = "/";
+     }
+diff -ru a/pcsx2/pcsx2/Frontend/CommonHost.cpp b/pcsx2/pcsx2/Frontend/CommonHost.cpp
+--- a/pcsx2/Frontend/CommonHost.cpp	2023-01-21 01:10:23.125428586 +0000
++++ b/pcsx2/Frontend/CommonHost.cpp	2023-01-21 13:12:10.163845491 +0000
+@@ -151,46 +151,12 @@
  		return;
  	}
  
@@ -8,23 +40,21 @@
 -	// On Windows, use My Documents\PCSX2 to match old installs.
 -	PWSTR documents_directory;
 -	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
-+#if defined(__linux__)
-+	// Custom ArchyPie Path
-+	const char* arpie_cpath = getenv("HOME");
-+	if (arpie_cpath && Path::IsAbsolute(arpie_cpath))
- 	{
+-	{
 -		if (std::wcslen(documents_directory) > 0)
 -			EmuFolders::DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
 -		CoTaskMemFree(documents_directory);
-+		EmuFolders::DataRoot = Path::Combine(arpie_cpath, ".config/archypie/emulators/pcsx2");
- 	}
+-	}
 -#elif defined(__linux__)
 -	// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
 -	const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
--	if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
--	{
++#if defined(__linux__)
++	const char* xdg_config_home = getenv("HOME");
+ 	if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
+ 	{
 -		EmuFolders::DataRoot = Path::Combine(xdg_config_home, "PCSX2");
--	}
++		EmuFolders::DataRoot = Path::Combine(xdg_config_home, "ArchyPie/configs/pcsx2");
+ 	}
 -	else
 -	{
 -		// Use ~/PCSX2 for non-XDG, and ~/.config/PCSX2 for XDG.
@@ -32,7 +62,7 @@
 -		const char* home_dir = getenv("HOME");
 -		if (home_dir)
 -		{
--#ifndef XDG_STD
+-#ifdef USE_LEGACY_USER_DIRECTORY
 -			EmuFolders::DataRoot = Path::Combine(home_dir, "PCSX2");
 -#else
 -			// ~/.config should exist, but just in case it doesn't and this is a fresh profile..
@@ -49,15 +79,13 @@
 -	const char* home_dir = getenv("HOME");
 -	if (home_dir)
 -		EmuFolders::DataRoot = Path::Combine(home_dir, MAC_DATA_DIR);
--#endif
+ #endif
  
  	// make sure it exists
- 	if (!EmuFolders::DataRoot.empty() && !FileSystem::DirectoryExists(EmuFolders::DataRoot.c_str()))
-@@ -201,6 +167,7 @@
- 	if (EmuFolders::DataRoot.empty())
- 		EmuFolders::DataRoot = EmuFolders::AppRoot;
+@@ -542,4 +508,4 @@
+ 	return rich_presence_string;
  }
-+#endif
  
- bool QtHost::InitializeConfig()
- {
+-#endif
+\ No newline at end of file
++#endif
