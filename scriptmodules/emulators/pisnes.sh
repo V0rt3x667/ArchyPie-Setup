@@ -5,15 +5,22 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="pisnes"
-rp_module_desc="PiSNES - Nintendo SNES Emulator"
-rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your SNES roms to $romdir/snes"
+rp_module_desc="PiSNES: Nintendo SNES Emulator"
+rp_module_help="ROM Extensions: .bin .fig .mgd .sfc .smc .swc .zip\n\nCopy SNES ROMs To: ${romdir}/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/RetroPie/pisnes/master/snes9x.h"
-rp_module_repo="git https://github.com/RetroPie/pisnes.git master"
+rp_module_repo="git https://github.com/RetroPie/pisnes master"
 rp_module_section="opt"
 rp_module_flags="!all rpi"
 
 function depends_pisnes() {
-    getDepends ffmpeg sdl raspberrypi-firmware libjpeg
+    local depends=(
+        'ffmpeg'
+        'libjpeg-turbo'
+        'raspberrypi-firmware'
+        'sdl12-compat'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_pisnes() {
@@ -23,7 +30,7 @@ function sources_pisnes() {
 function build_pisnes() {
     make clean
     make
-    md_ret_require="$md_build/snes9x"
+    md_ret_require="${md_build}/snes9x"
 }
 
 function install_pisnes() {
@@ -35,20 +42,21 @@ function install_pisnes() {
         'readme.txt'
         'roms'
         'skins'
-        'snes9x'
         'snes9x.cfg.template'
         'snes9x.gui'
+        'snes9x'
     )
 }
 
 function configure_pisnes() {
-    mkRomDir "snes"
+    moveConfigFile "${md_inst}/snes9x.cfg" "${md_conf_root}/snes/snes9x.cfg"
 
-    addEmulator 0 "$md_id" "snes" "$md_inst/snes9x %ROM%"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "snes"
+        copyDefaultConfig "${md_inst}/snes9x.cfg.template" "${md_conf_root}/snes/snes9x.cfg"
+    fi
+
+    addEmulator 0 "${md_id}" "snes" "${md_inst}/snes9x %ROM%"
+
     addSystem "snes"
-
-    [[ "$md_mode" == "remove" ]] && return
-
-    moveConfigFile "$md_inst/snes9x.cfg" "$md_conf_root/snes/snes9x.cfg"
-    copyDefaultConfig "$md_inst/snes9x.cfg.template" "$md_conf_root/snes/snes9x.cfg"
 }
