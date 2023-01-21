@@ -21,8 +21,6 @@ function depends_ppsspp() {
         'cmake'
         'libzip'
         'ninja'
-        'qt5-base'
-        'qt5-tools'
         'sdl2'
         'snappy'
         'zlib'
