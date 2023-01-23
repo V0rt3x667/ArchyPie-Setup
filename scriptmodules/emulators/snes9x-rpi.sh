@@ -5,15 +5,22 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="snes9x-rpi"
-rp_module_desc="SNES9X-RPi - Nintendo SNES Emulator"
-rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your SNES roms to $romdir/snes"
+rp_module_desc="SNES9X-RPi: Nintendo SNES Emulator"
+rp_module_help="ROM Extensions: .bin .fig .mgd .sfc .smc .swc .zip\n\nCopy SNES ROMs To: ${romdir}/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/RetroPie/snes9x-rpi/master/snes9x.h"
-rp_module_repo="git https://github.com/RetroPie/snes9x-rpi.git retropie"
+rp_module_repo="git https://github.com/RetroPie/snes9x-rpi retropie"
 rp_module_section="opt"
 rp_module_flags="!all rpi"
 
 function depends_snes9x-rpi() {
-    getDepends sdl boost-libs sdl_ttf alsa-lib
+    local depends=(
+        'ffmpeg'
+        'libjpeg-turbo'
+        'raspberrypi-firmware'
+        'sdl12-compat'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 }
 
 function sources_snes9x-rpi() {
@@ -23,7 +30,7 @@ function sources_snes9x-rpi() {
 function build_snes9x-rpi() {
     make clean
     make
-    md_ret_require="$md_build/snes9x"
+    md_ret_require="${md_build}/${md_id}"
 }
 
 function install_snes9x-rpi() {
@@ -31,8 +38,8 @@ function install_snes9x-rpi() {
         'changes.txt'
         'hardware.txt'
         'problems.txt'
-        'readme.txt'
         'README.md'
+        'readme.txt'
         'snes9x'
     )
 }
@@ -40,8 +47,7 @@ function install_snes9x-rpi() {
 function configure_snes9x-rpi() {
     mkRomDir "snes"
 
-    isPlatform "dispmanx" && setBackend "$md_id" "dispmanx"
+    addEmulator 0 "${md_id}" "snes" "${md_inst}/${md_id} %ROM%"
 
-    addEmulator 0 "$md_id" "snes" "$md_inst/snes9x %ROM%"
     addSystem "snes"
 }
