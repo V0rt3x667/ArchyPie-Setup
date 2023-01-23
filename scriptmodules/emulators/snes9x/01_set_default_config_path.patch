@@ -1,0 +1,32 @@
+diff -ru a/gtk/src/gtk_config.cpp b/gtk/src/gtk_config.cpp
+--- a/gtk/src/gtk_config.cpp	2023-01-23 21:20:38.284959573 +0000
++++ b/gtk/src/gtk_config.cpp	2023-01-23 21:28:02.937326325 +0000
+@@ -38,27 +38,10 @@
+ {
+     // Find config directory
+     char *env_home = getenv("HOME");
+-    char *env_xdg_config_home = getenv("XDG_CONFIG_HOME");
+-
+-    if (!env_home && !env_xdg_config_home)
+-    {
+-        return std::string{".snes9x"};
+-    }
+ 
+     std::string config;
+-    std::string legacy;
+-
+-    // If XDG_CONFIG_HOME is set, use that, otherwise guess default
+-    if (!env_xdg_config_home)
+-    {
+-        (config += env_home) += "/.config/snes9x";
+-        (legacy += env_home) += "/.snes9x";
+-    }
+-    else
+-        config = std::string(env_xdg_config_home) + "/snes9x";
+ 
+-    if (directory_exists(legacy) && !directory_exists(config))
+-        return legacy;
++    config = std::string(env_home) + "/ArchyPie/configs/snes9x";
+ 
+     return config;
+ }
