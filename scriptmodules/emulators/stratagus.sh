@@ -48,6 +48,7 @@ function build_stratagus() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DLUA_INCLUDE_DIR="/usr/include/lua5.1" \
         -DENABLE_STRIP="ON" \
+        -DWITH_STACKTRACE="OFF" \
         -DGAMEDIR="${md_inst}/bin" \
         -DSBINDIR="${md_inst}/bin" \
         -Wno-dev
