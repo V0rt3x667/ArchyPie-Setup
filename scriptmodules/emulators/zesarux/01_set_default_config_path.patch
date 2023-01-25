@@ -1,0 +1,38 @@
+diff -ru a/src/utils.c b/src/utils.c
+--- a/src/utils.c	2023-01-25 14:56:04.529809234 +0000
++++ b/src/utils.c	2023-01-25 15:50:13.373722271 +0000
+@@ -3280,12 +3280,9 @@
+   }
+ 
+   #ifndef MINGW
+-  	char *directorio_home;
+-  	directorio_home=getenv("HOME");
+-  	if ( directorio_home==NULL) {
+-                  //printf("Unable to find $HOME environment variable to open configuration file\n");
+-  		return 0;
+-  	}
++  	char *envpath = getenv("HOME");
++  	const char *cpath = ("/ArchyPie/configs/zesarux/");
++  	const char *directorio_home = strcat(envpath, cpath); 
+ 
+   	sprintf(configfile,"%s/%s",directorio_home,DEFAULT_ZESARUX_CONFIG_FILE);
+ 
+@@ -20284,4 +20281,4 @@
+ 
+     //printf("util_parity: paridad %d\n",paridad);
+     return paridad;
+-}
+\ No newline at end of file
++}
+diff -ru a/src/utils.h b/src/utils.h
+--- a/src/utils.h	2023-01-25 14:56:04.529809234 +0000
++++ b/src/utils.h	2023-01-25 15:11:06.415697374 +0000
+@@ -629,7 +629,7 @@
+ 
+ extern int util_tape_tap_get_info(z80_byte *tape,char *texto,int origin_tap);
+ 
+-#define DEFAULT_ZESARUX_CONFIG_FILE ".zesaruxrc"
++#define DEFAULT_ZESARUX_CONFIG_FILE "zesaruxrc"
+ 
+ extern char *customconfigfile;
+ 
