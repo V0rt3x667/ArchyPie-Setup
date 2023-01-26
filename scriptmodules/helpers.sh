@@ -500,19 +500,19 @@ function dirIsEmpty() {
 function copyDefaultConfig() {
     local from="$1"
     local to="$2"
-    # if the destination exists, and is different then copy the config as name.rp-dist
-    if [[ -f "$to" ]]; then
-        if ! diffFiles "$from" "$to"; then
+    # If The Destination Exists, And Is Different Copy The Config As "name.rp-dist"
+    if [[ -f "${to}" ]]; then
+        if ! diffFiles "${from}" "${to}"; then
             to+=".rp-dist"
-            printMsgs "console" "Copying new default configuration to $to"
-            cp "$from" "$to"
+            printMsgs "console" "Copying New Default Configuration To: ${to}"
+            cp "${from}" "${to}"
         fi
     else
-        printMsgs "console" "Copying default configuration to $to"
-        cp "$from" "$to"
+        printMsgs "console" "Copying Default Configuration To: ${to}"
+        cp "${from}" "${to}"
     fi
 
-    chown "${user}:${user}" "$to"
+    chown "${user}:${user}" "${to}"
 }
 
 ## @fn renameModule()
@@ -1052,31 +1052,6 @@ function downloadAndExtract() {
     rm -rf "$temp"
 
     return $ret
-}
-
-## @fn ensureFBMode()
-## @param res_x width of mode
-## @param res_y height of mode
-## @brief Add a framebuffer mode to /etc/fb.modes
-## @details Useful for adding specific resolutions used by emulators so SDL1 can
-## use them and utilise the RPI hardware scaling. Without for example a 320x240
-## mode in fb.modes many of the emulators that output to the framebuffer and
-## were not set to use the dispmanx SDL1 backend would just show in a small
-## area of the screen.
-function ensureFBMode() {
-    [[ ! -f /etc/fb.modes ]] && return
-    local res_x="$1"
-    local res_y="$2"
-    local res="${res_x}x${res_y}"
-    sed -i --follow-symlinks "/$res mode/,/endmode/d" /etc/fb.modes
-
-    cat >> /etc/fb.modes <<_EOF_
-# added by ArchyPie-Setup - $res mode for emulators
-mode "$res"
-    geometry $res_x $res_y $res_x $res_y 16
-    timings 0 0 0 0 0 0 0
-endmode
-_EOF_
 }
 
 ## @fn joy2keyStart()
