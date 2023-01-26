@@ -54,12 +54,12 @@ function build_dosbox-staging() {
     meson setup -Dprefix="${md_inst}" "${params[@]}" build
     meson compile -j"${__jobs}" -C build
 
-    md_ret_require=("${md_build}/build/dosbox")
+    md_ret_require="${md_build}/build/dosbox"
 }
 
 function install_dosbox-staging() {
     ninja -C build install
-    md_ret_require=("${md_inst}/bin/dosbox")
+    md_ret_require="${md_inst}/bin/dosbox"
 }
 
 function configure_dosbox-staging() {
