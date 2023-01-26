@@ -8,7 +8,7 @@ rp_module_id="solarus"
 rp_module_desc="Solarus: Action-RPG/Adventure 2D Game Engine"
 rp_module_help="Copy Solarus Games (.solarus) to: ${romdir}/solarus"
 rp_module_licence="GPL3 https://gitlab.com/solarus-games/solarus/raw/dev/license.txt"
-rp_module_repo="git https://gitlab.com/solarus-games/solarus.git master"
+rp_module_repo="git https://gitlab.com/solarus-games/solarus master"
 rp_module_section="opt"
 rp_module_flags=""
 

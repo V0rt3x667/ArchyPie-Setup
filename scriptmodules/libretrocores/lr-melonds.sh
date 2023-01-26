@@ -8,7 +8,7 @@ rp_module_id="lr-melonds"
 rp_module_desc="Nintendo DS Libretro Core"
 rp_module_help="ROM Extensions: .nds .zip\n\nCopy your NDS ROMs to $romdir/nds\n\nCopy the required BIOS files\n\bios7.bin and\bios9.bin and\firmware.bin to\n\n$biosdir"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/melonDS/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/melonDS.git master"
+rp_module_repo="git https://github.com/libretro/melonDS master"
 rp_module_section="opt"
 
 function depends_lr-melonds() {

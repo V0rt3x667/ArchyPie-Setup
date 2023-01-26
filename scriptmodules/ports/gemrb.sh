@@ -7,7 +7,7 @@
 rp_module_id="gemrb"
 rp_module_desc="GemRB: Port of Bioware's Infinity Engine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/gemrb/gemrb/master/COPYING"
-rp_module_repo="git https://github.com/gemrb/gemrb.git :_get_branch_gemrb"
+rp_module_repo="git https://github.com/gemrb/gemrb :_get_branch_gemrb"
 rp_module_section="exp"
 rp_module_flags="!mali"
 

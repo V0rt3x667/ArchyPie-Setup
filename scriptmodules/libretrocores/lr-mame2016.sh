@@ -8,7 +8,7 @@ rp_module_id="lr-mame2016"
 rp_module_desc="MAME 0.174 Libretro Core"
 rp_module_help="ROM Extension: .zip\n\nCopy your MAME roms to either $romdir/mame-libretro or\n$romdir/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame2016-libretro/master/LICENSE.md"
-rp_module_repo="git https://github.com/libretro/mame2016-libretro.git master"
+rp_module_repo="git https://github.com/libretro/mame2016-libretro master"
 rp_module_section="exp"
 rp_module_flags=""
 

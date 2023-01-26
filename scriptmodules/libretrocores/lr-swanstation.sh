@@ -9,7 +9,7 @@ rp_module_desc="Sony Playstation Libretro Core"
 rp_module_help="ROM Extensions: .exe .cue .bin .chd .psf .m3u .pbp\n\nCopy your PlayStation roms to $romdir/psx\n\nCopy compatble BIOS files to $biosdir"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/swanstation/main/LICENSE"
 rp_module_section="exp"
-rp_module_repo="git https://github.com/libretro/swanstation.git main"
+rp_module_repo="git https://github.com/libretro/swanstation main"
 rp_module_flags="!all arm aarch64 64bit"
 
 function sources_lr-swanstation() {

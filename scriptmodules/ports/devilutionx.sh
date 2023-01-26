@@ -7,7 +7,7 @@
 rp_module_id="devilutionx"
 rp_module_desc="DevilutionX: Diablo & Diablo: Hellfire Port"
 rp_module_licence="TU https://raw.githubusercontent.com/diasurgical/devilutionX/master/LICENSE"
-rp_module_repo="git https://github.com/diasurgical/devilutionX.git :_get_branch_devilutionx"
+rp_module_repo="git https://github.com/diasurgical/devilutionX :_get_branch_devilutionx"
 rp_module_section="opt"
 rp_module_flags=""
 

@@ -8,7 +8,7 @@ rp_module_id="lr-play"
 rp_module_desc="Sony PlayStation 2 Libretro Core"
 rp_module_help="ROM Extensions: .iso .cue\n\nCopy Your PlayStation 2 ROMs to $romdir/ps2"
 rp_module_licence="MIT https://raw.githubusercontent.com/jpd002/Play-/master/License.txt"
-rp_module_repo="git https://github.com/jpd002/Play-.git master"
+rp_module_repo="git https://github.com/jpd002/Play- master"
 rp_module_section="exp"
 rp_module_flags="!all 64bit"
 

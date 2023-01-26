@@ -8,7 +8,7 @@ rp_module_id="lr-gambatte"
 rp_module_desc="Nintendo Gameboy & GameBoy Color Libretro Core"
 rp_module_help="ROM Extensions: .gb .gbc .zip\n\nCopy your GameBoy roms to $romdir/gb\n\nCopy your GameBoy Color roms to $romdir/gbc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/gambatte-libretro/master/COPYING"
-rp_module_repo="git https://github.com/libretro/gambatte-libretro.git master"
+rp_module_repo="git https://github.com/libretro/gambatte-libretro master"
 rp_module_section="main"
 
 function sources_lr-gambatte() {

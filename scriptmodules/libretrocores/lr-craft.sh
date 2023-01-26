@@ -8,7 +8,7 @@ rp_module_id="lr-craft"
 rp_module_desc="Craft (MineCraft Clone) Libretro Core"
 rp_module_help="ROM Extensions: N/A"
 rp_module_licence="MIT https://raw.githubusercontent.com/libretro/Craft/master/LICENSE.md"
-rp_module_repo="git https://github.com/libretro/craft.git master"
+rp_module_repo="git https://github.com/libretro/craft master"
 rp_module_section="exp"
 
 function depends_craft() {

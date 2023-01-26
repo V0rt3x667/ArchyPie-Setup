@@ -8,7 +8,7 @@ rp_module_id="lr-mame2015"
 rp_module_desc="MAME 0.160 Libretro Core"
 rp_module_help="ROM Extension: .zip\n\nCopy your MAME roms to either $romdir/mame-libretro or\n$romdir/arcade"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/mame2015-libretro/master/docs/license.txt"
-rp_module_repo="git https://github.com/libretro/mame2015-libretro.git master"
+rp_module_repo="git https://github.com/libretro/mame2015-libretro master"
 rp_module_section="exp"
 
 function depends_lr-mame2015() {

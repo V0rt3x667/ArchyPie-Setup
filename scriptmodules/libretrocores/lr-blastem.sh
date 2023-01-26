@@ -8,7 +8,7 @@ rp_module_id="lr-blastem"
 rp_module_desc="Sega Mega Drive (Genesis) Libretro Core"
 rp_module_help="ROM Extensions: .md .bin .smd\n\nCopy Your Sega Mega Drive (Genesis) ROMs to $romdir/megadrive or $romdir/genesis\n\n"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/blastem/master/COPYING"
-rp_module_repo="git https://github.com/libretro/blastem.git libretro"
+rp_module_repo="git https://github.com/libretro/blastem libretro"
 rp_module_section="opt"
 
 function sources_lr-blastem() {

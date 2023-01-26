@@ -7,7 +7,7 @@
 rp_module_id="attractmode"
 rp_module_desc="Attract Mode - Emulator Frontend"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/mickelson/attract/master/License.txt"
-rp_module_repo="git https://github.com/mickelson/attract.git master"
+rp_module_repo="git https://github.com/mickelson/attract master"
 rp_module_section="exp"
 rp_module_flags="!mali frontend"
 

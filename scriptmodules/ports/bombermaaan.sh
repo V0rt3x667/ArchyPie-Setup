@@ -7,7 +7,7 @@
 rp_module_id="bombermaaan"
 rp_module_desc="Bombermaaan: Bomberman Clone"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/bjaraujo/Bombermaaan/master/LICENSE.txt"
-rp_module_repo="git https://github.com/bjaraujo/Bombermaaan.git master"
+rp_module_repo="git https://github.com/bjaraujo/Bombermaaan master"
 rp_module_section="exp"
 rp_module_flags="!mali"
 
@@ -40,7 +40,7 @@ function sources_bombermaaan() {
 }
 
 function _sources_sdl() {
-    gitPullOrClone "${md_build}/sdl" "https://github.com/libsdl-org/SDL-1.2.git" "main"
+    gitPullOrClone "${md_build}/sdl" "https://github.com/libsdl-org/SDL-1.2" "main"
 }
 
 function _build_sdl() {

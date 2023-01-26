@@ -8,7 +8,7 @@ rp_module_id="openjazz"
 rp_module_desc="OpenJazz: Open-Source Version of the Classic Jazz Jackrabbit Games"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/AlisterT/openjazz/master/COPYING"
 rp_module_help="For Registered Version, Replace the Shareware Files by Adding the Full Version Game Files to: ${romdir}/ports/jazz."
-rp_module_repo="git https://github.com/AlisterT/openjazz.git master"
+rp_module_repo="git https://github.com/AlisterT/openjazz master"
 rp_module_section="opt"
 rp_module_flags=""
 

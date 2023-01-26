@@ -8,7 +8,7 @@ rp_module_id="lr-citra2018"
 rp_module_desc="Nintendo 3DS Libretro Core"
 rp_module_help="ROM Extensions: .3ds .3dsx .app .cci .cxi\n\nCopy Your Nintendo 3DS ROMs to $romdir/3ds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/citra2018/master/license.txt"
-rp_module_repo="git https://github.com/libretro/citra2018.git master"
+rp_module_repo="git https://github.com/libretro/citra2018 master"
 rp_module_section="opt"
 rp_module_flags="!all 64bit"
 

@@ -7,7 +7,7 @@
 rp_module_id="opentyrian2000"
 rp_module_desc="OpenTyrian2000: Port of the Classic DOS Game Tyrian"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/KScl/opentyrian2000/master/COPYING"
-rp_module_repo="git https://github.com/KScl/opentyrian2000.git master"
+rp_module_repo="git https://github.com/KScl/opentyrian2000 master"
 rp_module_section="opt"
 rp_module_flags=""
 

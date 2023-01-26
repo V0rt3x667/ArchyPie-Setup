@@ -8,7 +8,7 @@ rp_module_id="lr-mrboom"
 rp_module_desc="Mr.Boom Libretro Core"
 rp_module_help="8 Players Bomberman Clone"
 rp_module_licence="MIT https://raw.githubusercontent.com/libretro/mrboom-libretro/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/mrboom-libretro.git master"
+rp_module_repo="git https://github.com/libretro/mrboom-libretro master"
 rp_module_section="opt"
 
 function sources_lr-mrboom() {

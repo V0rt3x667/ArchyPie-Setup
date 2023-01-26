@@ -8,7 +8,7 @@ rp_module_id="basilisk"
 rp_module_desc="BasiliskII: Apple Macintosh II Emulator"
 rp_module_help="ROM Extensions: .img .rom\n\nCopy Macintosh ROMs (disk.img & mac.rom) To: ${romdir}/macintosh"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/cebix/macemu/master/BasiliskII/COPYING"
-rp_module_repo="git https://github.com/kanjitalk755/macemu.git master"
+rp_module_repo="git https://github.com/kanjitalk755/macemu master"
 rp_module_section="opt"
 rp_module_flags=""
 

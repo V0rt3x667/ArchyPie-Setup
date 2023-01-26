@@ -7,7 +7,7 @@
 rp_module_id="gzdoom"
 rp_module_desc="GZDoom: Enhanced DOOM Port"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/coelckers/gzdoom/master/LICENSE"
-rp_module_repo="git https://github.com/coelckers/gzdoom.git :_get_branch_gzdoom"
+rp_module_repo="git https://github.com/coelckers/gzdoom :_get_branch_gzdoom"
 rp_module_section="opt"
 rp_module_flags="!all 64bit"
 

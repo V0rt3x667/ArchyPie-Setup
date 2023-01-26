@@ -7,7 +7,7 @@
 rp_module_id="sdlpop"
 rp_module_desc="SDLPoP: Open-Source Port of Prince of Persia"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/NagyD/SDLPoP/master/COPYING"
-rp_module_repo="git https://github.com/NagyD/SDLPoP.git master"
+rp_module_repo="git https://github.com/NagyD/SDLPoP master"
 rp_module_section="opt"
 
 function depends_sdlpop() {

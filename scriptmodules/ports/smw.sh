@@ -7,7 +7,7 @@
 rp_module_id="smw"
 rp_module_desc="Super Mario War: Fan-made Multiplayer Super Mario Bros. Style Deathmatch Game"
 rp_module_licence="NONCOM"
-rp_module_repo="git https://github.com/mmatyas/supermariowar.git master"
+rp_module_repo="git https://github.com/mmatyas/supermariowar master"
 rp_module_section="opt"
 rp_module_flags="!mali"
 

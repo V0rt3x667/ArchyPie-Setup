@@ -8,7 +8,7 @@ rp_module_id="lr-dosbox-pure"
 rp_module_desc="DOSBox Pure Libretro Core"
 rp_module_help="ROM Extensions: .bat .com .cue .dosz .exe .ins .ima .img .iso .m3u .m3u8 .vhd .zip\n\nCopy your DOS games to $ROMDIR/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/dosbox-pure/main/LICENSE"
-rp_module_repo="git https://github.com/libretro/dosbox-pure.git main"
+rp_module_repo="git https://github.com/libretro/dosbox-pure main"
 rp_module_section="exp"
 rp_module_flags=""
 

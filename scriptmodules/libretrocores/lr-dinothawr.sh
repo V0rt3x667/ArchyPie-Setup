@@ -8,7 +8,7 @@ rp_module_id="lr-dinothawr"
 rp_module_desc="Dinothawr Libretro Core"
 rp_module_help="Dinothawr game assets are automatically installed to $romdir/ports/dinothawr/"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/Dinothawr/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/Dinothawr.git master"
+rp_module_repo="git https://github.com/libretro/Dinothawr master"
 rp_module_section="exp"
 
 function sources_lr-dinothawr() {

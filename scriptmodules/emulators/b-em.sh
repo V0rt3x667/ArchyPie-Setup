@@ -8,7 +8,7 @@ rp_module_id="b-em"
 rp_module_desc="B-em: Acorn BBC Micro A, B, B+, Master 128, 512, Compact & Turbo Emulator"
 rp_module_help="ROM Extension: .adf .adl .csw .dsd .fdi .img .ssd .uef\n\nCopy BBC Micro & Master Games To: ${romdir}/bbcmicro"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/stardot/b-em/master/COPYING"
-rp_module_repo="git https://github.com/stardot/b-em.git master"
+rp_module_repo="git https://github.com/stardot/b-em master"
 rp_module_section="main"
 rp_module_flags="!all x11 xwayland"
 

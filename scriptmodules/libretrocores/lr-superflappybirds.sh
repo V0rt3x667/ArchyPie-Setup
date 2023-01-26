@@ -8,7 +8,7 @@ rp_module_id="lr-superflappybirds"
 rp_module_desc="Super Flappy Birds Libretro Core"
 rp_module_help="https://github.com/IgniparousTempest/libretro-superflappybirds/wiki"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/IgniparousTempest/libretro-superflappybirds/master/LICENSE"
-rp_module_repo="git https://github.com/IgniparousTempest/libretro-superflappybirds.git master"
+rp_module_repo="git https://github.com/IgniparousTempest/libretro-superflappybirds master"
 rp_module_section="exp"
 
 function depends_lr-superflappybirds() {

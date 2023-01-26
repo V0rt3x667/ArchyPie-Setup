@@ -8,7 +8,7 @@ rp_module_id="lr-snes9x2010"
 rp_module_desc="Nintendo SNES 1.52 Libretro Core"
 rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy your SNES roms to $romdir/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/snes9x2010/master/docs/snes9x-license.txt"
-rp_module_repo="git https://github.com/libretro/snes9x2010.git master"
+rp_module_repo="git https://github.com/libretro/snes9x2010 master"
 rp_module_section="opt arm=main"
 
 function sources_lr-snes9x2010() {

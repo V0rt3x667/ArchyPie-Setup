@@ -8,7 +8,7 @@ rp_module_id="lr-beetle-lynx"
 rp_module_desc="Atari Lynx Libretro Core"
 rp_module_help="ROM Extensions: .lnx .zip\n\nCopy your Atari Lynx roms to $romdir/atarilynx\n\nCopy the required BIOS file lynxboot.img to $biosdir"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-lynx-libretro/master/COPYING"
-rp_module_repo="git https://github.com/libretro/beetle-lynx-libretro.git master"
+rp_module_repo="git https://github.com/libretro/beetle-lynx-libretro master"
 rp_module_section="opt"
 
 function sources_lr-beetle-lynx() {

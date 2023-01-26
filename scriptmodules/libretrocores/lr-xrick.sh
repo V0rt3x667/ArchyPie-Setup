@@ -7,7 +7,7 @@
 rp_module_id="lr-xrick"
 rp_module_desc="Rick Dangerous Libretro Core"
 rp_module_licence="GPL https://raw.githubusercontent.com/libretro/xrick-libretro/master/README"
-rp_module_repo="git https://github.com/libretro/xrick-libretro.git master"
+rp_module_repo="git https://github.com/libretro/xrick-libretro master"
 rp_module_section="opt"
 
 function sources_lr-xrick() {

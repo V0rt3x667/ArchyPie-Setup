@@ -8,7 +8,7 @@ rp_module_id="lr-tic80"
 rp_module_desc="TIC-80 Fantasy Computer Libretro Core"
 rp_module_help="ROM Extensions: .tic .zip\n\nCopy your roms to $romdir/tic80\n\n"
 rp_module_licence="MIT https://raw.githubusercontent.com/libretro/TIC-80/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/TIC-80.git master"
+rp_module_repo="git https://github.com/libretro/TIC-80 master"
 rp_module_section="exp"
 
 function depends_lr-tic80() {

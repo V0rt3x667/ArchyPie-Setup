@@ -7,7 +7,7 @@
 rp_module_id="lincity-ng"
 rp_module_desc="LinCity NG: A City Simulation Game"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/lincity-ng/lincity-ng/master/COPYING"
-rp_module_repo="git https://github.com/lincity-ng/lincity-ng.git master"
+rp_module_repo="git https://github.com/lincity-ng/lincity-ng master"
 rp_module_section="opt"
 rp_module_flags="!mali"
 

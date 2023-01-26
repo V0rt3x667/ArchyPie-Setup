@@ -8,7 +8,7 @@ rp_module_id="raze"
 rp_module_desc="Raze: Build Engine Port"
 rp_module_help="ROM Extensions: .grp\n\nCopy Game Files to:\n${romdir}/ports/duke3d/blood\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/exhumed\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/redneck\n${romdir}/ports/duke3d/shadow\n${romdir}/ports/duke3d/ww2gi"
 rp_module_licence="NONCOM: https://raw.githubusercontent.com/coelckers/Raze/master/build-doc/buildlic.txt"
-rp_module_repo="git https://github.com/coelckers/raze.git :_get_branch_raze"
+rp_module_repo="git https://github.com/coelckers/raze :_get_branch_raze"
 rp_module_section="opt"
 rp_module_flags="!all 64bit"
 

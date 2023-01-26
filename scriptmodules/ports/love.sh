@@ -8,7 +8,7 @@ rp_module_id="love"
 rp_module_desc="Love: A 2D Game Engine for Lua"
 rp_module_help="Copy Love Games to: ${romdir}/love"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/love2d/love/master/license.txt"
-rp_module_repo="git https://github.com/love2d/love.git :_get_branch_love"
+rp_module_repo="git https://github.com/love2d/love :_get_branch_love"
 rp_module_section="opt"
 rp_module_flags=""
 

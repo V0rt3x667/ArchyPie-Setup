@@ -8,7 +8,7 @@ rp_module_id="lr-freeintv"
 rp_module_desc="Mattel Intellivision Libretro Core"
 rp_module_help="ROM Extensions: .int .bin\n\nCopy your Intellivision roms to $romdir/intellivision\n\nCopy the required BIOS files exec.bin and grom.bin to $biosdir"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/FreeIntv/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/FreeIntv.git master"
+rp_module_repo="git https://github.com/libretro/FreeIntv master"
 rp_module_section="opt"
 
 function sources_lr-freeintv() {

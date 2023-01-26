@@ -8,7 +8,7 @@ rp_module_id="lr-hatari"
 rp_module_desc="Atari ST, STE, TT & Falcon Libretro Core"
 rp_module_help="ROM Extensions: .st .stx .img .rom .raw .ipf .ctr .zip\n\nCopy your Atari ST games to $romdir/atarist"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/hatari/master/gpl.txt"
-rp_module_repo="git https://github.com/libretro/hatari.git master"
+rp_module_repo="git https://github.com/libretro/hatari master"
 rp_module_section="exp"
 
 function depends_lr-hatari() {

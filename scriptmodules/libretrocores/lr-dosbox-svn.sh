@@ -8,7 +8,7 @@ rp_module_id="lr-dosbox-svn"
 rp_module_desc="DOSBox SVN Libretro Core"
 rp_module_help="ROM Extensions: .bat .com .exe .sh\n\nCopy your DOS games to $ROMDIR/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/dosbox-svn/libretro/COPYING"
-rp_module_repo="git https://github.com/libretro/dosbox-svn.git libretro"
+rp_module_repo="git https://github.com/libretro/dosbox-svn libretro"
 rp_module_section="exp"
 rp_module_flags=""
 

@@ -8,7 +8,7 @@ rp_module_id="lr-pcsx2"
 rp_module_desc="Sony PlayStation 2 Libretro Core"
 rp_module_help="ROM Extensions: .elf .iso .ciso .chd .cso .bin .mdf .nrg .dump .gz .img .m3u"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/pcsx2/main/COPYING.GPLv3"
-rp_module_repo="git https://github.com/libretro/pcsx2.git main"
+rp_module_repo="git https://github.com/libretro/pcsx2 main"
 rp_module_section="exp"
 rp_module_flags="!all x86"
 

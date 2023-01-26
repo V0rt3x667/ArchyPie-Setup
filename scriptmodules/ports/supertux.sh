@@ -7,7 +7,7 @@
 rp_module_id="supertux"
 rp_module_desc="SuperTux: Classic 2D Jump'n'Run Sidescroller Game"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/SuperTux/supertux/master/LICENSE.txt"
-rp_module_repo="git https://github.com/SuperTux/supertux.git :_get_branch_supertux"
+rp_module_repo="git https://github.com/SuperTux/supertux :_get_branch_supertux"
 rp_module_section="opt"
 rp_module_flags="!mali"
 

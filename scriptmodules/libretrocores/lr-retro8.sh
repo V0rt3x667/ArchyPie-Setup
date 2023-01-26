@@ -8,7 +8,7 @@ rp_module_id="lr-retro8"
 rp_module_desc="PICO-8 Fantasy Console Libretro Core"
 rp_module_help="ROM Extensions: .p8 .p8.png .zip\n\nCopy your roms to $romdir/pico8"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/retro8/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/retro8.git master"
+rp_module_repo="git https://github.com/libretro/retro8 master"
 rp_module_section="exp"
 
 function sources_lr-retro8() {

@@ -7,7 +7,7 @@
 rp_module_id="wolf4sdl"
 rp_module_desc="Wolf4SDL: Port of Wolfenstein 3D & Spear of Destiny"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/fabiangreffrath/wolf4sdl/master/license-gpl.txt"
-rp_module_repo="git https://github.com/fabiangreffrath/wolf4sdl.git master"
+rp_module_repo="git https://github.com/fabiangreffrath/wolf4sdl master"
 rp_module_section="opt"
 rp_module_flags=""
 

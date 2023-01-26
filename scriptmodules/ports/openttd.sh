@@ -7,7 +7,7 @@
 rp_module_id="openttd"
 rp_module_desc="OpenTTD: Game Engine for Transport Tycoon Deluxe"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/OpenTTD/OpenTTD/master/COPYING.md"
-rp_module_repo="git https://github.com/OpenTTD/OpenTTD.git :_get_branch_openttd"
+rp_module_repo="git https://github.com/OpenTTD/OpenTTD :_get_branch_openttd"
 rp_module_section="opt"
 rp_module_flags="!mali"
 

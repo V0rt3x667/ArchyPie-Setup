@@ -8,7 +8,7 @@ rp_module_id="lr-bsnes-mercury"
 rp_module_desc="Nintendo SNES Libretro Core"
 rp_module_help="ROM Extensions: .bin .smc .sfc .fig .swc .mgd .zip\n\nCopy Your SNES ROMs to $romdir/snes"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/bsnes-mercury/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/bsnes-mercury.git master"
+rp_module_repo="git https://github.com/libretro/bsnes-mercury master"
 rp_module_section="opt"
 
 function sources_lr-bsnes-mercury() {

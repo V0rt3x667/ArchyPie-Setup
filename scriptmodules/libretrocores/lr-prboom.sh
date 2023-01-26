@@ -7,7 +7,7 @@
 rp_module_id="lr-prboom"
 rp_module_desc="PrBoom (Doom, Doom II, Final Doom & Doom IWAD Mods) Libretro Core"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-prboom/master/COPYING"
-rp_module_repo="git https://github.com/libretro/libretro-prboom.git master"
+rp_module_repo="git https://github.com/libretro/libretro-prboom master"
 rp_module_section="opt"
 
 function depends_lr-prboom() {

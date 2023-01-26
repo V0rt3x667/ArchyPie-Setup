@@ -8,7 +8,7 @@ rp_module_id="lr-2048"
 rp_module_desc="2048 Libretro Core"
 rp_module_help="https://github.com/libretro/libretro-2048"
 rp_module_licence="The Unlicense https://raw.githubusercontent.com/libretro/libretro-2048/master/COPYING"
-rp_module_repo="git https://github.com/libretro/libretro-2048.git master"
+rp_module_repo="git https://github.com/libretro/libretro-2048 master"
 rp_module_section="opt"
 
 function sources_lr-2048() {

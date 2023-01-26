@@ -7,7 +7,7 @@
 rp_module_id="ioquake3"
 rp_module_desc="ioquake3: Quake 3 Arena Port"
 rp_module_licence="GPL2 https://github.com/ioquake/ioq3/blob/master/COPYING.txt"
-rp_module_repo="git https://github.com/ioquake/ioq3.git main"
+rp_module_repo="git https://github.com/ioquake/ioq3 main"
 rp_module_section="opt"
 rp_module_flags="!rpi"
 

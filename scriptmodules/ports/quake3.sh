@@ -7,7 +7,7 @@
 rp_module_id="quake3"
 rp_module_desc="Quake 3: Quake 3 Arena Port"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/raspberrypi/quake3/master/COPYING.txt"
-rp_module_repo="git https://github.com/raspberrypi/quake3.git master"
+rp_module_repo="git https://github.com/raspberrypi/quake3 master"
 rp_module_section="opt"
 rp_module_flags="!all rpi"
 

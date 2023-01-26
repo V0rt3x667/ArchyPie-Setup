@@ -8,7 +8,7 @@ rp_module_id="lr-mess"
 rp_module_desc="MESS (Latest Version) Libretro Core"
 rp_module_help="See wiki for detailed explanation"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame/master/COPYING"
-rp_module_repo="git https://github.com/libretro/mame.git master"
+rp_module_repo="git https://github.com/libretro/mame master"
 rp_module_section="exp"
 rp_module_flags=""
 

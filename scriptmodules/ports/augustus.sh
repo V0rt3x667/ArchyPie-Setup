@@ -7,7 +7,7 @@
 rp_module_id="augustus"
 rp_module_desc="Augustus: Enhanced Caesar III Port"
 rp_module_licence="AGPL3 https://github.com/Keriew/augustus/blob/master/LICENSE.txt"
-rp_module_repo="git https://github.com/Keriew/augustus.git :_get_branch_augustus"
+rp_module_repo="git https://github.com/Keriew/augustus :_get_branch_augustus"
 rp_module_section="opt"
 rp_module_flags="!all 64bit"
 

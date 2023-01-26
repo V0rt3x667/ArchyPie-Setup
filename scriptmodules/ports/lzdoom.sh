@@ -7,7 +7,7 @@
 rp_module_id="lzdoom"
 rp_module_desc="LZDoom: DOOM Source Port (Legacy Version of GZDoom)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/drfrag666/gzdoom/g3.3mgw/docs/licenses/README.TXT"
-rp_module_repo="git https://github.com/drfrag666/gzdoom.git :_get_branch_lzdoom"
+rp_module_repo="git https://github.com/drfrag666/gzdoom :_get_branch_lzdoom"
 rp_module_section="opt"
 rp_module_flags=""
 

@@ -7,7 +7,7 @@
 rp_module_id="srb2kart"
 rp_module_desc="Sonic Robo Blast 2 Kart: Kart Racing Mod Based On Sonic Robo Blast 2"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/STJr/Kart-Public/master/LICENSE"
-rp_module_repo="git https://github.com/STJr/Kart-Public.git :_get_branch_srb2kart"
+rp_module_repo="git https://github.com/STJr/Kart-Public :_get_branch_srb2kart"
 rp_module_section="opt"
 
 function _get_branch_srb2kart() {

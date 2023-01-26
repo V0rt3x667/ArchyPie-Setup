@@ -8,7 +8,7 @@ rp_module_id="openbor"
 rp_module_desc="OpenBOR: Beat 'Em Up Game Engine"
 rp_module_help="Copy .pak Files to: ${romdir}/ports/openbor"
 rp_module_licence="BSD https://raw.githubusercontent.com/DCurrent/openbor/master/LICENSE"
-rp_module_repo="git https://github.com/DCurrent/openbor.git master"
+rp_module_repo="git https://github.com/DCurrent/openbor master"
 rp_module_section="exp"
 rp_module_flags="!mali"
 

@@ -8,7 +8,7 @@ rp_module_id="eduke32"
 rp_module_desc="EDuke32: Duke Nukem 3D, 'NAM & World War II GI Port"
 rp_module_help="Copy .grp Files To:\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/ww2gi"
 rp_module_licence="GPL2 https://voidpoint.io/terminx/eduke32/-/raw/master/package/common/gpl-2.0.txt?inline=false"
-rp_module_repo="git https://voidpoint.io/terminx/eduke32.git master"
+rp_module_repo="git https://voidpoint.io/terminx/eduke32 master"
 rp_module_section="opt"
 
 function depends_eduke32() {

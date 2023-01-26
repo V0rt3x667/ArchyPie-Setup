@@ -6,7 +6,7 @@
 
 rp_module_id="tyrquake"
 rp_module_desc="TyrQuake: Quake Port"
-rp_module_licence="GPL2 https://disenchant.net/git/tyrquake.git/plain/gnu.txt"
+rp_module_licence="GPL2 https://disenchant.net/git/tyrquake/plain/gnu.txt"
 rp_module_repo="git git://disenchant.net/tyrquake master"
 rp_module_section="opt"
 

@@ -7,7 +7,7 @@
 rp_module_id="julius"
 rp_module_desc="Julius: Caesar III Port"
 rp_module_licence="AGPL3 https://raw.githubusercontent.com/bvschaik/julius/master/LICENSE.txt"
-rp_module_repo="git https://github.com/bvschaik/julius.git :_get_branch_julius"
+rp_module_repo="git https://github.com/bvschaik/julius :_get_branch_julius"
 rp_module_section="opt"
 rp_module_flags="!all 64bit"
 

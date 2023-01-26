@@ -8,7 +8,7 @@ rp_module_id="lr-beetle-vb"
 rp_module_desc="Nintendo Virtual Boy Libretro Core"
 rp_module_help="ROM Extensions: .vb .zip\n\nCopy your Virtual Boy roms to $romdir/virtualboy"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-vb-libretro/master/COPYING"
-rp_module_repo="git https://github.com/libretro/beetle-vb-libretro.git master"
+rp_module_repo="git https://github.com/libretro/beetle-vb-libretro master"
 rp_module_section="opt"
 rp_module_flags=""
 

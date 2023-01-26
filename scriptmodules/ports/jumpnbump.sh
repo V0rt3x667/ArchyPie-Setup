@@ -8,7 +8,7 @@ rp_module_id="jumpnbump"
 rp_module_desc="Jump 'n Bump: Play Cute Bunnies Jumping On Each Other's Heads"
 rp_module_help="Copy Custom Game Levels (.dat) To: ${romdir}/ports/jumpnbump"
 rp_module_licence="GPL2 https://gitlab.com/LibreGames/jumpnbump/raw/master/COPYING"
-rp_module_repo="git https://gitlab.com/LibreGames/jumpnbump.git master"
+rp_module_repo="git https://gitlab.com/LibreGames/jumpnbump master"
 rp_module_section="exp"
 rp_module_flags=""
 

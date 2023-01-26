@@ -7,7 +7,7 @@
 rp_module_id="dhewm3"
 rp_module_desc="dhewm3: DOOM3 Port"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/dhewm/dhewm3/master/COPYING.txt"
-rp_module_repo="git https://github.com/dhewm/dhewm3.git :_get_branch_dhewm3"
+rp_module_repo="git https://github.com/dhewm/dhewm3 :_get_branch_dhewm3"
 rp_module_section="opt"
 rp_module_flags="!all 64bit"
 

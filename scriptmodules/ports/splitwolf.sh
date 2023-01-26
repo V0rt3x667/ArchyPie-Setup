@@ -8,7 +8,7 @@ rp_module_id="splitwolf"
 rp_module_desc="SplitWolf: 2-4 Player Split-Screen Wolfenstein 3D & Spear of Destiny Port"
 rp_module_help="Game File Extension: .wl1, .wl6, .sdm, .sod, .sd2, .sd3\n\nCopy Wolfenstein 3D & Spear of Destiny Game Files to: ${romdir}/ports/wolf3d/"
 rp_module_licence="NONCOM https://bitbucket.org/linuxwolf6/splitwolf/raw/scrubbed/license-mame.txt"
-rp_module_repo="git https://bitbucket.org/linuxwolf6/splitwolf.git scrubbed"
+rp_module_repo="git https://bitbucket.org/linuxwolf6/splitwolf scrubbed"
 rp_module_section="exp"
 
 function depends_splitwolf() {

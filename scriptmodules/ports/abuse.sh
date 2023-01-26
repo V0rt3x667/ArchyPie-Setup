@@ -7,7 +7,7 @@
 rp_module_id="abuse"
 rp_module_desc="Abuse: Abuse SDL Port"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/Xenoveritas/abuse/master/COPYING"
-rp_module_repo="git https://github.com/Xenoveritas/abuse.git :_get_branch_abuse"
+rp_module_repo="git https://github.com/Xenoveritas/abuse :_get_branch_abuse"
 rp_module_section="opt"
 rp_module_flags=""
 

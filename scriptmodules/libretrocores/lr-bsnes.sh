@@ -8,7 +8,7 @@ rp_module_id="lr-bsnes"
 rp_module_desc="Super Nintendo Entertainment System Libretro Core"
 rp_module_help="ROM Extensions: .bml .smc .sfc .zip\n\nCopy your SNES roms to $romdir/snes"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/bsnes/master/LICENSE.txt"
-rp_module_repo="git https://github.com/libretro/bsnes.git master"
+rp_module_repo="git https://github.com/libretro/bsnes master"
 rp_module_section="opt"
 rp_module_flags=""
 

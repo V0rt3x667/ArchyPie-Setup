@@ -8,7 +8,7 @@ rp_module_id="ags4"
 rp_module_desc="Adventure Game Studio: Adventure Game Engine (AGS 4 Branch ≥ 3.4.1)"
 rp_module_help="ROM Extension: .ags .exe\n\nCopy Adventure Game Studio Games To: ${romdir}/ags"
 rp_module_licence="OTHER https://raw.githubusercontent.com/adventuregamestudio/ags/master/License.txt"
-rp_module_repo="git https://github.com/adventuregamestudio/ags.git ags4"
+rp_module_repo="git https://github.com/adventuregamestudio/ags ags4"
 rp_module_section="opt"
 rp_module_flags=""
 

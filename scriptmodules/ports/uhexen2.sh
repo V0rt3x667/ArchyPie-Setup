@@ -8,7 +8,7 @@ rp_module_id="uhexen2"
 rp_module_desc="Hammer of Thyrion (uHexen2): Hexen II Source Port"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/sezero/uhexen2/master/docs/COPYING"
 rp_module_help="Copy pak0.pak & strings.txt To: ${romdir}/ports/hexen2/data1/ & pak1.pak To: ${romdir}/ports/hexen2/portals/"
-rp_module_repo="git https://github.com/sezero/uhexen2.git master"
+rp_module_repo="git https://github.com/sezero/uhexen2 master"
 rp_module_section="opt"
 rp_module_flags=""
 

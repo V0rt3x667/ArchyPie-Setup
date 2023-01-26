@@ -7,7 +7,7 @@
 rp_module_id="srb2"
 rp_module_desc="Sonic Robo Blast 2: 3D Sonic the Hedgehog Fangame"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/STJr/SRB2/master/LICENSE"
-rp_module_repo="git https://github.com/STJr/SRB2.git :_get_branch_srb2"
+rp_module_repo="git https://github.com/STJr/SRB2 :_get_branch_srb2"
 rp_module_section="exp"
 
 function _get_branch_srb2() {

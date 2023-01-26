@@ -8,7 +8,7 @@ rp_module_id="cannonball"
 rp_module_desc="Cannonball: An Enhanced OutRun Engine"
 rp_module_help="Unzip the OutRun Revision B ROM Set from MAME (outrun.zip) to ${romdir}/ports/cannonball and rename ROM epr-10381a.132 to epr-10381b.132"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/djyt/cannonball/master/docs/license.txt"
-rp_module_repo="git https://github.com/djyt/cannonball.git master"
+rp_module_repo="git https://github.com/djyt/cannonball master"
 rp_module_section="opt"
 
 function depends_cannonball() {
