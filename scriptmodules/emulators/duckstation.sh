@@ -6,7 +6,7 @@
 
 rp_module_id="duckstation"
 rp_module_desc="DuckStation: Sony PlayStation Emulator"
-rp_module_help="ROM Extensions: .bin .chd .cue .img\n\nCopy PSX ROMs To: ${romdir}/psx\n\nCopy BIOS file(s):\n\nps-30a\nps-30e\nps-30j\nscph5500.bin\nscph5501.bin\nscph5502.bin\nTo: ${biosdir}/psx"
+rp_module_help="ROM Extensions: .bin .chd .cue .img\n\nCopy PSX ROMs To: ${romdir}/psx\n\nCopy BIOS File(s):\n\nps-30a\nps-30e\nps-30j\nscph5500.bin\nscph5501.bin\nscph5502.bin\nTo: ${biosdir}/psx"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/stenzek/duckstation/master/LICENSE"
 rp_module_section="main"
 rp_module_repo="git https://github.com/stenzek/duckstation master"
@@ -40,13 +40,13 @@ function sources_duckstation() {
 
 function build_duckstation() {
     local params=()
-    # Enabling: ! isPlatform "x11" && params+=(-DUSE_X11="OFF") breaks building DuckStation
+    # Enabling: ! isPlatform "x11" && params+=(-DUSE_X11="OFF") Breaks Building DuckStation
     isPlatform "wayland" && params+=(-DUSE_WAYLAND="ON")
     isPlatform "kms" && params+=(-DUSE_DRMKMS="ON")
 
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
