@@ -150,22 +150,36 @@ function build_emulationstation() {
         params+=('-DRPI=On')
         # Use OpenGL on RPI/KMS
         isPlatform "mesa" && params+=('-DGL=On')
+    elif isPlatform "x11"; then
+        if isPlatform "gles"; then
+            params+=('-DGLES=On')
+            local gles_ver
+            gles_ver=$(sudo -u "${user}" glxinfo -B | grep -oP 'Max GLES[23] profile version:\s\K.*')
+            compareVersions "${gles_ver}" lt 2.0  && params+=('-DUSE_GLES1=On')
+        else
+            params+=('-DGL=On')
+            local gles_ver
+            gl_ver=$(sudo -u "${user}" glxinfo -B | grep -oP 'Max compat profile version:\s\K.*')
+            compareVersions "${gl_ver}" gt 2.0 && params+=('-DUSE_GL21=On')
+        fi
+    elif isPlatform "gles"; then
+        params+=('-DGLES=On')
+    elif isPlatform "gl"; then
+        params+=('-DGL=On')
     fi
-
-    isPlatform "x11" || isPlatform "wayland" && params+=('-DUSE_GL21=On')
 
     rpSwap on 1000
     cmake . \
-        -GNinja \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         "${params[@]}" \
         -Wno-dev
     ninja clean
     ninja
     rpSwap off
-    md_ret_require="${md_build}/emulationstation"
+    md_ret_require="${md_build}/${md_id}"
 }
 
 function install_emulationstation() {
@@ -227,6 +241,9 @@ if [[ "\$(uname -m)" != x86_64 ]]; then
         exit 1
     fi
 fi
+
+# Use SDL2 Wayland Video Driver If Wayland Session Is Detected
+[[ "${XDG_SESSION_TYPE}" == "wayland" ]] && export SDL_VIDEODRIVER=wayland
 
 # Save Current TTY/VT Number For Use With X So It Can Be Launched On The Correct TTY
 TTY=\$(tty)
