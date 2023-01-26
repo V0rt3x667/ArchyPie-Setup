@@ -8,7 +8,7 @@ rp_module_id="cgenius"
 rp_module_desc="Commander Genius: Modern Interpreter For The Commander Keen Games (Vorticon and Galaxy Games)"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/gerstrong/Commander-Genius/master/COPYRIGHT"
 rp_module_repo="git https://gitlab.com/Dringgstein/Commander-Genius :_get_branch_cgenius"
-rp_module_section="exp"
+rp_module_section="opt"
 
 function _get_branch_cgenius() {
     download "https://gitlab.com/api/v4/projects/Dringgstein%2FCommander-Genius/releases" - | grep -m 1 tag_name | cut -d\" -f8
@@ -37,16 +37,15 @@ function sources_cgenius() {
 
 function build_cgenius() {
     local params
-    isPlatform "x11" && params+=('-DUSE_OPENGL=ON')
 
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
-        -DNOTYPESAVE="ON" \
         -DBUILD_COSMOS="ON" \
+        -DNOTYPESAVE="ON" \
         "${params[*]}" \
         -Wno-dev
     ninja -C build clean
@@ -101,6 +100,8 @@ _EOF_
 }
 
 function configure_cgenius() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'kdreams'
@@ -115,21 +116,20 @@ function configure_cgenius() {
         for dir in "${dirs[@]}"; do
             mkRomDir "ports/${md_id}/${dir}"
         done
-    fi
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
-    moveConfigDir "${arpdir}/${md_id}/games" "${romdir}/ports/${md_id}/"
+        moveConfigDir "${arpdir}/${md_id}/games" "${romdir}/ports/${md_id}/"
 
-    if [[ "${md_mode}" == "install" ]]; then
+        # Create Default Configuration File
         local config
-
-        # Set Fullscreen By Default
         config="$(mktemp)"
         iniConfig " = " "" "${config}"
-        echo "[Video]" > "${config}"
+
+        echo "[FileHandling]" > "${config}"
+        iniSet "EnableLogfile" "false"
+        echo "[Video]" >> "${config}"
         iniSet "fullscreen" "true"
 
-        copyDefaultConfig "${config}" "${md_conf_root}/${md_id}/cgenius.cfg"
+        copyDefaultConfig "${config}" "${md_conf_root}/${md_id}/${md_id}.cfg"
         rm "${config}"
     fi
 
