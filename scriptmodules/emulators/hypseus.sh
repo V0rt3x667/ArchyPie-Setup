@@ -42,8 +42,8 @@ function build_hypseus() {
     # Cannot Build With Ninja
     rpSwap on 1024
     cmake . \
-        -Bbuild \
-        -Ssrc \
+        -B"build" \
+        -S"src" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
@@ -90,7 +90,7 @@ function configure_hypseus() {
         ln -snf "${romdir}/daphne/roms" "${md_inst}/singe"
         ln -sf "${md_conf_root}/daphne/${md_id}/hypinput.ini" "${md_inst}/hypinput.ini"
 
-        local common_args="-framefile \"\$dir/\$name.txt\" -homedir \"${md_inst}\" -fullscreen -gamepad \$params"
+        local common_args="-framefile \"\${dir}/\${name}.txt\" -homedir \"${md_inst}\" -fullscreen -gamepad \${params}"
 
         cat >"${md_inst}/${md_id}.sh" <<_EOF_
 #!/bin/bash
@@ -98,14 +98,14 @@ dir="\$1"
 name="\${dir##*/}"
 name="\${name%.*}"
 
-if [[ -f "\$dir/\$name.commands" ]]; then
-    params=\$(<"\$dir/\$name.commands")
+if [[ -f "\${dir}/\${name}.commands" ]]; then
+    params=\$(<"\${dir}/\${name}.commands")
 fi
 
-if [[ -f "\$dir/\$name.singe" ]]; then
-    "${md_inst}/${md_id}.bin" singe vldp -retropath -manymouse -script "\$dir/\$name.singe" ${common_args}
+if [[ -f "\${dir}/\${name}.singe" ]]; then
+    "${md_inst}/${md_id}.bin" singe vldp -retropath -manymouse -script "\${dir}/\${name}.singe" ${common_args}
 else
-    "${md_inst}/${md_id}.bin" "\$name" vldp ${common_args}
+    "${md_inst}/${md_id}.bin" "\${name}" vldp ${common_args}
 fi
 _EOF_
         chmod +x "${md_inst}/${md_id}.sh"
