@@ -39,7 +39,7 @@ function sources_hypseus() {
 }
 
 function build_hypseus() {
-    # Not Currently Building With Ninja
+    # Cannot Build With Ninja
     rpSwap on 1024
     cmake . \
         -Bbuild \
@@ -74,6 +74,7 @@ function configure_hypseus() {
         mkRomDir "daphne/roms"
 
         local dirs=(
+            'bezels'
             'logs'
             'ram'
             'screenshots'
@@ -112,5 +113,6 @@ _EOF_
     fi
 
     addEmulator 1 "${md_id}" "daphne" "${md_inst}/${md_id}.sh %ROM%"
+
     addSystem "daphne"
 }
