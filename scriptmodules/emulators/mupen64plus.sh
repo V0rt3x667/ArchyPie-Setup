@@ -249,7 +249,7 @@ function install_mupen64plus() {
     cp "${md_build}/GLideN64/ini/GLideN64.custom.ini" "${md_inst}/share/mupen64plus/"
     cp "${md_build}/GLideN64/build/plugin/Release/mupen64plus-video-GLideN64.so" "${md_inst}/lib/mupen64plus/"
     cp "${md_build}/GLideN64_config_version.ini" "${md_inst}/share/mupen64plus/"
-    # Remove Default 'InputAutoConfig.ini', 'inputconfigscript' Writes A Clean File
+    # Remove Default 'InputAutoCfg.ini', 'inputconfigscript' Writes A Clean File
     rm -f "${md_inst}/share/mupen64plus/InputAutoCfg.ini"
 }
 
