@@ -6,11 +6,11 @@
 
 rp_module_id="dolphin"
 rp_module_desc="Dolphin: Nintendo Gamecube & Wii Emulator"
-rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy Gamecube ROMs To: ${romdir}/gc\n\nCopy Wii ROMs To ${romdir}/wii"
+rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy Gamecube ROMs To: ${romdir}/gc\n\nCopy Wii ROMs To: ${romdir}/wii"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dolphin-emu/dolphin/master/COPYING"
 rp_module_repo="git https://github.com/dolphin-emu/dolphin master"
 rp_module_section="exp"
-rp_module_flags="!all !wayland x11 xwayland 64bit"
+rp_module_flags="!all x11 xwayland 64bit"
 
 function depends_dolphin() {
     local depends=(
@@ -93,9 +93,9 @@ function configure_dolphin() {
 
     local launcher_prefix="DOLPHIN_EMU_USERPATH=${arpdir}/${md_id}"
 
-    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} $md_inst/bin/${md_id}-emu-nogui -e %ROM%"
+    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} $md_inst/bin/${md_id}-emu -b -e %ROM%"
     addEmulator 0 "${md_id}-gui" "gc" "${launcher_prefix} $md_inst/bin/${md_id}-emu -e %ROM%"
-    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} $md_inst/bin/${md_id}-emu-nogui -e %ROM%"
+    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} $md_inst/bin/${md_id}-emu -b -e %ROM%"
     addEmulator 0 "${md_id}-gui" "wii" "${launcher_prefix} $md_inst/bin/${md_id}-emu -e %ROM%"
 
     addSystem "gc"
