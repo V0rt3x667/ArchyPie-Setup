@@ -52,11 +52,12 @@ function install_dosbox() {
 }
 
 function configure_dosbox() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/pc"
+
     if [[ "${md_mode}" == "install" ]]; then
         local def=0
         local launcher_name="+Start DOSBox.sh"
         local needs_synth=0
-        local config_dir="${arpdir}/${md_id}"
         case "${md_id}" in
             dosbox)
                 def=1
@@ -142,8 +143,6 @@ _EOF_
             fi
         fi
     fi
-
-    moveConfigDir "${config_dir}" "${md_conf_root}/pc"
 
     addEmulator "${def}" "${md_id}" "pc" "bash ${romdir}/pc/${launcher_name// /\\ } %ROM%"
 

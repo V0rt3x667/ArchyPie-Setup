@@ -65,10 +65,9 @@ function install_dosbox-staging() {
 function configure_dosbox-staging() {
     configure_dosbox
 
-    if [[ "${md_id}" == "install" ]]; then
-        local config_dir="${md_conf_root}/pc"
-        chown -R "${user}": "${config_dir}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/pc"
 
+    if [[ "${md_id}" == "install" ]]; then
         local staging_output="texturenb"
         if isPlatform "kms"; then
             staging_output="openglnb"
