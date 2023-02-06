@@ -58,5 +58,5 @@ function configure_lr-superflappybirds() {
 
     defaultRAConfig "superflappybirds" "system_directory" "${biosdir}/${portname}"
 
-    addPort "${md_id}" "${portname}" "Super Flappy Birds" "${md_inst}/${portname}_libretro.so"    
+    addPort "${md_id}" "${portname}" "Super Flappy Birds" "${md_inst}/${portname}_libretro.so"
 }
