@@ -110,13 +110,14 @@ function configure_amiberry() {
         sed -e "s|is_${md_id}=0|is_${md_id}=1|g" "${md_data}/../uae4arm/uae4arm.sh" >"${md_inst}/amiberry.sh"
         chmod a+x "${md_inst}/${md_id}.sh"
 
-        local script="+Start ${md_id}.sh"
-        cat > "${romdir}/amiga/${script}" << _EOF_
+        # Create EmulationStation Launcher Script
+        local launcher="+Start ${md_id}.sh"
+        cat > "${romdir}/amiga/${launcher}" << _EOF_
 #!/bin/bash
 "${md_inst}/${md_id}.sh"
 _EOF_
-        chmod a+x "${romdir}/amiga/${script}"
-        chown "${user}:${user}" "${romdir}/amiga/${script}"
+        chmod a+x "${romdir}/amiga/${launcher}"
+        chown "${user}:${user}" "${romdir}/amiga/${launcher}"
     fi
 
     addEmulator 0 "${md_id}-a1200" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A1200"

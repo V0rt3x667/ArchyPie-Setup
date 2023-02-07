@@ -38,15 +38,15 @@ function build_ags4() {
     # Disable LTO
     export LDFLAGS="${LDFLAGS} -fno-lto"
     cmake . \
-        -GNinja \
-        -Bbuild \
+        -G"Ninja" \
+        -B"build" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DAGS_USE_LOCAL_OGG="ON" \
+        -DAGS_USE_LOCAL_SDL2="ON" \
         -DAGS_USE_LOCAL_THEORA="ON" \
         -DAGS_USE_LOCAL_VORBIS="ON" \
-        -DAGS_USE_LOCAL_SDL2="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -58,11 +58,11 @@ function install_ags4() {
 }
 
 function configure_ags4() {
+    moveConfigDir "${arpdir}/${md_id/4/}" "${md_conf_root}/${md_id/4/}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "${md_id/4/}"
     fi
-
-    moveConfigDir "${arpdir}/${md_id/4/}" "${md_conf_root}/${md_id/4/}/"
 
     addEmulator 0 "${md_id}" "${md_id/4/}" "${md_inst}/bin/${md_id/4/} --fullscreen %ROM%"
 

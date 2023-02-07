@@ -45,6 +45,8 @@ function install_atari800() {
 }
 
 function configure_atari800() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/atari800/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "atari800"
         mkRomDir "atari5200"
@@ -54,8 +56,6 @@ function configure_atari800() {
         sed "s#EMULATOR#/bin/${md_id}#" "${md_data}/atari800.sh" >"${md_inst}/${md_id}.sh"
         chmod a+x "${md_inst}/${md_id}.sh"
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     local params=(
         "-config ${md_conf_root}/${md_id}/atari800.cfg"

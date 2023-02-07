@@ -80,7 +80,7 @@ function configure_pcsx2() {
         mkUserDir "${biosdir}/ps2"
         mkUserDir "${arpdir}/${md_id}/inis"
 
-        # # Set Default Config File
+        # Set Default Config File
         local config
         config="$(mktemp)"
         iniConfig " = " "" "${config}"

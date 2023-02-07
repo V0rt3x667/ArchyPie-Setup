@@ -50,11 +50,11 @@ function install_b-em() {
 }
 
 function configure_b-em() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/bbcmicro/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "bbcmicro"
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/bbcmicro/${md_id}/"
 
     addEmulator 1 "${md_id}-modelb" "bbcmicro" "${md_inst}/${md_id} %ROM% -m3 -autoboot"
     addEmulator 0 "${md_id}-modela" "bbcmicro" "${md_inst}/${md_id} %ROM% -m0 -autoboot"

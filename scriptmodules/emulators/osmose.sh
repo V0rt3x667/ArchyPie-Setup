@@ -8,7 +8,7 @@ rp_module_id="osmose"
 rp_module_desc="Osmose - Sega Game Gear Emulator"
 rp_module_help="ROM Extensions: .bin .gg .sms .zip\nCopy your Game Gear roms to $romdir/gamegear\n\nMasterSystem roms to $romdir/mastersystem"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/osmose-rpi/master/license.txt"
-rp_module_repo="git https://github.com/RetroPie/osmose-rpi.git master"
+rp_module_repo="git https://github.com/RetroPie/osmose-rpi master"
 rp_module_section="opt"
 rp_module_flags="!mali !kms"
 
@@ -39,8 +39,8 @@ function configure_osmose() {
     mkRomDir "gamegear"
     mkRomDir "mastersystem"
 
-    addEmulator 0 "$md_id" "gamegear" "$md_inst/osmose %ROM% -tv -fs"
-    addEmulator 0 "$md_id" "mastersystem" "$md_inst/osmose %ROM% -tv -fs"
+    addEmulator 0 "$md_id" "gamegear" "${md_inst}/osmose %ROM% -tv -fs"
+    addEmulator 0 "$md_id" "mastersystem" "${md_inst}/osmose %ROM% -tv -fs"
     addSystem "gamegear"
     addSystem "mastersystem"
 }

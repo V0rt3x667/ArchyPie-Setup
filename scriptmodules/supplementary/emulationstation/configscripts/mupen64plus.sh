@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 function onstart_mupen64plus_joystick() {
-    # write temp file header
+    # Write Temp File Header
     echo "; ${DEVICE_NAME}_START " > /tmp/mp64tempconfig.cfg
     echo "[${DEVICE_NAME}]" >> /tmp/mp64tempconfig.cfg
     iniConfig " = " "" "/tmp/mp64tempconfig.cfg"
@@ -191,8 +191,7 @@ function onend_mupen64plus_joystick() {
         fi
 
         # Analog Stick Sanity Check
-        # Replace Axis Values With DPAD Values If There Is No Axis
-        # Device Setup
+        # Replace Axis Values With DPAD Values If There Is No Axis Device Setup
         if ! grep -q "${axis}" /tmp/mp64tempconfig.cfg ; then
             iniGet "${axis_neg}"
             bind=${ini_value//)/,}

@@ -13,7 +13,10 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function depends_basilisk() {
-    local depends=('sdl2' 'vde2')
+    local depends=(
+        'sdl2'
+        'vde2'
+    )
     isPlatform "x11" && depends+=('gtk2')
     getDepends "${depends[@]}"
 }
@@ -51,14 +54,14 @@ function install_basilisk() {
 }
 
 function configure_basilisk() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/macintosh/${md_id}"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "macintosh"
         touch "${romdir}/macintosh/Start.txt"
         touch "${md_conf_root}/macintosh/${md_id}/basiliskii.cfg"
         chown "${user}:${user}" "${md_conf_root}/macintosh/${md_id}/basiliskii.cfg"
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/macintosh/${md_id}"
 
     local params=(
         "--config ${md_conf_root}/macintosh/${md_id}/basiliskii.cfg"

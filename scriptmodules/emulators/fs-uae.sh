@@ -12,6 +12,18 @@ rp_module_repo="git https://github.com/FrodeSolheim/fs-uae :_get_branch_fs-uae"
 rp_module_section="main"
 rp_module_flags="!all x86_64"
 
+function _get_branch_fs-uae() {
+    download "https://api.github.com/repos/FrodeSolheim/${md_id}/releases" - | grep -m 1 tag_name | cut -d\" -f4
+}
+
+function _get_branch_fs-uae-launcher() {
+    download "https://api.github.com/repos/FrodeSolheim/${md_id}-launcher/releases" - | grep -m 1 tag_name | cut -d\" -f4
+}
+
+function _get_branch_capsimg() {
+    download "https://api.github.com/repos/FrodeSolheim/capsimg/releases" - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_fs-uae() {
     local depends=(
         'desktop-file-utils'
@@ -35,18 +47,6 @@ function depends_fs-uae() {
         'zlib'
     )
     getDepends "${depends[@]}"
-}
-
-function _get_branch_fs-uae() {
-    download "https://api.github.com/repos/FrodeSolheim/fs-uae/releases" - | grep -m 1 tag_name | cut -d\" -f4
-}
-
-function _get_branch_fs-uae-launcher() {
-    download "https://api.github.com/repos/FrodeSolheim/fs-uae-launcher/releases" - | grep -m 1 tag_name | cut -d\" -f4
-}
-
-function _get_branch_capsimg() {
-    download "https://api.github.com/repos/FrodeSolheim/capsimg/releases" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function sources_fs-uae() {

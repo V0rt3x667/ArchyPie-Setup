@@ -12,9 +12,9 @@ rp_module_section="opt"
 rp_module_flags="!all rpi !kms"
 
 function install_bin_rpix86() {
-    downloadAndExtract "$__archive_url/rpix86.tar.gz" "$md_inst"
+    downloadAndExtract "$__archive_url/rpix86.tar.gz" "${md_inst}"
     # install 4DOS.com
-    downloadAndExtract "$__archive_url/4dos.zip" "$md_inst"
+    downloadAndExtract "$__archive_url/4dos.zip" "${md_inst}"
 }
 
 function configure_rpix86() {
@@ -24,7 +24,7 @@ function configure_rpix86() {
     cat > "$romdir/pc/+Start rpix86.sh" << _EOF_
 #!/bin/bash
 params=("\$@")
-pushd "$md_inst"
+pushd "${md_inst}"
 if [[ "\${params[0]}" == *.sh ]]; then
     bash "\${params[@]}"
 else

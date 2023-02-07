@@ -41,15 +41,15 @@ function sources_ags() {
 
 function build_ags() {
     cmake . \
-        -GNinja \
-        -Bbuild \
+        -G"Ninja" \
+        -B"build" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DAGS_USE_LOCAL_OGG="ON" \
+        -DAGS_USE_LOCAL_SDL2="ON" \
         -DAGS_USE_LOCAL_THEORA="ON" \
         -DAGS_USE_LOCAL_VORBIS="ON" \
-        -DAGS_USE_LOCAL_SDL2="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -61,14 +61,14 @@ function install_ags() {
 }
 
 function configure_ags() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "${md_id}"
 
         # Install Eawpatches GUS Patch Set (See: "http://liballeg.org/digmid.html")
         download "http://www.eglebbk.dds.nl/program/download/digmid.dat" - | bzcat >"${md_inst}/bin/patches.dat"
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/${md_id} --fullscreen %ROM%"
 

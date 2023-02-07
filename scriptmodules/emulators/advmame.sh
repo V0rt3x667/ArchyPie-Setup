@@ -70,9 +70,8 @@ function configure_advmame() {
         done
 
         local config
-
         config="$(mktemp)"
-        iniConfig ' ' '' "${config}"
+        iniConfig " " "" "${config}"
 
         iniSet "dir_artwork" "${romdir}/mame-${md_id}/artwork"
         iniSet "dir_diff" "${romdir}/mame-${md_id}/diff"
