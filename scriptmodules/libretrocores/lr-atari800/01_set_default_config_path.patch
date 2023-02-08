@@ -1,0 +1,31 @@
+diff -ru a/atari800/src/cfg.c b/atari800/src/cfg.c
+--- a/atari800/src/cfg.c	2023-02-08 19:32:38.457072254 +0000
++++ b/atari800/src/cfg.c	2023-02-08 20:45:05.576014139 +0000
+@@ -71,7 +71,7 @@
+ /* If another default path config path is defined use it
+    otherwise use the default one */
+ #ifndef DEFAULT_CFG_NAME
+-#define DEFAULT_CFG_NAME ".atari800.cfg"
++#define DEFAULT_CFG_NAME "lr-atari800.cfg"
+ #endif
+ 
+ #ifndef SYSTEM_WIDE_CFG_FILE
+@@ -109,14 +109,10 @@
+ 	/* else use the default config name under the HOME folder */
+ 	else {
+ #if !defined(__PS3__) && !defined(__PSL1GHT__)
+-		char *home = getenv("HOME");
+-		if (home != NULL)
+-			Util_catpath(rtconfig_filename, home, DEFAULT_CFG_NAME);
+-		else
+-			strcpy(rtconfig_filename, DEFAULT_CFG_NAME);
+-#else
+-		strcpy(rtconfig_filename, retro_system_directory);
+-		strcat(rtconfig_filename, DEFAULT_CFG_NAME);
++		const char *envpath = getenv("HOME");
++		const char *cpath = ("/ArchyPie/configs/lr-atari800");
++		const char *home = strcat(envpath, cpath);
++		Util_catpath(rtconfig_filename, home, DEFAULT_CFG_NAME);
+ #endif
+ 	}
+ 
