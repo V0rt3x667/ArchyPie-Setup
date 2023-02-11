@@ -6,7 +6,7 @@
 
 rp_module_id="lr-beetle-pce"
 rp_module_desc="NEC PC Engine (TurboGrafx-16) & PC Engine SuperGrafx Libretro Core"
-rp_module_help="ROM Extensions: .pce .ccd .cue .zip\n\nCopy your NEC PC Engine (TurboGrafx-16) & PC Engine SuperGrafx roms to $romdir/pcengine\n\nCopy the required BIOS file syscard3.pce to $biosdir"
+rp_module_help="ROM Extensions: .ccd .chd .cue .m3u .pce .sgx .toc\n\nCopy NEC PC Engine (TurboGrafx-16) & PC Engine SuperGrafx ROMs To: ${romdir}/pcengine\n\nCopy BIOS File (syscard3.pce) To: ${biosdir}/pcengine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-pce-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/beetle-pce-libretro master"
 rp_module_section="main"
@@ -18,7 +18,7 @@ function sources_lr-beetle-pce() {
 function build_lr-beetle-pce() {
     make clean
     make
-    md_ret_require="$md_build/mednafen_pce_libretro.so"
+    md_ret_require="${md_build}/mednafen_pce_libretro.so"
 }
 
 function install_lr-beetle-pce() {
@@ -30,8 +30,10 @@ function install_lr-beetle-pce() {
 
 function configure_lr-beetle-pce() {
     mkRomDir "pcengine"
+
     defaultRAConfig "pcengine"
 
-    addEmulator 1 "$md_id" "pcengine" "$md_inst/mednafen_pce_libretro.so"
+    addEmulator 1 "${md_id}" "pcengine" "${md_inst}/mednafen_pce_libretro.so"
+
     addSystem "pcengine"
 }
