@@ -6,7 +6,7 @@
 
 rp_module_id="lr-beetle-supergrafx"
 rp_module_desc="NEC PC Engine SuperGrafx Fast Libretro Core"
-rp_module_help="ROM Extensions: .pce .ccd .cue .zip\n\nCopy your PC Engine SuperGrafx roms to $romdir/pcengine\n\nCopy the required BIOS file syscard3.pce to $biosdir"
+rp_module_help="ROM Extensions: .ccd .chd .cue .pce .sgx\n\nCopy PC Engine SuperGrafx ROMs To: ${romdir}/pcengine\n\nCopy BIOS File (syscard3.pce) To: ${biosdir}/pcengine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-supergrafx-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/beetle-supergrafx-libretro master"
 rp_module_section="main"
@@ -18,19 +18,19 @@ function sources_lr-beetle-supergrafx() {
 function build_lr-beetle-supergrafx() {
     make clean
     make
-    md_ret_require="$md_build/mednafen_supergrafx_libretro.so"
+    md_ret_require="${md_build}/mednafen_supergrafx_libretro.so"
 }
 
 function install_lr-beetle-supergrafx() {
-    md_ret_files=(
-        'mednafen_supergrafx_libretro.so'
-    )
+    md_ret_files=('mednafen_supergrafx_libretro.so')
 }
 
 function configure_lr-beetle-supergrafx() {
     mkRomDir "pcengine"
+
     defaultRAConfig "pcengine"
 
-    addEmulator 0 "$md_id" "pcengine" "$md_inst/mednafen_supergrafx_libretro.so"
+    addEmulator 0 "${md_id}" "pcengine" "${md_inst}/mednafen_supergrafx_libretro.so"
+
     addSystem "pcengine"
 }
