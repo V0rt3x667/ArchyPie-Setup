@@ -6,7 +6,7 @@
 
 rp_module_id="lr-beetle-pce-fast"
 rp_module_desc="NEC PC Engine (TurboGrafx-16) Fast Libretro Core"
-rp_module_help="ROM Extensions: .ccd .chd .cue .pce .sgx .zip\n\nCopy NEC PC Engine (TurboGrafx-16) ROMs To: ${romdir}/pcengine\n\nCopy BIOS File (syscard3.pce) To: ${biosdir}/pcengine"
+rp_module_help="ROM Extensions: .ccd .chd .cue .m3u .pce .toc\n\nCopy NEC PC Engine (TurboGrafx-16) ROMs To: ${romdir}/pcengine\n\nCopy BIOS File (syscard3.pce) To: ${biosdir}/pcengine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-pce-fast-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/beetle-pce-fast-libretro master"
 rp_module_section="main"
