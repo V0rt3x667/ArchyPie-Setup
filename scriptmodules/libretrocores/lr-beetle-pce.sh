@@ -22,16 +22,17 @@ function build_lr-beetle-pce() {
 }
 
 function install_lr-beetle-pce() {
-    md_ret_files=(
-        'mednafen_pce_libretro.so'
-        'README.md'
-    )
+    md_ret_files=('mednafen_pce_libretro.so')
 }
 
 function configure_lr-beetle-pce() {
-    mkRomDir "pcengine"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "pcengine"
 
-    defaultRAConfig "pcengine"
+        mkUserDir "${biosdir}/pcengine"
+    fi
+
+    defaultRAConfig "pcengine" "system_directory" "${biosdir}/pcengine"
 
     addEmulator 1 "${md_id}" "pcengine" "${md_inst}/mednafen_pce_libretro.so"
 
