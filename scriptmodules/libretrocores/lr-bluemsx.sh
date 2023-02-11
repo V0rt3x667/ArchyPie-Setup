@@ -6,7 +6,7 @@
 
 rp_module_id="lr-bluemsx"
 rp_module_desc="Microsoft MSX, MSX2, Coleco ColecoVision & Sega SG-1000 Libretro Core"
-rp_module_help="ROM Extensions: .cas .rom .mx1 .mx2 .col .dsk .zip\n\nCopy your MSX/MSX2 games to $romdir/msx\nCopy your Colecovision games to $romdir/coleco\n\nlr-bluemsx requires the BIOS files from the full standalone package of BlueMSX to be copied to '$biosdir/Machines' folder.\nColecovision BIOS needs to be copied to '$biosdir/Machines/COL - ColecoVision\coleco.rom'"
+rp_module_help="ROM Extensions: .cas .col .dsk .m3u .mx1 .mx2 .ri .rom .sc .sg\n\nCopy MSX Games To: ${romdir}/msx\nCopy MSX2 Games To: ${romdir}/msx2\nCopy Colecovision Games To: ${romdir}/coleco\n\nCopy Colecovision BIOS File (coleco.rom) To: ${biosdir}/Machines/COL - ColecoVision/"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/blueMSX-libretro/master/license.txt"
 rp_module_repo="git https://github.com/libretro/blueMSX-libretro master"
 rp_module_section="opt"
@@ -18,7 +18,7 @@ function sources_lr-bluemsx() {
 function build_lr-bluemsx() {
     make -f Makefile.libretro clean
     make -f Makefile.libretro
-    md_ret_require="$md_build/bluemsx_libretro.so"
+    md_ret_require="${md_build}/bluemsx_libretro.so"
 }
 
 function install_lr-bluemsx() {
@@ -31,27 +31,32 @@ function install_lr-bluemsx() {
 }
 
 function configure_lr-bluemsx() {
-    addEmulator 1 "$md_id" "msx" "$md_inst/bluemsx_libretro.so"
-    addSystem "msx"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "coleco"
+        mkRomDir "msx"
+        mkRomDir "msx2"
 
-    addEmulator 1 "$md_id" "coleco" "$md_inst/bluemsx_libretro.so"
-    addSystem "coleco"
+        # Force Colecovision System
+        local config="${md_conf_root}/coleco/retroarch-core-options.cfg"
 
-    [[ "$md_mode" == "remove" ]] && return
+        iniConfig " = " '"' "${config}"
+        iniSet "bluemsx_msxtype" "ColecoVision" "${config}"
 
-    mkRomDir "msx"
+        chown "${user}:${user}" "${config}"
+
+        cp -rv "${md_inst}/"{Databases,Machines} "${biosdir}/"
+        chown -R "${user}:${user}" "${biosdir}/"{Databases,Machines}
+    fi
+
+    defaultRAConfig "coleco" "core_options_path" "${config}"
     defaultRAConfig "msx"
+    defaultRAConfig "msx2"
 
-    # force colecovision system
-    local core_config="$md_conf_root/coleco/retroarch-core-options.cfg"
-    iniConfig " = " '"' "$core_config"
-    iniSet "bluemsx_msxtype" "ColecoVision" "$core_config"
-    chown "${user}:${user}" "$core_config"
+    addEmulator 1 "${md_id}" "coleco" "${md_inst}/bluemsx_libretro.so"
+    addEmulator 1 "${md_id}" "msx" "${md_inst}/bluemsx_libretro.so"
+    addEmulator 1 "${md_id}" "msx2" "${md_inst}/bluemsx_libretro.so"
 
-    mkRomDir "coleco"
-    defaultRAConfig "coleco" "core_options_path" "$core_config"
-
-    cp -rv "$md_inst/"{Databases,Machines} "$biosdir/"
-    chown -R "${user}:${user}" "$biosdir/"{Databases,Machines}
-
+    addSystem "coleco"
+    addSystem "msx"
+    addSystem "msx2"
 }
