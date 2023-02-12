@@ -469,7 +469,7 @@ function _gui_advanced_skyscraper() {
 
 function gui_skyscraper() {
     if pgrep "emulationstatio" >/dev/null; then
-        printMsgs "dialog" "This Scraper Must Not Be Run While EmulationStation Is Running Or The Scraped Data Will Be Overwritten!\n\nPlease Quit EmulationStation And Run ArchyPie-Setup From The Terminal:\n\n sudo \${HOME}/ArchyPie-Setup/archypie_setup.sh"
+        printMsgs "dialog" "This Scraper Must Not Be Run While EmulationStation Is Running Or The Scraped Data Will Be Overwritten!\n\nPlease Quit EmulationStation And Run ArchyPie-Setup From The Terminal:\n\n ./\${HOME}/ArchyPie-Setup/archypie_setup.sh"
         return
     fi
 
