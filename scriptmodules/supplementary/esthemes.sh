@@ -302,6 +302,8 @@ function gui_esthemes() {
         fi
 
         options+=(U "Update All Installed Themes")
+        
+        options+=(A "Install all themes")
 
         local i=1
         for theme in "${themes[@]}"; do
@@ -359,6 +361,10 @@ function gui_esthemes() {
                     gitPullOrClone "$gallerydir" "http://github.com/wetriner/es-theme-gallery"
                 fi
                 ;;
+            A)
+                for theme in "${themes}"; do
+                    theme=($theme)
+                    rp_callModule esthemes install_theme "${theme[0]}" "${theme[1]}" "${theme[2]}"
             U)
                 for theme in "${installed_themes[@]}"; do
                     theme=($theme)
