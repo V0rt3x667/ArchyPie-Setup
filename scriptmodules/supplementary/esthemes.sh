@@ -362,9 +362,15 @@ function gui_esthemes() {
                 fi
                 ;;
             A)
-                for theme in "${themes}"; do
+                for theme in "${themes[@]}"; do
+                    printf "%s" "$theme"
                     theme=($theme)
-                    rp_callModule esthemes install_theme "${theme[0]}" "${theme[1]}" "${theme[2]}"
+                    repo="${theme[0]}"
+                    theme="${theme[1]}"
+                    branch="${theme[2]}"
+                    rp_callModule esthemes install_theme "$theme" "$repo" "$branch"
+                done
+                ;;
             U)
                 for theme in "${installed_themes[@]}"; do
                     theme=($theme)
