@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="skyscraper"
-rp_module_desc="Scraper for EmulationStation By Lars Muldjord"
+rp_module_desc="Scraper For EmulationStation By Lars Muldjord"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/muldjord/skyscraper/master/LICENSE"
 rp_module_repo="git https://github.com/muldjord/skyscraper :_get_branch_skyscraper"
 rp_module_section="opt"
@@ -469,7 +469,7 @@ function _gui_advanced_skyscraper() {
 
 function gui_skyscraper() {
     if pgrep "emulationstatio" >/dev/null; then
-        printMsgs "dialog" "This Scraper Must Not Be Run While EmulationStation Is Running Or The Scraped Data Will Be Overwritten!\n\nPlease Quit EmulationStation And Run ArchyPie-Setup From The Terminal:\n\n sudo \${HOME}/ArchyPie-Setup/archypie_setup.sh"
+        printMsgs "dialog" "This Scraper Must Not Be Run While EmulationStation Is Running Or The Scraped Data Will Be Overwritten!\n\nPlease Quit EmulationStation And Run ArchyPie-Setup From The Terminal."
         return
     fi
 
@@ -580,7 +580,7 @@ function gui_skyscraper() {
             case "${choice}" in
                 1)
                     if _scrape_chosen_skyscraper; then
-                        printMsgs "dialog" "ROMs Information Gathered.\nDon't Forget To Use 'Generate Game List(s)' To Add This Information To EmulationStation."
+                        printMsgs "dialog" "ROM Information Gathered.\n\nDon't Forget To Use 'Generate Game List(s)' To Add This Information To EmulationStation."
                     elif [[ $? -eq 2 ]]; then
                         printMsgs "dialog" "Gathering Was Aborted"
                     fi
