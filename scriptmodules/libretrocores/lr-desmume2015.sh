@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-desmume2015"
-rp_module_desc="Nintendo DS (2015 Version) Libretro Core"
-rp_module_help="ROM Extensions: .nds .zip\n\nCopy your Nintendo DS roms to $romdir/nds"
+rp_module_desc="Nintendo DS Libretro Core"
+rp_module_help="ROM Extensions: .nds .zip\n\nCopy Nintendo DS ROMs To: ${romdir}/nds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/desmume/master/desmume/COPYING"
 rp_module_repo="git https://github.com/libretro/desmume2015 master"
 rp_module_section="exp"
@@ -20,9 +20,13 @@ function sources_lr-desmume2015() {
 }
 
 function build_lr-desmume2015() {
+    local params=()
+    isPlatform "arm" && params+=("platform=unixarmvhardfloat")
+    isPlatform "aarch64" && params+=("DESMUME_JIT=0")
+
     make -C desmume clean
-    make -C desmume $(_params_lr-desmume)
-    md_ret_require="$md_build/desmume/desmume2015_libretro.so"
+    make -C desmume "${params[@]}"
+    md_ret_require="${md_build}/desmume/desmume2015_libretro.so"
 }
 
 function install_lr-desmume2015() {
@@ -31,8 +35,10 @@ function install_lr-desmume2015() {
 
 function configure_lr-desmume2015() {
     mkRomDir "nds"
+
     defaultRAConfig "nds"
 
-    addEmulator 0 "$md_id" "nds" "$md_inst/desmume2015_libretro.so"
+    addEmulator 0 "${md_id}" "nds" "${md_inst}/desmume2015_libretro.so"
+
     addSystem "nds"
 }
