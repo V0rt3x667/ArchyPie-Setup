@@ -67,8 +67,8 @@ function configure_lr-dolphin() {
         mkUserDir "${biosdir}/gc"
         mkUserDir "${biosdir}/gc/dolphin-emu"
 
-        cp -r "${md_inst}/Sys" "${biosdir}/dolphin-emu"
-        chown -R "${user}:${user}" "${biosdir}/dolphin-emu"
+        cp -r "${md_inst}/Sys" "${biosdir}/gc/dolphin-emu"
+        chown -R "${user}:${user}" "${biosdir}/gc/dolphin-emu"
     fi
 
     defaultRAConfig "gc" "system_directory" "${biosdir}/gc"
