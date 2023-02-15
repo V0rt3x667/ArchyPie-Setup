@@ -375,7 +375,7 @@ function platform_rockpro64() {
 
 function platform_native() {
     __default_cpu_flags="-march=native -mtune=native -pipe"
-    __platform_flags+=('gl')
+    __platform_flags+=('gl' 'vulkan')
 
     if isPlatform "64bit"; then
         __platform_flags+=('gl3')
