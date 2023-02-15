@@ -6,7 +6,7 @@
 
 rp_module_id="lr-bluemsx"
 rp_module_desc="Microsoft MSX, MSX2, Coleco ColecoVision & Sega SG-1000 Libretro Core"
-rp_module_help="ROM Extensions: .cas .col .dsk .m3u .mx1 .mx2 .ri .rom .sc .sg\n\nCopy MSX Games To: ${romdir}/msx\nCopy MSX2 Games To: ${romdir}/msx2\nCopy Colecovision Games To: ${romdir}/coleco\n\nCopy Colecovision BIOS File (coleco.rom) To: ${biosdir}/Machines/COL - ColecoVision/"
+rp_module_help="ROM Extensions: .cas .col .dsk .m3u .mx1 .mx2 .ri .rom .sc .sg\n\nCopy MSX Games To: ${romdir}/msx\nCopy MSX2 Games To: ${romdir}/msx2\nCopy Colecovision Games To: ${romdir}/coleco"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/blueMSX-libretro/master/license.txt"
 rp_module_repo="git https://github.com/libretro/blueMSX-libretro master"
 rp_module_section="opt"
