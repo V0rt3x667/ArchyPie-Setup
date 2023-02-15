@@ -1,0 +1,27 @@
+diff -ru a/src/common/common_paths.h b/src/common/common_paths.h
+--- a/src/common/common_paths.h	2023-02-10 15:05:22.987328424 +0000
++++ b/src/common/common_paths.h	2023-02-14 22:25:56.252857657 +0000
+@@ -29,7 +29,7 @@
+ #define SDCARD_DIR "sdcard"
+ #define EMU_DATA_DIR "citra-emu"
+ #else
+-#define EMU_DATA_DIR "citra-emu"
++#define EMU_DATA_DIR "ArchyPie" DIR_SEP "configs" DIR_SEP "citra"
+ #endif
+ #endif
+ 
+diff -ru a/src/common/file_util.cpp b/src/common/file_util.cpp
+--- a/src/common/file_util.cpp	2023-01-30 18:10:11.151701640 +0000
++++ b/src/common/file_util.cpp	2023-02-14 23:43:22.039965025 +0000
+@@ -709,9 +709,9 @@
+             g_paths.emplace(UserPath::ConfigDir, user_path + CONFIG_DIR DIR_SEP);
+             g_paths.emplace(UserPath::CacheDir, user_path + CACHE_DIR DIR_SEP);
+         } else {
+-            std::string data_dir = GetUserDirectory("XDG_DATA_HOME") + DIR_SEP EMU_DATA_DIR DIR_SEP;
++            std::string data_dir = GetHomeDirectory() + DIR_SEP EMU_DATA_DIR DIR_SEP;
+             std::string config_dir =
+-                GetUserDirectory("XDG_CONFIG_HOME") + DIR_SEP EMU_DATA_DIR DIR_SEP;
++                GetHomeDirectory() + DIR_SEP EMU_DATA_DIR DIR_SEP;
+             std::string cache_dir =
+                 GetUserDirectory("XDG_CACHE_HOME") + DIR_SEP EMU_DATA_DIR DIR_SEP;
+ 
