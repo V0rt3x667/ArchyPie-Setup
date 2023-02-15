@@ -18,6 +18,7 @@ function sources_lr-bluemsx() {
 function build_lr-bluemsx() {
     make -f Makefile.libretro clean
     make -f Makefile.libretro
+
     md_ret_require="${md_build}/bluemsx_libretro.so"
 }
 
@@ -36,21 +37,22 @@ function configure_lr-bluemsx() {
         mkRomDir "msx"
         mkRomDir "msx2"
 
-        # Force Colecovision System
-        local config="${md_conf_root}/coleco/retroarch-core-options.cfg"
+        mkUserDir "${biosdir}/msx"
 
+        # Force ColecoVision System
+        local config="${md_conf_root}/coleco/retroarch-core-options.cfg"
         iniConfig " = " '"' "${config}"
         iniSet "bluemsx_msxtype" "ColecoVision" "${config}"
-
         chown "${user}:${user}" "${config}"
 
-        cp -rv "${md_inst}/"{Databases,Machines} "${biosdir}/"
-        chown -R "${user}:${user}" "${biosdir}/"{Databases,Machines}
+        # Copy Data To BIOS Dir
+        cp -rv "${md_inst}/"{Databases,Machines} "${biosdir}/msx"
+        chown -R "${user}:${user}" "${biosdir}/msx/"{Databases,Machines}
     fi
 
-    defaultRAConfig "coleco" "core_options_path" "${config}"
-    defaultRAConfig "msx"
-    defaultRAConfig "msx2"
+    defaultRAConfig "coleco" "system_directory" "${biosdir}/msx"
+    defaultRAConfig "msx" "system_directory" "${biosdir}/msx"
+    defaultRAConfig "msx2" "system_directory" "${biosdir}/msx"
 
     addEmulator 1 "${md_id}" "coleco" "${md_inst}/bluemsx_libretro.so"
     addEmulator 1 "${md_id}" "msx" "${md_inst}/bluemsx_libretro.so"
