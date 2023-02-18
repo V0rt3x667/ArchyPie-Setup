@@ -54,6 +54,10 @@ function build_ppsspp() {
     isPlatform "x86" && isPlatform "64bit" && params+=('-DX86=OFF' '-DX86_64=ON')
     isPlatform "wayland" && params+=('-DUSING_X11_VULKAN=OFF' '-DUSE_WAYLAND_WSI=ON')
 
+    if isPlatform "arm" && ! isPlatform "vulkan"; then
+        params+=('-DARM_NO_VULKAN=ON')
+    fi
+
     if [[ "${md_id}" == "lr-ppsspp" ]]; then
         params+=('-DLIBRETRO=On')
         binary="lib/ppsspp_libretro.so"
@@ -99,11 +103,4 @@ function configure_ppsspp() {
     addEmulator 1 "${md_id}" "psp" "pushd ${md_inst}; ${md_inst}/bin/PPSSPPSDL ${params[*]} %ROM%; popd"
 
     addSystem "psp"
-
-    # if we are removing the last remaining psp emu - remove the symlink
-    # if [[ "$md_mode" == "remove" ]]; then
-    #     if [[ -h "$home/.config/ppsspp" && ! -f "$md_conf_root/psp/emulators.cfg" ]]; then
-    #         rm -f "$home/.config/ppsspp"
-    #     fi
-    # fi
 }

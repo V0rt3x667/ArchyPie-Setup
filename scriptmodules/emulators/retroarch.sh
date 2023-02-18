@@ -21,14 +21,14 @@ function depends_retroarch() {
         'libxkbcommon'
         'libxml2'
         'mbedtls'
+        'mesa'
         'miniupnpc'
         'openal'
         'sdl2'
         'systemd-libs'
         'zlib'
     )
-    #isPlatform "gles" && depends+=('libglvnd')
-    isPlatform "kms" || isPlatform "x11" || isPlatform "wayland" && depends+=('mesa')
+    isPlatform "gles" && depends+=('libglvnd')
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
     isPlatform "x11" && depends+=(
         'libx11'
@@ -43,10 +43,10 @@ function depends_retroarch() {
         'glslang'
         'libpulse'
         'spirv-tools'
-        'vulkan-icd-loader'
         'wayland-protocols'
         'wayland'
     )
+    isPlatform "vulkan" && depends+=('vulkan-icd-loader')
     getDepends "${depends[@]}"
 }
 
@@ -96,7 +96,6 @@ function build_retroarch() {
         '--disable-xrandr'
         '--enable-egl'
         '--enable-kms'
-        '--enable-vulkan'
         '--enable-wayland'
     )
     isPlatform "kms" && params+=(
@@ -107,10 +106,8 @@ function build_retroarch() {
         '--enable-egl'
         '--enable-kms'
     )
-    isPlatform "x11" && params+=(
-        '--enable-vulkan'
-        '--enable-x11'
-    )
+    isPlatform "x11" && params+=('--enable-x11')
+    isPlatform "vulkan" && params+=('--enable-vulkan')
 
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
