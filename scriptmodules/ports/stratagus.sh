@@ -37,6 +37,7 @@ function sources_stratagus() {
 
     # Set Default Config Path(s)
     sed -e "s|\"/.stratagus/\"|\"/ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/gameheaders/stratagus-game-launcher.h"
+    sed -e "s|userDirectory += \".stratagus\";|userDirectory += \"/ArchyPie/configs/${md_id}\";|g" -i "${md_build}/src/stratagus/parameters.cpp"
 }
 
 function build_stratagus() {
@@ -46,11 +47,11 @@ function build_stratagus() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DLUA_INCLUDE_DIR="/usr/include/lua5.1" \
         -DENABLE_STRIP="ON" \
-        -DWITH_STACKTRACE="OFF" \
+        -DENABLE_USEGAMEDIR="OFF" \
         -DGAMEDIR="${md_inst}/bin" \
-        -DSBINDIR="${md_inst}/bin" \
+        -DLUA_INCLUDE_DIR="/usr/include/lua5.1" \
+        -DWITH_STACKTRACE="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -63,7 +64,11 @@ function install_stratagus() {
 }
 
 function configure_stratagus() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
+
     mkRomDir "stratagus"
+
+    setConfigRoot ""
 
     addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/"${md_id}" -F -d %ROM%"
 
