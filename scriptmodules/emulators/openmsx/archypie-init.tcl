@@ -4,21 +4,18 @@ proc init {} {
     set rom_name [guess_title]
     set config_dir [file normalize "$::env(OPENMSX_USER_DATA)/joystick"]
 
-    # Sanitize rom name
+    # Sanitize ROM Name
     regsub -all {[\?\<\>\\\/:\*\|]} ${rom_name} "" rom_name
 
-    # Auto-configure the 1st plugged in joystick, but only if present
-    # openMSX automatically loads the plugged in joysticks in 'autoplug.tcl'
+    # Auto-configure The First Plugged In Joystick But Only If Present
+    # openMSX Automatically Loads The Plugged In Joysticks In 'autoplug.tcl'
     if {![info exists ::joystick1_config]} {
         return
     }
 
-    # Disable the OSD menu box added by osd_menu.tcl
-    osd destroy main_menu_pop_up_button
-
     if { !(${rom_name} eq "") } {
         if { [ file exists "${config_dir}/game/${rom_name}.tcl" ] } {
-            load_config_joystick $rom_name "${config_dir}/game/${rom_name}.tcl"
+            load_config_joystick ${rom_name} "${config_dir}/game/${rom_name}.tcl"
             return
         }
     }
@@ -35,7 +32,7 @@ proc init {} {
 
 proc load_config_joystick { conf_name conf_script } {
     source "${conf_script}"
-    # Check for auto configuration function
+    # Check For Auto Configuration Function
     if { [info procs "auto_config_joypad"] == "" } {
         return
     }

@@ -76,7 +76,7 @@ function configure_openmsx() {
         mkUserDir "${arpdir}/${md_id}/share/scripts"
         mkUserDir "${arpdir}/${md_id}/share/systemroms"
 
-        moveConfigDir "${arpdir}/${md_id}/share/systemroms" "${biosdir}/${md_id}"
+        moveConfigDir "${arpdir}/${md_id}/share/systemroms" "${biosdir}/msx"
 
         copyDefaultConfig "${config}" "${md_conf_root}/msx/${md_id}/share/settings.xml"
         rm "${config}"
