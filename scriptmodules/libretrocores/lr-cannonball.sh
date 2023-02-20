@@ -34,6 +34,9 @@ function configure_lr-cannonball() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/cannonball"
 
+        ln -snf "${romdir}/ports/cannonball" "${md_inst}/roms"
+        ln -snf "${md_inst}/res/" "${romdir}/ports/cannonball/res"
+
         cp -v roms.txt "${romdir}/ports/cannonball/"
         chown -R "${user}:${user}" "${romdir}/ports/cannonball"
     fi
