@@ -6,7 +6,7 @@
 
 rp_module_id="lr-handy"
 rp_module_desc="Atari Lynx Libretro Core"
-rp_module_help="ROM Extensions: .lnx .zip\n\nCopy your Atari Lynx roms to $romdir/atarilynx"
+rp_module_help="ROM Extensions: .lnx .zip\n\nCopy Atari Lynx ROMs To: ${romdir}/atarilynx\n\nCopy BIOS File (lynxboot.img) To: ${biosdir}/atarilynx"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/libretro/libretro-handy/master/lynx/license.txt"
 rp_module_repo="git https://github.com/libretro/libretro-handy master"
 rp_module_section="main"
@@ -18,7 +18,7 @@ function sources_lr-handy() {
 function build_lr-handy() {
     make clean
     make
-    md_ret_require="$md_build/handy_libretro.so"
+    md_ret_require="${md_build}/handy_libretro.so"
 }
 
 function install_lr-handy() {
@@ -29,9 +29,15 @@ function install_lr-handy() {
 }
 
 function configure_lr-handy() {
-    mkRomDir "atarilynx"
-    defaultRAConfig "atarilynx"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "atarilynx"
 
-    addEmulator 1 "$md_id" "atarilynx" "$md_inst/handy_libretro.so"
+        mkUserDir "${biosdir}/atarilynx"
+    fi
+
+    defaultRAConfig "atarilynx" "system_directory" "${biosdir}/atarilynx"
+
+    addEmulator 1 "${md_id}" "atarilynx" "${md_inst}/handy_libretro.so"
+
     addSystem "atarilynx"
 }
