@@ -6,7 +6,7 @@
 
 rp_module_id="hatari"
 rp_module_desc="Hatari: Atari ST, STE, TT & Falcon Emulator"
-rp_module_help="ROM Extensions: .ctr .img .ipf .raw .rom .st .stx .zip\n\nCopy Atari ST Games To: ${romdir}/atarist\n\nCopy Atari ST BIOS File (tos.img) To: ${biosdir}"
+rp_module_help="ROM Extensions: .ctr .img .ipf .raw .rom .st .stx .zip\n\nCopy Atari ST Games To: ${romdir}/atarist\n\nCopy Atari ST BIOS File (tos.img) To: ${biosdir}/atarist"
 rp_module_licence="GPL2 https://git.tuxfamily.org/hatari/hatari.git/plain/gpl.txt"
 rp_module_repo="git https://github.com/hatari/hatari :_get_branch_hatari"
 rp_module_section="opt"
@@ -33,7 +33,7 @@ function sources_hatari() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|#define HATARI_HOME_DIR \".config/hatari\"|#define HATARI_HOME_DIR \"ArchyPie/configs/hatari\"|g" -i "${md_build}/src/paths.c"
+    sed -e "s|#define HATARI_HOME_DIR \".config/hatari\"|#define HATARI_HOME_DIR \"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/src/paths.c"
 
     _sources_capsimage_hatari
 }
@@ -65,8 +65,8 @@ function build_hatari() {
 
     cd "${md_build}" || exit
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
@@ -97,6 +97,7 @@ function configure_hatari() {
 
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "atarist"
+
         mkUserDir "${biosdir}/atarist"
     fi
 
