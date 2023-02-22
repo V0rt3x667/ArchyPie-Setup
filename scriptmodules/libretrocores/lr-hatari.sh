@@ -6,7 +6,7 @@
 
 rp_module_id="lr-hatari"
 rp_module_desc="Atari ST, STE, TT & Falcon Libretro Core"
-rp_module_help="ROM Extensions: .st .stx .img .rom .raw .ipf .ctr .zip\n\nCopy your Atari ST games to $romdir/atarist"
+rp_module_help="ROM Extensions: .dim .ipf .m3u .msa .st .stx .zip\n\nCopy Atari ST Games To: ${romdir}/atarist\n\nCopy Atari ST BIOS File (tos.img) To: ${biosdir}/atarist"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/hatari/master/gpl.txt"
 rp_module_repo="git https://github.com/libretro/hatari master"
 rp_module_section="exp"
@@ -17,39 +17,51 @@ function depends_lr-hatari() {
 
 function sources_lr-hatari() {
     gitPullOrClone
-    applyPatch "$md_data/01_libcapsimage.diff"
-    _sources_libcapsimage_hatari
+
+    # Add CapsImg Support
+    applyPatch "${md_data}/01_add_capsimage.patch"
+
+    # Set Default Config Path(s)
+    sed -e "s|#define HATARI_HOME_DIR \".hatari\"|#define HATARI_HOME_DIR \"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/src/paths.c"
+
+    _sources_capsimage_hatari
 }
 
 function build_lr-hatari() {
-    _build_libcapsimage_hatari
+    _build_capsimage_hatari
 
-    cd "$md_build"
-    CFLAGS+=" -D__cdecl='' -I\"$md_build/src/includes/caps\" -DHAVE_CAPSIMAGE=1 -DCAPSIMAGE_VERSION=5" CAPSIMG_LDFLAGS="-L./lib -l:libcapsimage.so.5.1" make -f Makefile.libretro
-    md_ret_require="$md_build/hatari_libretro.so"
+    cd "${md_build}" || exit
+    make -f Makefile.libretro clean
+    CFLAGS+=" -D__cdecl='' -I\"${md_build}/src/includes/caps\" -DHAVE_CAPSIMAGE=1 -DCAPSIMAGE_VERSION=5" \
+    CAPSIMG_LDFLAGS="-L./lib -l:libcapsimage.so.5" \
+    make -f Makefile.libretro
+
+    md_ret_require="${md_build}/hatari_libretro.so"
 }
 
 function install_lr-hatari() {
-    _install_libcapsimage_hatari
-    md_ret_files=(
-        'hatari_libretro.so'
-        'readme.txt'
-        'gpl.txt'
-    )
+    # Install: CapsImg Library
+    mkdir "${md_inst}/lib"
+    cp -Pv "${md_build}/lib"/*.so* "${md_inst}/lib/"
+
+    md_ret_files=('hatari_libretro.so')
 }
 
 function configure_lr-hatari() {
-    mkRomDir "atarist"
-    defaultRAConfig "atarist"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/atarist/${md_id}"
 
-    # move any old configs to new location
-    moveConfigDir "$home/.hatari" "$md_conf_root/atarist"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "atarist"
+    fi
 
-    addEmulator 1 "$md_id" "atarist" "$md_inst/hatari_libretro.so"
+    defaultRAConfig "atarist" "system_directory" "${biosdir}/atarist"
+
+    addEmulator 1 "${md_id}" "atarist" "${md_inst}/hatari_libretro.so"
+
     addSystem "atarist"
 
-    # add LD_LIBRARY_PATH='$md_inst' to start of launch command
-    iniConfig " = " '"' "$configdir/atarist/emulators.cfg"
-    iniGet "$md_id"
-    iniSet "$md_id" "LD_LIBRARY_PATH='$md_inst' $ini_value"
+    # Add LD_LIBRARY_PATH='${md_inst}/lib' To Start Of Launch Command
+    iniConfig " = " '"' "${configdir}/atarist/emulators.cfg"
+    iniGet "${md_id}"
+    iniSet "${md_id}" "LD_LIBRARY_PATH='${md_inst}/lib' ${ini_value}"
 }
