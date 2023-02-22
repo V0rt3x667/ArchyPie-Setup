@@ -42,8 +42,8 @@ function configure_lr-scummvm() {
         defaultRAConfig "scummvm" "system_directory" "${biosdir}/scummvm"
 
         # Unpack Data Files To System Directory
-        runCmd unzip -q "${md_inst}/scummvm.zip" -d "${biosdir}"
-        chown -R ${user}:${user} "${biosdir}/scummvm"
+        runCmd unzip -q -o "${md_inst}/scummvm.zip" -d "${biosdir}"
+        chown -R "${user}:${user}" "${biosdir}/scummvm"
 
         # Create Default Configuration File
         local config
