@@ -6,39 +6,38 @@
 
 rp_module_id="lr-kronos"
 rp_module_desc="Saturn & ST-V Libretro Core"
-rp_module_help="ROM Extensions: .iso .cue .zip .ccd .mds\n\nCopy your Sega Saturn & ST-V roms to $romdir/saturn\n\nCopy the required BIOS file saturn_bios.bin / stvbios.zip to $biosdir/kronos"
+rp_module_help="ROM Extensions: .ccd .chd .cue .iso .m3u .mds .zip\n\nCopy Sega Saturn & ST-V ROMs To: ${romdir}/saturn\n\nCopy BIOS Files (saturn_bios.bin & stvbios.zip) To: ${biosdir}/kronos/saturn"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/yabause/kronos/yabause/COPYING"
 rp_module_repo="git https://github.com/libretro/yabause kronos"
 rp_module_section="exp"
-rp_module_flags="!arm !aarch64"
+rp_module_flags="!aarch64 !arm"
 
 function sources_lr-kronos() {
     gitPullOrClone
 }
 
 function build_lr-kronos() {
-    cd yabause/src/libretro
-    make clean
-    make
-    md_ret_require="$md_build/yabause/src/libretro/kronos_libretro.so"
+    make -C yabause/src/libretro clean
+    make -C yabause/src/libretro
+
+    md_ret_require="${md_build}/yabause/src/libretro/kronos_libretro.so"
 }
 
 function install_lr-kronos() {
-    md_ret_files=(
-        'yabause/src/libretro/kronos_libretro.so'
-        'yabause/AUTHORS'
-        'yabause/COPYING'
-        'yabause/ChangeLog'
-        'yabause/GOALS'
-        'yabause/README'
-        'yabause/README.LIN'
-    )
+    md_ret_files=('yabause/src/libretro/kronos_libretro.so')
 }
 
 function configure_lr-kronos() {
-    mkRomDir "saturn"
-    defaultRAConfig "saturn"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "saturn"
 
-    addEmulator 1 "$md_id" "saturn" "$md_inst/kronos_libretro.so"
+        mkUserDir "${biosdir}/saturn"
+        mkUserDir "${biosdir}/saturn/kronos"
+    fi
+
+    defaultRAConfig "saturn" "system_directory" "${biosdir}/saturn"
+
+    addEmulator 1 "${md_id}" "saturn" "${md_inst}/kronos_libretro.so"
+
     addSystem "saturn"
 }
