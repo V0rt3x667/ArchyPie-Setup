@@ -23,14 +23,13 @@ function build_lr-mrboom() {
     else
         make
     fi
-    md_ret_require="$md_build/mrboom_libretro.so"
+    md_ret_require="${md_build}/mrboom_libretro.so"
 }
 
 function install_lr-mrboom() {
     md_ret_files=(
-        'mrboom_libretro.so'
         'LICENSE'
-        'README.md'
+        'mrboom_libretro.so'
     )
 }
 
@@ -38,7 +37,7 @@ function install_lr-mrboom() {
 function configure_lr-mrboom() {
     setConfigRoot "ports"
 
-    addPort "$md_id" "mrboom" "Mr.Boom" "$emudir/retroarch/bin/retroarch -L $md_inst/mrboom_libretro.so --config $md_conf_root/mrboom/retroarch.cfg"
-
     defaultRAConfig "mrboom"
+
+    addPort "${md_id}" "mrboom" "Mr.Boom" "${md_inst}/mrboom_libretro.so --config ${md_conf_root}/mrboom/retroarch.cfg"
 }
