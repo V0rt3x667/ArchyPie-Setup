@@ -6,7 +6,7 @@
 
 rp_module_id="lr-mess2016"
 rp_module_desc="MESS 2016 Libretro Core"
-rp_module_help="See wiki for detailed explanation"
+rp_module_help="ROM Extension: .zip"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame2016-libretro/master/LICENSE.md"
 rp_module_repo="git https://github.com/libretro/mame2016-libretro master"
 rp_module_section="exp"
@@ -26,13 +26,11 @@ function build_lr-mess2016() {
     make clean
     make "${params[@]}"
     rpSwap off
-    md_ret_require="$md_build/mess2016_libretro.so"
+    md_ret_require="${md_build}/mess2016_libretro.so"
 }
 
 function install_lr-mess2016() {
-    md_ret_files=(
-        'mess2016_libretro.so'
-    )
+    md_ret_files=('mess2016_libretro.so')
 }
 
 function configure_lr-mess2016() {
