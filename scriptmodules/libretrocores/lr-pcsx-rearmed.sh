@@ -6,14 +6,14 @@
 
 rp_module_id="lr-pcsx-rearmed"
 rp_module_desc="Sony PlayStation Libretro Core"
-rp_module_help="ROM Extensions: .bin .cue .cbn .img .iso .m3u .mdf .pbp .toc .z .znx\n\nCopy your PSX roms to $romdir/psx\n\nCopy the required BIOS file SCPH1001.BIN to $biosdir"
+rp_module_help="ROM Extensions: .bin .cbn .chd .cue .img .m3u .mdf .pbp .toc\n\nCopy PSX ROMs To: ${romdir}/psx\n\nCopy BIOS Files:\n\nscph5500.bin\nscph5501.bin\nscph5502.bin\n\nTo: ${biosdir}/psx"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/pcsx_rearmed/master/COPYING"
 rp_module_repo="git https://github.com/libretro/pcsx_rearmed master"
 rp_module_section="opt arm=main"
 
 function depends_lr-pcsx-rearmed() {
-    local depends=(libpng)
-    isPlatform "x11" && depends+=(libx11)
+    local depends=('libpng')
+    isPlatform "x11" && depends+=('libx11')
     getDepends "${depends[@]}"
 }
 
@@ -35,25 +35,23 @@ function build_lr-pcsx-rearmed() {
 
     make -f Makefile.libretro "${params[@]}" clean
     make -f Makefile.libretro "${params[@]}"
-    md_ret_require="$md_build/pcsx_rearmed_libretro.so"
+    md_ret_require="${md_build}/pcsx_rearmed_libretro.so"
 }
 
 function install_lr-pcsx-rearmed() {
-    md_ret_files=(
-        'AUTHORS'
-        'ChangeLog.df'
-        'COPYING'
-        'pcsx_rearmed_libretro.so'
-        'NEWS'
-        'README.md'
-        'readme.txt'
-    )
+    md_ret_files=('pcsx_rearmed_libretro.so')
 }
 
 function configure_lr-pcsx-rearmed() {
-    mkRomDir "psx"
-    defaultRAConfig "psx"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "psx"
 
-    addEmulator 1 "$md_id" "psx" "$md_inst/pcsx_rearmed_libretro.so"
+        mkUserDir "${biosdir}/psx"
+    fi
+
+    defaultRAConfig "psx" "system_directory" "${biosdir}/psx"
+
+    addEmulator 1 "${md_id}" "psx" "${md_inst}/pcsx_rearmed_libretro.so"
+
     addSystem "psx"
 }
