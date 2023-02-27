@@ -6,7 +6,7 @@
 
 rp_module_id="lr-parallel-n64"
 rp_module_desc="Nintendo N64 Libretro Core"
-rp_module_help="ROM Extensions: .z64 .n64 .v64\n\nCopy your N64 roms to $romdir/n64"
+rp_module_help="ROM Extensions: .bin .n64 .ndd .u1 .v64 .z64\n\nCopy N64 ROMs To: ${romdir}/n64"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/parallel-n64/master/mupen64plus-core/LICENSES"
 rp_module_repo="git https://github.com/libretro/parallel-n64 master"
 rp_module_section="exp x86=main"
@@ -27,7 +27,7 @@ function build_lr-parallel-n64() {
     rpSwap on 1000
     local params=()
     if isPlatform "rpi" || isPlatform "odroid-c1"; then
-        params+=(platform="$__platform")
+        params+=(platform="${__platform}")
     else
         isPlatform "gles" && params+=(GLES=1 GL_LIB:=-lGLESv2)
         if isPlatform "arm"; then
@@ -41,29 +41,22 @@ function build_lr-parallel-n64() {
     make clean
     make "${params[@]}"
     rpSwap off
-    md_ret_require="$md_build/parallel_n64_libretro.so"
+    md_ret_require="${md_build}/parallel_n64_libretro.so"
 }
 
 function install_lr-parallel-n64() {
-    md_ret_files=(
-        'parallel_n64_libretro.so'
-        'README.md'
-        'mupen64plus-core/LICENSES'
-    )
+    md_ret_files=('parallel_n64_libretro.so')
 }
 
 function configure_lr-parallel-n64() {
-    mkRomDir "n64"
-    defaultRAConfig "n64"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "n64"
 
-    # Set core options
-    setRetroArchCoreOption "parallel-n64-gfxplugin" "auto"
-    setRetroArchCoreOption "parallel-n64-gfxplugin-accuracy" "low"
-    setRetroArchCoreOption "parallel-n64-screensize" "640x480"
+        mkUserDir "${biosdir}/n64"
 
-    # Copy config files
-    cat > $home/ArchyPie/BIOS/gles2n64rom.conf << _EOF_
-#rom specific settings
+        # Create Config File
+        cat > ${home}/ArchyPie/BIOS/n64/gles2n64rom.conf << _EOF_
+# ROM Specific Settings
 
 rom name=SUPER MARIO 64
 target FPS=25
@@ -164,8 +157,16 @@ rom name=Mega Man 64
 framebuffer enable=1
 target FPS=25
 _EOF_
-    chown "${user}:${user}" "$biosdir/gles2n64rom.conf"
+        chown "${user}:${user}" "${biosdir}/n64/gles2n64rom.conf"
+    fi
 
-    addEmulator 0 "$md_id" "n64" "$md_inst/parallel_n64_libretro.so"
+    defaultRAConfig "n64" "system_directory" "${biosdir}/n64"
+
+    setRetroArchCoreOption "parallel-n64-gfxplugin" "auto"
+    setRetroArchCoreOption "parallel-n64-gfxplugin-accuracy" "low"
+    setRetroArchCoreOption "parallel-n64-screensize" "640x480"
+
+    addEmulator 0 "${md_id}" "n64" "${md_inst}/parallel_n64_libretro.so"
+
     addSystem "n64"
 }
