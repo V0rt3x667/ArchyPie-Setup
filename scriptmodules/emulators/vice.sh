@@ -34,7 +34,7 @@ function depends_vice() {
         'sdl2'
         'xa'
     )
-    isPlatform "x11" || ! isPlatform "wayland" && depends+=('libpulse')
+    isPlatform "x11" && depends+=('libpulse')
     getDepends "${depends[@]}"
 }
 
@@ -54,7 +54,7 @@ function build_vice() {
         '--disable-pdf-docs'
         '--enable-ethernet'
         '--enable-external-ffmpeg'
-        '--enable-sdlui2'
+        '--enable-sdl2ui'
         '--enable-x64'
         '--with-fastsid'
         '--without-oss'
