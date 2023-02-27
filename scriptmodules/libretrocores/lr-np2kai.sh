@@ -6,32 +6,38 @@
 
 rp_module_id="lr-np2kai"
 rp_module_desc="NEC PC-9800 Libretro Core"
-rp_module_help="ROM Extensions: .d88 .d98 .88d .98d .fdi .xdf .hdm .dup .2hd .tfd .hdi .thd .nhd .hdd\n\nCopy your pc98 games to to $romdir/pc98\n\nCopy bios files 2608_bd.wav, 2608_hh.wav, 2608_rim.wav, 2608_sd.wav, 2608_tom.wav 2608_top.wav, bios.rom, FONT.ROM and sound.rom to $biosdir/np2kai"
+rp_module_help="ROM Extensions: .2hd .88d .98d .cmd .d88 .d98 .dup .fdd .fdi .hdd .hdi .hdm .hdn .nhd .tfd .thd .xdf .zip\n\nCopy PC-98 Games To: ${romdir}/pc98\n\nCopy BIOS Files:\n\n2608_bd.wav\n2608_hh.wav\n2608_rim.wav\n2608_sd.wav\n2608_tom.wav\n2608_top.wav\nbios.rom\nFONT.ROM\sound.rom\n\nTo: ${biosdir}/pc98"
 rp_module_licence="MIT https://raw.githubusercontent.com/libretro/NP2kai/master/LICENSE"
 rp_module_repo="git https://github.com/AZO234/NP2kai master"
 rp_module_section="exp"
 
 function sources_lr-np2kai() {
     gitPullOrClone
+
+    # Set BIOS Directory
+    sed -e "s|milstr_ncat(np2path, OEMTEXT(\"/np2kai\"), MAX_PATH);|milstr_ncat(np2path, OEMTEXT(\"/pc98\"), MAX_PATH);|g" -i "${md_build}/sdl/libretro/libretro.c"
 }
 
 function build_lr-np2kai() {
-    cd "$md_build/sdl"
-    make -f Makefile.libretro clean GIT_TAG="master"
-    make -f Makefile.libretro GIT_TAG="master"
-    md_ret_require="$md_build/sdl/np2kai_libretro.so"
+    make -C sdl -f Makefile.libretro clean GIT_TAG="master"
+    make -C sdl -f Makefile.libretro GIT_TAG="master"
+    md_ret_require="${md_build}/sdl/np2kai_libretro.so"
 }
 
 function install_lr-np2kai() {
-    md_ret_files=(
-        'sdl/np2kai_libretro.so'
-    )
+    md_ret_files=('sdl/np2kai_libretro.so')
 }
 
 function configure_lr-np2kai() {
-    mkRomDir "pc98"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "pc98"
+
+        mkUserDir "${biosdir}/pc98"
+    fi
+
     defaultRAConfig "pc98"
 
-    addEmulator 1 "$md_id" "pc98" "$md_inst/np2kai_libretro.so"
+    addEmulator 1 "${md_id}" "pc98" "${md_inst}/np2kai_libretro.so"
+
     addSystem "pc98"
 }
