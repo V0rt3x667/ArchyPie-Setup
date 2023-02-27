@@ -6,7 +6,6 @@
 
 rp_module_id="lr-nxengine"
 rp_module_desc="NxEngine (Cave Story Engine) Libretro Core"
-rp_module_help="Copy Cave Story Executable (Doukutsu.exe) To: ${romdir}/ports/CaveStory"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/nxengine-libretro/master/nxengine/LICENSE"
 rp_module_repo="git https://github.com/libretro/nxengine-libretro master"
 rp_module_section="opt"
