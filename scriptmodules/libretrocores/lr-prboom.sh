@@ -6,6 +6,7 @@
 
 rp_module_id="lr-prboom"
 rp_module_desc="PrBoom (Doom, Doom II, Final Doom & Doom IWAD Mods) Libretro Core"
+rp_module_help="ROM Extensions: .iwad .pwad .wad\n\nCopy Doom Files To: ${romdir}/ports/doom/doom1\nCopy Doom 2 Files To: ${romdir}/ports/doom/doom2\nCopy Final Doom Files To: ${romdir}/ports/doom/finaldoom"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-prboom/master/COPYING"
 rp_module_repo="git https://github.com/libretro/libretro-prboom master"
 rp_module_section="opt"
@@ -25,7 +26,10 @@ function build_lr-prboom() {
 }
 
 function install_lr-prboom() {
-    md_ret_files=('prboom_libretro.so' 'prboom.wad')
+    md_ret_files=(
+        'prboom_libretro.so'
+        'prboom.wad'
+    )
 }
 
 function _game_data_lr-prboom() {
@@ -59,7 +63,7 @@ function _add_games_lr-prboom() {
         ['freedoom/freedoom2.wad']="Freedoom: Phase II"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="doom"
         dir="${romdir}/ports/${portname}/${game%/*}"
@@ -69,7 +73,7 @@ function _add_games_lr-prboom() {
             popd || return
         fi
         if [[ -f "${dir}/${game##*/}" ]]; then
-            addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
+            addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${dir}/${game##*/}"
         fi
     done
 }
@@ -79,10 +83,24 @@ function configure_lr-prboom() {
     portname="doom"
 
     if [[ "${md_mode}" == "install" ]]; then
+        local dirs=(
+            'doom1'
+            'doom2'
+            'finaldoom'
+            'freedoom'
+        )
         mkRomDir "ports/${portname}"
+        for dir in "${dirs[@]}"; do
+            mkRomDir "ports/${portname}/${dir}"
+        done
+
         mkUserDir "${biosdir}/${portname}"
+
+        # Copy Data File
         cp "${md_inst}/prboom.wad" "${biosdir}/${portname}"
         chown -R "${user}:${user}" "${biosdir}/${portname}"
+
+        # Configure Games
         _game_data_lr-prboom
     fi
 
