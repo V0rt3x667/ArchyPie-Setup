@@ -36,17 +36,20 @@ function configure_lr-genesis-plus-gx() {
 
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
-            mkRomDir "${dir}"
+            mkRomDir "${system}"
         done
 
         mkUserDir "${biosdir}/segacd"
     fi
 
+    defaultRAConfig "gamegear"
+    defaultRAConfig "mastersystem"
+    defaultRAConfig "megadrive"
+    defaultRAConfig "segacd" "system_directory" "${biosdir}/segacd"
+    defaultRAConfig "sg-1000"
+
     for system in "${systems[@]}"; do
-        defaultRAConfig "${system}"
         addEmulator 1 "${md_id}" "${system}" "${md_inst}/genesis_plus_gx_libretro.so"
         addSystem "${system}"
     done
-
-    defaultRAConfig "segacd" "system_directory" "${biosdir}/segacd"
 }
