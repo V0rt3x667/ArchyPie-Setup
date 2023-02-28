@@ -40,7 +40,7 @@ function _game_data_lr-prboom() {
         download "${__archive_url}/doom1.wad" "${dest}/doom1/doom1.wad"
     fi
     if ! echo "e9bf428b73a04423ea7a0e9f4408f71df85ab175 ${dest}/freedoom/freedoom1.wad" | sha1sum -c &>/dev/null; then
-        # Download or Update Freedoom
+        # Download Or Update Freedoom
         downloadAndExtract "https://github.com/freedoom/freedoom/releases/download/v0.12.1/freedoom-0.12.1.zip" "${dest}/freedoom" -j -LL
     fi
     chown -R "${user}:${user}" "${dest}"
@@ -63,7 +63,7 @@ function _add_games_lr-prboom() {
         ['freedoom/freedoom2.wad']="Freedoom: Phase II"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted To Lowercase
     for game in "${!games[@]}"; do
         portname="doom"
         dir="${romdir}/ports/${portname}/${game%/*}"
