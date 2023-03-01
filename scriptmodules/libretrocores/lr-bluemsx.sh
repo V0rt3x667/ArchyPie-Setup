@@ -32,33 +32,38 @@ function install_lr-bluemsx() {
 }
 
 function configure_lr-bluemsx() {
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "coleco"
-        mkRomDir "msx"
-        mkRomDir "msx2"
+    local systems=(
+        'coleco'
+        'msx'
+        'msx2'
+    )
 
-        mkUserDir "${biosdir}/msx"
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            mkUserDir "${biosdir}/msx"
+        done
+
+        # Copy Data To BIOS Directory
+        cp -rv "${md_inst}/"{Databases,Machines} "${biosdir}/msx"
+        chown -R "${user}:${user}" "${biosdir}/msx/"{Databases,Machines}
 
         # Force ColecoVision System
         local config="${md_conf_root}/coleco/retroarch-core-options.cfg"
         iniConfig " = " '"' "${config}"
         iniSet "bluemsx_msxtype" "ColecoVision" "${config}"
         chown "${user}:${user}" "${config}"
-
-        # Copy Data To BIOS Dir
-        cp -rv "${md_inst}/"{Databases,Machines} "${biosdir}/msx"
-        chown -R "${user}:${user}" "${biosdir}/msx/"{Databases,Machines}
     fi
 
-    defaultRAConfig "coleco" "system_directory" "${biosdir}/msx"
-    defaultRAConfig "msx" "system_directory" "${biosdir}/msx"
-    defaultRAConfig "msx2" "system_directory" "${biosdir}/msx"
+    for system in "${systems[@]}"; do
+        defaultRAConfig "${system}" "system_directory" "${biosdir}/msx" 
+        addEmulator 1 "${md_id}" "${system}" "${md_inst}/bluemsx_libretro.so"
+        addSystem "${system}"
+    done
 
-    addEmulator 1 "${md_id}" "coleco" "${md_inst}/bluemsx_libretro.so"
-    addEmulator 1 "${md_id}" "msx" "${md_inst}/bluemsx_libretro.so"
-    addEmulator 1 "${md_id}" "msx2" "${md_inst}/bluemsx_libretro.so"
-
-    addSystem "coleco"
-    addSystem "msx"
-    addSystem "msx2"
+    # Add ColecoVision Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
+    local raconfig="${md_conf_root}/coleco/retroarch.cfg"
+    iniConfig " = " '"' "${raconfig}"
+    iniSet "core_options_path" "${config}"
+    chown "${user}:${user}" "${raconfig}"
 }
