@@ -45,6 +45,7 @@ function sources_scummvm() {
 }
 
 function build_scummvm() {
+    rpSwap on 750
     local params=(
         --disable-debug
         --disable-eventrecorder
@@ -54,11 +55,11 @@ function build_scummvm() {
         --prefix="${md_inst}"
     )
     isPlatform "rpi" && isPlatform "32bit" && params+=('--host=raspberrypi')
-    isPlatform "gles" && params+=('--opengl-mode=gles2')
 
     ./configure "${params[@]}"
     make clean
     make
+    rpSwap off
     md_ret_require="${md_build}/${md_id}"
 }
 
