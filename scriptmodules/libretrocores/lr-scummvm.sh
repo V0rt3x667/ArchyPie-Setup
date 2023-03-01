@@ -6,7 +6,7 @@
 
 rp_module_id="lr-scummvm"
 rp_module_desc="ScummVM Libretro Core"
-rp_module_help="Copy ScummVM Games To: ${romdir}/scummvm\n\nGame Directories Must Be Suffixed With '.svm' For Direct Launch In EmulationStation."
+rp_module_help="Copy ScummVM Games To: ${romdir}/scummvm\n\nGame Directories Must Be Suffixed With '.svm' For Direct Launch In EmulationStation"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/scummvm/main/LICENSE"
 rp_module_repo="git https://github.com/libretro/scummvm main"
 rp_module_section="exp"
@@ -29,7 +29,6 @@ function build_lr-scummvm() {
 
 function install_lr-scummvm() {
     md_ret_files=(
-        "LICENSE"
         "scummvm_libretro.so"
         "scummvm.zip"
     )
@@ -65,7 +64,7 @@ function configure_lr-scummvm() {
         # Enable Speed Hack Core Option For ARM Platform
         isPlatform "arm" && setRetroArchCoreOption "scummvm_speed_hack" "enabled"
 
-        # Create Retroarch Launcher For 'lr-scummvm'
+        # Create RetroArch Launcher For 'lr-scummvm'
         cat > "${md_inst}/romdir-launcher.sh" << _EOF_
 #!/usr/bin/env bash
 ROM=\$1; shift
