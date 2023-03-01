@@ -6,7 +6,7 @@
 
 rp_module_id="lr-quasi88"
 rp_module_desc="NEC PC-8801 Libretro Core"
-rp_module_help="ROM Extensions: .d88 .88d .cmt .m3u .t88\n\nCopy your pc88 games to to $romdir/pc88\n\nCopy bios files n88.rom, n88_0.rom, n88_1.rom, n88_2.rom, n88_3.rom, n88n.rom, disk.rom, n88knj1.rom, n88knj2.rom, and n88jisho.rom to $biosdir/quasi88"
+rp_module_help="ROM Extensions: .d88 .m3u .u88\n\nCopy pc88 Games To: ${romdir}/pc88\n\nCopy BIOS Files:\n\n disk.rom\n n88_0.rom\n n88_1.rom\n n88_2.rom\n n88_3.rom\n n88.rom\n n88knj1.rom\n n88n.rom\n\nTo: ${biosdir}/pc88"
 rp_module_licence="BSD https://raw.githubusercontent.com/libretro/quasi88-libretro/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/quasi88-libretro master"
 rp_module_section="exp"
@@ -18,19 +18,23 @@ function sources_lr-quasi88() {
 function build_lr-quasi88() {
     make clean
     make
-    md_ret_require="$md_build/quasi88_libretro.so"
+    md_ret_require="${md_build}/quasi88_libretro.so"
 }
 
 function install_lr-quasi88() {
-    md_ret_files=(
-        'README.md'
-        'quasi88_libretro.so'
-    )
+    md_ret_files=('quasi88_libretro.so')
 }
 
 function configure_lr-quasi88() {
-    mkRomDir "pc88"
-    defaultRAConfig "pc88"
-    addEmulator 1 "$md_id" "pc88" "$md_inst/quasi88_libretro.so"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "pc88"
+
+        mkUserDir "${biosdir}/pc88"
+    fi
+
+    defaultRAConfig "pc88" "system_directory" "${biosdir}/pc88"
+
+    addEmulator 1 "${md_id}" "pc88" "${md_inst}/quasi88_libretro.so"
+
     addSystem "pc88"
 }
