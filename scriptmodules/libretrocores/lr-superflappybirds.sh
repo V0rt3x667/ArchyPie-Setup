@@ -12,10 +12,10 @@ rp_module_section="exp"
 
 function depends_lr-superflappybirds() {
     local depends=(
-        'cmake'
         'clang14'
-        'openmp'
+        'cmake'
         'ninja'
+        'openmp'
     )
     getDepends "${depends[@]}"
 }
