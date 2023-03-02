@@ -6,6 +6,7 @@
 
 rp_module_id="lr-tyrquake"
 rp_module_desc="Quake Libretro Core"
+rp_module_help="ROM Extensions: .pak\n\nCopy Quake File (pak0.pak) To: ${romdir}/ports/quake/id1"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/tyrquake/master/LICENSE.txt"
 rp_module_repo="git https://github.com/libretro/tyrquake master"
 rp_module_section="opt"
@@ -26,12 +27,7 @@ function build_lr-tyrquake() {
 }
 
 function install_lr-tyrquake() {
-    md_ret_files=(
-        'LICENSE.txt'
-        'readme-id.txt'
-        'readme.txt'
-        'tyrquake_libretro.so'
-    )
+    md_ret_files=('tyrquake_libretro.so')
 }
 
 function _game_data_lr-tyrquake() {
@@ -67,7 +63,7 @@ function _add_games_lr-tyrquake() {
         ['dopa/pak0.pak']="Quake: Episode 5: Dimensions of the Past"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found, Uppercase Filenames Will Be Converted To Lowercase
     for game in "${!games[@]}"; do
         portname="quake"
         dir="${romdir}/ports/${portname}/${game%/*}"
@@ -92,7 +88,7 @@ function configure_lr-tyrquake() {
     local portname
     portname="quake"
 
-    if [[ "$md_mode" == "install" ]]; then
+    if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'dopa'
             'hipnotic'
