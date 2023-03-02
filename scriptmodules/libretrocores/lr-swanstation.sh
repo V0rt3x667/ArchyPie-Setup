@@ -12,6 +12,14 @@ rp_module_section="exp"
 rp_module_repo="git https://github.com/libretro/swanstation main"
 rp_module_flags=""
 
+function depends_lr-swanstation() {
+    local depends=(
+        'cmake'
+        'ninja'
+    )
+    getDepends "${depends[@]}"
+}
+
 function sources_lr-swanstation() {
     gitPullOrClone
 }
