@@ -6,7 +6,7 @@
 
 rp_module_id="lr-stella2014"
 rp_module_desc="Atari 2600 Libretro Core"
-rp_module_help="ROM Extensions: .a26 .bin .rom .zip .gz\n\nCopy your Atari 2600 roms to $romdir/atari2600"
+rp_module_help="ROM Extensions: .a26 .bin .zip\n\nCopy Atari 2600 ROMs To: ${romdir}/atari2600"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/stella2014-libretro/master/stella/license.txt"
 rp_module_repo="git https://github.com/libretro/stella2014-libretro master"
 rp_module_section="main"
@@ -18,21 +18,19 @@ function sources_lr-stella2014() {
 function build_lr-stella2014() {
     make clean
     make
-    md_ret_require="$md_build/stella2014_libretro.so"
+    md_ret_require="${md_build}/stella2014_libretro.so"
 }
 
 function install_lr-stella2014() {
-    md_ret_files=(
-        'README.md'
-        'stella2014_libretro.so'
-        'stella/license.txt'
-    )
+    md_ret_files=('stella2014_libretro.so')
 }
 
 function configure_lr-stella2014() {
     mkRomDir "atari2600"
+
     defaultRAConfig "atari2600"
 
-    addEmulator 1 "$md_id" "atari2600" "$md_inst/stella2014_libretro.so"
+    addEmulator 0 "${md_id}" "atari2600" "${md_inst}/stella2014_libretro.so"
+
     addSystem "atari2600"
 }
