@@ -6,7 +6,7 @@
 
 rp_module_id="cemu"
 rp_module_desc="Cemu: Nintendo Wii U Emulator"
-rp_module_help="ROM Extensions: .wud .wux\n\nCopy Wii U ROMs To: ${romdir}/wiiu\n\nAdd Decryption Keys To: ${home}/ArchyPie/configs/cemu/keys.txt"
+rp_module_help="ROM Extensions: .wua .wud .wux\n\nCopy Wii U ROMs To: ${romdir}/wiiu\n\nAdd Decryption Keys To: ${home}/ArchyPie/configs/cemu/keys.txt"
 rp_module_licence="MPL2 https://raw.githubusercontent.com/cemu-project/Cemu/main/LICENSE.txt"
 rp_module_repo="git https://github.com/cemu-project/Cemu main"
 rp_module_section="exp"
