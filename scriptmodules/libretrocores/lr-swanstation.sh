@@ -42,7 +42,11 @@ function install_lr-swanstation() {
 }
 
 function configure_lr-swanstation() {
-    mkRomDir "psx"
+        if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "psx"
+
+        mkUserDir "${biosdir}/psx"
+    fi
 
     isPlatform "rpi" && setRetroArchCoreOption "swanstation_GPU.Renderer" "Software"
 
