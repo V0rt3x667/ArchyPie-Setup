@@ -32,6 +32,10 @@ function configure_lr-beetle-pce() {
         mkUserDir "${biosdir}/pcengine"
     fi
 
+    setRetroArchCoreOption "pce_aspect_ratio" "4:3"
+    setRetroArchCoreOption "pce_multitap" "disabled"
+    setRetroArchCoreOption "pce_scaling" "hires"
+
     defaultRAConfig "pcengine" "system_directory" "${biosdir}/pcengine"
 
     addEmulator 1 "${md_id}" "pcengine" "${md_inst}/mednafen_pce_libretro.so"
