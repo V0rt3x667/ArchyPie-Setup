@@ -6,7 +6,7 @@
 
 rp_module_id="lr-vba-next"
 rp_module_desc=" Game Boy Advance Libretro Core"
-rp_module_help="ROM Extensions: .gba .zip\n\nCopy your Game Boy Advance roms to $romdir/gba\n\nCopy the required BIOS file gba_bios.bin to $biosdir"
+rp_module_help="ROM Extensions: .gba .zip\n\nCopy Game Boy Advance ROMs To: ${romdir}/gba\n\nCopy BIOS File (gba_bios.bin) To: ${biosdir}/gba"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/vba-next/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/vba-next master"
 rp_module_section="main"
@@ -23,19 +23,23 @@ function build_lr-vba-next() {
     else
         make -f Makefile.libretro
     fi
-    md_ret_require="$md_build/vba_next_libretro.so"
+    md_ret_require="${md_build}/vba_next_libretro.so"
 }
 
 function install_lr-vba-next() {
-    md_ret_files=(
-        'vba_next_libretro.so'
-    )
+    md_ret_files=('vba_next_libretro.so')
 }
 
 function configure_lr-vba-next() {
-    mkRomDir "gba"
-    defaultRAConfig "gba"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "gba"
 
-    addEmulator 0 "$md_id" "gba" "$md_inst/vba_next_libretro.so"
+        mkUserDir "${biosdir}/gba"
+    fi
+
+    defaultRAConfig "gba" "system_directory" "${biosdir}/gba"
+
+    addEmulator 0 "${md_id}" "gba" "${md_inst}/vba_next_libretro.so"
+
     addSystem "gba"
 }
