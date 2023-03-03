@@ -35,10 +35,14 @@ function install_lr-prboom() {
 function _game_data_lr-prboom() {
     local dest="${romdir}/ports/doom"
 
-    if [[ ! -f "${dest}/doom1/doom1.wad" ]] && [[ ! -f "${dest}/doom1/DOOM1.WAD" ]]; then
-        # Download DOOM Shareware
-        download "${__archive_url}/doom1.wad" "${dest}/doom1/doom1.wad"
-    fi
+    for file in "${dest}/doom1/"*.*; do
+        if [[ -e "${file}" ]]; then
+            break
+        else
+            # Download DOOM Shareware
+            download "${__archive_url}/doom1.wad" "${dest}/doom1/doom1.wad"
+        fi
+    done
     if ! echo "e9bf428b73a04423ea7a0e9f4408f71df85ab175 ${dest}/freedoom/freedoom1.wad" | sha1sum -c &>/dev/null; then
         # Download Or Update Freedoom
         downloadAndExtract "https://github.com/freedoom/freedoom/releases/download/v0.12.1/freedoom-0.12.1.zip" "${dest}/freedoom" -j -LL
