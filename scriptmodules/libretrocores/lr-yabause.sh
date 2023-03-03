@@ -6,7 +6,7 @@
 
 rp_module_id="lr-yabause"
 rp_module_desc="Sega Saturn Libretro Core"
-rp_module_help="ROM Extensions: .iso .bin .zip\n\nCopy your Sega Saturn roms to $romdir/saturn\n\nCopy the required BIOS file saturn_bios.bin to $biosdir"
+rp_module_help="ROM Extensions: .bin .ccd .chd .cue .iso .m3u .mds .zip\n\nCopy Sega Saturn ROMs To: ${romdir}/saturn\n\nCopy BIOS File (saturn_bios.bin) To: ${biosdir}/saturn"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/yabause/master/yabause/COPYING"
 rp_module_repo="git https://github.com/libretro/yabause master"
 rp_module_section="exp"
@@ -18,28 +18,28 @@ function sources_lr-yabause() {
 
 function build_lr-yabause() {
     local params=()
-    cd yabause/src/libretro
-    isPlatform "neon" && params+=(platform=armvneonhardfloat)
-    ! isPlatform "x86" && params+=(HAVE_SSE=0)
+    cd yabause/src/libretro || exit
+    isPlatform "neon" && params+=('platform=armvneonhardfloat')
+    ! isPlatform "x86" && params+=('HAVE_SSE=0')
     make "${params[@]}" clean
     make "${params[@]}"
-    md_ret_require="$md_build/yabause/src/libretro/yabause_libretro.so"
+    md_ret_require="${md_build}/yabause/src/libretro/yabause_libretro.so"
 }
 
 function install_lr-yabause() {
-    md_ret_files=(
-        'yabause/src/libretro/yabause_libretro.so'
-        'yabause/COPYING'
-        'yabause/ChangeLog'
-        'yabause/AUTHORS'
-        'yabause/README'
-    )
+    md_ret_files=('yabause/src/libretro/yabause_libretro.so')
 }
 
 function configure_lr-yabause() {
-    mkRomDir "saturn"
-    defaultRAConfig "saturn"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "saturn"
 
-    addEmulator 1 "$md_id" "saturn" "$md_inst/yabause_libretro.so"
+        mkUserDir "${biosdir}/saturn"
+    fi
+
+    defaultRAConfig "saturn" "system_directory" "${biosdir}/saturn"
+
+    addEmulator 1 "${md_id}" "saturn" "${md_inst}/yabause_libretro.so"
+
     addSystem "saturn"
 }
