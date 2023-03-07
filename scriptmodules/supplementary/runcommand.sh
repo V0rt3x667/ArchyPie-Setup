@@ -5,15 +5,15 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="runcommand"
-rp_module_desc="The 'runcommand' Launch Script - Launches Emulators from the Frontend"
+rp_module_desc="Launch Script For ArchyPie"
 rp_module_section="core"
 rp_module_flags="nonet"
 
 function _update_hook_runcommand() {
-    # make sure runcommand is always updated when updating archypie-setup and
-    # install joy2key module when updating if the old joy2key is in place
-    if rp_isInstalled "$md_id"; then
-        [[ -f "$md_inst/joy2key.py" ]] && rp_callModule "joy2key"
+    # Make Sure 'runcommand' Is Always Updated When Updating 'archypie-setup' &
+    # Install 'joy2key' When Updating If The Old 'joy2key' Is In Place
+    if rp_isInstalled "${md_id}"; then
+        [[ -f "${md_inst}/joy2key.py" ]] && rp_callModule "joy2key"
         install_bin_runcommand
     fi
 }
@@ -25,26 +25,26 @@ function depends_runcommand() {
 }
 
 function install_bin_runcommand() {
-    rm -rf "$md_inst"
-    mkdir -p "$md_inst"
-    cp "$md_data/runcommand.sh" "$md_inst/"
-    if [[ ! -f "$configdir/all/runcommand.cfg" ]]; then
-        mkUserDir "$configdir/all"
-        iniConfig " = " '"' "$configdir/all/runcommand.cfg"
+    rm -rf "${md_inst}"
+    mkdir -p "${md_inst}"
+    cp "${md_data}/runcommand.sh" "${md_inst}/"
+    if [[ ! -f "${configdir}/all/runcommand.cfg" ]]; then
+        mkUserDir "${configdir}/all"
+        iniConfig " = " '"' "${configdir}/all/runcommand.cfg"
         iniSet "use_art" "0"
         iniSet "disable_joystick" "0"
         iniSet "governor" ""
         iniSet "disable_menu" "0"
         iniSet "image_delay" "2"
-        chown "${user}:${user}" "$configdir/all/runcommand.cfg"
+        chown "${user}:${user}" "${configdir}/all/runcommand.cfg"
     fi
-    if [[ ! -f "$configdir/all/runcommand-launch-dialog.cfg" ]]; then
-        dialog --create-rc "$configdir/all/runcommand-launch-dialog.cfg"
-        chown "${user}:${user}" "$configdir/all/runcommand-launch-dialog.cfg"
+    if [[ ! -f "${configdir}/all/runcommand-launch-dialog.cfg" ]]; then
+        dialog --create-rc "${configdir}/all/runcommand-launch-dialog.cfg"
+        chown "${user}:${user}" "${configdir}/all/runcommand-launch-dialog.cfg"
         rp_installModule "mesa-drm" "_autoupdate_"
     fi
 
-    md_ret_require="$md_inst/runcommand.sh"
+    md_ret_require="${md_inst}/runcommand.sh"
 }
 
 function remove_runcommand() {
@@ -52,45 +52,46 @@ function remove_runcommand() {
 }
 
 function governor_runcommand() {
-    local config="$configdir/all/runcommand.cfg"
-    iniConfig " = " '"' "$config"
+    local config="${configdir}/all/runcommand.cfg"
+    iniConfig " = " '"' "${config}"
     iniGet "governor"
 
-    local current="$ini_value"
+    local current="${ini_value}"
     local default=1
-    local status="Default (don't change)"
+    local status="Default (Do Not Change)"
 
-    [[ -n "$current" ]] && status="$current"
+    [[ -n "${current}" ]] && status="${current}"
 
     local governors
     local governor
-    local options=("1" "Default (don't change)")
+    local options=("1" "Default (Do Not Change)")
     local i=2
-    if [[ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors ]]; then
+    if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" ]]; then
         for governor in $(</sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
-            [[ "$current" == "$governor" ]] && default="$i"
-            governors[$i]="$governor"
-            options+=("$i" "Force $governor")
+            [[ "${current}" == "${governor}" ]] && default="$i"
+            governors[$i]="${governor}"
+            options+=("$i" "Force ${governor}")
             ((i++))
         done
     fi
-    cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --cancel-label "Back" --menu "Configure CPU Governor on command launch\nCurrently: $status" 22 86 16)
-    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+    cmd=(dialog --backtitle "${__backtitle}" --default-item "${default}" --cancel-label "Back" --menu "Configure CPU Governor On Command Launch\nCurrently: ${status}" 22 86 16)
+    local choice
+    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     if [[ -n "${choice}" ]]; then
         governor="${governors[${choice}]}"
-        iniSet "governor" "$governor"
-        chown "${user}:${user}" "$config"
+        iniSet "governor" "${governor}"
+        chown "${user}:${user}" "${config}"
     fi
 }
 
 function gui_runcommand() {
-    local config="$configdir/all/runcommand.cfg"
-    iniConfig " = " '"' "$config"
-    chown "${user}:${user}" "$config"
+    local config="${configdir}/all/runcommand.cfg"
+    iniConfig " = " '"' "${config}"
+    chown "${user}:${user}" "${config}"
 
     local cmd
-    local option
     local default
+    local options=()
     while true; do
 
         eval "$(loadModuleConfig \
@@ -101,33 +102,33 @@ function gui_runcommand() {
             'governor=' \
         )"
 
-        [[ -z "$governor" ]] && governor="Default: don't change"
+        [[ -z "${governor}" ]] && governor="Default: (Do Not Change)"
 
-        cmd=(dialog --backtitle "$__backtitle" --cancel-label "Exit" --default-item "$default" --menu "Choose an option." 22 86 16)
-        options=()
+        cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Exit" --default-item "${default}" --menu "Choose An Option" 22 86 16)
 
-        if [[ "$disable_menu" -eq 0 ]]; then
-            options+=(1 "Launch menu (currently: Enabled)")
+        if [[ "${disable_menu}" -eq 0 ]]; then
+            options+=(1 "Launch Menu (Currently: Enabled)")
         else
-            options+=(1 "Launch menu (currently: Disabled)")
+            options+=(1 "Launch Menu (Currently: Disabled)")
         fi
 
-        if [[ "$use_art" -eq 1 ]]; then
-            options+=(2 "Launch menu art (currently: Enabled)")
+        if [[ "${use_art}" -eq 1 ]]; then
+            options+=(2 "Launch Menu Art (Currently: Enabled)")
         else
-            options+=(2 "Launch menu art (currently: Disabled)")
+            options+=(2 "Launch Menu Art (Currently: Disabled)")
         fi
 
-        if [[ "$disable_joystick" -eq 0 ]]; then
-            options+=(3 "Launch menu joystick control (currently: Enabled)")
+        if [[ "${disable_joystick}" -eq 0 ]]; then
+            options+=(3 "Launch Menu Joystick Control (Currently: Enabled)")
         else
-            options+=(3 "Launch menu joystick control (currently: Disabled)")
+            options+=(3 "Launch Menu Joystick Control (Currently: Disabled)")
         fi
 
-        options+=(4 "Launch image delay in seconds (currently $image_delay)")
-        options+=(5 "CPU governor configuration (currently: $governor)")
+        options+=(4 "Launch Image Delay In Seconds (Currently ${image_delay})")
+        options+=(5 "CPU Governor Configuration (Currently: ${governor})")
 
-        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        local choice
+        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "${choice}" ]] && break
         default="${choice}"
         case "${choice}" in
@@ -141,7 +142,7 @@ function gui_runcommand() {
                 iniSet "disable_joystick" "$((disable_joystick ^ 1))"
                 ;;
             4)
-                cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the delay in seconds" 10 60 "$image_delay")
+                cmd=(dialog --backtitle "${__backtitle}" --inputbox "Please Enter The Delay In Seconds" 10 60 "${image_delay}")
                 choice=$("${cmd[@]}" 2>&1 >/dev/tty)
                 iniSet "image_delay" "${choice}"
                 ;;
