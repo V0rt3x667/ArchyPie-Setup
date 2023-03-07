@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="resetromdirs"
-rp_module_desc="Reset Ownership & Permissions of the ArchyPie ROM & BIOS Directories"
+rp_module_desc="Reset Ownership & Permissions Of The ArchyPie ROM & BIOS Directories"
 rp_module_section="config"
 
 function gui_resetromdirs() {
