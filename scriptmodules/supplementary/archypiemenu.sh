@@ -35,6 +35,7 @@ function configure_archypiemenu() {
         # Add Games List & Icons
         local files=(
             'audiosettings'
+            'bluetooth'
             'configedit'
             'esthemes'
             'filemanager'
@@ -48,6 +49,7 @@ function configure_archypiemenu() {
 
         local names=(
             'Audio'
+            'Bluetooth'
             'Configuration Editor'
             'ES Themes'
             'File Manager'
@@ -61,6 +63,7 @@ function configure_archypiemenu() {
 
         local descs=(
             'Configure audio settings.'
+            'Register and connect to Bluetooth devices. Unregister and remove devices, and display registered and connected devices.'
             'Change and edit RetroArch and other options.'
             'Install, uninstall or update EmulationStation themes.'
             'ASCII file manager for Linux.'
