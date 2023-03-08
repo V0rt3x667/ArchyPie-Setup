@@ -7,14 +7,14 @@
 rp_module_id="consolefont"
 rp_module_desc="Configure Default Console Font Size & Type"
 rp_module_section="config"
-rp_module_flags="!x11"
+rp_module_flags="!x11 !wayland"
 
 function set_consolefont() {
     iniConfig "=" '"' "/etc/default/console-setup"
     iniSet "FONTFACE" "$1"
     iniSet "FONTSIZE" "$2"
     service console-setup restart
-    # force font configuration update if running from a pseudo-terminal
+    # Force Font Configuration Update If Running From A Pseudo-Terminal
     [[ "$(tty | grep -E '/dev/tty[1-6]')" == "" ]] && setupcon -f --force
 }
 
@@ -24,18 +24,18 @@ function check_consolefont() {
 
     iniConfig "=" '"' "/etc/default/console-setup"
     iniGet "FONTFACE"
-    fontface="$ini_value"
+    fontface="${ini_value}"
     iniGet "FONTSIZE"
-    fontsize="$ini_value"
-    echo "$fontface" "$fontsize"
+    fontsize="${ini_value}"
+    echo "${fontface}" "${fontsize}"
 }
 
 function gui_consolefont() {
+    local choice
     local cmd
     local options
-    local choice
 
-    cmd=(dialog --backtitle "$__backtitle" --menu "Choose the desired console font configuration: \n(Current configuration: $(check_consolefont))" 22 86 16)
+    cmd=(dialog --backtitle "${__backtitle}" --menu "Choose The Desired Console Font Configuration:\n(Current Configuration: $(check_consolefont))" 22 86 16)
     options=(
         1 "Large (VGA 16x32)"
         2 "Large (TerminusBold 16x32)"
@@ -43,7 +43,7 @@ function gui_consolefont() {
         4 "Medium (TerminusBold 14x28)"
         5 "Small (Fixed 8x16)"
         6 "Smaller (VGA 8x8)"
-        D "Default (Kernel font 8x16 - Restart needed)"
+        D "Default (Kernel Font 8x16 - Restart Needed)"
     )
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     if [[ -n "${choice}" ]]; then
@@ -71,9 +71,9 @@ function gui_consolefont() {
                 ;;
         esac
         if [[ "${choice}" == "D" ]]; then
-            printMsgs "dialog" "Default font will be used (provided by the Kernel).\n\nYou will need to reboot to see the change."
+            printMsgs "dialog" "Default Kernel Font Will Be Used.\n\nYou Will Need To Reboot To See The Change."
         else
-            printMsgs "dialog" "New font configuration applied: $(check_consolefont)"
+            printMsgs "dialog" "New Font Configuration Applied: $(check_consolefont)"
         fi
     fi
 }
