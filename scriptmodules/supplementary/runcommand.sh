@@ -19,7 +19,12 @@ function _update_hook_runcommand() {
 }
 
 function depends_runcommand() {
-    local depends=('imv')
+    local depends=()
+    if isPlatform "x11" || isPlatform "wayland"; then
+        depends=('imv')
+    else
+        depends=('fbida')
+    fi
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
     getDepends "${depends[@]}"
 }
