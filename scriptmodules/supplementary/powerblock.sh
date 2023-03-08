@@ -6,52 +6,55 @@
 
 rp_module_id="powerblock"
 rp_module_desc="PowerBlock Driver"
-rp_module_help="Please note that you need to manually enable or disable the PowerBlock Service in the Configuration section. IMPORTANT: If the service is enabled and the power switch functionality is enabled (which is the default setting) in the config file, you need to have a switch connected to the PowerBlock."
+rp_module_help="Please Note That You Need To Manually Enable Or Disable The PowerBlock Service In The Configuration Section. IMPORTANT: If The Service Is Enabled And The Power Switch Functionality Is Enabled (Which Is The Default Setting) In The Config File, You Need To Have A Switch Connected To The PowerBlock."
 rp_module_repo="git https://github.com/petrockblog/PowerBlock.git master"
 rp_module_section="driver"
 rp_module_flags="noinstclean !all rpi"
 
 function depends_powerblock() {
-    local depends=(cmake doxygen)
-    isPlatform "rpi" && depends+=(raspberrypi-firmware)
-
+    local depends=(
+        'cmake'
+        'doxygen'
+        'raspberrypi-firmware'
+    )
     getDepends "${depends[@]}"
 }
 
 function sources_powerblock() {
-    if [[ -d "$md_inst" ]]; then
-        git -C "$md_inst" reset --hard  # ensure that no local changes exist
+    if [[ -d "${md_inst}" ]]; then
+        git -C "${md_inst}" reset --hard
     fi
-    gitPullOrClone "$md_inst"
+    gitPullOrClone "${md_inst}"
 }
 
 function install_powerblock() {
-    cd "$md_inst"
+    cd "${md_inst}" || exit
     bash install.sh
 }
 
 function remove_powerblock() {
-    cd "$md_inst"
+    cd "${md_inst}" || exit
     bash uninstall.sh
 }
 
 function gui_powerblock() {
-    local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
+    local cmd=(dialog --backtitle "${__backtitle}" --menu "Choose An Option" 22 86 16)
     local options=(
-        1 "Enable PowerBlock driver"
-        2 "Disable PowerBlock driver"
+        1 "Enable PowerBlock Driver"
+        2 "Disable PowerBlock Driver"
 
     )
-    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "$choice" ]]; then
-        case "$choice" in
+    local choice
+    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+    if [[ -n "${choice}" ]]; then
+        case "${choice}" in
             1)
                 install_powerblock
-                printMsgs "dialog" "Enabled PowerBlock driver."
+                printMsgs "dialog" "Enabled PowerBlock Driver"
                 ;;
             2)
                 remove_powerblock
-                printMsgs "dialog" "Disabled PowerBlock driver."
+                printMsgs "dialog" "Disabled PowerBlock Driver"
                 ;;
         esac
     fi
