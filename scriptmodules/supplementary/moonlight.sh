@@ -5,38 +5,38 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="moonlight"
-rp_module_desc="Moonlight Embedded - Open-source Gamestream Client for Embedded Systems"
-rp_module_help="ROM Extensions: .ml\n\nCopy your moonlight launch configurations to $romdir/steam\n\nDon't forget to first pair with your remote host before using moonlight. You can use the configuration menu for pairing/unpairing to/from a remote machine."
+rp_module_desc="Moonlight Embedded: Open Source Gamestream Client For Embedded Systems"
+rp_module_help="ROM Extensions: .ml\n\nCopy Moonlight Launch Configurations To: ${romdir}/steam\n\nUse The Configuration Menu For Pairing/Unpairing To/From A Remote Machine"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/irtimmer/moonlight-embedded/master/LICENSE"
 rp_module_repo="git https://github.com/irtimmer/moonlight-embedded.git master"
 rp_module_section="exp"
 rp_module_flags="!all arm"
 
 function _scriptmodule_cfg_file_moonlight() {
-    echo "$configdir/all/moonlight/scriptmodule.cfg"
+    echo "${configdir}/all/moonlight/scriptmodule.cfg"
 }
 
 function _global_cfg_file_moonlight() {
-    echo "$configdir/all/moonlight/global.conf"
+    echo "${configdir}/all/moonlight/global.conf"
 }
 
 function _mangle_moonlight() {
     local -r type="$1"
     shift
-    case "$type" in
-        1)  # slugify, ref: https://gist.github.com/oneohthree/f528c7ae1e701ad990e6
+    case "${type}" in
+        1)  # Slugify, Ref: https://gist.github.com/oneohthree/f528c7ae1e701ad990e6
             iconv -c -t ascii//TRANSLIT <<< "$@" |
                 sed -r s/[^a-zA-Z0-9]+/-/g |
                 sed -r s/^-+\|-+$//g |
                 tr "[:upper:]" "[:lower:]"
             ;;
-        2)  # windows-compatible, ref: https://stackoverflow.com/a/35352640
+        2)  # Windows-Compatible, Ref: https://stackoverflow.com/a/35352640
             iconv -c -t ascii//TRANSLIT <<< "$@" |
                 sed -r s/[\<\>]+/\ /g |
                 sed -r s/[\\/\|]+/-/g |
                 sed -r s/[:\*\"]+//g
             ;;
-        0|*)  # no mangling, but replace invalid "/" with "-"
+        0|*)  # No Mangling, But Replace Invalid '/' With '-'
             sed -r s/\\//-/g <<< "$@"
             ;;
     esac
@@ -55,73 +55,78 @@ function _bfmt_moonlight() {
 }
 
 function depends_moonlight() {
-    # ref: https://github.com/irtimmer/moonlight-embedded/wiki/Compilation#debian-raspbian--osmc
     local depends=(
-        openssl libopus alsa-lib curl libpulse enet uuid cmake
+        'alsa-lib'
+        'avahi'
+        'cmake'
+        'curl'
+        'enet'
+        'haskell-uuid'
+        'libmicrodns'
+        'libpulse'
+        'openssl'
+        'opusfile'
     )
-
-    # for remote host autodiscovery features
-    depends+=(avahi mdns)
-
-    # platform-specific dependencies
-    isPlatform "rpi" && depends+=(raspberrypi-firmware)
-
-    # install selected dependencies
+    isPlatform "rpi" && depends+=('raspberrypi-firmware')
     getDepends "${depends[@]}"
 }
 
 function sources_moonlight() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|DEFAULT_CONFIG_DIR \"/.config\"|DEFAULT_CONFIG_DIR \"/ArchyPie/configs\"|g" -i "${md_build}/src/config.c"
 }
 
 function build_moonlight() {
-    # ref: https://github.com/irtimmer/moonlight-embedded/wiki/Compilation
-    rm -rf build
-    mkdir build
-    cd build
-    cmake ../ -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_INSTALL_RPATH="$md_inst/lib" \
-        -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
-    make
+    cmake . \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_INSTALL_RPATH="${md_inst}/lib" \
+        -DCMAKE_INSTALL_RPATH_USE_LINK_PATH="TRUE" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
 }
 
 function install_moonlight() {
-    cd build
-    make install
-    strip "$md_inst/bin/moonlight"
+    ninja -C build install/strip
 }
 
 function configure_moonlight() {
-    addEmulator 1 "$md_id" "steam" "$md_inst/moonlight.sh stream -config %ROM%"
-    addSystem "steam" "Steam Game Streaming" ".ml"
-    [[ "$md_mode" == "remove" ]] && return
+    moveConfigDir "${arpdir}/${md_id}" "${configdir}/all/${md_id}/"
 
-    # ensure rom dir
-    mkRomDir "steam"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "steam"
 
-    # create and symlink user configuration directory
-    mkUserDir "$configdir/all/moonlight"
-    moveConfigDir "$home/.config/moonlight" "$configdir/all/moonlight"
+        mkUserDir "${configdir}/all/${md_id}"
 
-    # create a new global config file if not there already
-    if [[ ! -f "$(_global_cfg_file_moonlight)" ]]; then
-        cat > "$(_global_cfg_file_moonlight)" << "_EOF_"
-# global config file for moonlight
+        # Create Config File
+        if [[ ! -f "$(_global_cfg_file_moonlight)" ]]; then
+            cat > "$(_global_cfg_file_moonlight)" << "_EOF_"
+# Global Config File For Moonlight
 quitappafter = true
 _EOF_
-        chown "${user}:${user}" "$(_global_cfg_file_moonlight)"
+            chown "${user}:${user}" "$(_global_cfg_file_moonlight)"
+        fi
+
+        # Create Wrapper For Moonlight
+        cat > "${md_inst}/moonlight.sh" << _EOF_
+#!/usr/bin/env bash
+export XDG_DATA_DIRS=${md_inst}/share
+export XDG_CONFIG_DIR=${configdir}/all
+export XDG_CACHE_DIR=${configdir}/all
+${md_inst}/bin/moonlight "\$@"
+_EOF_
+        chmod +x "${md_inst}/moonlight.sh"
     fi
 
-    # create wrapper for moonlight with appropriate directories set
-    # note: moonlight adds /moonlight to XDG_* variables
-    cat > "$md_inst/moonlight.sh" << _EOF_
-#!/usr/bin/env bash
-export XDG_DATA_DIRS=$md_inst/share
-export XDG_CONFIG_DIR=$configdir/all
-export XDG_CACHE_DIR=$configdir/all
-$md_inst/bin/moonlight "\$@"
-_EOF_
-    chmod +x "$md_inst/moonlight.sh"
+    addEmulator 1 "${md_id}" "steam" "${md_inst}/moonlight.sh stream -config %ROM%"
+
+    addSystem "steam" "Steam Game Streaming" ".ml"
 }
 
 function get_scriptmodule_cfg_moonlight() {
@@ -131,12 +136,12 @@ function get_scriptmodule_cfg_moonlight() {
     local mangle=0
 
     iniConfig " = " "" "$(_scriptmodule_cfg_file_moonlight)"
-    iniGet "address" && address="$ini_value"
-    iniGet "overwrite" && overwrite="$ini_value"
-    iniGet "wipe" && wipe="$ini_value"
-    iniGet "mangle" && mangle="$ini_value"
+    iniGet "address" && address="${ini_value}"
+    iniGet "overwrite" && overwrite="${ini_value}"
+    iniGet "wipe" && wipe="${ini_value}"
+    iniGet "mangle" && mangle="${ini_value}"
 
-    echo "$address;$overwrite;$wipe;$mangle"
+    echo "${address};${overwrite};${wipe};${mangle}"
 }
 
 function set_scriptmodule_cfg_moonlight() {
@@ -145,17 +150,17 @@ function set_scriptmodule_cfg_moonlight() {
     local -r wipe="$3"
     local -r mangle="$4"
 
-    [[ -z "$overwrite" || -z "$wipe" || -z "$mangle" ]] && return
+    [[ -z "${overwrite}" || -z "${wipe}" || -z "${mangle}" ]] && return
 
     iniConfig " = " "" "$(_scriptmodule_cfg_file_moonlight)"
-    if [[ -n "$address" ]]; then
-        iniSet "address" "$address"
+    if [[ -n "${address}" ]]; then
+        iniSet "address" "${address}"
     else
         iniDel "address"
     fi
-    iniSet "overwrite" "$overwrite"
-    iniSet "wipe" "$wipe"
-    iniSet "mangle" "$mangle"
+    iniSet "overwrite" "${overwrite}"
+    iniSet "wipe" "${wipe}"
+    iniSet "mangle" "${mangle}"
 
     chown "${user}:${user}" "$(_scriptmodule_cfg_file_moonlight)"
 }
@@ -166,12 +171,12 @@ function get_resolution_moonlight() {
     local fps=0
 
     iniConfig " = " "" "$(_global_cfg_file_moonlight)"
-    iniGet "width" && width="$ini_value"
-    iniGet "height" && height="$ini_value"
-    iniGet "fps" && fps="$ini_value"
+    iniGet "width" && width="${ini_value}"
+    iniGet "height" && height="${ini_value}"
+    iniGet "fps" && fps="${ini_value}"
 
-    if [[ -n "$width" && -n "$height" && -n "$fps" ]]; then
-        echo "$width;$height;$fps"
+    if [[ -n "${width}" && -n "${height}" && -n "${fps}" ]]; then
+        echo "${width};${height};${fps}"
     else
         echo "0;0;0"
     fi
@@ -182,11 +187,11 @@ function get_host_moonlight() {
     local unsupported="false"
 
     iniConfig " = " "" "$(_global_cfg_file_moonlight)"
-    iniGet "sops" && sops="$ini_value"
-    iniGet "unsupported" && unsupported="$ini_value"
+    iniGet "sops" && sops="${ini_value}"
+    iniGet "unsupported" && unsupported="${ini_value}"
 
-    if [[ -n "$sops" && -n "$unsupported" ]]; then
-        echo "$sops;$unsupported"
+    if [[ -n "${sops}" && -n "${unsupported}" ]]; then
+        echo "${sops};${unsupported}"
     else
         echo "true;false"
     fi
@@ -196,11 +201,11 @@ function set_host_moonlight() {
     local -r sops="$1"
     local -r unsupported="$2"
 
-    [[ -z "$sops" || -z "$unsupported" ]] && return
+    [[ -z "${sops}" || -z "${unsupported}" ]] && return
 
     iniConfig " = " "" "$(_global_cfg_file_moonlight)"
-    iniSet "sops" "$sops"
-    iniSet "unsupported" "$unsupported"
+    iniSet "sops" "${sops}"
+    iniSet "unsupported" "${unsupported}"
 
     chown "${user}:${user}" "$(_global_cfg_file_moonlight)"
 }
@@ -211,13 +216,13 @@ function set_resolution_moonlight() {
     local -r height="$2"
     local -r fps="$3"
 
-    [[ -z "$width" || -z "$height" || -z "$fps" ]] && return
+    [[ -z "${width}" || -z "${height}" || -z "${fps}" ]] && return
 
     iniConfig " = " "" "$(_global_cfg_file_moonlight)"
-    if [[ "$width" -gt 0 && "$height" -gt 0 && "$fps" -gt 0 ]]; then
-        iniSet "width" "$width"
-        iniSet "height" "$height"
-        iniSet "fps" "$fps"
+    if [[ "${width}" -gt 0 && "${height}" -gt 0 && "${fps}" -gt 0 ]]; then
+        iniSet "width" "${width}"
+        iniSet "height" "${height}"
+        iniSet "fps" "${fps}"
     else
         iniDel "width"
         iniDel "height"
@@ -231,10 +236,10 @@ function get_bitrate_moonlight() {
     local bitrate=0
 
     iniConfig " = " "" "$(_global_cfg_file_moonlight)"
-    iniGet "bitrate" && bitrate="$ini_value"
+    iniGet "bitrate" && bitrate="${ini_value}"
 
-    if [[ -n "$bitrate" ]]; then
-        echo "$bitrate"
+    if [[ -n "${bitrate}" ]]; then
+        echo "${bitrate}"
     else
         echo "0"
     fi
@@ -243,11 +248,11 @@ function get_bitrate_moonlight() {
 function set_bitrate_moonlight() {
     local -r bitrate="$1"
 
-    [[ -z "$bitrate" ]] && return
+    [[ -z "${bitrate}" ]] && return
 
     iniConfig " = " "" "$(_global_cfg_file_moonlight)"
-    if [[ "$bitrate" -gt 0 ]]; then
-        iniSet "bitrate" "$bitrate"
+    if [[ "${bitrate}" -gt 0 ]]; then
+        iniSet "bitrate" "${bitrate}"
     else
         iniDel "bitrate"
     fi
@@ -257,7 +262,7 @@ function set_bitrate_moonlight() {
 
 function exec_moonlight() {
     trap "trap INT; echo; return" INT
-    sudo -u ${user} "$md_inst/moonlight.sh" "$@"
+    sudo -u "${user}" "${md_inst}/moonlight.sh" "$@"
     trap INT
 }
 
@@ -274,7 +279,7 @@ function list_moonlight() {
 }
 
 function clear_pairing_moonlight() {
-    rm -rf "$configdir/all/moonlight"/{client*,key*,uniqueid.dat}
+    rm -rf "${configdir}/all/moonlight"/{client*,key*,uniqueid.dat}
 }
 
 function gen_configs_moonlight() {
@@ -283,61 +288,60 @@ function gen_configs_moonlight() {
     local fname
     local config
 
-    # read scriptmodule config
+    # Read Scriptmodule Config
     IFS=";" read -r -a config < <(get_scriptmodule_cfg_moonlight)
 
-    # wipe existing configuration files?
     if [[ "${config[2]}" -eq 1 ]]; then
-        printMsgs "console" "Wiping existing config files ..."
-        rm -f "$romdir/steam/"*.ml
+        printMsgs "console" "Wiping Existing Config Files ..."
+        rm -f "${romdir}/steam/"*.ml
     fi
 
-    # iterate over all apps in remote host
+    # Iterate Over All Apps In Remote Host
     mapfile -t apps < <(list_moonlight ${config[0]:+"${config[0]}"} | sed -nE 's/^[0-9]+\. //gp')
     for app in "${apps[@]}"; do
-        if [[ "$app" == "." || "$app" == ".." ]]; then
-            printMsgs "console" "warning: app name '$app' is not valid"
+        if [[ "${app}" == "." || "${app}" == ".." ]]; then
+            printMsgs "console" "Warning: App Name '${app}' Is Not Valid"
             continue
         fi
-        fname="$(_mangle_moonlight "${config[3]}" "$app")"  # app filename mangle
-        [[ "${config[1]}" -eq 0 && -f "$romdir/steam/$fname.ml" ]] && continue  # overwrite?
+        fname="$(_mangle_moonlight "${config[3]}" "${app}")"
+        [[ "${config[1]}" -eq 0 && -f "${romdir}/steam/${fname}.ml" ]] && continue
 
-        # generate config file with defaults
-        printMsgs "console" "Generating config file for '$app' ..."
-        iniConfig " = " "" "$romdir/steam/$fname.ml"
+        # Generate Config File With Defaults
+        printMsgs "console" "Generating Config File For '${app}' ..."
+        iniConfig " = " "" "${romdir}/steam/${fname}.ml"
         iniSet "config" "$(_global_cfg_file_moonlight)"
         [[ -n "${config[0]}" ]] && iniSet "address" "${config[0]}"
-        iniSet "app" "$app"
-        chown "${user}:${user}" "$romdir/steam/$fname.ml" 2>/dev/null
+        iniSet "app" "${app}"
+        chown "${user}:${user}" "${romdir}/steam/${fname}.ml" 2>/dev/null
     done
 }
 
 function apps_gui_moonlight() {
-    local options=()
-    local default
-    local cmd
     local choice
+    local cmd
     local config
+    local default
+    local options=()
 
-    # read scriptmodule config
+    # Read Scriptmodule Config
     IFS=";" read -r -a config < <(get_scriptmodule_cfg_moonlight)
 
-    # start the menu gui
+    # Start The Menu GUI
     default="O"
     while true; do
-        # create menu options
+        # Create Menu Options
         options=(
-            O "Overwrite existing config files: $(_bfmt_moonlight ${config[1]})" "Overwrite existing files in '$romdir/steam'?"
-            W "Wipe existing config files: $(_bfmt_moonlight ${config[2]})" "Delete all files in '$romdir/steam'?"
-            S "Config filename mangling: $(_mfmt_moonlight ${config[3]})" "Use original app names, slugified names or Windows-compatible names?"
-            G "Generate config files" "Start remote apps config files generation"
+            O "Overwrite Existing Config Files: $(_bfmt_moonlight ${config[1]})" "Overwrite Existing Files In '${romdir}/steam'?"
+            W "Wipe Existing Config Files: $(_bfmt_moonlight ${config[2]})" "Delete All Files In '${romdir}/steam'?"
+            S "Config Filename Mangling: $(_mfmt_moonlight ${config[3]})" "Use Original App Names, Slugified Names Or Windows Compatible Names?"
+            G "Generate Config Files" "Start Remote Apps Config Files Generation"
         )
 
         # show main menu
-        cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --item-help --menu "Remote Apps" 13 60 16)
+        cmd=(dialog --backtitle "${__backtitle}" --default-item "${default}" --item-help --menu "Remote Apps" 13 60 16)
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
-        case "$choice" in
+        default="${choice}"
+        case "${choice}" in
             O)
                 config[1]=$((1 - config[1]))
                 set_scriptmodule_cfg_moonlight "${config[@]}"
@@ -353,7 +357,7 @@ function apps_gui_moonlight() {
                 ;;
             G)
                 gen_configs_moonlight
-                read -p "Press ENTER to continue... "
+                read -p "Press ENTER To Continue... "
                 ;;
             *)
                 break
@@ -363,31 +367,31 @@ function apps_gui_moonlight() {
 }
 
 function host_gui_moonlight() {
-    local options=()
-    local default
-    local cmd
     local choice
+    local cmd
+    local default
+    local options=()
     local tuple
 
-    # get current host options
+    # Get Current Host Options
     IFS=";" read -r -a tuple < <(get_host_moonlight)
     default="U"
     [[ "${tuple[0]}" == "false" && "${tuple[1]}" == "false" ]] && default="1"
     [[ "${tuple[0]}" == "true"  && "${tuple[1]}" == "true"  ]] && default="2"
     [[ "${tuple[0]}" == "false" && "${tuple[1]}" == "true"  ]] && default="3"
 
-    # create menu options
+    # Create Menu Options
     options=(
-        U "Unset (use default)" "Do not force host compatibility settings"
-        1 "No SOPS" "Don't allow GFE to modify game settings"
-        2 "Allow unsupported" "Try streaming if GFE version or options are unsupported"
-        3 "Open-source host compatibility" "Turn off SOPS and allow unsupported options (for Sunshine/Open-Stream GFE server)"
+        U "Unset (Use Default)" "Do Not Force Host Compatibility Settings"
+        1 "No SOPS" "Do Not Allow GFE To Modify Game Settings"
+        2 "Allow Unsupported" "Try Streaming If GFE Version Or Options Are Unsupported"
+        3 "Open Source Host Compatibility" "Turn Off SOPS & Allow Unsupported Options (Sunshine/Open-Stream GFE Server)"
     )
 
-    # show main menu
-    cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --item-help --menu "Host Compatibility Options" 16 45 16)
+    # Show Main Menu
+    cmd=(dialog --backtitle "${__backtitle}" --default-item "${default}" --item-help --menu "Host Compatibility Options" 16 45 16)
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    case "$choice" in
+    case "${choice}" in
         U)
             set_host_moonlight "true" "false"
             ;;
@@ -404,13 +408,13 @@ function host_gui_moonlight() {
 }
 
 function resolution_gui_moonlight() {
-    local options=()
-    local default
-    local cmd
     local choice
+    local cmd
+    local default
+    local options=()
     local resolution
 
-    # get current resolution
+    # Get Current Resolution
     IFS=";" read -r -a resolution < <(get_resolution_moonlight)
     if [[ "${resolution[0]}" -gt 0 && "${resolution[1]}" -gt 0 && "${resolution[2]}" -gt 0 ]]; then
         default="C"
@@ -424,20 +428,20 @@ function resolution_gui_moonlight() {
         resolution="(using default)"
     fi
 
-    # create menu options
+    # Create Menu Options
     options=(
-        U "Unset (use default)" "Do not force a resolution setting"
-        1 "1080p60" "Set resolution to 1920 x 1080 @ 60 fps"
-        2 "1080p30" "Set resolution to 1920 x 1080 @ 30 fps"
-        3 "720p60"  "Set resolution to 1280 x 720 @ 60 fps"
-        4 "720p30"  "Set resolution to 1280 x 720 @ 30 fps"
-        C "Custom"  "Set a custom resolution"
+        U "Unset (Use Default)" "Do Not Force A Resolution Setting"
+        1 "1080p60" "Set Resolution To 1920 x 1080 @ 60 fps"
+        2 "1080p30" "Set Resolution To 1920 x 1080 @ 30 fps"
+        3 "720p60"  "Set Resolution To 1280 x 720 @ 60 fps"
+        4 "720p30"  "Set Resolution To 1280 x 720 @ 30 fps"
+        C "Custom"  "Set A Custom Resolution"
     )
 
-    # show main menu
-    cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --item-help --menu "Global Resolution\nCurrent: $resolution" 16 45 16)
+    # Show Main Menu
+    cmd=(dialog --backtitle "${__backtitle}" --default-item "${default}" --item-help --menu "Global Resolution\nCurrent: ${resolution}" 16 45 16)
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    case "$choice" in
+    case "${choice}" in
         U)
             set_resolution_moonlight "0" "0" "0"
             ;;
@@ -454,10 +458,10 @@ function resolution_gui_moonlight() {
             set_resolution_moonlight "1280" "720" "30"
             ;;
         C)
-            cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter a custom resolution as WIDTH HEIGHT FPS (separated by spaces)" 10 50)
+            cmd=(dialog --backtitle "${__backtitle}" --inputbox "Please Enter A Custom Resolution As WIDTH HEIGHT FPS (Separated By Spaces)" 10 50)
             choice=$("${cmd[@]}" 2>&1 >/dev/tty)
             if [[ $? -eq 0 ]]; then
-                IFS=" " read -r -a choice <<< "$choice"
+                IFS=" " read -r -a choice <<< "${choice}"
                 set_resolution_moonlight "${choice[0]}" "${choice[1]}" "${choice[2]}"
             fi
             ;;
@@ -465,38 +469,38 @@ function resolution_gui_moonlight() {
 }
 
 function bitrate_gui_moonlight() {
-    local options=()
-    local default
-    local cmd
-    local choice
     local bitrate
+    local choice
+    local cmd
+    local default
+    local options=()
 
-    # get current bitrate
+    # Get Current Bitrate
     bitrate=$(get_bitrate_moonlight)
-    if [[ "$bitrate" -gt 0 ]]; then
+    if [[ "${bitrate}" -gt 0 ]]; then
         default="C"
-        [[ "$bitrate" == 20000 ]] && default="1"
-        [[ "$bitrate" == 10000 ]] && default="2"
-        [[ "$bitrate" == 5000 ]] && default="3"
-        bitrate="$bitrate Kbps"
+        [[ "${bitrate}" == 20000 ]] && default="1"
+        [[ "${bitrate}" == 10000 ]] && default="2"
+        [[ "${bitrate}" == 5000 ]] && default="3"
+        bitrate="${bitrate} Kbps"
     else
         default="U"
-        bitrate="(using default)"
+        bitrate="(Using Default)"
     fi
 
-    # create menu options
+    # Create Menu Options
     options=(
-        U "Unset (use default)" "Do not force a stream bitrate setting"
-        1 "20000"  "Set stream bitrate to 20000 Kbps"
-        2 "10000"  "Set stream bitrate to 10000 Kbps"
-        3 "5000"   "Set stream bitrate to 5000 Kbps"
-        C "Custom" "Set a custom stream bitrate"
+        U "Unset (Use Default)" "Do Not Force A Stream Bitrate Setting"
+        1 "20000"  "Set Stream Bitrate To 20000 Kbps"
+        2 "10000"  "Set Stream Bitrate To 10000 Kbps"
+        3 "5000"   "Set Stream Bitrate To 5000 Kbps"
+        C "Custom" "Set A Custom Stream Bitrate"
     )
 
     # show main menu
-    cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --item-help --menu "Stream Bitrate\nCurrent: $bitrate" 16 45 16)
+    cmd=(dialog --backtitle "${__backtitle}" --default-item "${default}" --item-help --menu "Stream Bitrate\nCurrent: ${bitrate}" 16 45 16)
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    case "$choice" in
+    case "${choice}" in
         U)
             set_bitrate_moonlight "0"
             ;;
@@ -510,58 +514,58 @@ function bitrate_gui_moonlight() {
             set_bitrate_moonlight "5000"
             ;;
         C)
-            cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter a custom stream bitrate in Kbps" 10 50)
+            cmd=(dialog --backtitle "${__backtitle}" --inputbox "Please Enter A Custom Stream Bitrate In Kbps" 10 50)
             choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-            [[ $? -eq 0 ]] && set_bitrate_moonlight "$choice"
+            [[ $? -eq 0 ]] && set_bitrate_moonlight "${choice}"
             ;;
     esac
 }
 
 function gui_moonlight() {
-    local options=()
-    local default
-    local cmd
     local choice
+    local cmd
     local config
+    local default
+    local options=()
 
-    # read scriptmodule config
+    # Read Scriptmodule Config
     IFS=";" read -r -a config < <(get_scriptmodule_cfg_moonlight)
 
-    # start the menu gui
+    # Start The Menu GUI
     default="A"
     while true; do
-        # create menu options, if no address show "autodiscover"
+        # Create Menu Options, If No Address Show 'autodiscover'
         options=(
-            A "Set remote host address (${config[0]:-autodiscover})"
-            P "Pair to remote host"
-            U "Unpair from remote host"
-            G "Configure remote apps"
-            R "Configure global resolution"
-            B "Configure global stream bitrate"
-            H "Configure host compatibility"
-            C "Clear all pairing data"
+            A "Set Remote Host Address (${config[0]:-autodiscover})"
+            P "Pair To Remote Host"
+            U "Unpair From Remote Host"
+            G "Configure Remote Apps"
+            R "Configure Global Resolution"
+            B "Configure Global Stream Bitrate"
+            H "Configure Host Compatibility"
+            C "Clear All Pairing Data"
         )
 
-        # show main menu
-        cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --menu "Choose an option" 16 60 16)
+        # Show Main Menu
+        cmd=(dialog --backtitle "${__backtitle}" --default-item "${default}" --menu "Choose An Option" 16 60 16)
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="$choice"
-        case "$choice" in
+        default="${choice}"
+        case "${choice}" in
             A)
-                cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the address of the remote host (leave BLANK for autodiscovery of the remote host)" 10 65)
+                cmd=(dialog --backtitle "${__backtitle}" --inputbox "Please Enter The Address Of The Remote Host (Leave BLANK For Autodiscovery Of The Remote Host)" 10 65)
                 choice=$("${cmd[@]}" 2>&1 >/dev/tty)
                 if [[ $? -eq 0 ]]; then
-                    config[0]="$choice"
+                    config[0]="${choice}"
                     set_scriptmodule_cfg_moonlight "${config[@]}"
                 fi
                 ;;
             P)
                 pair_moonlight ${config[0]:+"${config[0]}"} </dev/tty >/dev/tty
-                read -p "Press ENTER to continue... "
+                read -p "Press ENTER To Continue ... "
                 ;;
             U)
                 unpair_moonlight ${config[0]:+"${config[0]}"} </dev/tty >/dev/tty
-                read -p "Press ENTER to continue... "
+                read -p "Press ENTER To Continue ... "
                 ;;
             G)
                 apps_gui_moonlight
@@ -576,11 +580,11 @@ function gui_moonlight() {
                 host_gui_moonlight
                 ;;
             C)
-                if dialog --defaultno --yesno "Are you sure you want to CLEAR ALL pairing data?" 8 40 2>&1 >/dev/tty; then
+                if dialog --defaultno --yesno "Are You Sure You Want To CLEAR ALL Pairing Data?" 8 40 2>&1 >/dev/tty; then
                     if clear_pairing_moonlight; then
-                        printMsgs "dialog" "All pairing data cleared."
+                        printMsgs "dialog" "All Pairing Data Cleared"
                     else
-                        printMsgs "dialog" "Could not clear pairing data."
+                        printMsgs "dialog" "Could Not Clear Pairing Data"
                     fi
                 fi
                 ;;
