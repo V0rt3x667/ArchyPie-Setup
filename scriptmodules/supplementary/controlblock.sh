@@ -6,62 +6,58 @@
 
 rp_module_id="controlblock"
 rp_module_desc="ControlBlock Driver"
-rp_module_help="Please note that you need to manually enable or disable the ControlBlock Service in the Configuration section. IMPORTANT: If the service is enabled and the power switch functionality is enabled (which is the default setting) in the config file, you need to have a switch connected to the ControlBlock."
+rp_module_help="Please Note That You Need To Manually Enable Or Disable The ControlBlock Service In The Configuration Section. IMPORTANT: If The Service Is Enabled And The Power Switch Functionality Is Enabled (Which Is The Default Setting) In The Config File, You Need To Have A Switch Connected To The ControlBlock."
 rp_module_licence="NONCOM https://raw.githubusercontent.com/petrockblog/ControlBlockService2/master/LICENSE.txt"
 rp_module_repo="git https://github.com/petrockblog/ControlBlockService2.git master"
 rp_module_section="driver"
 rp_module_flags="noinstclean !all rpi"
 
 function depends_controlblock() {
-    local depends=(cmake doxygen gpiod-utils)
-    isPlatform "rpi" && depends+=(raspberrypi-firmware)
-
+    local depends=(
+        'cmake'
+        'doxygen'
+        'libgpiod'
+        'raspberrypi-firmware'
+    )
     getDepends "${depends[@]}"
 }
 
 function sources_controlblock() {
-    gitPullOrClone "$md_inst"
-}
-
-function build_controlblock() {
-    cd "$md_inst"
-    rm -rf "build"
-    mkdir build
-    cd build
-    cmake ..
-    make
-    md_ret_require="$md_inst/build/controlblock"
+    if [[ -d "${md_inst}" ]]; then
+        git -C "${md_inst}" reset --hard
+    fi
+    gitPullOrClone "${md_inst}"
 }
 
 function install_controlblock() {
-    # install from there to system folders
-    cd "$md_inst/build"
-    make install
-}
-
-function gui_controlblock() {
-    local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option." 22 86 16)
-    local options=(
-        1 "Enable ControlBlock driver"
-        2 "Disable ControlBlock driver"
-
-    )
-    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "${choice}" ]]; then
-        case "${choice}" in
-            1)
-                make -C "$md_inst/build" installservice
-                printMsgs "dialog" "Enabled ControlBlock driver."
-                ;;
-            2)
-                make -C "$md_inst/build" uninstallservice
-                printMsgs "dialog" "Disabled ControlBlock driver."
-                ;;
-        esac
-    fi
+    cd "${md_inst}" || exit
+    bash install.sh
 }
 
 function remove_controlblock() {
-    make -C "$md_inst/build" uninstallservice
-    make -C "$md_inst/build" uninstall
+    cd "${md_inst}" || exit
+    bash uninstall.sh
+}
+
+function gui_controlblock() {
+    local cmd=(dialog --backtitle "$__backtitle" --menu "Choose An Option" 22 86 16)
+    local options=(
+        1 "Enable ControlBlock Driver"
+        2 "Disable ControlBlock Driver"
+
+    )
+    local choice
+    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+    if [[ -n "${choice}" ]]; then
+        case "${choice}" in
+            1)
+                install_controlblock
+                printMsgs "dialog" "Enabled ControlBlock Driver"
+                ;;
+            2)
+                remove_controlblock
+                printMsgs "dialog" "Disabled ControlBlock Driver"
+                ;;
+        esac
+    fi
 }
