@@ -299,7 +299,7 @@ function configure_mupen64plus() {
                 echo "[Video-GLideN64]" >> "${config}"
             fi
             # Settings Version. Do Not Amend
-            iniSet "configVersion" "17"
+            iniSet "configVersion" "29"
             # Bilinear Filtering Mode (0=N64 3point, 1=standard)
             iniSet "bilinearMode" "1"
             iniSet "EnableFBEmulation" "True"
