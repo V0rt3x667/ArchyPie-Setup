@@ -224,8 +224,9 @@ function onend_mupen64plus_joystick() {
     if [[ -f "${file}" ]]; then
         # Backup Current Config File
         cp "${file}" "${file}.bak"
-        sed -i /"${DEVICE_NAME}_START"/,/"${DEVICE_NAME}_END"/d "${file}"
-        if grep -q "${DEVICE_NAME}" "${file}" ; then
+        local escaped_device_name=$(echo "${DEVICE_NAME}" | sed 's|[]\[^$.*/]|\\&|g')
+        sed -i /"${escaped_device_name}_START"/,/"${escaped_device_name}_END"/d "${file}"
+        if grep -Fq "${DEVICE_NAME}" "${file}" ; then
             rm /tmp/mp64tempconfig.cfg
             return
         fi
