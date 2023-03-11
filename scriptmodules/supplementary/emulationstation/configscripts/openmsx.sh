@@ -148,7 +148,7 @@ function onend_openmsx_joystick() {
     local conf
 
     # Sanitize Filename
-    conf=${DEVICE_NAME//[\?\<\>\\\/:\*\|]/}
+    conf=${DEVICE_NAME//[:><?\"\/\\|*]/}
 
     mkdir -p "${arpdir}/${md_id}/share/joystick/game"
     cat > "${arpdir}/${md_id}/share/joystick/${conf}.tcl" <<_EOF_
