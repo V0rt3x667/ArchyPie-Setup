@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="pcsx-rearmed"
-rp_module_desc="PCSX ARM Optimised: Sony Playstation Emulator"
+rp_module_desc="PCSX-ReARMed: ARM Optimised Sony Playstation Emulator"
 rp_module_help="ROM Extensions: .bin .cue .cbn .img .iso .m3u .mdf .pbp .toc .z .znx\n\nCopy PSX ROMs To: ${romdir}/psx\n\nCopy BIOS File SCPH1001.BIN to ${biosdir}/"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/notaz/pcsx_rearmed/master/COPYING"
 rp_module_repo="git https://github.com/notaz/pcsx_rearmed master"
