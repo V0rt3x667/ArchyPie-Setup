@@ -27,7 +27,6 @@ function install_lr-dinothawr() {
     )
 }
 
-
 function configure_lr-dinothawr() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/dinothawr"
