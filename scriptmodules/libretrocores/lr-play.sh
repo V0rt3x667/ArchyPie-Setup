@@ -27,6 +27,10 @@ function depends_lr-play() {
 
 function sources_lr-play() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|\".local/share\"|\"ArchyPie/configs\"|g" -i "${md_build}/deps/Framework/src/PathUtils.cpp"
+    sed -e "s|\"Play Data Files\"|\"${md_id}\"|g" -i "${md_build}/Source/AppConfig.cpp"
 }
 
 function build_lr-play() {
@@ -54,6 +58,8 @@ function install_lr-play() {
 }
 
 function configure_lr-play() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/ps2/${md_id}"
+
     mkRomDir "ps2"
 
     defaultRAConfig "ps2"
