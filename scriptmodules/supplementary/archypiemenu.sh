@@ -16,8 +16,10 @@ function _update_hook_archypiemenu() {
 }
 
 function depends_archypiemenu() {
-    local depends=('mc')
-
+    local depends=(
+        'mc'
+        'p7zip'
+    )
     getDepends "${depends[@]}"
 }
 
