@@ -5,20 +5,21 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="rpcs3"
-rp_module_desc="RPCS3 - Sony PlayStation 3 Emulator"
-rp_module_help="ROM Extensions: .iso .pkg\n\nCopy Your Sony PlayStation 3 Games to $romdir/ps3"
+rp_module_desc="RPCS3: Sony PlayStation 3 Emulator"
+rp_module_help="ROM Extensions: .ps3 .psn\n\nCopy PS3 ROMs To: ${romdir}/ps3\n\nCopy BIOS File (PS3UPDAT.PUP) To: ${biosdir}/ps3\n\nREQUIRED: On First Run Launch +Start rpcs3.sh, This Will Prompt You To Install PS3UPDAT.PUP. DO NOT Launch Games From The RPCS3 GUI!\n\nPut Your Decrypted ps3 Game Files In A Folder Suffixed With .ps3, Your Game Will Then Be Visible In EmulationStation.\n\nSee https://wiki.batocera.org/systems:ps3 For Further Details."
 rp_module_licence="GPL2 https://raw.githubusercontent.com/RPCS3/rpcs3/master/LICENSE"
-rp_module_repo="git https://github.com/RPCS3/rpcs3.git master"
+rp_module_repo="git https://github.com/RPCS3/rpcs3 master"
 rp_module_section="exp"
-rp_module_flags="!all 64bit"
+rp_module_flags="!all x86_64"
 
 function depends_rpcs3() {
     local depends=(
         'alsa-lib'
+        'ccache'
+        'clang14'
         'cmake'
         'ffmpeg'
         'flatbuffers'
-        'git'
         'glew'
         'glu'
         'libevdev'
@@ -30,6 +31,7 @@ function depends_rpcs3() {
         'libsm'
         'libx11'
         'libxext'
+        'llvm-libs'
         'ninja'
         'openal'
         'pugixml'
@@ -39,6 +41,7 @@ function depends_rpcs3() {
         'sdl2'
         'vulkan-icd-loader'
         'vulkan-validation-layers'
+        'wolfssl'
         'zlib'
     )
     getDepends "${depends[@]}"
@@ -46,24 +49,33 @@ function depends_rpcs3() {
 
 function sources_rpcs3() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|\"%s/.config\"|\"%s/ArchyPie/configs/${md_id}\"|g" -i "${md_build}/3rdparty/libsdl-org/SDL/src/core/linux/SDL_ibus.c"
+    sed -e "s|\"/.local/share/\"|\"/ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/3rdparty/libsdl-org/SDL/src/filesystem/unix/SDL_sysfilesystem.c"
+    sed -e "s|\"/.config\"|\"/ArchyPie/configs\"|g" -i "${md_build}/Utilities/File.cpp"
 }
 
 function build_rpcs3() {
     cmake . \
-        -GNinja \
-        -Bbuild \
-        -DCMAKE_INSTALL_PREFIX="$md_inst" \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DUSE_SYSTEM_FFMPEG=ON \
-        -DUSE_SYSTEM_LIBPNG=ON \
-        -DUSE_SYSTEM_ZLIB=ON \
-        -DUSE_SYSTEM_CURL=ON \
-        -DUSE_SYSTEM_FLATBUFFERS=ON \
-        -DUSE_SYSTEM_PUGIXML=ON \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="/usr/lib/llvm14/bin/clang" \
+        -DCMAKE_CXX_COMPILER="/usr/lib/llvm14/bin/clang++" \
+        -DDISABLE_LTO="ON" \
+        -DUSE_SYSTEM_CURL="ON" \
+        -DUSE_SYSTEM_FFMPEG="ON" \
+        -DUSE_SYSTEM_LIBPNG="ON" \
+        -DUSE_SYSTEM_PUGIXML="ON" \
+        -DUSE_SYSTEM_SDL="ON" \
+        -DUSE_SYSTEM_ZLIB="ON" \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
-    md_ret_require="$md_build/build/bin/rpcs3"
+    md_ret_require="${md_build}/build/bin/${md_id}"
 }
 
 function install_rpcs3() {
@@ -71,13 +83,24 @@ function install_rpcs3() {
 }
 
 function configure_rpcs3() {
-    mkRomDir "ps3"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/ps3/${md_id}"
 
-    moveConfigDir "$home/.config/rpcs3" "$md_conf_root/ps3"
-    ln -snf "$romdir/ps3" "$md_conf_root/ps3/dev_hdd0"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "ps3"
 
-    addEmulator 1 "$md_id" "ps3" "$md_inst/bin/rpcs3 %ROM%"
-    addEmulator 0 "$md_id-nogui" "ps3" "$md_inst/bin/rpcs3 %ROM% --nogui"
+        mkUserDir "${biosdir}/ps3"
+
+        # Create EmulationStation Launcher Script
+        local launcher="+Start ${md_id}.sh"
+        cat > "${romdir}/ps3/${launcher}" << _EOF_
+#!/bin/bash
+${md_inst}/bin/${md_id} --installfw ${biosdir}/ps3/PS3UPDAT.PUP
+_EOF_
+        chmod a+x "${romdir}/ps3/${launcher}"
+        chown "${user}:${user}" "${romdir}/ps3/${launcher}"
+    fi
+
+    addEmulator 1 "${md_id}-nogui" "ps3" "${md_inst}/bin/rpcs3 --fullscreen --no-gui %ROM%"
 
     addSystem "ps3"
 }
