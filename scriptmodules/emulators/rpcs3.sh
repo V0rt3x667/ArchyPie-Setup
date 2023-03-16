@@ -100,7 +100,7 @@ _EOF_
         chown "${user}:${user}" "${romdir}/ps3/${launcher}"
     fi
 
-    addEmulator 1 "${md_id}-nogui" "ps3" "${md_inst}/bin/rpcs3 --fullscreen --no-gui %ROM%"
+    addEmulator 1 "${md_id}" "ps3" "${md_inst}/bin/rpcs3 --fullscreen --no-gui %ROM%"
 
     addSystem "ps3"
 }
