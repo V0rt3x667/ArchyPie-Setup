@@ -167,11 +167,13 @@ function update_assets_retroarch() {
 
 function update_core_info_retroarch() {
     local dir="${configdir}/all/${md_id}/cores"
-    # Remove If Not A Git Repository And Do A Fresh Checkout
+    # Remove If Not A 'git' Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/.git" ]] && rm -fr "${dir}"
-    gitPullOrClone "${configdir}/all/${md_id}/cores" "https://github.com/libretro/libretro-core-info.git"
-    # Add The Info Files For Cores And Configurations Not Available Upstream
-    cp -f "${md_data}/"*.info "${configdir}/all/${md_id}/cores"
+    # Remove Locally Generated `.info` Files, Just In Case Upstream Adds Them
+    [[ -d "${dir}/.git" ]] && git -C "${dir}" clean -q -f "*.info"
+    gitPullOrClone "${dir}" "https://github.com/libretro/libretro-core-info.git"
+    # Add Info Files For Cores Not Included In The Upstream Repo
+    cp --update "${md_data}"/*.info "${dir}"
     chown -R "${user}:${user}" "${dir}"
 }
 
