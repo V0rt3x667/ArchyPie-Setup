@@ -43,6 +43,7 @@ function sources_dosbox-x() {
     gitPullOrClone
 
     # Set Default Config Path(s)
+    sed -e "s|\"XDG_CONFIG_HOME\"|\"HOME\"|g" -i "${md_build}/vs/sdl2/src/core/linux/SDL_ibus.c"
     sed -e "s|\"%s/.config\",|\"%s/ArchyPie/configs\",|g" -i "${md_build}/vs/sdl2/src/core/linux/SDL_ibus.c"
 }
 
@@ -69,8 +70,6 @@ function install_dosbox-x() {
 
 function configure_dosbox-x() {
     configure_dosbox
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/pc"
 
     if [[ "${md_id}" == "install" ]]; then
         local staging_output="texturenb"

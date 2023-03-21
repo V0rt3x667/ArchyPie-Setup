@@ -20,6 +20,7 @@ function depends_dosbox() {
         'sdl_net'
         'sdl_sound'
         'sdl12-compat'
+        'sdl2'
         'subversion'
         'zlib'
     )
@@ -52,7 +53,7 @@ function install_dosbox() {
 }
 
 function configure_dosbox() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/pc"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/pc/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         local def=0
