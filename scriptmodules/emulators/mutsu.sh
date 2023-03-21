@@ -36,11 +36,11 @@ function _sources_tsugaru() {
 
 function build_mutsu() {
     cmake . \
-        -Bbuild \
-        -GNinja \
-        -Ssrc \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DCMAKE_BUILD_TYPE=Release \
+        -B"build" \
+        -G"Ninja" \
+        -S"src" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -Wno-dev
     ninja -C build clean

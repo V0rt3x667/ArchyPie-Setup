@@ -6,7 +6,7 @@
 
 rp_module_id="advmame"
 rp_module_desc="AdvanceMAME: Arcade Machine Emulator (MAME 0.106)"
-rp_module_help="ROM Extension: .zip\n\nCopy AdvanceMAME ROMs To Either: ${romdir}/mame-advmame\n\n${romdir}/arcade"
+rp_module_help="ROM Extension: .zip\n\nCopy AdvanceMAME ROMs To: ${romdir}/mame-advmame\nOr\n${romdir}/arcade/advmame"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/amadvance/advancemame/master/COPYING"
 rp_module_repo="git https://github.com/amadvance/advancemame master"
 rp_module_section="opt"
@@ -65,7 +65,7 @@ function configure_advmame() {
         mkRomDir "arcade/${md_id}"
         mkRomDir "mame-${md_id}"
         for dir in "${dirs[@]}"; do
-            mkRomDir "mame-${md_id}/$dir"
+            mkRomDir "mame-${md_id}/${dir}"
             ln -sf "${romdir}/mame-${md_id}/${dir}" "${romdir}/arcade/${md_id}"
         done
 
@@ -89,8 +89,8 @@ function configure_advmame() {
         iniSet "device_video_output" "overlay"
         iniSet "device_video" "sdl"
 
-        iniSet "display_aspectx" 16
-        iniSet "display_aspecty" 9
+        iniSet "display_aspectx" "16"
+        iniSet "display_aspecty" "9"
         iniSet "display_magnify" "1"
 
         iniSet "misc_quiet" "yes"

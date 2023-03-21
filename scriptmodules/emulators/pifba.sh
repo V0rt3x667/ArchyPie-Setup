@@ -6,7 +6,7 @@
 
 rp_module_id="pifba"
 rp_module_desc="PiFBA: Final Burn Alpha Emulator (FB Alpha 0.2.96.71)"
-rp_module_help="ROM Extension: .zip\n\nCopy FBA ROMs To One Of:\n${romdir}/fba\n${romdir}/neogeo\n${romdir}/arcade\n\nFor NeoGeo Copy BIOS File (neogeo.zip) To One Of:\n${romdir}/fba\n${romdir}/neogeo\n${romdir}/arcade"
+rp_module_help="ROM Extension: .zip\n\nCopy FBA ROMs To:\n${romdir}/fba\nOr\n${romdir}/neogeo\nOr\n${romdir}/arcade\n\nCopy BIOS File (neogeo.zip) To:\n${romdir}/fba\nOr\n${romdir}/neogeo\nOr\n${romdir}/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/pifba/master/FBAcapex_src/COPYING"
 rp_module_repo="git https://github.com/RetroPie/pifba master"
 rp_module_section="opt"

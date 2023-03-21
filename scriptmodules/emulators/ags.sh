@@ -41,8 +41,8 @@ function sources_ags() {
 
 function build_ags() {
     cmake . \
-        -G"Ninja" \
         -B"build" \
+        -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
