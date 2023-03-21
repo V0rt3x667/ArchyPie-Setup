@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="emulationstation"
-rp_module_desc="EmulationStation: Frontend for Launching Emulators"
+rp_module_desc="EmulationStation: Frontend For Launching Emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
 rp_module_repo="git https://github.com/RetroPie/EmulationStation.git stable"
 rp_module_section="core"
@@ -135,7 +135,7 @@ function depends_emulationstation() {
         'sdl2'
         'vlc'
     )
-    isPlatform "x11" && depends+=('mesa-utils')
+    isPlatform "x11" || isPlatform "wayland" && depends+=('gnome-terminal' 'mesa-utils')
     getDepends "${depends[@]}"
 }
 
@@ -265,7 +265,7 @@ _EOF_
         cat > /usr/share/applications/archypie.desktop << _EOF_
 [Desktop Entry]
 Type=Application
-Exec=${TERM_PROGRAM} emulationstation
+Exec=gnome-terminal --full-screen --hide-menubar -e emulationstation
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
