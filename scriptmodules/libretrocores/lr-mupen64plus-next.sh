@@ -59,7 +59,7 @@ function install_lr-mupen64plus-next() {
 function configure_lr-mupen64plus-next() {
     mkRomDir "n64"
 
-    defaultRAConfig "n64"
+    defaultRAConfig "n64" "system_directory" "${biosdir}/n64"
 
     if isPlatform "rpi"; then
         # Disable Hybrid Upscaling Filter (Needs Better GPU)
