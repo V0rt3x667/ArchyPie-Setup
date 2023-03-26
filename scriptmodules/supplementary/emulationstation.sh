@@ -253,7 +253,7 @@ clear
 tput civis
 "${md_inst}/emulationstation.sh" "\$@"
 if [[ \$? -eq 139 ]]; then
-    dialog --cr-wrap --no-collapse --msgbox "EmulationStation crashed!\n\nIf this is your first boot of ArchyPie, make sure you are using the correct image for your system.\n\\nCheck your rom file/folder permissions and if running on a Raspberry Pi, make sure your gpu_split is set high enough and/or switch back to using the Carbon theme." 20 60 >/dev/tty
+    dialog --cr-wrap --no-collapse --msgbox "EmulationStation Crashed!\n\nIf this is your first boot of ArchyPie, make sure you are using the correct image for your system.\n\\nCheck your rom file/folder permissions and if running on a Raspberry Pi, make sure your gpu_split is set high enough and/or switch back to using the Carbon theme." 20 60 >/dev/tty
 fi
 tput cnorm
 _EOF_

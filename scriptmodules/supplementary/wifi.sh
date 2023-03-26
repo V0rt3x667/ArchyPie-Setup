@@ -60,7 +60,7 @@ function connect_wifi() {
     local options=()
     i=0
     _set_interface_wifi up 2>/dev/null
-    dialog --infobox "\nScanning for Wi-Fi Networks..." 5 40 > /dev/tty
+    dialog --infobox "\nScanning For Wi-Fi Networks..." 5 40 > /dev/tty
     sleep 1
 
     while read -r essid; read -r type; do

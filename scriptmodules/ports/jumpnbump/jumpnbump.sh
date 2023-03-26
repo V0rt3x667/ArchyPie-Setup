@@ -75,7 +75,7 @@ function start_server_menu() {
 
 # Connect to Server Menu
 function connect_server_menu() {
-    local cmd=("${DIALOG[@]}" --inputbox "Please enter the address of the remote server" 10 35)
+    local cmd=("${DIALOG[@]}" --inputbox "Please Enter The Address Of The Remote Server" 10 35)
     choice=$("${cmd[@]}" 2>&1 >/dev/tty) || return
     args+=(-connect "${choice}")
 }
@@ -84,11 +84,11 @@ function connect_server_menu() {
 function netplay_help() {
     local help
     read -r -d "" help <<"_EOF_"
-1. On the server device, select "Start Server" and choose the number of additional players (1-3) to wait for.
+1. On The Server Device, Select "Start Server" & Choose The Number Of Additional Players (1-3) To Wait For.
 
-2. On each remote player device, select "Connect to Server" and enter the IP address of the server.
+2. On Each Remote Player Device, Select "Connect to Server" & Enter The IP Address Of The Server.
 
-3. All players (server and clients) must select the same level and mirror settings.
+3. All Players (Server & Clients) Must Select The Same Level & Mirror Settings.
 _EOF_
     "${DIALOG[@]}" --title "Net Help" --msgbox "${help}" 16 50 2>&1 >/dev/tty
 }
