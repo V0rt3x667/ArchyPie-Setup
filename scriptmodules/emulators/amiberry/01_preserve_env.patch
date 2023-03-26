@@ -1,25 +1,18 @@
-diff -ru a/Makefile b/Makefile
---- a/Makefile	2023-01-08 20:37:53.447530987 +0000
-+++ b/Makefile	2023-01-08 20:46:53.709237181 +0000
-@@ -21,10 +21,10 @@
+diff --git a/Makefile b/Makefile
+index 93ef345..75f5bd4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -21,10 +21,10 @@ SDL_CONFIG ?= sdl2-config
  export SDL_CFLAGS := $(shell $(SDL_CONFIG) --cflags)
  export SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
- 
+
 -CPPFLAGS = -MD -MT $@ -MF $(@:%.o=%.d) $(SDL_CFLAGS) -Iexternal/libguisan/include -Isrc -Isrc/osdep -Isrc/threaddep -Isrc/include -Isrc/archivers -Isrc/floppybridge -DAMIBERRY -D_FILE_OFFSET_BITS=64
 -CFLAGS=-pipe -Wno-shift-overflow -Wno-narrowing
 +CPPFLAGS += -MD -MT $@ -MF $(@:%.o=%.d) $(SDL_CFLAGS) -Iexternal/libguisan/include -Isrc -Isrc/osdep -Isrc/threaddep -Isrc/include -Isrc/archivers -Isrc/floppybridge -DAMIBERRY -D_FILE_OFFSET_BITS=64
-+CFLAGS += -pipe -Wno-shift-overflow -Wno-narrowing
++CFLAGS +=-pipe -Wno-shift-overflow -Wno-narrowing
  USE_LD ?= gold
--LDFLAGS = $(SDL_LDFLAGS) -lSDL2_image -lSDL2_ttf -lguisan -Lexternal/libguisan/lib
-+LDFLAGS += $(SDL_LDFLAGS) -lSDL2_image -lSDL2_ttf -lguisan -Lexternal/libguisan/lib
+-LDFLAGS = $(SDL_LDFLAGS) -lSDL2_image -lSDL2_ttf -lserialport -lguisan -Lexternal/libguisan/lib
++LDFLAGS += $(SDL_LDFLAGS) -lSDL2_image -lSDL2_ttf -lserialport -lguisan -Lexternal/libguisan/lib
  ifneq ($(strip $(USE_LD)),)
- 	LDFLAGS += -fuse-ld=$(USE_LD)
- endif
-@@ -42,7 +42,6 @@
- endif
- 
- ifndef DEBUG
--	CFLAGS += -O3
- else
- 	CFLAGS += -g -rdynamic -funwind-tables -DDEBUG -Wl,--export-dynamic
+    LDFLAGS += -fuse-ld=$(USE_LD)
  endif

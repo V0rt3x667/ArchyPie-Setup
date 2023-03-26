@@ -35,6 +35,7 @@ function depends_amiberry() {
         'flac'
         'libmpeg2'
         'libpng'
+        'libserialport'
         'libxml2'
         'mpg123'
         'sdl2_image'
