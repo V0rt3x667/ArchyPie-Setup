@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch: Libretro Frontend (Required By All lr-* Cores)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/Libretro/RetroArch v1.14.0"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.15.0"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -53,8 +53,7 @@ function depends_retroarch() {
 function sources_retroarch() {
     gitPullOrClone
     local patchs=(
-        '01_revert_default_paths.patch'
-        '02_add_video_shader_parameter.patch'
+        '01_add_video_shader_parameter.patch'
     )
     for patch in "${patchs[@]}"; do
         applyPatch "${md_data}/${patch}"
