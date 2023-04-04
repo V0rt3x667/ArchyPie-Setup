@@ -53,12 +53,12 @@ function _sources_zmusic() {
 
 function _build_zmusic() {
     cmake . \
-        -Szmusic \
-        -Bzmusic \
-        -GNinja \
+        -B"zmusic" \
+        -G"Ninja" \
+        -S"zmusic" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DDYN_MPG123="OFF" \
         -DDYN_SNDFILE="OFF" \
         -Wno-dev
@@ -70,11 +70,11 @@ function _build_zmusic() {
 function build_gzdoom() {
     _build_zmusic
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
         -DDYN_GTK="OFF" \
         -DDYN_OPENAL="OFF" \
@@ -145,13 +145,13 @@ function _add_games_gzdoom() {
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "sigil.wad" ]] && [[ -f "${dir}/sigil_shreds.wad" ]]; then
                 # Add Sigil & Buckethead Soundtrack if Available
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file sigil.wad -file ${dir}/sigil_shreds.wad"          
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file sigil.wad -file ${dir}/sigil_shreds.wad"
             elif [[ "${game##*/}" == "sigil.wad" ]] && [[ ! -f "${dir}/sigil_shreds.wad" ]]; then
                 # Add Sigil
                 addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/}" 
             elif [[ "${game##*/}" == "bloom.wad" ]]; then
                 # Add Bloom
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"         
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
             elif [[ "${game##*/}" == "strainfix.wad" ]]; then
                 # Add Strain
                 addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
@@ -208,6 +208,6 @@ function configure_gzdoom() {
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
-    local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}"
+    local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}/"
     _add_games_gzdoom "${launcher_prefix} ${md_inst}/${md_id} +vid_renderer 1 +vid_fullscreen 1"
 }
