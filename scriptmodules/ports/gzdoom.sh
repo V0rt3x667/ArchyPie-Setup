@@ -160,7 +160,7 @@ function _add_games_gzdoom() {
                 addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad * -file ${game##*/}"
             else
                 # Add Games Which Do Not Require Additional Parameters
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad ${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh -iwad %ROM%" "${game##*/}"
                 # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
                 addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
             fi
@@ -168,7 +168,7 @@ function _add_games_gzdoom() {
     done
 
     if [[ "${md_mode}" == "install" ]]; then
-        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments.
+        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments
         cat > "${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
 ${cmd} \$*
