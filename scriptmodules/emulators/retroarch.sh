@@ -215,9 +215,6 @@ function configure_retroarch() {
     iniSet "system_directory" "${biosdir}"
     iniSet "config_save_on_exit" "false"
     iniSet "video_aspect_ratio_auto" "true"
-    iniSet "rgui_browser_directory" "${romdir}"
-    iniSet "rgui_switch_icons" "false"
-
     if ! isPlatform "x86"; then
         iniSet "video_threaded" "true"
     fi
@@ -268,6 +265,10 @@ function configure_retroarch() {
     # RGUI Menu By Default
     iniSet "menu_driver" "rgui"
     iniSet "rgui_aspect_ratio_lock" "2"
+    iniSet "rgui_browser_directory" "$romdir"
+    iniSet "rgui_switch_icons" "false"
+    iniSet "menu_rgui_shadows" "true"
+    iniSet "rgui_menu_color_theme" "29" # Tango Dark Theme
 
     # Hide Online Updater Menu Options And The Restart Option
     iniSet "menu_show_core_updater" "false"
@@ -280,10 +281,15 @@ function configure_retroarch() {
     # Remove Some Options From Quick Menu
     iniSet "quick_menu_show_close_content" "false"
     iniSet "quick_menu_show_add_to_favorites" "false"
+    iniSet "quick_menu_show_replay" "false"
+    iniSet "quick_menu_show_start_recording" "false"
+    iniSet "quick_menu_show_start_streaming" "false"
     iniSet "menu_show_overlays" "false"
 
     # Disable The Load Notification Message With Core And Game Info
     iniSet "menu_show_load_content_animation" "false"
+    # Disable Core Cache File
+    iniSet "core_info_cache_enable" "false"
 
     # Disable Unnecessary XMB Menu Tabs
     iniSet "xmb_show_add" "false"
