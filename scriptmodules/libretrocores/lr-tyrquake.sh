@@ -76,7 +76,7 @@ function _add_games_lr-tyrquake() {
             if [[ "${cmd}" =~ "darkplaces-sdl-gles" ]]; then
                 addPort "${md_id}-gles" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
             elif [[ "${md_id}" == "lr-tyrquake" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${dir}/${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} ${dir}/%ROM%" "${game##*/}"
             else
                 addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game##*/}"
             fi
