@@ -23,7 +23,7 @@ function rp_listFunctions() {
     local func
     local enabled
 
-    echo -e "ID:                 Description:                                 List of available functions"
+    echo -e "ID:                 Description:                                 List Of Available Functions"
     echo "-----------------------------------------------------------------------------------------------------------------------------------"
     for id in "${__mod_id[@]}"; do
         if rp_isEnabled "${id}"; then
@@ -318,7 +318,7 @@ function rp_callModule() {
         install)
             action="Installing"
             # remove any previous install folder unless noinstclean flag is set
-            if ! hasFlag "${__mod_info[$md_id/flags]}" "noinstclean"; then
+            if ! hasFlag "${__mod_info[${md_id}/flags]}" "noinstclean"; then
                 rmDirExists "$md_inst"
             fi
             mkdir -p "$md_inst"
@@ -706,7 +706,7 @@ function rp_createBin() {
         fi
     fi
     if [[ "$ret" -eq 0 ]]; then
-        cp "$md_inst/retropie.pkg" "$dest/$md_id.pkg"
+        cp "$md_inst/archypie.pkg" "$dest/$md_id.pkg"
     else
         rm -f "$dest/$archive"
     fi
@@ -746,7 +746,7 @@ function rp_setPackageInfo() {
     local id="$1"
     local install_path="$(rp_getInstallPath ${id})"
     [[ ! -d "$install_path" ]] && return 1
-    local pkg="$install_path/retropie.pkg"
+    local pkg="$install_path/archypie.pkg"
     local origin="$2"
 
     rp_clearCachedInfo "${id}"
@@ -834,7 +834,7 @@ function rp_loadPackageInfo() {
     fi
 
     local load=0
-    local pkg_file="$(rp_getInstallPath ${id})/retropie.pkg"
+    local pkg_file="$(rp_getInstallPath ${id})/archypie.pkg"
 
     local builder_pkg_file="$__tmpdir/archives/$__binary_path/${__mod_info[${id}/type]}/${id}.pkg"
     # fallback to using package info for built binaries so the binary builder code can update only changed modules
