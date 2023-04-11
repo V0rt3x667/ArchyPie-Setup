@@ -18,7 +18,6 @@ function _get_branch_openblok() {
 function depends_openblok() {
     local depends=(
         'cmake'
-        'gcc11'
         'gettext'
         'ninja'
         'sdl2_image'
@@ -31,18 +30,20 @@ function depends_openblok() {
 
 function sources_openblok() {
     gitPullOrClone
+
+    # Fix GCC12 Build Error
+    sed -i "1i#include <iterator>" "${md_build}/src/system/InputConfigFile.cpp"
 }
 
 function build_openblok() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
-        -DCMAKE_C_COMPILER="gcc-11" \
-        -DCMAKE_CXX_COMPILER="g++-11" \
-        -DINSTALL_PORTABLE="ON"
+        -DINSTALL_PORTABLE="ON" \
+        -Wno-dev
     ninja -C build clean
     ninja -C build
     md_ret_require="${md_build}/build/src/${md_id}"
@@ -53,7 +54,7 @@ function install_openblok() {
 }
 
 function configure_openblok() {
-    moveConfigDir "$home/.local/share/${md_id}" "$md_conf_root/${md_id}"
+    moveConfigDir "${home}/.local/share/${md_id}" "${md_conf_root}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         local config
