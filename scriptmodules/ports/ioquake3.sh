@@ -54,7 +54,7 @@ function _add_games_ioquake3() {
     )
     portname="quake3"
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         dir="${romdir}/ports/${portname}"
         if [[ "${md_mode}" == "install" ]]; then

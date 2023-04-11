@@ -39,14 +39,14 @@ function build_gemrb() {
     ! isPlatform "wayland" && isPlatform "gl" && params+=('-DOPENGL_BACKEND=OpenGL')
     
     cmake . \
-        -GNinja \
-        -Bbuild \
-        -DCMAKE_BUILD_TYPE=Release \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
-        -DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/ \
-        -DSDL_BACKEND=SDL2 \
-        -DUSE_SDLMIXER=OFF \
+        -DFREETYPE_INCLUDE_DIRS="/usr/include/freetype2/" \
+        -DSDL_BACKEND="SDL2" \
+        -DUSE_SDLMIXER="OFF" \
         "${params[@]}" \
         -Wno-dev
     ninja -C build clean

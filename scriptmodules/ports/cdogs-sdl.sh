@@ -32,7 +32,7 @@ function sources_cdogs-sdl() {
 
     download "https://cxong.github.io/${md_id}/missionpack.zip" - | bsdtar xvf - --strip-components=1 -C "${md_build}"
 
-    # # Set Default Config Path(s)
+    # Set Default Config Path(s)
     sed "s|\".config/${md_id}/\"|\"ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/CMakeLists.txt"
 
     # Prevent Warnings As Errors
@@ -41,11 +41,11 @@ function sources_cdogs-sdl() {
 
 function build_cdogs-sdl() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCDOGS_DATA_DIR="${md_inst}/" \
         -Wno-dev
     ninja -C build clean

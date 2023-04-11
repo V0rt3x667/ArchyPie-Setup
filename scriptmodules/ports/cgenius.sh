@@ -36,7 +36,8 @@ function sources_cgenius() {
 }
 
 function build_cgenius() {
-    local params
+    local params=()
+    isPlatform "gl" && params+=(-DUSE_OPENGL="ON")
 
     cmake . \
         -B"build" \
@@ -76,7 +77,7 @@ function _add_games_cgenius(){
         ['keen6/keen6.exe']="Keen 6: Aliens Ate My Baby Sitter! (Goodbye, Galaxy!)"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         dir="${romdir}/ports/${md_id}"
         if [[ "${md_mode}" == "install" ]]; then
@@ -90,7 +91,7 @@ function _add_games_cgenius(){
     done
 
     if [[ "${md_mode}" == "install" ]]; then
-        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments.
+        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments
         cat >"${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
 ${cmd} \$*

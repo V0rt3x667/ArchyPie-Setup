@@ -97,7 +97,7 @@ function _add_games_raze() {
         ['ww2gi/ww2gi.grp']="World War II GI"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         if [[ "${game%/*}" == "duke" ]] || [[ "${game%/*}" == "nam" ]] || [[ "${game%/*}" == "ww2gi" ]]; then
             portname="duke3d"
@@ -127,7 +127,7 @@ function _add_games_raze() {
     done
 
     if [[ "${md_mode}" == "install" ]]; then
-        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments.
+        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments
         cat > "${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
 ${cmd} \$*

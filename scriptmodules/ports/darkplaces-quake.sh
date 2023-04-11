@@ -32,7 +32,7 @@ function build_darkplaces-quake() {
     make clean
     make sdl-release
 
-    md_ret_require+=("$md_build/darkplaces-sdl")
+    md_ret_require+=("${md_build}/darkplaces-sdl")
 }
 
 function install_darkplaces-quake() {

@@ -20,8 +20,8 @@ function depends_julius() {
         'cmake'
         'libpng'
         'ninja'
-        'sdl2'
         'sdl2_mixer'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -32,11 +32,11 @@ function sources_julius() {
 
 function build_julius() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build

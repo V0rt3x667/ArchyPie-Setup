@@ -93,10 +93,10 @@ function configure_dolphin() {
 
     local launcher_prefix="DOLPHIN_EMU_USERPATH=${arpdir}/${md_id}"
 
-    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} $md_inst/bin/${md_id}-emu -b -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "gc" "${launcher_prefix} $md_inst/bin/${md_id}-emu -e %ROM%"
-    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} $md_inst/bin/${md_id}-emu -b -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "wii" "${launcher_prefix} $md_inst/bin/${md_id}-emu -e %ROM%"
+    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
+    addEmulator 0 "${md_id}-gui" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -e %ROM%"
+    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
+    addEmulator 0 "${md_id}-gui" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -e %ROM%"
 
     addSystem "gc"
     addSystem "wii"

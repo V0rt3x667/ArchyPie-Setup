@@ -41,9 +41,9 @@ function build_cannonball() {
     fi
 
     cmake . \
-        -S"cmake" \
         -B"build" \
         -G"Ninja" \
+        -S"cmake" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \

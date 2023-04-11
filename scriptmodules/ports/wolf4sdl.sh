@@ -86,7 +86,7 @@ function _add_games_wolf4sdl() {
         games+=(['vswap.n3d']="Super Noah's Ark 3D")
     fi
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="wolf3d"
         dir="${romdir}/ports/${portname}/"
@@ -97,11 +97,11 @@ function _add_games_wolf4sdl() {
         fi
         if [[ -f "${dir}/${game}" ]]; then
             if [[ "${md_id}" == "ecwolf" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "$cmd" "${game##*.}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game##*.}"
             elif [[ "${md_id}" == "splitwolf" ]]; then
-                addPort "${md_id}" "splitwolf" "SplitWolf: ${games[$game]/Wolfenstein 3D:/}" "${cmd}" "${game}"
+                addPort "${md_id}" "splitwolf" "SplitWolf: ${games[${game}]/Wolfenstein 3D:/}" "${cmd}" "${game}"
             else
-                addPort "$md_id" "${portname}" "${games[$game]}" "${cmd}" "${game}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game}"
             fi
         fi
     done

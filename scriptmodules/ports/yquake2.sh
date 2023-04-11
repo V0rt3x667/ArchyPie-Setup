@@ -112,7 +112,7 @@ function _add_games_yquake2() {
         ['xatrix/pak0.pak']="Quake II: Mission Pack 1: The Reckoning"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="quake2"
         dir="${romdir}/ports/${portname}/${game%/*}"

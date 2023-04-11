@@ -37,12 +37,12 @@ function sources_vvvvvv() {
 function build_vvvvvv() {
     rpSwap on 1500
     cmake . \
-        -Sdesktop_version \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -S"desktop_version" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build

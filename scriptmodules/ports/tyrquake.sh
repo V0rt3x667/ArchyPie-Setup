@@ -49,7 +49,7 @@ function configure_tyrquake() {
     local portname
     portname="quake"
 
-    if [[ "$md_mode" == "install" ]]; then
+    if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'dopa'
             'hipnotic'

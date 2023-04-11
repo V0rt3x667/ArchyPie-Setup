@@ -57,11 +57,11 @@ function sources_supertuxkart() {
 
 function build_supertuxkart() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DBUILD_RECORDER="OFF" \
         -Wno-dev
     ninja -C build clean

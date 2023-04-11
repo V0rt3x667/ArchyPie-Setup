@@ -43,17 +43,17 @@ function build_solarus() {
     isPlatform "gles" && params+=('-DSOLARUS_GL_ES=ON')
 
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
-        -DSOLARUS_GUI="OFF" \
-        -DSOLARUS_TESTS="OFF" \
-        -DSOLARUS_FILE_LOGGING="OFF" \
-        -DSOLARUS_LIBRARY_INSTALL_DESTINATION="${md_inst}/lib" \
         -DSOLARUS_BASE_WRITE_DIR="${configdir}" \
+        -DSOLARUS_FILE_LOGGING="OFF" \
+        -DSOLARUS_GUI="OFF" \
+        -DSOLARUS_LIBRARY_INSTALL_DESTINATION="${md_inst}/lib" \
+        -DSOLARUS_TESTS="OFF" \
         -DSOLARUS_WRITE_DIR="${md_id}" \
         "${params[@]}" \
         -Wno-dev
@@ -110,7 +110,7 @@ function gui_solarus() {
     # Start The Menu GUI
     default="D"
     while true; do
-        # read current options
+        # Read Current Options
         iniGet "JOYPAD_DEADZONE" && joypad_deadzone="${ini_value}"
         iniGet "QUIT_COMBO" && quit_combo="${ini_value}"
 

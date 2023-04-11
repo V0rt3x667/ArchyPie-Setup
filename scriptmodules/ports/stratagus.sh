@@ -66,7 +66,7 @@ function install_stratagus() {
 function configure_stratagus() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
-    mkRomDir "stratagus"
+    mkRomDir "${md_id}"
 
     setConfigRoot ""
 

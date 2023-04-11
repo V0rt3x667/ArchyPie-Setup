@@ -58,7 +58,7 @@ function configure_simcoupe() {
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/samcoupe/${md_id}"
 
-    addEmulator 1 "$md_id" "samcoupe" "${md_inst}/bin/${md_id} autoboot -disk1 %ROM% -fullscreen"
+    addEmulator 1 "${md_id}" "samcoupe" "${md_inst}/bin/${md_id} autoboot -disk1 %ROM% -fullscreen"
 
     addSystem "samcoupe"
 }

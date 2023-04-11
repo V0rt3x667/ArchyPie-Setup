@@ -102,7 +102,7 @@ function _add_games_eduke32() {
         )
     fi
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         if [[ "${md_id}" == "ionfury" ]]; then
             portname="ionfury"
@@ -141,7 +141,7 @@ function _add_games_eduke32() {
     done
 
     if [[ "${md_mode}" == "install" ]]; then
-        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments.
+        # Create A Launcher Script To Strip Quotes From runcommand's Generated Arguments
         cat > "${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
 ${cmd} \$*

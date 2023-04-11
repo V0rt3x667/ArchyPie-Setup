@@ -39,16 +39,16 @@ function sources_dhewm3() {
 
 function build_dhewm3() {
     cmake . \
-        -Sneo \
-        -GNinja \
-        -Bbuild \
+        -B"build" \
+        -G"Ninja" \
+        -S"neo" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
-        -DREPRODUCIBLE_BUILD="ON" \
         -DD3XP="ON" \
         -DDEDICATED="ON" \
+        -DREPRODUCIBLE_BUILD="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -86,7 +86,7 @@ function _add_games_dhewm3() {
         ['d3xp/pak000.pk4']="Doom3: Resurrection of Evil"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="doom3"
         dir="${romdir}/ports/${portname}"

@@ -46,11 +46,11 @@ function sources_srb2() {
 
 function build_srb2() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DSRB2_ASSET_HASHED="srb2.pk3;player.dta;music.dta;zones.pk3" \
         -Wno-dev
     ninja -C build clean
@@ -59,7 +59,7 @@ function build_srb2() {
 }
 
 function install_srb2() {
-    # Copy And Dereference, So We Get A srb2 Binary Rather Than A Symlink To lsdlsrb2
+    # Copy And Dereference, So We Get A 'srb2' Binary Rather Than A Symlink To 'lsdlsrb2'
     cp -L 'build/bin/lsdlsrb2' "${md_inst}/${md_id}"
 
     md_ret_files=(

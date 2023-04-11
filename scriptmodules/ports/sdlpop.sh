@@ -27,12 +27,12 @@ function sources_sdlpop() {
 
 function build_sdlpop() {
     cmake . \
-        -Ssrc \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -S"src" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -61,5 +61,5 @@ function configure_sdlpop() {
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
-    addPort "${md_id}" "${md_id}" "Prince of Persia" "pushd $md_inst; ${md_inst}/prince full; pushd"
+    addPort "${md_id}" "${md_id}" "Prince of Persia" "pushd ${md_inst}; ${md_inst}/prince full; pushd"
 }

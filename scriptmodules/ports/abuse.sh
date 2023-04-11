@@ -40,11 +40,11 @@ function sources_abuse() {
 
 function build_abuse() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DSDL2_MIXER_INCLUDE_DIR="/usr/include/SDL2" \
         -Wno-dev
     ninja -C build clean

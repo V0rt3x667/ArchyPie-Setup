@@ -30,11 +30,11 @@ function sources_digger() {
 
 function build_digger() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -46,7 +46,7 @@ function install_digger() {
 }
 
 function configure_digger() {
-    addPort "${md_id}" "${md_id}" "Digger Remastered" "${md_inst}/${md_id} /F"
-
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
+    addPort "${md_id}" "${md_id}" "Digger Remastered" "${md_inst}/${md_id} /F"
 }

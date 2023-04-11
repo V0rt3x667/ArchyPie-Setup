@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="openttd"
-rp_module_desc="OpenTTD: Game Engine for Transport Tycoon Deluxe"
+rp_module_desc="OpenTTD: Game Engine For Transport Tycoon Deluxe"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/OpenTTD/OpenTTD/master/COPYING.md"
 rp_module_repo="git https://github.com/OpenTTD/OpenTTD :_get_branch_openttd"
 rp_module_section="opt"
@@ -42,11 +42,11 @@ function sources_openttd() {
 
 function build_openttd() {
     cmake . \
-        -GNinja \
-        -Bbuild \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_INSTALL_BINDIR="." \
         -DCMAKE_INSTALL_DATADIR="data" \
         -Wno-dev

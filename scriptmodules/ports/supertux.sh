@@ -45,11 +45,11 @@ function sources_supertux() {
 
 function build_supertux() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DINSTALL_SUBDIR_BIN="bin" \
         -DUSE_SYSTEM_PHYSFS="ON" \
         -Wno-dev

@@ -47,12 +47,12 @@ function _sources_surgescript() {
 
 function _build_surgescript() {
     cmake . \
-        -Ssurgescript \
-        -Bsurgescript \
-        -GNinja \
+        -B"surgescript" \
+        -G"Ninja" \
+        -S"surgescript" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DWANT_SHARED="ON" \
         -DWANT_STATIC="OFF" \
         -Wno-dev
@@ -65,11 +65,11 @@ function build_opensurge() {
     _build_surgescript
 
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
         -DGAME_BINDIR="${md_inst}/bin" \
         -DGAME_DATADIR="${md_inst}/data" \

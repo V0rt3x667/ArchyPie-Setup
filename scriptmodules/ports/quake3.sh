@@ -13,8 +13,8 @@ rp_module_flags="!all rpi"
 
 function depends_quake3() {
     local depends=(
-        'sdl12-compat'
         'raspberrypi-firmware'
+        'sdl12-compat'
     )
     getDepends "${depends[@]}"
 }

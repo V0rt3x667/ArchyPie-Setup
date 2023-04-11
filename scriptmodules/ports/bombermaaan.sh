@@ -26,7 +26,7 @@ function depends_bombermaaan() {
 function sources_bombermaaan() {
     gitPullOrClone
 
-    # Line Endings Need To Be Converted Or Patching Will Fail.
+    # Line Endings Need To Be Converted Or Patching Will Fail
     find . -type f -exec dos2unix {} \;
 
     # Set Default Config Path(s)
@@ -35,7 +35,7 @@ function sources_bombermaaan() {
     # Set Fullscreen By Default
     sed -e "s|DISPLAYMODE_WINDOWED;|DISPLAYMODE_FULL3;|g" -i "${md_build}/trunk/src/COptions.cpp"
 
-    # "SDL 1 Classic" Is Required To Build Bombermaaan. The "sdl12-compat" Package Is Used to Run Bombermaaan.
+    # "SDL 1 Classic" Is Required To Build Bombermaaan, The "sdl12-compat" Package Is Used To Run Bombermaaan
     _sources_sdl
 }
 
@@ -53,17 +53,18 @@ function _build_sdl() {
 
 function build_bombermaaan() {
     _build_sdl && cd "${md_build}" || exit
+
     cmake . \
-        -Strunk \
-        -Btrunk/build \
-        -GNinja \
+        -B"trunk/build" \
+        -G"Ninja" \
+        -S"trunk" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
-        -DSDLMAIN_LIBRARY="${md_build}/sdl/build/.libs/libSDLmain.a" \
-        -DSDL_LIBRARY="${md_build}/sdl/build/.libs/libSDL.so" \
-        -DSDL_INCLUDE_DIR="${md_build}/sdl/include" \
         -DLOAD_RESOURCES_FROM_FILES="ON" \
+        -DSDL_INCLUDE_DIR="${md_build}/sdl/include" \
+        -DSDL_LIBRARY="${md_build}/sdl/build/.libs/libSDL.so" \
+        -DSDLMAIN_LIBRARY="${md_build}/sdl/build/.libs/libSDLmain.a" \
         -Wno-dev
     ninja -C trunk/build clean
     ninja -C trunk/build

@@ -105,7 +105,7 @@ function _add_games_uhexen2() {
         ['portals/pak3.pak']="Hexen II: Portal of Praevus"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="hexen2"
         dir="${romdir}/ports/${portname}/${game%/*}"

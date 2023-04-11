@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lzdoom"
-rp_module_desc="LZDoom: DOOM Source Port (Legacy Version of GZDoom)"
+rp_module_desc="LZDoom: DOOM Source Port (Legacy Version Of GZDoom)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/drfrag666/gzdoom/g3.3mgw/docs/licenses/README.TXT"
 rp_module_repo="git https://github.com/drfrag666/gzdoom :_get_branch_lzdoom"
 rp_module_section="opt"
@@ -35,9 +35,9 @@ function build_lzdoom() {
     cmake . \
         -B"build" \
         -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DPK3_QUIET_ZIPDIR="ON" \
         -Wno-dev
     ninja -C build clean

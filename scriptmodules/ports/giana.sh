@@ -13,7 +13,7 @@ rp_module_flags="!all rpi x86"
 function depends_giana() {
     local depends=(
         'sdl_mixer'
-        'sdl12-compat' 
+        'sdl12-compat'
     )
     getDepends "${depends[@]}"
 }

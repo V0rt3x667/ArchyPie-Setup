@@ -33,11 +33,11 @@ function sources_smw() {
 
 function build_smw() {
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DBUILD_STATIC_LIBS="OFF" \
         -DSMW_BINDIR="${md_inst}" \
         -DSMW_DATADIR="${md_inst}/data"

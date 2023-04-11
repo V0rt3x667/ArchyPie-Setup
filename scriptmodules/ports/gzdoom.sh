@@ -133,7 +133,7 @@ function _add_games_gzdoom() {
         ['strife/strife1.wad']="Strife: Quest for the Sigil"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="doom"
         dir="${romdir}/ports/${portname}/${game%/*}"

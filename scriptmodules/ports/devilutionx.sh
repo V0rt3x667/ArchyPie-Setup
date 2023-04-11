@@ -39,16 +39,16 @@ function build_devilutionx() {
     local ver
     ver="$(_get_branch_devilutionx)"
     cmake . \
-        -Bbuild \
-        -GNinja \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
-        -DVERSION_NUM="${ver}" \
+        -DBUILD_TESTING="OFF" \
         -DDEVILUTIONX_SYSTEM_LIBFMT="ON" \
         -DDEVILUTIONX_SYSTEM_LIBSODIUM="ON" \
-        -DBUILD_TESTING="OFF" \
         -DPIE="ON" \
+        -DVERSION_NUM="${ver}" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -75,7 +75,7 @@ function _add_games_devilutionx() {
         ['spawn.mpq']="Diablo: Spawn (Shareware)"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase.
+    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="diablo"
         dir="${romdir}/ports/${portname}"

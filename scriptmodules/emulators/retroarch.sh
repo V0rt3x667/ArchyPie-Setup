@@ -265,7 +265,7 @@ function configure_retroarch() {
     # RGUI Menu By Default
     iniSet "menu_driver" "rgui"
     iniSet "rgui_aspect_ratio_lock" "2"
-    iniSet "rgui_browser_directory" "$romdir"
+    iniSet "rgui_browser_directory" "${romdir}"
     iniSet "rgui_switch_icons" "false"
     iniSet "menu_rgui_shadows" "true"
     iniSet "rgui_menu_color_theme" "29" # Tango Dark Theme

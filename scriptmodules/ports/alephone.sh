@@ -9,7 +9,7 @@ rp_module_desc="Aleph One: Marathon Game Engine"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/Aleph-One-Marathon/alephone/master/COPYING"
 rp_module_repo="git https://github.com/Aleph-One-Marathon/alephone :_get_branch_alephone"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function _get_branch_alephone() {
     download "https://api.github.com/repos/Aleph-One-Marathon/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
