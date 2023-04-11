@@ -31,28 +31,31 @@ function sources_openbor() {
 
     # Disable Abort On Warnings & Errors
     sed -e "s|-Werror||g" -i "${md_build}/engine/Makefile"
+
+    # Set Fullscreen By Default
+    sed -e "s|savedata.fullscreen = 0;|savedata.fullscreen = 1;|g" -i "${md_build}/engine/openbor.c"
 }
 
 function build_openbor() {
-    cd "${md_build}/engine"
+    cd "${md_build}/engine" || exit
     ./version.sh
     ./build.sh 4
 
-    cd "${md_build}/tools/borpak/source"
+    cd "${md_build}/tools/borpak/source" || exit
     chmod a+x ./build.sh
     ./build.sh lin
     md_ret_require="${md_build}/engine/releases/LINUX/OpenBOR/OpenBOR"
 }
 
 function install_openbor() {
-    md_ret_files=(
-       'engine/releases/LINUX/OpenBOR/OpenBOR'
-       'tools/borpak/source/borpak'
-    )
+    md_ret_files=('engine/releases/LINUX/OpenBOR/OpenBOR')
 }
 
 function configure_openbor() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
+
     if [[ "${md_mode}" == "install" ]]; then
+        # Create Launcher Script
         cat >"${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
 pushd "${md_inst}"
@@ -61,29 +64,12 @@ popd
 _EOF_
         chmod +x "${md_inst}/${md_id}.sh"
 
-        cat >"${md_inst}/extract.sh" <<_EOF_
-#!/bin/bash
-PORTDIR="${md_inst}"
-BORROMDIR="${romdir}/ports/${md_id}"
-mkdir \$BORROMDIR/original/
-mkdir \$BORROMDIR/original/borpak/
-mv \$BORROMDIR/*.pak \$BORROMDIR/original/
-cp \$PORTDIR/borpak \$BORROMDIR/original/borpak/
-cd \$BORROMDIR/original/
-for i in *.pak; do
-    CURRENTFILE=\`basename "\$i" .pak\`
-    \$BORROMDIR/original/borpak/borpak "\$i"
-    mkdir "\$CURRENTFILE"
-    mv data/ "\$CURRENTFILE"/
-    mv "\$CURRENTFILE"/ ../
-done
-
-echo "Your games are extracted and ready to be played. Your originals are stored safely in $BORROMDIR/original/ but they won't be needed anymore. Everything within it can be deleted."
-_EOF_
-        chmod +x "${md_inst}/extract.sh"
-
-        local dir
-        for dir in ScreenShots Logs Saves; do
+        local dirs=(
+            'Logs'
+            'Saves'
+            'ScreenShots'
+        )
+        for dir in "${dirs[@]}"; do
             mkUserDir "${md_conf_root}/${md_id}/${dir}"
             ln -snf "${md_conf_root}/${md_id}/${dir}" "${md_inst}/${dir}"
         done
