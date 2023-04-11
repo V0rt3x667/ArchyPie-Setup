@@ -45,5 +45,5 @@ function configure_lr-cannonball() {
 
     defaultRAConfig "cannonball"
 
-    addPort "${md_id}" "cannonball" "Cannonball: OutRun Engine" "${md_inst}/cannonball_libretro.so" "${romdir}/ports/cannonball/"
+    addPort "${md_id}" "cannonball" "Cannonball: OutRun Engine" "${md_inst}/cannonball_libretro.so ${romdir}/ports/cannonball/"
 }
