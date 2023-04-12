@@ -40,7 +40,8 @@ function build_smw() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DBUILD_STATIC_LIBS="OFF" \
         -DSMW_BINDIR="${md_inst}" \
-        -DSMW_DATADIR="${md_inst}/data"
+        -DSMW_DATADIR="${md_inst}/data" \
+        -Wno-dev
     ninja -C build clean
     ninja -C build
     md_ret_require="${md_build}/build/Binaries/Release/${md_id}"
