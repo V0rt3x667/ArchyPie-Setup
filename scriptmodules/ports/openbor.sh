@@ -6,11 +6,11 @@
 
 rp_module_id="openbor"
 rp_module_desc="OpenBOR: Beat 'Em Up Game Engine"
-rp_module_help="Copy .pak Files to: ${romdir}/ports/openbor"
+rp_module_help="Copy OpenBOR Games (.pak) To: ${romdir}/openbor"
 rp_module_licence="BSD https://raw.githubusercontent.com/DCurrent/openbor/master/LICENSE"
 rp_module_repo="git https://github.com/DCurrent/openbor master"
-rp_module_section="exp"
-rp_module_flags="!mali"
+rp_module_section="opt"
+rp_module_flags=""
 
 function depends_openbor() {
     local depends=(
@@ -41,9 +41,6 @@ function build_openbor() {
     ./version.sh
     ./build.sh 4
 
-    cd "${md_build}/tools/borpak/source" || exit
-    chmod a+x ./build.sh
-    ./build.sh lin
     md_ret_require="${md_build}/engine/releases/LINUX/OpenBOR/OpenBOR"
 }
 
@@ -52,17 +49,12 @@ function install_openbor() {
 }
 
 function configure_openbor() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
+    setConfigRoot ""
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
-        # Create Launcher Script
-        cat >"${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
-pushd "${md_inst}"
-./OpenBOR "\$@"
-popd
-_EOF_
-        chmod +x "${md_inst}/${md_id}.sh"
+        mkRomDir "${md_id}"
 
         local dirs=(
             'Logs'
@@ -74,10 +66,10 @@ _EOF_
             ln -snf "${md_conf_root}/${md_id}/${dir}" "${md_inst}/${dir}"
         done
 
-        ln -snf "${romdir}/ports/${md_id}" "${md_inst}/Paks"
+        ln -snf "${romdir}/${md_id}" "${md_inst}/Paks"
     fi
 
-    addPort "${md_id}" "${md_id}" "OpenBOR: Beats of Rage Engine" "${md_inst}/${md_id}.sh"
+    addEmulator 1 "${md_id}" "${md_id}" "pushd ${md_inst}; ./OpenBOR %ROM%; popd"
 
-    mkRomDir "ports/${md_id}"
+    addSystem "${md_id}"
 }
