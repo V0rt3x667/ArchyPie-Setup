@@ -11,7 +11,7 @@ rp_module_repo="git https://github.com/muldjord/skyscraper :_get_branch_skyscrap
 rp_module_section="opt"
 
 function _get_branch_skyscraper() {
-    download "https://api.github.com/repos/muldjord/skyscraper/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/muldjord/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_skyscraper() {
@@ -25,6 +25,20 @@ function depends_skyscraper() {
 
 function sources_skyscraper() {
     gitPullOrClone
+
+    # Replace References To RetroPie/retropie
+    local files=(
+        'src/attractmode.cpp'
+        'src/emulationstation.cpp'
+        'src/main.cpp'
+        'src/nametools.cpp'
+        'src/pegasus.cpp'
+        'src/skyscraper.cpp'
+    )
+    for file in "${files[@]}"; do
+        sed -e 's|RetroPie|ArchyPie|g' -i "${md_build}/${file}"
+        sed -e 's|retropie|archypie|g' -i "${md_build}/${file}"
+    done
 }
 
 function build_skyscraper() {
@@ -89,9 +103,9 @@ function _clear_platform_skyscraper() {
     [[ ! -d "${configdir}/all/skyscraper/${cache_folder}/${platform}" ]] && return
 
     if [[ ${mode} == "vacuum" ]]; then
-        sudo -u "${user}" stdbuf -o0 ${md_inst}/Skyscraper --flags unattend -p "${platform}" --cache vacuum
+        sudo -u "${user}" stdbuf -o0 "${md_inst}/Skyscraper" --flags unattend -p "${platform}" --cache vacuum
     else
-        sudo -u "${user}" stdbuf -o0 ${md_inst}/Skyscraper --flags unattend -p "${platform}" --cache purge:all
+        sudo -u "${user}" stdbuf -o0 "${md_inst}/Skyscraper" --flags unattend -p "${platform}" --cache purge:all
     fi
     sleep 5
 }
@@ -122,7 +136,7 @@ function _purge_platform_skyscraper() {
     local mode="$1"
     [[ -z "${mode}" ]] && mode="purge"
 
-    local cmd=(dialog --backtitle "$__backtitle" --radiolist "Select Platform To ${mode}" 20 60 12)
+    local cmd=(dialog --backtitle "${__backtitle}" --radiolist "Select Platform To ${mode}" 20 60 12)
     local platform
 
     platform=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
@@ -219,10 +233,13 @@ function _init_config_skyscraper() {
     done
 
     # If We Don't Have A Previous 'config.ini' File Copy The Example One
-    [[ ! -f "${scraper_conf_dir}/config.ini" ]] && cp "${md_inst}/config.ini.example" "${scraper_conf_dir}/config.ini"
+    if [[ ! -f "${scraper_conf_dir}/config.ini" ]]; then
+        cp "${md_inst}/config.ini.example" "${scraper_conf_dir}/config.ini"
+        sed -i 's|\[esgamelist\]|\[esgamelist\]\ncacheScreenshots="false"|' "${scraper_conf_dir}/config.ini"
+    fi
 
-    # Try to find the rest of the necessary files from the qmake build file
-    # They should be listed in the `unix:examples.file` configuration line
+    # Try To Find The Rest Of The Necessary Files From The Qmake Build File
+    # They Should Be Listed In The `unix:examples.file` Configuration Line
     if [[ $(grep unix:examples.files "${md_build}/skyscraper.pro" 2>/dev/null | cut -d= -f2-) ]]; then
         local files
         local file
@@ -246,6 +263,7 @@ function _init_config_skyscraper() {
         done
     fi
 
+    # Copy The Rest Of The Folders
     cp -rf "${md_inst}/resources" "${scraper_conf_dir}"
 
     # Create The Import Folders & Add The Sample Files
@@ -260,6 +278,7 @@ function _init_config_skyscraper() {
     cp -f "${md_inst}/priorities.xml.example" "${scraper_conf_dir}/cache"
 }
 
+# Scrape One System, Passed As Parameter
 function _scrape_skyscraper() {
     local system="$1"
 
@@ -288,13 +307,11 @@ function _scrape_skyscraper() {
     [[ "${remove_brackets}" -eq 1 ]] && flags+="nobrackets,"
 
     if [[ "${use_rom_folder}" -eq 1 ]]; then
-        params+=(-i "${romdir}/${system}")
         params+=(-g "${romdir}/${system}")
         params+=(-o "${romdir}/${system}/media")
         # Use Relative Paths In The Gamelist
         flags+="relative,"
     else
-        params+=(-i "${romdir}/${system}")
         params+=(-g "${home}/.emulationstation/gamelists/${system}")
         params+=(-o "${home}/.emulationstation/downloaded_media/${system}")
     fi
