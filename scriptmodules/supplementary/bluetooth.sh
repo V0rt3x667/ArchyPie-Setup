@@ -32,6 +32,7 @@ function _get_connect_mode() {
 
 function depends_bluetooth() {
     local depends=(
+        'bluez-plugins'
         'bluez-tools'
         'bluez-utils'
         'bluez'
@@ -124,12 +125,12 @@ function list_available_bluetooth() {
         paired+=(["${mac}"]="${name}")
     done < <(list_paired_bluetooth)
 
-    # sixaxis: Add USB Pairing Information
+    # Dualshock Controller: Add USB Pairing Information
     [[ -n "$(lsmod | grep hid_sony)" ]] && info_text="Searching ...\n\nDualShock Registration: While this text is visible, unplug the controller, press the PS/SHARE button, and then replug the controller."
 
     dialog --backtitle "${__backtitle}" --infobox "${info_text}" 7 60 >/dev/tty
-    if hasPackage bluez 5; then
-        # sixaxis: Reply To Authorization Challenge On USB Cable Connect
+    if hasPackage bluez; then
+        # Dualshock Controller: Reply To Authorization Challenge On USB Cable Connect
         while read -r mac; read -r name; do
             found+=(["${mac}"]="${name}")
        done < <(bluez_cmd_bluetooth "default-agent\nscan on" "15" "Authorize service$" "yes" >/dev/null; bluez_cmd_bluetooth "devices" "3" | grep "^Device " | cut -d" " -f2,3- | sed 's/ /\n/')
@@ -152,8 +153,8 @@ function list_registered_bluetooth() {
     local line
     while read -r line; do
         if [[ "${line}" =~ ^(.+)\ \((.+)\)$ ]]; then
-            echo ${BASH_REMATCH[2]}
-            echo ${BASH_REMATCH[1]}
+            echo "${BASH_REMATCH[2]}"
+            echo "${BASH_REMATCH[1]}"
         fi
     done < <(bt-device --list 2>/dev/null)
 }
@@ -245,7 +246,7 @@ function pair_bluetooth() {
     local options=()
     local hcitool="${rootdir}/supplementary/${md_id}/hcitool"
 
-    while read mac; read name; do
+    while read -r mac; read -r name; do
         devices+=(["${mac}"]="${name}")
         options+=("${mac}" "${name}")
     done < <(list_available_bluetooth)
@@ -311,12 +312,12 @@ function pair_bluetooth() {
                 dialog --backtitle "${__backtitle}" --infobox "Please Enter PIN ${pin} On Your Bluetooth Device" 10 60
                 echo "${pin}" >&3
                 # Read "Enter PIN Code:"
-                read -n 15 line
+                read -r -n 15 line
                 ;;
             "RequestConfirmation"*)
                 # Read "Confirm Passkey (Yes/No):"
                 echo "yes" >&3
-                read -n 26 line
+                read -r -n 26 line
                 skip_connect=1
                 break
                 ;;
@@ -475,8 +476,6 @@ function gui_bluetooth() {
         local choice
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         if [[ -n "${choice}" ]]; then
-            # Temporarily Restore Bluetooth Stack (If Needed)
-            service sixad status &>/dev/null && sixad -r
             case "${choice}" in
                 P)
                     pair_bluetooth
@@ -502,8 +501,6 @@ function gui_bluetooth() {
                     ;;
             esac
         else
-            # Restart sixad (If Running)
-            service sixad status &>/dev/null && service sixad restart && printMsgs "dialog" "NOTICE: The ps3controller driver was temporarily interrupted in order to allow compatibility with standard Bluetooth peripherals. Please re-pair your Dual Shock controller to continue (or disregard this message if currently using another controller)."
             break
         fi
     done
