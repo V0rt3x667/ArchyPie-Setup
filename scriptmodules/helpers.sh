@@ -15,13 +15,13 @@
 function printMsgs() {
     local type="$1"
     shift
-    if [[ "$__nodialog" == "1" && "${type}" == "dialog" ]]; then
+    if [[ "${__nodialog}" == "1" && "${type}" == "dialog" ]]; then
         type="console"
     fi
     for msg in "$@"; do
-        [[ "${type}" == "dialog" ]] && dialog --backtitle "$__backtitle" --cr-wrap --no-collapse --msgbox "$msg" 20 60 >/dev/tty
-        [[ "${type}" == "console" ]] && echo -e "$msg"
-        [[ "${type}" == "heading" ]] && echo -e "\n= = = = = = = = = = = = = = = = = = = = =\n$msg\n= = = = = = = = = = = = = = = = = = = = =\n"
+        [[ "${type}" == "dialog" ]] && dialog --backtitle "${__backtitle}" --cr-wrap --no-collapse --msgbox "${msg}" 20 60 >/dev/tty
+        [[ "${type}" == "console" ]] && echo -e "${msg}"
+        [[ "${type}" == "heading" ]] && echo -e "\n= = = = = = = = = = = = = = = = = = = = =\n${msg}\n= = = = = = = = = = = = = = = = = = = = =\n"
     done
     return 0
 }
@@ -142,7 +142,7 @@ function inputBox() {
     local text="$2"
     local minchars="$3"
     [[ -z "${minchars}" ]] && minchars=0
-    local params=(--backtitle "${__backtitle}" --inputbox "Enter the ${title}")
+    local params=(--backtitle "${__backtitle}" --inputbox "Enter The ${title}")
     local osk="$(rp_getInstallPath joy2key)/osk.py"
 
     if [[ -f "${osk}" ]]; then
@@ -152,7 +152,7 @@ function inputBox() {
         while true; do
             text=$(dialog "${params[@]}" 10 60 "${text}" 2>&1 >/dev/tty) || return $?
             [[ "${#text}" -ge "${minchars}" ]] && break
-            dialog --msgbox "${title} must have at least ${minchars} characters" 8 60 2>&1 >/dev/tty
+            dialog --msgbox "${title} Must Have At Least ${minchars} Characters" 8 60 2>&1 >/dev/tty
         done
     fi
 
@@ -161,28 +161,22 @@ function inputBox() {
 
 ## @fn hasPackage()
 ## @param package name of Arch Linux package
-## @param version requested version (optional)
-## @param comparison type of comparison - defaults to `ge` (greater than or equal) if a version parameter is provided.
-## @brief Test for an installed Arch Linux package / package version.
-## @retval 0 if the requested package / version was installed
-## @retval 1 if the requested package / version was not installed
+## @brief Test for an installed Arch Linux package.
+## @retval 0 if the requested package is installed
+## @retval 1 if the requested package is not installed
 function hasPackage() {
-    local pkgs="$1"
-    local installed=0
+    local pkg
+    local pkgs="${1}"
 
+    # If The Package Is Installed Return True
     for pkg in "${pkgs[@]}"; do
-            pacman -Q "$pkg" &>/dev/null
-        if [[ "$?" -eq 0 ]]; then
-            installed=1
+        pacman -Q "${pkg}" &>/dev/null
+        if [[ "${?}" -eq 0 ]]; then
+            return 0
+        else
+            return 1
         fi
     done
-
-    # if the package is installed return true
-    if  [[ "$installed" -eq 1 ]]; then
-        return 0
-    else
-        return 1
-    fi
 }
 
 ## @fn pacmanUpdate()
@@ -589,7 +583,7 @@ function addUdevInputRules() {
 ## The first array is `$ini_titles` which provides the titles for each
 ## entry..
 ##
-## The second array is `$ini_descs` which contains a help description for each
+## The second array is `$_descs` which contains a help description for each
 ## entry.
 ##
 ## The third array is `$ini_options` which contains multiple space separated
@@ -748,7 +742,7 @@ function iniFileEditor() {
         esac
         [[ -z "$default" ]] && default="U"
         # display values
-        cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --menu "Please choose the value for ${keys[sel]}" 22 76 16)
+        cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --menu "Please Choose The Value For ${keys[sel]}" 22 76 16)
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
         # if it is a _string_ type we will open an inputbox dialog to get a manual value
@@ -756,7 +750,7 @@ function iniFileEditor() {
             continue
         elif [[ "${choice}" == "E" ]]; then
             [[ "${values[sel]}" == "unset" ]] && values[sel]=""
-            cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the value for ${keys[sel]}" 10 60 "${values[sel]}")
+            cmd=(dialog --backtitle "$__backtitle" --inputbox "Please Enter The Value For ${keys[sel]}" 10 60 "${values[sel]}")
             value=$("${cmd[@]}" 2>&1 >/dev/tty)
         elif [[ "${choice}" == "U" ]]; then
             value=""
