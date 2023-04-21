@@ -6,7 +6,7 @@
 
 rp_module_id="amiberry"
 rp_module_desc="Amiberry: Commodore Amiga Emulator"
-rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/cd32\nCopy CDTV Games To: ${romdir}/cdtv\n\nCopy BIOS Files: (kick34005.A500, kick40063.A600 & kick40068.A1200) To: ${biosdir}/amiga\nCopy BIOS File (kick40060.CD32) To: ${biosdir}/cd32\nCopy BIOS File (kick34005.CDTV) To: ${biosdir}/cdtv"
+rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/amigacd32\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files: (kick34005.A500, kick40063.A600 & kick40068.A1200) To: ${biosdir}/amiga\nCopy BIOS File (kick40060.CD32) To: ${biosdir}/amigacd32\nCopy BIOS File (kick34005.CDTV) To: ${biosdir}/amigacdtv"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
 rp_module_repo="git https://github.com/BlitterStudio/amiberry :_get_branch_amiberry"
 rp_module_section="opt"
@@ -85,11 +85,21 @@ function configure_amiberry() {
 
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "amiga"
+        mkRomDir "amigacd32"
+        mkRomDir "amigacdtv"
+
         mkUserDir "${biosdir}/amiga"
+        mkUserDir "${biosdir}/amigacd32"
+        mkUserDir "${biosdir}/amigacdtv"
 
         # Move Data Folders & Files
-        local dir
-        for dir in conf nvram savestates screenshots; do
+        local dirs=(
+            'conf'
+            'nvram'
+            'savestates'
+            'screenshots'
+        )
+        for dir in "${dirs[@]}"; do
             moveConfigDir "${md_inst}/${dir}" "${md_conf_root}/amiga/${md_id}/${dir}"
         done
         moveConfigDir "${md_inst}/kickstarts" "${biosdir}/amiga"
@@ -125,11 +135,11 @@ _EOF_
     addEmulator 0 "${md_id}-a4000" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A4000"
     addEmulator 0 "${md_id}-a500" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500"
     addEmulator 0 "${md_id}-a500plus" "amiga" "${md_inst}/${md_id}.sh %ROM% --model A500P"
-    addEmulator 1 "${md_id}-cd32" "cd32" "${md_inst}/${md_id}.sh %ROM% --model CD32"
-    addEmulator 1 "${md_id}-cdtv" "cdtv" "${md_inst}/${md_id}.sh %ROM% --model CDTV"
+    addEmulator 1 "${md_id}-cd32" "amigacd32" "${md_inst}/${md_id}.sh %ROM% --model CD32"
+    addEmulator 1 "${md_id}-cdtv" "amigacdtv" "${md_inst}/${md_id}.sh %ROM% --model CDTV"
     addEmulator 1 "${md_id}" "amiga" "${md_inst}/${md_id}.sh %ROM%"
 
     addSystem "amiga"
-    addSystem "cd32"
-    addSystem "cdtv"
+    addSystem "amigacd32"
+    addSystem "amigacdtv"
 }

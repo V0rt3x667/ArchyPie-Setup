@@ -6,7 +6,7 @@
 
 rp_module_id="fs-uae"
 rp_module_desc="FS-UAE: Commodore Amiga 500, 500+, 600, 1200, CDTV & CD32 Emulator"
-rp_module_help="ROM Extension: .adf .adz .bin .chd .cue .dms .ipf .iso .lha .m3u .sh .uae .zip\n\nCopy Amiga Games To: ${romdir}/amiga\n\nCopy CD32 Games To: ${romdir}/cd32\n\nCopy CDTV Games To: ${romdir}/cdtv\n\nCopy BIOS Files:\n\nkick13.rom\nkick20.rom\nkick31.rom\n\nTo: ${biosdir}/amiga"
+rp_module_help="ROM Extension: .adf .adz .bin .chd .cue .dms .ipf .iso .lha .m3u .sh .uae .zip\n\nCopy Amiga Games To: ${romdir}/amiga\n\nCopy CD32 Games To: ${romdir}/amigacd32\n\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files:\n\nkick13.rom\nkick20.rom\nkick31.rom\n\nTo: ${biosdir}/amiga"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/FrodeSolheim/fs-uae/master/COPYING"
 rp_module_repo="git https://github.com/FrodeSolheim/fs-uae :_get_branch_fs-uae"
 rp_module_section="main"
@@ -130,8 +130,8 @@ function configure_fs-uae() {
 
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "amiga"
-        mkRomDir "cd32"
-        mkRomDir "cdtv"
+        mkRomDir "amigacd32"
+        mkRomDir "amigacdtv"
 
         mkUserDir "${biosdir}/amiga"
         mkUserDir "${biosdir}/amiga/workbench"
@@ -147,7 +147,6 @@ function configure_fs-uae() {
         iniSet "base_dir" "${arpdir}/${md_id}"
         iniSet "logs_dir" "${arpdir}/${md_id}"
         iniSet "cache_dir" "${arpdir}/${md_id}"
-        iniSet "kickstarts_dir" "${biosdir}/amiga"
         iniSet "fullscreen" "1"
         iniSet "keep_aspect" "1"
         iniSet "video_sync" "Auto"
@@ -174,10 +173,10 @@ _EOF_
     addEmulator 0 "${md_id}-a600" "amiga" "${md_inst}/bin/${md_id}.sh %ROM% A600"
     addEmulator 0 "${md_id}-whdload" "amiga" "${md_inst}/bin/${md_id}.sh %ROM% WHDLOAD"
     addEmulator 1 "${md_id}-a500" "amiga" "${md_inst}/bin/${md_id}.sh %ROM% A500"
-    addEmulator 1 "${md_id}-cd32" "cd32" "${md_inst}/bin/${md_id}.sh %ROM% CD32"
-    addEmulator 1 "${md_id}-cdtv" "cdtv" "${md_inst}/bin/${md_id}.sh %ROM% CDTV"
+    addEmulator 1 "${md_id}-cd32" "amigacd32" "${md_inst}/bin/${md_id}.sh %ROM% CD32"
+    addEmulator 1 "${md_id}-cdtv" "amigacdtv" "${md_inst}/bin/${md_id}.sh %ROM% CDTV"
 
     addSystem "amiga"
-    addSystem "cd32"
-    addSystem "cdtv"
+    addSystem "amigacd32"
+    addSystem "amigacdtv"
 }

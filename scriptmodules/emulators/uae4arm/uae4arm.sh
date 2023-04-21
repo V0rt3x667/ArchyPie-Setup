@@ -4,7 +4,7 @@ is_amiberry=0
 emulator="./uae4arm"
 [[ "${is_amiberry}" -eq 1 ]] && emulator="./amiberry"
 
-pushd "${0%/*}" >/dev/null
+pushd "${0%/*}" >/dev/null || exit
 source "../../lib/archivefuncs.sh"
 
 params=()

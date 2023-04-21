@@ -23,9 +23,9 @@ function launch_amiga() {
             --fullscreen \
             --amiga_model="${MODEL}" \
             --cdrom_drive_0="${ROM}" \
-            --cdroms_dir="${romdir}/cd32" \
-            --save_states_dir="${romdir}/cd32" \
-            --kickstarts_dir="${biosdir}/amiga"
+            --cdroms_dir="${romdir}/amigacd32" \
+            --save_states_dir="${romdir}/amigacd32" \
+            --kickstarts_dir="${biosdir}/amigacd32"
             ;;
         CDTV)
             "${rootdir}/emulators/fs-uae/bin/fs-uae" \
@@ -33,9 +33,9 @@ function launch_amiga() {
             --fullscreen \
             --amiga_model="${MODEL}" \
             --cdrom_drive_0="${ROM}" \
-            --cdroms_dir="${romdir}/cdtv" \
-            --save_states_dir="${romdir}/cdtv" \
-            --kickstarts_dir="${biosdir}/amiga"
+            --cdroms_dir="${romdir}/amigacdtv" \
+            --save_states_dir="${romdir}/amigacdtv" \
+            --kickstarts_dir="${biosdir}/amigacdtv"
             ;;
         WHDLOAD)
             "${rootdir}/emulators/fs-uae/bin/fs-uae-launcher" \
@@ -69,7 +69,7 @@ function check_arch_files() {
         A500|A500+|A600|A1200)
             archiveExtract "${ROM}" ".adf .adz .dms .ipf"
             # Check for Successful Extraction
-            if [[ $? == 0 ]]; then
+            if [[ "${?}" == 0 ]]; then
                 ROM="${arch_files[0]}"
                 romdir="${arch_dir}"
                 floppy_images=()

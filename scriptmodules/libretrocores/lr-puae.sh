@@ -6,7 +6,7 @@
 
 rp_module_id="lr-puae"
 rp_module_desc="Commodore Amiga 500, 500+, 600, 1200, 4000, CDTV & CD32 Libretro Core"
-rp_module_help="ROM Extensions: .7z .adf .adz .ccd .chd .cue .dms .fdi .hdf .hdz .info .ipf .iso .lha .m3u .mds .nrg .slave .uae .zip\n\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/cd32\nCopy CDTV Games To: ${romdir}/cdtv\n\nCopy BIOS Files: (kick34005.A500, kick40063.A600 & kick40068.A1200) To: ${biosdir}/amiga\nCopy BIOS File (kick40060.CD32) To: ${biosdir}/cd32\nCopy BIOS File (kick34005.CDTV) To: ${biosdir}/cdtv"
+rp_module_help="ROM Extensions: .7z .adf .adz .ccd .chd .cue .dms .fdi .hdf .hdz .info .ipf .iso .lha .m3u .mds .nrg .slave .uae .zip\n\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/amigacd32\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files: (kick34005.A500, kick40063.A600 & kick40068.A1200) To: ${biosdir}/amiga\nCopy BIOS File (kick40060.CD32) To: ${biosdir}/amigacd32\nCopy BIOS File (kick34005.CDTV) To: ${biosdir}/amigacdtv"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/PUAE/master/COPYING"
 rp_module_repo="git https://github.com/libretro/libretro-uae master"
 rp_module_section="opt"
@@ -39,8 +39,8 @@ function install_lr-puae() {
 function configure_lr-puae() {
     local systems=(
         'amiga'
-        'cd32'
-        'cdtv'
+        'amigacd32'
+        'amigacdtv'
     )
 
     if [[ "${md_mode}" == "install" ]]; then
@@ -57,7 +57,7 @@ function configure_lr-puae() {
     fi
 
     for system in "${systems[@]}"; do
-        defaultRAConfig "${system}" "system_directory" "${biosdir}/${system}" 
+        defaultRAConfig "${system}" "system_directory" "${biosdir}/${system}"
         addEmulator 1 "${md_id}" "${system}" "${md_inst}/puae_libretro.so"
         addSystem "${system}"
     done
