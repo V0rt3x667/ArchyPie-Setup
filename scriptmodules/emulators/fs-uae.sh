@@ -6,7 +6,7 @@
 
 rp_module_id="fs-uae"
 rp_module_desc="FS-UAE: Commodore Amiga 500, 500+, 600, 1200, CDTV & CD32 Emulator"
-rp_module_help="ROM Extension: .adf .adz .bin .chd .cue .dms .ipf .iso .lha .m3u .sh .uae .zip\n\nCopy Amiga Games To: ${romdir}/amiga\n\nCopy CD32 Games To: ${romdir}/amigacd32\n\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files:\n\nkick13.rom\nkick20.rom\nkick31.rom\n\nTo: ${biosdir}/amiga"
+rp_module_help="ROM Extension: .adf .adz .bin .chd .cue .dms .ipf .iso .lha .m3u .sh .uae .zip\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/amigacd32\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files: (kick34005.A500, kick40063.A600 & kick40068.A1200) To: ${biosdir}/amiga\nCopy BIOS File (kick40060.CD32) To: ${biosdir}/amigacd32\nCopy BIOS File (kick34005.CDTV) To: ${biosdir}/amigacdtv"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/FrodeSolheim/fs-uae/master/COPYING"
 rp_module_repo="git https://github.com/FrodeSolheim/fs-uae :_get_branch_fs-uae"
 rp_module_section="main"
