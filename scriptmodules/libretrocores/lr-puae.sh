@@ -49,8 +49,10 @@ function configure_lr-puae() {
             mkUserDir "${biosdir}/${system}"
         done
 
+        mkUserDir "${md_conf_root}/amigacdtv"
+
         # Force CDTV System
-        local config="${md_conf_root}/cdtv/retroarch-core-options.cfg"
+        local config="${md_conf_root}/amigacdtv/retroarch-core-options.cfg"
         iniConfig " = " '"' "${config}"
         iniSet "puae_model" "CDTV" "${config}"
         chown "${user}:${user}" "${config}"
@@ -63,7 +65,7 @@ function configure_lr-puae() {
     done
 
     # Add CDTV Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
-    local raconfig="${md_conf_root}/cdtv/retroarch.cfg"
+    local raconfig="${md_conf_root}/amigacdtv/retroarch.cfg"
     iniConfig " = " '"' "${raconfig}"
     iniSet "core_options_path" "${config}"
     chown "${user}:${user}" "${raconfig}"
