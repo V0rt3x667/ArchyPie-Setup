@@ -149,7 +149,7 @@ function build_emulationstation() {
     if isPlatform "rpi"; then
         params+=('-DRPI=On')
         # Use OpenGL on RPI/KMS
-        isPlatform "mesa" && params+=('-DGL=On')
+        isPlatform "mesa" && params+=('-DGL=On' '-DUSE_GL21=On')
     elif isPlatform "x11"; then
         if isPlatform "gles"; then
             params+=('-DGLES=On')
