@@ -20,13 +20,11 @@ proc init {} {
         }
     }
 
-    if { [catch {exec udevadm info --name=/dev/input/js0 | grep -q "ID_INPUT_JOYSTICK=1"}] == 0 } {
-        set path [exec udevadm info --name=/dev/input/js0 --query=name]
-        set joy_name [exec cat /sys/class/${path}/device/name]
-        regsub -all {[:><?\"\/\\|*]} ${joy_name} "" joy_name
-        if { [file exists "${config_dir}/${joy_name}.tcl"] } {
-                load_config_joystick ${joy_name} "${config_dir}/${joy_name}.tcl"
-        }
+    # Get The 1st Joystick Name & Sanitize It
+    set joy_name [machine_info pluggable joystick1]
+    regsub -all {[:><?\"\/\\|*]} ${joy_name} "" joy_name
+    if { [file exists "${config_dir}/${joy_name}.tcl"] } {
+            load_config_joystick ${joy_name} "${config_dir}/${joy_name}.tcl"
     }
 }
 
