@@ -6,7 +6,7 @@
 
 rp_module_id="lr-fbneo"
 rp_module_desc="FinalBurn Neo Arcade Libretro Core"
-rp_module_help="ROM Extension: .zip\n\nCopy FBA ROMs To:\n${romdir}/fba Or\n${romdir}/neogeo Or\n${romdir}/arcade\n\nCopy NeoGeo BIOS File (neogeo.zip) To Your Chosen ROM Directory."
+rp_module_help="ROM Extension: .zip\n\nCopy FBA ROMs To Any Of The Following Directories:\n\n${romdir}/arcade \n${romdir}/fba \n${romdir}/neocd \n${romdir}/neogeo\n\nCopy NeoCD BIOS File (neocdz.zip) To: ${biosdir}/neocd \n\nCopy NeoGeo BIOS File (neogeo.zip) To: ${biosdir}/neogeo"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/FBNeo/master/src/license.txt"
 rp_module_repo="git https://github.com/libretro/FBNeo master"
 rp_module_section="main"
@@ -49,6 +49,7 @@ function configure_lr-fbneo() {
         "mastersystem"
         "megadrive"
         "msx"
+        "neocd"
         "neogeo"
         "nes"
         "ngp"
@@ -64,19 +65,33 @@ function configure_lr-fbneo() {
         done
 
         # Create Directories For All Support Files
-        mkUserDir "${biosdir}/fbneo/{blend,cheats,patched,samples}"
+        local dirs=(
+            'blend'
+            'cheats'
+            'patched'
+            'samples'
+        )
+        for dir in "${dirs[@]}"; do
+            mkUserDir "${biosdir}/fba/${dir}"
+            mkUserDir "${biosdir}/neocd"
+            mkUserDir "${biosdir}/neogeo"
+        done
 
         # Copy 'hiscore.dat'
-        cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fbneo/"
-        chown "${user}:${user}" "${biosdir}/fbneo/hiscore.dat"
+        cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fba"
+        chown -R "${user}:${user}" "${biosdir}/fba"
     fi
+
+    defaultRAConfig "fba" "system_directory" "${biosdir}/fba"
+    defaultRAConfig "neocd" "system_directory" "${biosdir}/neocd"
+    defaultRAConfig "neogeo" "system_directory" "${biosdir}/neogeo"
 
     setRetroArchCoreOption "fbneo-diagnostic-input" "Hold Start"
 
     addEmulator 0 "${md_id}" "arcade" "${md_inst}/fbneo_libretro.so"
     addEmulator 0 "${md_id}-neocd" "arcade" "${md_inst}/fbneo_libretro.so --subsystem neocd"
     addEmulator 1 "${md_id}" "neogeo" "${md_inst}/fbneo_libretro.so"
-    addEmulator 0 "${md_id}-neocd" "neogeo" "${md_inst}/fbneo_libretro.so --subsystem neocd"
+    addEmulator 0 "${md_id}-neocd" "neocd" "${md_inst}/fbneo_libretro.so --subsystem neocd"
     addEmulator 1 "${md_id}" "fba" "${md_inst}/fbneo_libretro.so"
     addEmulator 0 "${md_id}-neocd" "fba" "${md_inst}/fbneo_libretro.so --subsystem neocd"
 
