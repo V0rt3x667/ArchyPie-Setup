@@ -73,8 +73,8 @@ function configure_lr-fbneo() {
         )
         for dir in "${dirs[@]}"; do
             mkUserDir "${biosdir}/fba/${dir}"
-            mkUserDir "${biosdir}/neocd"
-            mkUserDir "${biosdir}/neogeo"
+            mkUserDir "${biosdir}/neocd/${dir}"
+            mkUserDir "${biosdir}/neogeo/${dir}"
         done
 
         # Copy 'hiscore.dat'
