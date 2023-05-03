@@ -34,7 +34,7 @@ function build_ioquake3() {
 }
 
 function _arch_ioquake3() {
-    uname -m | sed -e "s|i.86|x86|" | sed -e "s|^arm.*|arm|"
+    uname -m | sed -e "s|i.86|x86|" | sed -e "s|^arm.*|arm|" | sed -e "s|aarch64|arm64|"
 }
 
 function install_ioquake3() {
@@ -42,14 +42,13 @@ function install_ioquake3() {
 }
 
 function _add_games_ioquake3() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
 
     declare -A games=(
         ['baseq3/pak0.pk3']="Quake III Arena"
-        ['demoq3/pak0.pk3']="Quake III Arena (Demo)"
         ['missionpack/pak0.pk3']="Quake III: Team Arena"
     )
     portname="quake3"
@@ -63,7 +62,7 @@ function _add_games_ioquake3() {
             popd || return
         fi
         if [[ -f "${dir}/${game}" ]]; then
-            addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game%%/*}"
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
         fi
     done
 }
@@ -75,7 +74,6 @@ function configure_ioquake3() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${portname}"
         mkRomDir "ports/${portname}/baseq3"
-        mkRomDir "ports/${portname}/demoq3"
         mkRomDir "ports/${portname}/missionpack"
 
         _game_data_quake3
@@ -83,7 +81,6 @@ function configure_ioquake3() {
 
     moveConfigDir "${md_inst}/baseq3" "${romdir}/ports/${portname}/baseq3"
     moveConfigDir "${md_inst}/missionpack" "${romdir}/ports/${portname}/missionpack"
-    moveConfigDir "${md_inst}/demoq3" "${romdir}/ports/${portname}/demoq3"
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     local launcher=("${md_inst}/${md_id}.$(_arch_${md_id}) +set fs_game %ROM%")

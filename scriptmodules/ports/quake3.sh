@@ -39,8 +39,8 @@ function _game_data_quake3() {
     local portname
     portname="quake3"
 
-    if [[ ! -f "${romdir}/ports/${portname}/baseq3/pak0.pk3" ]] && [[ ! -f "${romdir}/ports/${portname}/demoq3/pak0.pk3" ]]; then
-        downloadAndExtract "${__archive_url}/Q3DemoPaks.zip" "${romdir}/ports/${portname}/demoq3" -j
+    if [[ ! -f "${romdir}/ports/${portname}/baseq3/pak0.pk3" ]]; then
+        downloadAndExtract "${__archive_url}/Q3DemoPaks.zip" "${romdir}/ports/${portname}/baseq3" -j
     fi
     chown -R "${user}:${user}" "${romdir}/ports/${portname}"
 }
