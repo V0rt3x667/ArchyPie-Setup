@@ -91,6 +91,11 @@ XRANDR="xrandr"
 
 source "$ROOTDIR/lib/inifuncs.sh"
 
+# disable the `patsub_replacement` shell option, it breaks the string substitution when replacement contains '&'
+if shopt -s patsub_replacement 2>/dev/null; then
+    shopt -u patsub_replacement
+fi
+
 function get_config() {
     declare -Ag MODE_MAP
 
@@ -427,7 +432,7 @@ function default_process() {
     local key="$3"
     local value="$4"
 
-    iniConfig " = " '"' "$config"
+    iniConfig " = " '"' "${config}"
     case "$mode" in
         get)
             iniGet "${key}"
@@ -498,7 +503,7 @@ function default_emulator() {
             config="$EMU_CONF"
             ;;
     esac
-    default_process "$config" "$mode" "${key}" "$value"
+    default_process "${config}" "$mode" "${key}" "$value"
 }
 
 function load_mode_defaults() {
@@ -789,7 +794,7 @@ function choose_emulator() {
         ((i++))
     done < <(sort "$EMU_SYS_CONF")
     if [[ "${#options[@]}" -eq 0 ]]; then
-        dialog --msgbox "No emulator options found for $SYSTEM - Do you have a valid $EMU_SYS_CONF ?" 20 60 >/dev/tty
+        dialog --msgbox "No Emulator Options Found For ${SYSTEM} - Do You Have A Valid ${EMU_SYS_CONF}?" 20 60 >/dev/tty
         stop_joy2key
         exit 1
     fi
@@ -856,12 +861,12 @@ function choose_render_res() {
         ((i++))
     done
     options+=(
-        O "Use video output resolution"
-        C "Use config file resolution"
+        O "Use Video Output Resolution"
+        C "Use Config File Resolution"
     )
     [[ "$default" == "output" ]] && default="O"
     [[ "$default" == "config" ]] && default="C"
-    local cmd=(dialog --default-item "$default" --menu "Choose RetroArch render resolution" 22 76 16 )
+    local cmd=(dialog --default-item "$default" --menu "Choose RetroArch Render Resolution" 22 76 16 )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     [[ -z "${choice}" ]] && return
     case "${choice}" in
@@ -896,7 +901,7 @@ function user_menu() {
     local choice
     local ret
     while true; do
-        cmd=(dialog --default-item "$default" --cancel-label "Back" --menu "Choose option"  22 76 16)
+        cmd=(dialog --default-item "$default" --cancel-label "Back" --menu "Choose An Option"  22 76 16)
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "${choice}" ]] && return 0
         default="${choice}"
@@ -1244,7 +1249,7 @@ function show_launch() {
 
     if [[ -n "$image" ]]; then
         if [[ -n "$DISPLAY" ]]; then
-            feh -F -N -Z -Y -q "$image" & &>/dev/null
+            imv -f -x "$image" & &>/dev/null
             IMG_PID=$!
             sleep "$IMAGE_DELAY"
         else
@@ -1257,7 +1262,7 @@ function show_launch() {
         else
             launch_name="$EMULATOR"
         fi
-        DIALOGRC="$CONFIGDIR/all/runcommand-launch-dialog.cfg" dialog --infobox "\nLaunching $launch_name ...\n\nPress a button to configure\n\nErrors are logged to $LOG" 9 60
+        DIALOGRC="$CONFIGDIR/all/runcommand-launch-dialog.cfg" dialog --infobox "\nLaunching ${launch_name} ...\n\nPress A Button To Configure\n\nErrors Are Logged To ${LOG}" 9 60
     fi
 }
 
