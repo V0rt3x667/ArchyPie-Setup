@@ -32,7 +32,7 @@ function sources_cgenius() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|/.CommanderGenius|/ArchyPie/configs/${md_id}|g" -i "${md_build}/GsKit/base/utils/FindFile.cpp"
+    sed -e "s|/.CommanderGenius|/ArchyPie/configs/${md_id}|g" -i "${md_build}/GsKit/base/interface/FindFile.cpp"
 }
 
 function build_cgenius() {
@@ -47,6 +47,7 @@ function build_cgenius() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DBUILD_COSMOS="ON" \
         -DNOTYPESAVE="ON" \
+        -DUSE_BOOST="NO" \
         "${params[*]}" \
         -Wno-dev
     ninja -C build clean
@@ -86,7 +87,7 @@ function _add_games_cgenius(){
             popd || return
         fi
         if [[ -f "${dir}/${game}" ]]; then
-            addPort "${md_id}" "${md_id}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "dir=games/${game%/*}"
+            addPort "${md_id}" "${md_id}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "dir=games/${game%/*}"
         fi
     done
 
