@@ -116,9 +116,9 @@ function _add_games_uhexen2() {
         fi
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "pak3.pak" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} -portals" "${game%%/*}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} -portals" "${game%%/*}"
             elif [[ "${game##*/}" == "pak0.pak" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game%%/*}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
             fi
         fi
     done

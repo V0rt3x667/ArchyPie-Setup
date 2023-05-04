@@ -9,7 +9,7 @@ rp_module_desc="DarkPlaces: Quake Engine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/xonotic/darkplaces/master/COPYING"
 rp_module_repo="git https://github.com/xonotic/darkplaces div0-stable"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function depends_darkplaces-quake() {
     local depends=(
@@ -47,7 +47,7 @@ function configure_darkplaces-quake() {
     local portname
     portname="quake"
 
-    if [[ "$md_mode" == "install" ]]; then
+    if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'dopa'
             'hipnotic'

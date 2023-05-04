@@ -84,9 +84,9 @@ function _add_games_iortcw() {
         fi
         if [[ -f "${dir}/${game}" ]]; then
             if [[ "${game##*/}"  == "mp_pak0.pk3" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "iowolfmp"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "iowolfmp"
             else
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "iowolfsp"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "iowolfsp"
             fi
         fi
     done

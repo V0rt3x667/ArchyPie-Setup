@@ -122,7 +122,7 @@ function _add_games_yquake2() {
             popd || return
         fi
         if [[ -f "${dir}/${game##*/}" ]]; then
-            addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game%%/*}"
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
         fi
     done
 }
@@ -131,7 +131,7 @@ function configure_yquake2() {
     local portname
     portname="quake2"
 
-    if [[ "$md_mode" == "install" ]]; then
+    if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'baseq2'
             'ctf'

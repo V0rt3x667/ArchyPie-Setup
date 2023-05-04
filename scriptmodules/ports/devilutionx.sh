@@ -86,11 +86,11 @@ function _add_games_devilutionx() {
         fi
         if [[ -f "${dir}/${game}" ]]; then
             if [[ "${game}" == "diabdat.mpq" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} --%ROM%" "diablo"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} --%ROM%" "diablo"
             elif [[ "${game}" == "hellfire.mpq" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} --%ROM%" "hellfire"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} --%ROM%" "hellfire"
             else
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} --%ROM%" "spawn"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} --%ROM%" "spawn"
             fi
         fi
     done

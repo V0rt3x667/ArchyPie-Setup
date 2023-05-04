@@ -145,22 +145,22 @@ function _add_games_gzdoom() {
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "sigil.wad" ]] && [[ -f "${dir}/sigil_shreds.wad" ]]; then
                 # Add Sigil & Buckethead Soundtrack if Available
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file sigil.wad -file ${dir}/sigil_shreds.wad"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file sigil.wad -file ${dir}/sigil_shreds.wad"
             elif [[ "${game##*/}" == "sigil.wad" ]] && [[ ! -f "${dir}/sigil_shreds.wad" ]]; then
                 # Add Sigil
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/}" 
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/}" 
             elif [[ "${game##*/}" == "bloom.wad" ]]; then
                 # Add Bloom
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
             elif [[ "${game##*/}" == "strainfix.wad" ]]; then
                 # Add Strain
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
             elif [[ "${game##*/}" =~ "brutal" ]]; then
                 # Add Project Brutality and Other "Brutality" Mods if Available
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad * -file ${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad * -file ${game##*/}"
             else
                 # Add Games Which Do Not Require Additional Parameters
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh -iwad %ROM%" "${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh -iwad %ROM%" "${game##*/}"
                 # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
                 addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
             fi

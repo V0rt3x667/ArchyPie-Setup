@@ -72,7 +72,7 @@ function _add_games_forceengine() {
             popd || return
         fi
         if [[ -f "${dir}/${game}" ]]; then
-            addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd}" "${game%%/*}"
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
         fi
     done
 }

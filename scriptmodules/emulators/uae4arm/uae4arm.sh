@@ -47,7 +47,7 @@ elif [[ -n "${rom}" ]]; then
     rom_name="${rom##*/}"
     rom_bn="${rom_name%.*}"
 
-    # Check For .UAE Files With The Same Base Name As The Adf/Zip In The Rom Directory And Conf
+    # Check For .uae Files With The Same Base Name As The adf/zip In The Rom Directory & Conf
     if [[ -f "${rom_path}/${rom_bn}.uae" ]]; then
         config="${rom_path}/${rom_bn}.uae"
     elif [[ -f "conf/${rom_bn}.uae" ]]; then

@@ -118,24 +118,24 @@ function _add_games_eduke32() {
         fi
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "fury.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir}"
             fi
             if [[ "${game##*/}" == "duke3d.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 0"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 0"
             elif [[ "${game##*/}" == "dukedc.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 1"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 1"
             elif [[ "${game##*/}" == "nwinter.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 2"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 2"
             elif [[ "${game##*/}" == "vacation.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 3"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -addon 3"
             elif [[ "${game##*/}" == "ww2gi.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -gamegrp ww2gi.grp -ww2gi"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -gamegrp ww2gi.grp -ww2gi"
             elif [[ "${game##*/}" == "platoonl.dat" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -gamegrp platoonl.dat -ww2gi"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -gamegrp platoonl.dat -ww2gi"
             elif [[ "${game##*/}" == "nam.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -nam"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -nam"
             elif [[ "${game##*/}" == "napalm.grp" ]]; then
-                addPort "${md_id}" "${portname}" "${games[$game]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -napalm"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${portname}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir} -napalm"
             fi
         fi
     done

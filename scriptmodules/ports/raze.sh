@@ -113,13 +113,13 @@ function _add_games_raze() {
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "cryptic.ini" ]]; then
                 # Add Blood: Cryptic Passage
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-cryptic"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-cryptic"
             elif [[ "${game##*/}" == "game66.con" ]]; then
                 # Add Redneck Rampage: Suckin' Grits on Route 66
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-route66"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-route66"
             elif [[ "${game##*/}" != "cryptic.ini" ]] && [[ "${game##*/}" != "game66.con" ]]; then
                 # Add Games Which Do Not Require Additional Parameters
-                addPort "${md_id}" "${portname}" "${games[$game]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad ${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad ${game##*/}"
                 # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
                 addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
             fi  

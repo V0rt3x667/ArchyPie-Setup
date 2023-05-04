@@ -77,7 +77,7 @@ function _add_games_lr-prboom() {
             popd || return
         fi
         if [[ -f "${dir}/${game##*/}" ]]; then
-            addPort "${md_id}" "${portname}" "${games[$game]}" "${cmd} ${dir}/%ROM%" "${game##*/}"
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} ${dir}/%ROM%" "${game##*/}"
         fi
     done
 }
