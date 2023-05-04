@@ -6,7 +6,7 @@
 
 rp_module_id="amiberry"
 rp_module_desc="Amiberry: Commodore Amiga Emulator"
-rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/amigacd32\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files: (kick34005.A500, kick40063.A600 & kick40068.A1200) To: ${biosdir}/amiga\nCopy BIOS File (kick40060.CD32) To: ${biosdir}/amigacd32\nCopy BIOS File (kick34005.CDTV) To: ${biosdir}/amigacdtv"
+rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/amigacd32\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files:\n\nkick34005.A500\nkick40063.A600\nkick40068.A1200\nkick40060.CD32\nkick34005.CDTV\n\nTo: ${biosdir}/amiga"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
 rp_module_repo="git https://github.com/BlitterStudio/amiberry :_get_branch_amiberry"
 rp_module_section="opt"
@@ -89,8 +89,6 @@ function configure_amiberry() {
         mkRomDir "amigacdtv"
 
         mkUserDir "${biosdir}/amiga"
-        mkUserDir "${biosdir}/amigacd32"
-        mkUserDir "${biosdir}/amigacdtv"
 
         # Move Data Folders & Files
         local dirs=(
