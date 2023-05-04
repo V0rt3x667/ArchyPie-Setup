@@ -4,8 +4,8 @@
 #
 # Please see the LICENSE file at the top-level directory of this distribution.
 
-ROM="$1"
-MODEL="$2"
+ROM="${1}"
+MODEL="${2}"
 
 rootdir="/opt/archypie"
 datadir="${HOME}/ArchyPie"
@@ -24,8 +24,7 @@ function launch_amiga() {
             --amiga_model="${MODEL}" \
             --cdrom_drive_0="${ROM}" \
             --cdroms_dir="${romdir}/amigacd32" \
-            --save_states_dir="${romdir}/amigacd32" \
-            --kickstarts_dir="${biosdir}/amigacd32"
+            --kickstarts_dir="${biosdir}/amiga"
             ;;
         CDTV)
             "${rootdir}/emulators/fs-uae/bin/fs-uae" \
@@ -34,16 +33,13 @@ function launch_amiga() {
             --amiga_model="${MODEL}" \
             --cdrom_drive_0="${ROM}" \
             --cdroms_dir="${romdir}/amigacdtv" \
-            --save_states_dir="${romdir}/amigacdtv" \
-            --kickstarts_dir="${biosdir}/amigacdtv"
+            --kickstarts_dir="${biosdir}/amiga"
             ;;
         WHDLOAD)
+            FS_UAE_BASE_DIR="${arpdir}/${md_id}" \
             "${rootdir}/emulators/fs-uae/bin/fs-uae-launcher" \
-            --base-dir="${arpdir}" \
             --fullscreen \
             --no-gui \
-            --floppies_dir="${biosdir}/amiga/workbench" \
-            --kickstarts_dir="${biosdir}/amiga" \
             --no-auto-detect-game \
             "${ROM}"
             ;;
@@ -55,7 +51,6 @@ function launch_amiga() {
             --floppy_drive_0="${ROM}" \
             "${floppy_images[@]}" \
             --floppies_dir="${romdir}/amiga" \
-            --save_states_dir="${romdir}/amiga" \
             --kickstarts_dir="${biosdir}/amiga"
             ;;
     esac
@@ -68,7 +63,7 @@ function check_arch_files() {
             ;;
         A500|A500+|A600|A1200)
             archiveExtract "${ROM}" ".adf .adz .dms .ipf"
-            # Check for Successful Extraction
+            # Check For Successful Extraction
             if [[ "${?}" == 0 ]]; then
                 ROM="${arch_files[0]}"
                 romdir="${arch_dir}"

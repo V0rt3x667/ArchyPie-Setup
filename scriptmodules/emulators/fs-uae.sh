@@ -6,23 +6,11 @@
 
 rp_module_id="fs-uae"
 rp_module_desc="FS-UAE: Commodore Amiga 500, 500+, 600, 1200, CDTV & CD32 Emulator"
-rp_module_help="ROM Extension: .adf .adz .bin .chd .cue .dms .ipf .iso .lha .m3u .sh .uae .zip\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/amigacd32\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files: (kick34005.A500, kick40063.A600 & kick40068.A1200) To: ${biosdir}/amiga\nCopy BIOS File (kick40060.CD32) To: ${biosdir}/amigacd32\nCopy BIOS File (kick34005.CDTV) To: ${biosdir}/amigacdtv"
+rp_module_help="ROM Extension: .adf .adz .bin .cue .dms .ipf .iso .lha .m3u .sh .uae .zip\n\nCopy Amiga Games To: ${romdir}/amiga\nCopy CD32 Games To: ${romdir}/amigacd32\nCopy CDTV Games To: ${romdir}/amigacdtv\n\nCopy BIOS Files:\n\nkick34005.A500\nkick40063.A600\nkick40068.A1200\nkick40060.CD32\nkick34005.CDTV\n\nTo: ${biosdir}/amiga"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/FrodeSolheim/fs-uae/master/COPYING"
-rp_module_repo="git https://github.com/FrodeSolheim/fs-uae :_get_branch_fs-uae"
+rp_module_repo="file https://fs-uae.net/files/FS-UAE/Stable/3.1.66/fs-uae-3.1.66.tar.xz"
 rp_module_section="main"
 rp_module_flags="!all x86_64"
-
-function _get_branch_fs-uae() {
-    download "https://api.github.com/repos/FrodeSolheim/${md_id}/releases" - | grep -m 1 tag_name | cut -d\" -f4
-}
-
-function _get_branch_fs-uae-launcher() {
-    download "https://api.github.com/repos/FrodeSolheim/${md_id}-launcher/releases" - | grep -m 1 tag_name | cut -d\" -f4
-}
-
-function _get_branch_capsimg() {
-    download "https://api.github.com/repos/FrodeSolheim/capsimg/releases" - | grep -m 1 tag_name | cut -d\" -f4
-}
 
 function depends_fs-uae() {
     local depends=(
@@ -38,8 +26,11 @@ function depends_fs-uae() {
         'mesa'
         'openal'
         'python-lhafile'
+        'python-pillow'
         'python-pyqt5'
+        'python-requests'
         'python-rx'
+        'python-typing_extensions'
         'python'
         'sdl2'
         'shared-mime-info'
@@ -50,54 +41,27 @@ function depends_fs-uae() {
 }
 
 function sources_fs-uae() {
-    gitPullOrClone
+    downloadAndExtract "${md_repo_url}" "${md_build}" --strip-components 1
 
     _sources_capsimg
     _sources_fs-uae-launcher
 }
 
 function _sources_fs-uae-launcher() {
-    local tag
-    tag="$(_get_branch_fs-uae-launcher)"
+    local url
+    url="https://fs-uae.net/files/FS-UAE-Launcher/Stable/3.1.68/fs-uae-launcher-3.1.68.tar.xz"
 
-    gitPullOrClone "${md_build}/launcher" "https://github.com/FrodeSolheim/fs-uae-launcher" "${tag}"
-
-    # Set Installation Prefix
-    sed -e "s|/usr/local|${md_inst}|g" -i "${md_build}/launcher/bootstrap"
+    downloadAndExtract "${url}" "${md_build}/launcher" --strip-components 1
 }
 
 function _sources_capsimg() {
-    local tag
-    tag="$(_get_branch_capsimg)"
+    local url
+    url="https://fs-uae.net/files/CAPSImg/Stable/5.1.3/CAPSImg_5.1.3_Linux_x86-64.tar.xz"
 
-    gitPullOrClone "${md_build}/capsimg" "https://github.com/FrodeSolheim/capsimg" "${tag}"
-}
-
-function _build_capsimg() {
-    cd "${md_build}/capsimg/CAPSImg" || exit
-    chmod a+x ./bootstrap.sh
-    ./bootstrap.sh
-    ./configure
-    make clean
-    make
-    mv libcapsimage.so.5.1 capsimg.so
-    md_ret_require="${md_build}/capsimg/CAPSImg/capsimg.so"
-}
-
-function _build_fs-uae-launcher() {
-    cd "${md_build}/launcher" || exit
-    ./bootstrap
-    ./update-version
-    make clean
-    make
-    md_ret_require="${md_build}/launcher/${md_id}-launcher"
+    downloadAndExtract "${url}" "${md_build}/capsimg" --strip-components 1
 }
 
 function build_fs-uae() {
-    _build_capsimg
-    _build_fs-uae-launcher
-
-    cd "${md_build}" || exit
     ./bootstrap
     ./configure --prefix="${md_inst}"
     make clean
@@ -106,12 +70,14 @@ function build_fs-uae() {
 }
 
 function _install_capsimg() {
-    install -Dm644 "${md_build}/capsimg/CAPSImg/capsimg.so" "${md_inst}/bin/"
+    install -Dm644 "${md_build}/capsimg/Linux/x86-64/capsimg.so" "${md_inst}/bin/"
+
     md_ret_require="${md_inst}/bin/capsimg.so"
 }
 
 function _install_fs-uae-launcher() {
-    make -C "${md_build}/launcher" install
+    make -C "${md_build}/launcher" prefix="${md_inst}" install
+
     md_ret_require="${md_inst}/bin/${md_id}-launcher"
 }
 
@@ -119,6 +85,7 @@ function install_fs-uae() {
     make install
     _install_capsimg
     _install_fs-uae-launcher
+
     md_ret_require="${md_inst}/bin/${md_id}"
 }
 
