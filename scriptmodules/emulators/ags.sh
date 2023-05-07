@@ -70,7 +70,7 @@ function configure_ags() {
         download "http://www.eglebbk.dds.nl/program/download/digmid.dat" - | bzcat >"${md_inst}/bin/patches.dat"
     fi
 
-    addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/${md_id} --fullscreen %ROM%"
+    addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/${md_id} --gfxdriver ogl --fullscreen %ROM%"
 
     addSystem "${md_id}"
 }
