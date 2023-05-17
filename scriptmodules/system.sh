@@ -61,7 +61,7 @@ function conf_binary_vars() {
 
     # Set: Binary Download URLs
     __binary_host="files.retropie.org.uk"
-    __binary_base_url="https://$__binary_host/binaries"
+    __binary_base_url="https://${__binary_host}/binaries"
 
     # Code Might Be Used In Future
     # __binary_path="${__os_codename}/${__platform}"
@@ -249,6 +249,9 @@ function get_platform() {
                         *rockpro64*)
                             __platform="rockpro64"
                             ;;
+                        *rk3588*)
+                            __platform="rk3588"
+                            ;;
                     esac
                 else
                     __platform="${architecture}"
@@ -379,4 +382,9 @@ function platform_armv7-mali() {
 
 function platform_imx6() {
     cpu_armv7 "cortex-a9"
+}
+
+function platform_rk3588() {
+    cpu_armv8 "cortex-a76.cortex-a55"
+    __platform_flags+=('x11' 'gles' 'gles3' 'gles32')
 }
