@@ -9,7 +9,7 @@ rp_module_desc="iortcw: Return to Castle Wolfenstein Port"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/iortcw/iortcw/master/LICENCE.md"
 rp_module_repo="git https://github.com/iortcw/iortcw master"
 rp_module_section="opt"
-rp_module_flags="!rpi"
+rp_module_flags=""
 
 function depends_iortcw() {
     local depends=(
