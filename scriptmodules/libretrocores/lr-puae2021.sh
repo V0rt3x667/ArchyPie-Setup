@@ -58,11 +58,11 @@ function configure_lr-puae2021() {
         chown "${user}:${user}" "${config}"
     fi
 
-    defaultRAConfig "${system}" "system_directory" "${biosdir}/amiga"
-
     for system in "${systems[@]}"; do
         addEmulator 0 "${md_id}" "${system}" "${md_inst}/puae2021_libretro.so"
         addSystem "${system}"
+
+        defaultRAConfig "${system}" "system_directory" "${biosdir}/amiga"
     done
 
     # Add CDTV Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
