@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-beetle-pce"
-rp_module_desc="NEC PC Engine (TurboGrafx-16) & PC Engine SuperGrafx Libretro Core"
-rp_module_help="ROM Extensions: .ccd .chd .cue .m3u .pce .sgx .toc\n\nCopy NEC PC Engine (TurboGrafx-16) & PC Engine SuperGrafx ROMs To: ${romdir}/pcengine\n\nCopy BIOS File (syscard3.pce) To: ${biosdir}/pcengine"
+rp_module_desc="NEC PC Engine (TurboGrafx-16), PC Engine CD (TurboGrafx-CD) & PC Engine SuperGrafx Libretro Core"
+rp_module_help="ROM Extensions: .ccd .chd .cue .m3u .pce .sgx .toc\n\nCopy NEC PC Engine (TurboGrafx-16) & PC Engine SuperGrafx ROMs To: ${romdir}/pcengine\nCopy PC Engine CD (TurboGrafx-CD) ROMs To: ${romdir}/pce-cd\n\nCopy BIOS File (syscard3.pce) To: ${biosdir}/pcengine"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-pce-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/beetle-pce-libretro master"
 rp_module_section="main"
@@ -26,8 +26,15 @@ function install_lr-beetle-pce() {
 }
 
 function configure_lr-beetle-pce() {
+    local systems=(
+        'pce-cd'
+        'pcengine'
+    )
+
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "pcengine"
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+        done
 
         mkUserDir "${biosdir}/pcengine"
     fi
@@ -36,9 +43,10 @@ function configure_lr-beetle-pce() {
     setRetroArchCoreOption "pce_multitap" "disabled"
     setRetroArchCoreOption "pce_scaling" "hires"
 
-    defaultRAConfig "pcengine" "system_directory" "${biosdir}/pcengine"
+    for system in "${systems[@]}"; do
+        addEmulator 1 "${md_id}" "${system}" "${md_inst}/mednafen_pce_libretro.so"
+        addSystem "${system}"
 
-    addEmulator 1 "${md_id}" "pcengine" "${md_inst}/mednafen_pce_libretro.so"
-
-    addSystem "pcengine"
+        defaultRAConfig "${system}" "system_directory" "${biosdir}/pcengine"
+    done
 }
