@@ -32,7 +32,7 @@ function install_lr-puae2021() {
         'sources/uae_data'
     )
     if [[ ! -f "${biosdir}amiga/capsimg.so" ]]; then
-        cp "${md_build}/capsimg/CAPSImg/capsimg.so" "${biosdir}/amiga"
+        cp "${md_build}/capsimg/Linux/x86-64/capsimg.so" "${biosdir}/amiga"
     fi
 }
 

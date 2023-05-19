@@ -32,7 +32,7 @@ function install_lr-puae() {
         'sources/uae_data'
     )
     if [[ ! -f "${biosdir}amiga/capsimg.so" ]]; then
-        cp "${md_build}/capsimg/CAPSImg/capsimg.so" "${biosdir}/amiga"
+        cp "${md_build}/capsimg/Linux/x86-64/capsimg.so" "${biosdir}/amiga"
     fi
 }
 
@@ -58,11 +58,11 @@ function configure_lr-puae() {
         chown "${user}:${user}" "${config}"
     fi
 
-    defaultRAConfig "${system}" "system_directory" "${biosdir}/amiga"
-
     for system in "${systems[@]}"; do
         addEmulator 1 "${md_id}" "${system}" "${md_inst}/puae_libretro.so"
         addSystem "${system}"
+
+        defaultRAConfig "${system}" "system_directory" "${biosdir}/amiga"
     done
 
     # Add CDTV Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
