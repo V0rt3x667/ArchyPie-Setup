@@ -15,6 +15,7 @@ rp_module_flags=""
 function depends_mutsu() {
     local depends=(
         'cmake'
+        'gcc12'
         'ninja'
         'sdl2'
     )
@@ -24,14 +25,10 @@ function depends_mutsu() {
 function sources_mutsu() {
     gitPullOrClone
 
-    _sources_tsugaru
+    sources_tsugaru
 
     # Set Location Of External Dependencies
     sed -e "s|TOWNSEMU|tsugaru|g" -i "${md_build}/src/CMakeLists.txt"
-}
-
-function _sources_tsugaru() {
-    gitPullOrClone "${md_build}/tsugaru" "https://github.com/captainys/TOWNSEMU"
 }
 
 function build_mutsu() {
@@ -42,6 +39,8 @@ function build_mutsu() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="gcc-12" \
+        -DCMAKE_CXX_COMPILER="g++-12" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
