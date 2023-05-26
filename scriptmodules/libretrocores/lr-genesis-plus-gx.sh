@@ -6,7 +6,7 @@
 
 rp_module_id="lr-genesis-plus-gx"
 rp_module_desc="Sega Master System, Game Gear, Mega Drive (Genesis), Sega CD & SG-1000 Libretro Core"
-rp_module_help="ROM Extensions: .68k .bin .bms .chd .cue .gen .gg .iso .m3u .md .mdx .sg .sgd .smd .sms .zip\nCopy Game Gear ROMs To: ${romdir}/gamegear\nCopy MasterSystem ROMs To: ${romdir}/mastersystem\nCopy Megadrive (Genesis) ROMs To: ${romdir}/megadrive\nCopy SG-1000 ROMs To: ${romdir}/sg-1000\nCopy SegaCD ROMs To: ${romdir}/segacd\nCopy Sega CD BIOS Files (bios_CD_U.bin, bios_CD_E.bin & bios_CD_J.bin) To: ${biosdir}/segacd"
+rp_module_help="ROM Extensions: .68k .bin .bms .chd .cue .gen .gg .iso .m3u .md .mdx .sg .sgd .smd .sms .zip \n\nCopy Game Gear ROMs To: ${romdir}/gamegear \n\nCopy MasterSystem ROMs To: ${romdir}/mastersystem \n\nCopy Megadrive (Genesis) ROMs To: ${romdir}/megadrive \n\nCopy SG-1000 ROMs To: ${romdir}/sg-1000 \n\nCopy SegaCD ROMs To: ${romdir}/segacd \n\nCopy Sega CD BIOS Files (bios_CD_U.bin, bios_CD_E.bin & bios_CD_J.bin) To: ${biosdir}/segacd"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/Genesis-Plus-GX/master/LICENSE.txt"
 rp_module_repo="git https://github.com/libretro/Genesis-Plus-GX master"
 rp_module_section="main"
