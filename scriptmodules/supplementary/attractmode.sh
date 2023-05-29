@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="attractmode"
-rp_module_desc="Attract Mode: Emulator Frontend"
+rp_module_desc="Attract-Mode: Emulator Frontend"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/mickelson/attract/master/License.txt"
 rp_module_repo="git https://github.com/mickelson/attract master"
 rp_module_section="exp"
@@ -20,30 +20,32 @@ function _add_system_attractmode() {
     attract_dir="$(_get_configdir_attractmode)"
     [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attract" ]] && return 0
 
-    local fullname="$1"
-    local name="$2"
-    local path="$3"
-    local extensions="$4"
-    local command="$5"
-    local platform="$6"
-    local theme="$7"
+    local fullname="${1}"
+    local name="${2}"
+    local path="${3}"
+    local extensions="${4}"
+    local command="${5}"
+    local platform="${6}"
+    local theme="${7}"
 
     # Replace Any '/' Characters In Fullname
     fullname="${fullname//\/}"
 
     local config="${attract_dir}/emulators/${fullname}.cfg"
     iniConfig " " "" "${config}"
-    # Replace %ROM% With "[romfilename]" & Convert To Array
-    command=("${command//%ROM%/\"[romfilename]\"}")
+    # Replace %ROM% With "[romfilename]" & Convert To An Array
+    command=(${command//%ROM%/\"[romfilename]\"}) # Do Not Quote
     iniSet "executable" "${command[0]}"
     iniSet "args" "${command[*]:1}"
 
     iniSet "rompath" "${path}"
     iniSet "system" "${fullname}"
 
-    # Extensions Separated By Semicolon
+    # Extensions Separated By Semicolons. Clean Misplaced Semicolons From The Final Output.
     extensions="${extensions// /;}"
-    iniSet "romext" "${extensions}"
+    extensions="${extensions//;;/;}"
+
+    iniSet "romext" "${extensions#;}"
 
     # Snap Path
     local snap="snap"
@@ -78,8 +80,8 @@ function _del_system_attractmode() {
     attract_dir="$(_get_configdir_attractmode)"
     [[ ! -d "${attract_dir}" ]] && return 0
 
-    local fullname="$1"
-    local name="$2"
+    local fullname="${1}"
+    local name="${2}"
 
     # Don't Remove An Empty System
     [[ -z "${fullname}" ]] && return 0
@@ -99,12 +101,12 @@ function _add_rom_attractmode() {
     attract_dir="$(_get_configdir_attractmode)"
     [[ ! -d "${attract_dir}" ]] && return 0
 
-    local system_name="$1"
-    local system_fullname="$2"
-    local path="$3"
-    local name="$4"
-    local desc="$5"
-    local image="$6"
+    local system_name="${1}"
+    local system_fullname="${2}"
+    local path="${3}"
+    local name="${4}"
+    local desc="${5}"
+    local image="${6}"
 
     local config="${attract_dir}/romlists/${system_fullname}.txt"
 
@@ -128,6 +130,7 @@ function depends_attractmode() {
     local depends=(
         'cmake'
         'ffmpeg'
+        'gcc12'
         'libarchive'
         'libxinerama'
         'sfml'
@@ -149,10 +152,10 @@ function sources_attractmode() {
 function build_attractmode() {
     make clean
     local params=(prefix="${md_inst}")
-    isPlatform "kms" && params+=('USE_DRM=1')
+    isPlatform "kms" || isPlatform "wayland" && params+=('USE_DRM=1')
     isPlatform "rpi" && params+=('USE_MMAL=1' 'USE_GLES=1')
     isPlatform "x11" || isPlatform "wayland" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
-    make "${params[@]}"
+    make CC=gcc-12 CXX=g++-12 "${params[@]}"
 
     # Remove Example Configs
     rm -rf "${md_build}/config/emulators/"*
@@ -184,7 +187,7 @@ function configure_attractmode() {
     mkUserDir "${md_conf_root}/all/attractmode/emulators"
     cat >/usr/bin/attract <<_EOF_
 #!/bin/bash
-"${md_inst}/bin/attract" "\$@"
+"${md_inst}/bin/attract" "\${@}"
 _EOF_
     chmod +x "/usr/bin/attract"
 
