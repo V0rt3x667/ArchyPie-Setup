@@ -5,13 +5,13 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="skyscraper"
-rp_module_desc="Scraper For EmulationStation By Lars Muldjord"
+rp_module_desc="Scraper For EmulationStation By Lars Muldjord (Detain Fork)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/muldjord/skyscraper/master/LICENSE"
-rp_module_repo="git https://github.com/muldjord/skyscraper :_get_branch_skyscraper"
+rp_module_repo="git https://github.com/detain/skyscraper :_get_branch_skyscraper"
 rp_module_section="opt"
 
 function _get_branch_skyscraper() {
-    download "https://api.github.com/repos/muldjord/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/detain/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_skyscraper() {
