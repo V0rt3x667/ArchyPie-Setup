@@ -51,6 +51,10 @@ function sources_amiberry() {
     gitPullOrClone
 
     applyPatch "${md_data}/01_preserve_env.patch"
+
+    # Fix Building On GCC 13.1
+    sed -i "38i#include <string>" "${md_build}/src/floppybridge/CommonBridgeTemplate.h"
+    sed -i "29i#include <stdint.h>" "${md_build}/src/floppybridge/SerialIO.h"
 }
 
 function build_amiberry() {
@@ -108,8 +112,8 @@ function configure_amiberry() {
         cp -R "${md_inst}"/whdboot-dist/{game-data,save-data,boot-data.zip,WHDLoad} "${md_conf_root}/amiga/${md_id}/whdboot/"
 
         # Symlink Retroarch Configs For Amiberry To Use
-        ln -sf "${configdir}/all/retroarch/autoconfig" "${md_inst}/controllers"
-        ln -sf "${configdir}/all/retroarch.cfg" "${md_inst}/conf/retroarch.cfg"
+        moveConfigDir "${md_inst}/controllers" "${configdir}/all/retroarch/autoconfig"
+        moveConfigFile "${md_inst}/conf/retroarch.cfg" "${configdir}/all/retroarch.cfg"
 
         # Fix Permissions on BIOS & WHDLoad Directories
         chown -R "${user}:${user}" "${biosdir}/amiga"
