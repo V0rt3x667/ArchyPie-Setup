@@ -48,7 +48,16 @@ function build_forceengine() {
 }
 
 function install_forceengine() {
-    ninja -C build install/strip
+    md_ret_files=(
+        'theforceengine'
+        'TheForceEngine/Documentation'
+        'TheForceEngine/Fonts'
+        'TheForceEngine/Mods'
+        'TheForceEngine/Shaders'
+        'TheForceEngine/SoundFonts'
+        'TheForceEngine/UI_Images'
+        'TheForceEngine/UI_Text'
+    )
 }
 
 function _add_games_forceengine() {
@@ -107,5 +116,5 @@ _INI_
     fi
 
     local config_dir="TFE_DATA_HOME=${md_conf_root}/${md_id}"
-    _add_games_forceengine "${config_dir} ${md_inst}/bin/theforceengine"
+    _add_games_forceengine "pushd ${md_inst}; ${config_dir} ${md_inst}/theforceengine; popd"
 }
