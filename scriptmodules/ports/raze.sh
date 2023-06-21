@@ -6,7 +6,7 @@
 
 rp_module_id="raze"
 rp_module_desc="Raze: Build Engine Port"
-rp_module_help="ROM Extensions: .grp\n\nCopy Game Files to:\n${romdir}/ports/duke3d/blood\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/exhumed\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/redneck\n${romdir}/ports/duke3d/shadow\n${romdir}/ports/duke3d/ww2gi"
+rp_module_help="ROM Extensions: .grp\n\nCopy Game Files To:\n${romdir}/ports/duke3d/blood\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/exhumed\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/redneck\n${romdir}/ports/duke3d/shadow\n${romdir}/ports/duke3d/ww2gi"
 rp_module_licence="NONCOM: https://raw.githubusercontent.com/coelckers/Raze/master/build-doc/buildlic.txt"
 rp_module_repo="git https://github.com/coelckers/raze :_get_branch_raze"
 rp_module_section="opt"
@@ -37,6 +37,11 @@ function sources_raze() {
 
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
+
+    # Fix Building On GCC 13.1
+    sed -i "6i#include <stdexcept>" "${md_build}/libraries/ZVulkan/src/vulkanswapchain.cpp"
+    sed -i "8i#include <stdexcept>" "${md_build}/libraries/ZVulkan/src/vulkanbuilders.cpp"
+    sed -i "1i#include <cstdio>" "${md_build}/libraries/ZVulkan/include/zvulkan/vk_mem_alloc/vk_mem_alloc.h"
 }
 
 function build_raze() {
@@ -72,7 +77,7 @@ function install_raze() {
 }
 
 function _add_games_raze() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
