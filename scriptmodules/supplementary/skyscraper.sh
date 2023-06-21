@@ -6,7 +6,7 @@
 
 rp_module_id="skyscraper"
 rp_module_desc="Scraper For EmulationStation By Lars Muldjord (Detain Fork)"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/muldjord/skyscraper/master/LICENSE"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/detain/skyscraper/master/LICENSE"
 rp_module_repo="git https://github.com/detain/skyscraper :_get_branch_skyscraper"
 rp_module_section="opt"
 
