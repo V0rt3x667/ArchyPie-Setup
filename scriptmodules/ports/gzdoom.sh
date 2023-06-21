@@ -39,6 +39,9 @@ function sources_gzdoom() {
 
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
+
+    # Fix Building On GCC 13.1
+    sed -i "1i#include <cstdio>" "${md_build}/src/common/rendering/vulkan/thirdparty/vk_mem_alloc/vk_mem_alloc.h"
 }
 
 function _sources_zmusic() {
