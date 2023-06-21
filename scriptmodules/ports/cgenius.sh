@@ -47,7 +47,7 @@ function build_cgenius() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DBUILD_COSMOS="ON" \
         -DNOTYPESAVE="ON" \
-        -DUSE_BOOST="NO" \
+        -DUSE_BOOST="OFF" \
         "${params[*]}" \
         -Wno-dev
     ninja -C build clean
@@ -63,7 +63,7 @@ function install_cgenius() {
 }
 
 function _add_games_cgenius(){
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     declare -A games=(
@@ -130,6 +130,9 @@ function configure_cgenius() {
         iniSet "EnableLogfile" "false"
         echo "[Video]" >> "${config}"
         iniSet "fullscreen" "true"
+        echo "[FileHandling]" >> "${config}"
+        iniSet "EnableLogfile" "false"
+        iniSet "SearchPath1" "${md_conf_root}/${md_id}"
 
         copyDefaultConfig "${config}" "${md_conf_root}/${md_id}/${md_id}.cfg"
         rm "${config}"
