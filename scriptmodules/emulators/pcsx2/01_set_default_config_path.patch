@@ -1,38 +1,7 @@
-diff -ru a/pcsx2/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c b/pcsx2/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c
---- a/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c	2023-01-21 01:11:12.165286319 +0000
-+++ b/3rdparty/sdl2/SDL/src/core/linux/SDL_ibus.c	2023-01-21 13:17:06.689670956 +0000
-@@ -397,7 +397,7 @@
-             SDL_free(display);
-             return NULL;
-         }
--        SDL_snprintf(config_dir, sizeof(config_dir), "%s/.config", home_env);
-+        SDL_snprintf(config_dir, sizeof(config_dir), "%s/ArchyPie/configs", home_env);
-     }
-     
-     key = dbus->get_local_machine_id();
-diff -ru a/pcsx2/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c b/pcsx2/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c
---- a/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c	2023-01-21 01:11:12.177286529 +0000
-+++ b/3rdparty/sdl2/SDL/src/filesystem/unix/SDL_sysfilesystem.c	2023-01-21 13:18:28.447725698 +0000
-@@ -293,14 +293,13 @@
-     }
- 
-     if (!envr) {
--        /* You end up with "$HOME/.local/share/Game Name 2" */
-         envr = SDL_getenv("HOME");
-         if (!envr) {
-             /* we could take heroic measures with /etc/passwd, but oh well. */
-             SDL_SetError("neither XDG_DATA_HOME nor HOME environment is set");
-             return NULL;
-         }
--        append = "/.local/share/";
-+        append = "/ArchyPie/configs/";
-     } else {
-         append = "/";
-     }
-diff -ru a/pcsx2/pcsx2/Frontend/CommonHost.cpp b/pcsx2/pcsx2/Frontend/CommonHost.cpp
---- a/pcsx2/Frontend/CommonHost.cpp	2023-01-21 01:10:23.125428586 +0000
-+++ b/pcsx2/Frontend/CommonHost.cpp	2023-01-21 13:12:10.163845491 +0000
-@@ -151,46 +151,12 @@
+diff -ru a/pcsx2/Pcsx2Config.cpp b/pcsx2/Pcsx2Config.cpp
+--- a/pcsx2/Pcsx2Config.cpp	2023-06-30 17:26:42.434269447 +0100
++++ b/pcsx2/Pcsx2Config.cpp	2023-06-30 18:01:35.379606946 +0100
+@@ -1601,46 +1601,12 @@
  		return;
  	}
  
@@ -42,19 +11,18 @@ diff -ru a/pcsx2/pcsx2/Frontend/CommonHost.cpp b/pcsx2/pcsx2/Frontend/CommonHost
 -	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
 -	{
 -		if (std::wcslen(documents_directory) > 0)
--			EmuFolders::DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
+-			DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
 -		CoTaskMemFree(documents_directory);
 -	}
--#elif defined(__linux__)
+-#elif defined(__linux__) || defined(__FreeBSD__)
 -	// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
 -	const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
-+#if defined(__linux__)
++#if defined(__linux__) || defined(__FreeBSD__)
 +	const char* xdg_config_home = getenv("HOME");
  	if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
  	{
--		EmuFolders::DataRoot = Path::Combine(xdg_config_home, "PCSX2");
-+		EmuFolders::DataRoot = Path::Combine(xdg_config_home, "ArchyPie/configs/pcsx2");
- 	}
+-		DataRoot = Path::Combine(xdg_config_home, "PCSX2");
+-	}
 -	else
 -	{
 -		// Use ~/PCSX2 for non-XDG, and ~/.config/PCSX2 for XDG.
@@ -63,29 +31,23 @@ diff -ru a/pcsx2/pcsx2/Frontend/CommonHost.cpp b/pcsx2/pcsx2/Frontend/CommonHost
 -		if (home_dir)
 -		{
 -#ifdef USE_LEGACY_USER_DIRECTORY
--			EmuFolders::DataRoot = Path::Combine(home_dir, "PCSX2");
+-			DataRoot = Path::Combine(home_dir, "PCSX2");
 -#else
 -			// ~/.config should exist, but just in case it doesn't and this is a fresh profile..
 -			const std::string config_dir(Path::Combine(home_dir, ".config"));
 -			if (!FileSystem::DirectoryExists(config_dir.c_str()))
 -				FileSystem::CreateDirectoryPath(config_dir.c_str(), false);
 -
--			EmuFolders::DataRoot = Path::Combine(config_dir, "PCSX2");
+-			DataRoot = Path::Combine(config_dir, "PCSX2");
 -#endif
 -		}
--	}
++		DataRoot = Path::Combine(xdg_config_home, "ArchyPie/configs/pcsx2");
+ 	}
 -#elif defined(__APPLE__)
 -	static constexpr char MAC_DATA_DIR[] = "Library/Application Support/PCSX2";
 -	const char* home_dir = getenv("HOME");
 -	if (home_dir)
--		EmuFolders::DataRoot = Path::Combine(home_dir, MAC_DATA_DIR);
+-		DataRoot = Path::Combine(home_dir, MAC_DATA_DIR);
  #endif
  
  	// make sure it exists
-@@ -542,4 +508,4 @@
- 	return rich_presence_string;
- }
- 
--#endif
-\ No newline at end of file
-+#endif
