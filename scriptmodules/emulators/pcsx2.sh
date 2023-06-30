@@ -19,6 +19,7 @@ function depends_pcsx2() {
         'fmt'
         'libaio'
         'libpcap'
+        'libzip'
         'ninja'
         'png++'
         'portaudio'
