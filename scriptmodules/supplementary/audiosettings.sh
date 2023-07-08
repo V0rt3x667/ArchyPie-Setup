@@ -35,8 +35,25 @@ function gui_audiosettings() {
     fi
 }
 
+function _reset_alsa_audiosettings() {
+    alsactl restore
+    alsactl store
+    rm -f "${home}/.asoundrc" "/etc/alsa/conf.d/99-archypie.conf"
+    printMsgs "dialog" "Audio Settings Reset to Defaults"
+}
+
+function _move_old_config_audiosettings() {
+    if [[ -f "${home}/.asoundrc" && ! -f "/etc/alsa/conf.d/99-archypie.conf" ]]; then
+        if dialog --yesno "The ALSA audio configuration for ArchyPie has moved from ${home}/.asoundrc to /etc/alsa/conf.d/99-archypie.conf\n\nYou have a configuration in ${home}/.asoundrc - do you want to move it to the new location? If ${home}/.asoundrc contains your own changes you should choose 'No'." 20 76 2>&1 >/dev/tty; then
+            mv "${home}/.asoundrc" "/etc/alsa/conf.d/"
+        fi
+    fi
+}
+
 function _bcm2835_alsa_compat_audiosettings() {
-    local cmd=(dialog --backtitle "${__backtitle}" --menu "Set Audio Output (ALSA)" 22 86 16)
+    _move_old_config_audiosettings
+
+    local cmd=(dialog --backtitle "${__backtitle}" --menu "Set Audio Output (ALSA - Compat)" 22 86 16)
     local hdmi="HDMI"
 
     # The Raspberry Pi 4 Has 2 HDMI Ports
@@ -84,10 +101,7 @@ function _bcm2835_alsa_compat_audiosettings() {
                 alsactl store
                 ;;
             R)
-                /etc/init.d/alsa-utils reset
-                alsactl store
-                rm -f "${home}/.asoundrc"
-                printMsgs "dialog" "Audio Settings Reset To Defaults"
+                _reset_alsa_audiosettings
                 ;;
             P)
                 _toggle_pulseaudio_audiosettings "on"
@@ -98,7 +112,9 @@ function _bcm2835_alsa_compat_audiosettings() {
 }
 
 function _bcm2835_alsa_internal_audiosettings() {
-    local cmd=(dialog --backtitle "$__backtitle" --menu "Set Audio Output (ALSA)" 22 86 16)
+    _move_old_config_audiosettings
+
+    local cmd=(dialog --backtitle "${__backtitle}" --menu "Set Audio Output (ALSA)" 22 86 16)
     local options=()
     local card_index
     local card_label
@@ -120,7 +136,7 @@ function _bcm2835_alsa_internal_audiosettings() {
     if [[ -n "${choice}" ]]; then
         case "${choice}" in
             [0-9])
-                _asoundrc_save_audiosettings "${choice}"
+                _asoundrc_save_audiosettings "${choice}" "${options[$((choice*2+1))]}"
                 printMsgs "dialog" "Set Audio Output To: ${options[$((choice*2+1))]}"
                 ;;
             M)
@@ -128,10 +144,7 @@ function _bcm2835_alsa_internal_audiosettings() {
                 alsactl store
                 ;;
             R)
-                /etc/init.d/alsa-utils reset
-                alsactl store
-                rm -f "${home}/.asoundrc"
-                printMsgs "dialog" "Audio Settings Reset To Defaults"
+                _reset_alsa_audiosettings
                 ;;
             P)
                 _toggle_pulseaudio_audiosettings "on"
@@ -143,22 +156,59 @@ function _bcm2835_alsa_internal_audiosettings() {
 
 # Configure The Default ALSA Soundcard Based On Chosen Card
 function _asoundrc_save_audiosettings() {
-    [[ -z "$1" ]] && return
+    [[ -z "${1}" ]] && return
 
-    local card_index=$1
+    local card_index=${1}
+    local card_type=${2}
     local tmpfile
     tmpfile="$(mktemp)"
 
+    if isPlatform "kms" && [[ ${card_type} == "HDMI"* ]]; then
+        # when the 'vc4hdmi' driver is used instead of 'bcm2835_audio' for HDMI,
+        # the 'hdmi:vchdmi[-idx]' PCM should be used for converting to the native IEC958 codec
+        # adds a volume control since the default configured mixer doesn't work
+        # (default configuration is at /usr/share/alsa/cards/vc4-hdmi.conf)
+        local card_name
+        card_name="$(cat /proc/asound/card${card_index}/id)"
+        cat << EOF > "${tmpfile}"
+pcm.hdmi${card_index} {
+  type asym
+  playback.pcm {
+    type plug
+    slave.pcm "hdmi:${card_name}"
+  }
+}
+ctl.!default {
+  type hw
+  card ${card_index}
+}
+pcm.softvolume {
+    type           softvol
+    slave.pcm      "hdmi${card_index}"
+    control.name  "HDMI Playback Volume"
+    control.card  ${card_index}
+}
+
+pcm.softmute {
+    type softvol
+    slave.pcm "softvolume"
+    control.name "HDMI Playback Switch"
+    control.card ${card_index}
+    resolution 2
+}
+
+pcm.!default {
+    type plug
+    slave.pcm "softmute"
+}
+EOF
+    else
     cat << EOF > "${tmpfile}"
 pcm.!default {
   type asym
   playback.pcm {
     type plug
     slave.pcm "output"
-  }
-  capture.pcm {
-    type plug
-    slave.pcm "input"
   }
 }
 pcm.output {
@@ -170,9 +220,10 @@ ctl.!default {
   card ${card_index}
 }
 EOF
-
-    mv "${tmpfile}" "${home}/.asoundrc"
-    chown "${user}:${user}" "${home}/.asoundrc"
+    fi
+    local dest="/etc/alsa/conf.d/99-archypie.conf"
+    mv "${tmpfile}" "${dest}"
+    chmod 644 "${dest}"
 }
 
 function _pulseaudio_audiosettings() {
@@ -205,7 +256,7 @@ function _pulseaudio_audiosettings() {
         case "${choice}" in
             [0-9])
                 _pa_cmd_audiosettings pactl set-default-sink "${choice}"
-                rm -f "${home}/.asoundrc"
+                rm -f "/etc/alsa/conf.d/99-archypie.conf"
                 printMsgs "dialog" "Set Audio Output To: ${options[$((choice*2+1))]}"
                 ;;
             M)
@@ -214,7 +265,7 @@ function _pulseaudio_audiosettings() {
                 ;;
             R)
                 rm -fr "${home}/.config/pulse"
-                /etc/init.d/alsa-utils reset
+                alsactl restore
                 alsactl store
                 printMsgs "dialog" "Audio Settings Reset To Defaults"
                 ;;
@@ -227,7 +278,7 @@ function _pulseaudio_audiosettings() {
 }
 
 function _toggle_pulseaudio_audiosettings() {
-    local state=$1
+    local state=${1}
 
     if [[ "${state}" == "on" ]]; then
         _pa_cmd_audiosettings systemctl --user unmask pulseaudio.socket
@@ -242,5 +293,5 @@ function _toggle_pulseaudio_audiosettings() {
 
 # Run PulseAudio Commands As The Calling User
 function _pa_cmd_audiosettings() {
-    [[ -n "$*" ]] && sudo -u "${user}" "XDG_RUNTIME_DIR=/run/user/${SUDO_UID}" "$@" 2>/dev/null
+    [[ -n "$*" ]] && sudo -u "${user}" "XDG_RUNTIME_DIR=/run/user/${SUDO_UID}" "${@}" 2>/dev/null
 }
