@@ -85,6 +85,8 @@ function conf_binary_vars() {
 
 function conf_build_vars() {
     __gcc_version=$(gcc -dumpversion)
+    # Extract GCC Major Version
+    __gcc_version="${__gcc_version%%.*}"
 
     # Calculate Build Concurrency
     __jobs=1
