@@ -122,7 +122,7 @@ function _bcm2835_alsa_internal_audiosettings() {
     # Get The List Of Raspberry Pi Internal Cards
     while read -r card_no card_label; do
         options+=("${card_no}" "${card_label}")
-    done < <(aplay -ql | sed -En 's/^card ([0-9]+).*\[bcm2835 ([^]]*)\].*/\1 \2/p')
+    done < <(aplay -ql | sed -En -e '/^card/ {s/^card ([0-9]+).*\[(bcm2835 |vc4-)([^]]*)\].*/\1 \3/; s/hdmi[- ]?/HDMI /i; p}')
 
     options+=(
         M "Mixer: Adjust Output Volume"
