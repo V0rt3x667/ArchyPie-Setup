@@ -57,10 +57,13 @@ function configure_supermodel() {
         cp "${md_inst}/Config/Supermodel.ini" "${md_conf_root}/model3/${md_id}/Config"
         cp "${md_inst}/Config/Games.xml" "${md_conf_root}/model3/${md_id}/Config"
         chown -R "${user}:${user}" "${md_conf_root}/model3/${md_id}/Config"
+
+        # Symlink NVRAM Folder
+        moveConfigDir "${md_inst}/NVRAM" "${md_conf_root}/model3/${md_id}/NVRAM/"
     fi
 
-    addEmulator 0 "${md_id}" "arcade" "${md_inst}/${md_id} -fullscreen %ROM%"
-    addEmulator 1 "${md_id}" "model3" "${md_inst}/${md_id} -fullscreen %ROM%"
+    addEmulator 0 "${md_id}" "arcade" "pushd ${md_inst}; ${md_inst}/${md_id} -fullscreen %ROM%; popd"
+    addEmulator 1 "${md_id}" "model3" "pushd ${md_inst}; ${md_inst}/${md_id} -fullscreen %ROM%; popd"
 
     addSystem "arcade"
     addSystem "model3"
