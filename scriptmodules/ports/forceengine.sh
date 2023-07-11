@@ -49,7 +49,7 @@ function build_forceengine() {
 
 function install_forceengine() {
     md_ret_files=(
-        'theforceengine'
+        'build/theforceengine'
         'TheForceEngine/Documentation'
         'TheForceEngine/Fonts'
         'TheForceEngine/Mods'
@@ -61,7 +61,7 @@ function install_forceengine() {
 }
 
 function _add_games_forceengine() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
@@ -98,6 +98,9 @@ function configure_forceengine() {
         for dir in "${dirs[@]}"; do
             mkRomDir "ports/${md_id}/${dir}"
         done
+
+        # Create Mods Folder
+        mkUserDir "${md_conf_root}/${md_id}/Mods"
 
         # Create Default Configuration File
         local config
