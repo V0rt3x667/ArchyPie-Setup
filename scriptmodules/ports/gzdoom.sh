@@ -134,6 +134,7 @@ function _add_games_gzdoom() {
         ['heretic/hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
         ['heretic/hexen.wad']="Hexen: Beyond Heretic"
         ['strife/strife1.wad']="Strife: Quest for the Sigil"
+        ['wboa/boa.ipk3']="Wolfenstein: Blade of Agony"
     )
 
     # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
@@ -200,6 +201,7 @@ function configure_gzdoom() {
             'hacx'
             'heretic'
             'strife'
+            'wboa'
         )
         mkRomDir "ports/${portname}"
         for dir in "${dirs[@]}"; do

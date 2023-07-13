@@ -1,6 +1,6 @@
 diff -ru a/src/common/platform/posix/unix/i_specialpaths.cpp b/src/common/platform/posix/unix/i_specialpaths.cpp
 --- a/src/common/platform/posix/unix/i_specialpaths.cpp	2022-08-19 07:00:53.000000000 +0100
-+++ b/src/common/platform/posix/unix/i_specialpaths.cpp	2022-08-19 18:27:03.770858251 +0100
++++ b/src/common/platform/posix/unix/i_specialpaths.cpp	2022-08-19 18:27:03.770858000 +0100
 @@ -112,7 +112,7 @@
  {
  	// Don't use GAME_DIR and such so that ZDoom and its child ports can
@@ -21,22 +21,22 @@ diff -ru a/src/common/platform/posix/unix/i_specialpaths.cpp b/src/common/platfo
  		CreatePath(path);
 diff -ru a/src/d_iwad.cpp b/src/d_iwad.cpp
 --- a/src/d_iwad.cpp	2022-08-19 07:00:53.000000000 +0100
-+++ b/src/d_iwad.cpp	2022-08-19 18:35:28.185146293 +0100
++++ b/src/d_iwad.cpp	2022-08-19 18:35:28.185146000 +0100
 @@ -718,8 +718,8 @@
  					  "2. Edit your ~/Library/Preferences/" GAMENAMELOWERCASE ".ini and add the directories\n"
  					  "of your iwads to the list beneath [IWADSearch.Directories]");
  #else
 -					  "1. Place one or more of these wads in ~/.config/" GAMENAMELOWERCASE "/.\n"
 -					  "2. Edit your ~/.config/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
-+					  "1. Place one or more of these wads in ~/ArchyPie/roms/ports/doom" "/.\n"
-+					  "2. Edit your ~/ArchyPie/configs/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
++					  "1. Place one or more of these wads in ~/archypie/roms/ports/doom" "/.\n"
++					  "2. Edit your ~/archypie/ports/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
  					  "iwads to the list beneath [IWADSearch.Directories]");
  #endif
  	}
 diff -ru a/src/gameconfigfile.cpp b/src/gameconfigfile.cpp
 --- a/src/gameconfigfile.cpp	2022-08-19 07:00:53.000000000 +0100
-+++ b/src/gameconfigfile.cpp	2022-09-04 19:48:54.895554350 +0100
-@@ -105,82 +105,35 @@
++++ b/src/gameconfigfile.cpp	2023-07-13 21:58:08.936771783 +0100
+@@ -105,82 +105,37 @@
  	if (!SetSection ("IWADSearch.Directories"))
  	{
  		SetSection ("IWADSearch.Directories", true);
@@ -69,6 +69,7 @@ diff -ru a/src/gameconfigfile.cpp b/src/gameconfigfile.cpp
 +		SetValueForKey ("Path", "$DOOMWADDIR/hacx", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/heretic", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/strife", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/wboa", true);
  	}
  
  	// Set default search paths if none present
@@ -95,6 +96,7 @@ diff -ru a/src/gameconfigfile.cpp b/src/gameconfigfile.cpp
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons/bloom", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons/brutal", true);
++		SetValueForKey ("Path", "$DOOMWADDIR/addons/misc", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons/sigil", true);
 +		SetValueForKey ("Path", "$DOOMWADDIR/addons/strain", true);
  	}
@@ -138,7 +140,7 @@ diff -ru a/src/gameconfigfile.cpp b/src/gameconfigfile.cpp
  	// Add some self-documentation.
 diff -ru a/src/version.h b/src/version.h
 --- a/src/version.h	2022-08-19 07:00:53.000000000 +0100
-+++ b/src/version.h	2022-08-19 18:30:03.873581866 +0100
++++ b/src/version.h	2022-08-19 18:30:03.873581000 +0100
 @@ -104,11 +104,7 @@
  #define FORUM_URL "http://forum.zdoom.org/"
  #define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"
