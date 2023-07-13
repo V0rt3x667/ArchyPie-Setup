@@ -28,8 +28,8 @@ diff -ru a/src/d_iwad.cpp b/src/d_iwad.cpp
  #else
 -					  "1. Place one or more of these wads in ~/.config/" GAMENAMELOWERCASE "/.\n"
 -					  "2. Edit your ~/.config/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
-+					  "1. Place one or more of these wads in ~/archypie/roms/ports/doom" "/.\n"
-+					  "2. Edit your ~/archypie/ports/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
++					  "1. Place one or more of these wads in ~/ArchyPie/roms/ports/doom" "/.\n"
++					  "2. Edit your ~/ArchyPie/configs/" GAMENAMELOWERCASE "/" GAMENAMELOWERCASE ".ini and add the directories of your\n"
  					  "iwads to the list beneath [IWADSearch.Directories]");
  #endif
  	}
