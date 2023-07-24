@@ -149,11 +149,6 @@ function sources_attractmodeplus() {
 
     # Set Default Config Path(s)
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
-
-
-    # Fix Building On GCC 13.1
-    sed -i "38i#include <string>" "${md_build}/src/floppybridge/CommonBridgeTemplate.h"
-    sed -i "29i#include <stdint.h>" "${md_build}/src/floppybridge/SerialIO.h"
 }
 
 function build_attractmodeplus() {
