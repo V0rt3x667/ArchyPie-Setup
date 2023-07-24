@@ -47,14 +47,14 @@ function build_lzdoom() {
 
 function install_lzdoom() {
     md_ret_files=(
-        'README.md'
         'build/brightmaps.pk3'
         'build/fm_banks'
         'build/game_support.pk3'
         'build/lights.pk3'
-        'build/lzdoom'
         'build/lzdoom.pk3'
+        'build/lzdoom'
         'build/soundfonts'
+        'README.md'
     )
 }
 
