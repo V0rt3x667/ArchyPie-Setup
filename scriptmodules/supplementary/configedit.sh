@@ -9,8 +9,8 @@ rp_module_desc="Edit ArchyPie & RetroArch Configurations"
 rp_module_section="config"
 
 function _video_fullscreen_configedit() {
-    local mode="$1"
-    local value="$2"
+    local mode="${1}"
+    local value="${2}"
     case "${mode}" in
         get)
             iniGet "video_fullscreen_x"
@@ -41,8 +41,8 @@ function _video_fullscreen_configedit() {
             local options=(U "unset")
             local default
             for item in "${res[@]}"; do
-                [[ "${item}" == "${value}" ]] && default="$i"
-                options+=($i "${item}")
+                [[ "${item}" == "${value}" ]] && default="${i}"
+                options+=("${i}" "${item}")
                 ((i++))
             done
             options+=(
@@ -80,10 +80,9 @@ function _video_fullscreen_configedit() {
 }
 
 function _joypad_index_configedit() {
-    local mode="$1"
-    local value="$2"
+    local mode="${1}"
+    local value="${2}"
     while true; do
-
         local players=()
         local player
         for player in 1 2 3 4; do
@@ -232,7 +231,7 @@ function advanced_configedit() {
         'input_overlay_enable true false'
         "input_overlay _file_ *.cfg ${rootdir}/emulators/retroarch/overlays"
         "audio_driver ${audio_opts}"
-        'video_driver gl sdl2 vg vulkan glcore gl1'
+        'video_driver gl gl1 glcore sdl2 vg vulkan'
         'menu_driver rgui xmb ozone'
         'video_fullscreen_x _string_'
         'video_fullscreen_y _string_'
@@ -252,7 +251,7 @@ function advanced_configedit() {
         'fps_show true false'
         'input_overlay_opacity _string_'
         'input_overlay_scale _string_'
-        'input_joypad_driver udev linuxraw hid'
+        'input_joypad_driver hid linuxraw sdl2 udev'
         'game_specific_options true false'
         'input_player1_joypad_index _string_'
         'input_player2_joypad_index _string_'
@@ -390,7 +389,7 @@ function advanced_menu_configedit() {
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         local file="-"
         if [[ -n "${choice}" ]]; then
-            local ra_exclude='.*/all/retroarch/\(assets\|shaders\)/.*'
+            local ra_exclude='.*/all/retroarch/\(assets\|shaders\|thumbnails\)/.*'
             while [[ -n "${file}" ]]; do
                 case "${choice}" in
                     1)
