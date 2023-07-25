@@ -130,7 +130,6 @@ function depends_attractmode() {
     local depends=(
         'cmake'
         'ffmpeg'
-        'gcc12'
         'libarchive'
         'libxinerama'
         'sfml'
@@ -155,7 +154,7 @@ function build_attractmode() {
     isPlatform "kms" || isPlatform "wayland" && params+=('USE_DRM=1')
     isPlatform "rpi" && params+=('USE_MMAL=1' 'USE_GLES=1')
     isPlatform "x11" || isPlatform "wayland" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
-    make CC=gcc-12 CXX=g++-12 "${params[@]}"
+    make
 
     # Remove Example Configs
     rm -rf "${md_build}/config/emulators/"*
