@@ -169,6 +169,7 @@ function install_attractmodeplus() {
     mkdir -p "${md_inst}"/{bin,share,share/attract}
     cp -v "${md_build}/attractplus" "${md_inst}/bin/"
     cp -Rv "${md_build}/config/"* "${md_inst}/share/attract"
+    cp -Rv "${md_build}/resources/"* "${md_inst}/share/attract"
 }
 
 function remove_attractmodeplus() {
@@ -189,7 +190,7 @@ function configure_attractmodeplus() {
     mkUserDir "${md_conf_root}/all/attractmodeplus/emulators"
     cat >/usr/bin/attractplus <<_EOF_
 #!/bin/bash
-"${md_inst}/bin/attractplus"
+"${md_inst}/bin/attractplus" "\${@}"
 _EOF_
     chmod +x "/usr/bin/attractplus"
 
