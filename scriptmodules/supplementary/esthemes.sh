@@ -19,9 +19,9 @@ function depends_esthemes() {
 }
 
 function install_theme_esthemes() {
-    local theme="$1"
-    local repo="$2"
-    local branch="$3"
+    local theme="${1}"
+    local repo="${2}"
+    local branch="${3}"
 
     if [[ -z "${repo}" ]]; then
         repo="RetroPie"
@@ -29,7 +29,7 @@ function install_theme_esthemes() {
 
     if [[ -z "${theme}" ]]; then
         theme="carbon-2021"
-        repo="RetroPie"
+        repo="V0rt3x667"
     fi
 
     local name="${theme}"
@@ -55,7 +55,7 @@ function uninstall_theme_esthemes() {
 
 function gui_esthemes() {
     local themes=(
-        'RetroPie carbon-2021'
+        'V0rt3x667 carbon-2021'
         'RetroPie carbon-2021 centered'
         'RetroPie carbon-2021 nometa'
         'RetroPie simple'
@@ -248,6 +248,8 @@ function gui_esthemes() {
         'RetroHursty69 ShabangCRT'
         'RetroHursty69 PopCom16x9'
         'RetroHursty69 PopCom5x4'
+        'RetroHursty69 ToggleBobble'
+        'RetroHursty69 Sheeny'
         'Saracade scv720'
         'chicueloarcade Chicuelo'
         'SuperMagicom nostalgic'
