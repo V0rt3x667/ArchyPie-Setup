@@ -95,8 +95,8 @@ function gui_runcommand() {
     chown "${user}:${user}" "${config}"
 
     local cmd
+    local options
     local default
-    local options=()
     while true; do
 
         eval "$(loadModuleConfig \
@@ -109,7 +109,8 @@ function gui_runcommand() {
 
         [[ -z "${governor}" ]] && governor="Default: (Do Not Change)"
 
-        cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Exit" --default-item "${default}" --menu "Choose An Option" 22 86 16)
+        cmd=(dialog --backtitle "$__backtitle" --cancel-label "Exit" --default-item "$default" --menu "Choose an option." 22 86 16)
+        options=()
 
         if [[ "${disable_menu}" -eq 0 ]]; then
             options+=(1 "Launch Menu (Currently: Enabled)")
