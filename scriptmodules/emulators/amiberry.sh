@@ -51,10 +51,6 @@ function sources_amiberry() {
     gitPullOrClone
 
     applyPatch "${md_data}/01_preserve_env.patch"
-
-    # Fix Building On GCC 13.1
-    sed -i "38i#include <string>" "${md_build}/src/floppybridge/CommonBridgeTemplate.h"
-    sed -i "29i#include <stdint.h>" "${md_build}/src/floppybridge/SerialIO.h"
 }
 
 function build_amiberry() {
