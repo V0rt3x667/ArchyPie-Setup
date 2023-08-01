@@ -18,7 +18,6 @@ function depends_dolphin() {
         'cmake'
         'enet'
         'ffmpeg'
-        'fmt'
         'hidapi'
         'libxkbcommon'
         'lzo'
@@ -28,7 +27,6 @@ function depends_dolphin() {
         'pugixml'
         'qt6-base'
         'sfml'
-        'zlib'
     )
     getDepends "${depends[@]}"
 }
