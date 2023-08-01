@@ -18,15 +18,17 @@ function depends_dolphin() {
         'cmake'
         'enet'
         'ffmpeg'
+        'fmt'
+        'hidapi'
         'libxkbcommon'
         'lzo'
-        'mbedtls'
+        'mbedtls2'
         'miniupnpc'
-        'minizip'
         'ninja'
         'pugixml'
         'qt6-base'
         'sfml'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
@@ -55,7 +57,12 @@ function build_dolphin() {
         -DENABLE_QT="ON" \
         -DENABLE_SDL="ON" \
         -DENABLE_TESTS="OFF" \
-        -DUSE_SHARED_ENET="ON" \
+        -DUSE_SYSTEM_LIBS="ON" \
+        -DUSE_SYSTEM_FMT="OFF" \
+        -DUSE_SYSTEM_LIBMGBA="OFF" \
+        -DUSE_SYSTEM_MINIZIP="OFF" \
+        -DUSE_SYSTEM_SPNG="OFF" \
+        -DUSE_SYSTEM_ZLIB="OFF" \
         "${params[@]}" \
         -Wno-dev
     ninja -C build clean
