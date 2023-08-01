@@ -848,16 +848,16 @@ function get_resolutions() {
 }
 
 function choose_render_res() {
-    local mode="$1"
-    local default="$2"
+    local mode="${1}"
+    local default="${2}"
 
     local res=($(get_resolutions))
     local i=1
     local item
     local options=()
     for item in "${res[@]}"; do
-        [[ "$item" == "$default" ]] && default="$i"
-        options+=($i "$item")
+        [[ "${item}" == "${default}" ]] && default="${i}"
+        options+=(${i} "${item}")
         ((i++))
     done
     options+=(
@@ -1247,11 +1247,10 @@ function show_launch() {
         done
     done
 
-    if [[ -n "$image" ]]; then
-        if [[ -n "$DISPLAY" ]]; then
-            imv -f -x "$image" & &>/dev/null
-            IMG_PID=$!
-            sleep "$IMAGE_DELAY"
+    if [[ -n "${image}" ]]; then
+        if [[ -n "${DISPLAY}" ]]; then
+            imv -f -x -t "${IMAGE_DELAY}" "${image}" </dev/tty &>/dev/null
+            IMG_PID=${!}
         else
             fbi -1 -t "$IMAGE_DELAY" -noverbose -a "$image" </dev/tty &>/dev/null
         fi
