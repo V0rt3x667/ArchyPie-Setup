@@ -46,8 +46,9 @@ function install_bin_runcommand() {
     if [[ ! -f "${configdir}/all/runcommand-launch-dialog.cfg" ]]; then
         dialog --create-rc "${configdir}/all/runcommand-launch-dialog.cfg"
         chown "${user}:${user}" "${configdir}/all/runcommand-launch-dialog.cfg"
-        rp_installModule "mesa-drm" "_autoupdate_"
     fi
+
+    rp_installModule "mesa-drm" "_autoupdate_"
 
     md_ret_require="${md_inst}/runcommand.sh"
 }
@@ -73,9 +74,9 @@ function governor_runcommand() {
     local i=2
     if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" ]]; then
         for governor in $(</sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
-            [[ "${current}" == "${governor}" ]] && default="$i"
-            governors[$i]="${governor}"
-            options+=("$i" "Force ${governor}")
+            [[ "${current}" == "${governor}" ]] && default="${i}"
+            governors[${i}]="${governor}"
+            options+=("${i}" "Force ${governor}")
             ((i++))
         done
     fi
@@ -109,7 +110,7 @@ function gui_runcommand() {
 
         [[ -z "${governor}" ]] && governor="Default: (Do Not Change)"
 
-        cmd=(dialog --backtitle "$__backtitle" --cancel-label "Exit" --default-item "$default" --menu "Choose an option." 22 86 16)
+        cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Exit" --default-item "${default}" --menu "Choose An Option" 22 86 16)
         options=()
 
         if [[ "${disable_menu}" -eq 0 ]]; then
