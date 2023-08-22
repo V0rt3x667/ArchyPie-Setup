@@ -1,0 +1,16 @@
+diff -ru a/CorsixTH/Lua/config_finder.lua b/CorsixTH/Lua/config_finder.lua
+--- a/CorsixTH/Lua/config_finder.lua	2023-08-20 00:44:45.082091877 +0100
++++ b/CorsixTH/Lua/config_finder.lua	2023-08-20 03:36:25.544476509 +0100
+@@ -35,10 +35,10 @@
+   config_path = os.getenv("AppData") or ourpath
+ else
+   -- Linux, OS X, etc.
+-  config_path = os.getenv("XDG_CONFIG_HOME") or pathconcat(os.getenv("HOME") or "~", ".config")
++  config_path = pathconcat(os.getenv("HOME"), "ArchyPie/configs")
+ end
+ if config_path ~= ourpath then
+-  config_path = pathconcat(config_path, "CorsixTH")
++  config_path = pathconcat(config_path, "corsixth")
+ end
+ 
+ -- Config filename.
