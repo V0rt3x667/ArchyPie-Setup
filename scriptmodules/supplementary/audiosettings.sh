@@ -45,6 +45,7 @@ function _reset_alsa_audiosettings() {
 function _move_old_config_audiosettings() {
     if [[ -f "${home}/.asoundrc" && ! -f "/etc/alsa/conf.d/99-archypie.conf" ]]; then
         if dialog --yesno "The ALSA audio configuration for ArchyPie has moved from ${home}/.asoundrc to /etc/alsa/conf.d/99-archypie.conf\n\nYou have a configuration in ${home}/.asoundrc - do you want to move it to the new location? If ${home}/.asoundrc contains your own changes you should choose 'No'." 20 76 2>&1 >/dev/tty; then
+            mkdir -p /etc/alsa/conf.d
             mv "${home}/.asoundrc" "/etc/alsa/conf.d/"
         fi
     fi
@@ -222,6 +223,7 @@ ctl.!default {
 EOF
     fi
     local dest="/etc/alsa/conf.d/99-archypie.conf"
+    mkdir -p /etc/alsa/conf.d
     mv "${tmpfile}" "${dest}"
     chmod 644 "${dest}"
 }
