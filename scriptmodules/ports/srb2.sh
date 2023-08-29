@@ -11,7 +11,7 @@ rp_module_repo="git https://github.com/STJr/SRB2 :_get_branch_srb2"
 rp_module_section="exp"
 
 function _get_branch_srb2() {
-    download "https://api.github.com/repos/STJr/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/STJr/srb2/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_srb2() {

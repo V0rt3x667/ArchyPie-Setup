@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function _get_branch_stratagus() {
-    download "https://api.github.com/repos/Wargus/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/Wargus/stratagus/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_stratagus() {

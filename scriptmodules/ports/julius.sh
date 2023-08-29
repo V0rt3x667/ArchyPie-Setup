@@ -12,7 +12,7 @@ rp_module_section="opt"
 rp_module_flags="!all 64bit"
 
 function _get_branch_julius() {
-    download "https://api.github.com/repos/bvschaik/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/bvschaik/julius/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_julius() {

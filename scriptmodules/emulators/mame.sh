@@ -13,7 +13,7 @@ rp_module_section="main"
 rp_module_flags=""
 
 function _get_branch_mame() {
-    download "https://api.github.com/repos/mamedev/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/mamedev/mame/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_mame() {

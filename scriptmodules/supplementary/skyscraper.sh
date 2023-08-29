@@ -11,7 +11,7 @@ rp_module_repo="git https://github.com/detain/skyscraper :_get_branch_skyscraper
 rp_module_section="opt"
 
 function _get_branch_skyscraper() {
-    download "https://api.github.com/repos/detain/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/detain/skyscraper/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_skyscraper() {

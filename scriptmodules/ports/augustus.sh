@@ -12,7 +12,7 @@ rp_module_section="opt"
 rp_module_flags="!all 64bit"
 
 function _get_branch_augustus() {
-    download "https://api.github.com/repos/Keriew/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/Keriew/augustus/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_augustus() {

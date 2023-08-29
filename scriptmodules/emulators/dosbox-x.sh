@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!all x86 rpi3 rpi4"
 
 function _get_branch_dosbox-x() {
-    download "https://api.github.com/repos/joncampbell123/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/joncampbell123/dosbox-x/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_dosbox-x() {

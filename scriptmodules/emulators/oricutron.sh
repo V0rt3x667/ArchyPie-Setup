@@ -12,7 +12,7 @@ rp_module_repo="git https://github.com/pete-gordon/oricutron :_get_branch_oricut
 rp_module_section="exp"
 
 function _get_branch_oricutron() {
-    download "https://api.github.com/repos/pete-gordon/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/pete-gordon/oricutron/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_oricutron() {

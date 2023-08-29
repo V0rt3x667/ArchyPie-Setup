@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function _get_branch_scummvm() {
-    download "https://api.github.com/repos/${md_id}/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/scummvm/scummvm/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_scummvm() {

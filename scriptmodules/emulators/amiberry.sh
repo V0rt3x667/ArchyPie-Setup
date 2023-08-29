@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!all arm x86_64"
 
 function _get_branch_amiberry() {
-    download "https://api.github.com/repos/BlitterStudio/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/BlitterStudio/amiberry/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function _get_platform_amiberry() {

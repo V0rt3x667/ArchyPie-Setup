@@ -12,7 +12,7 @@ rp_module_section="exp"
 rp_module_flags="!mali"
 
 function _get_branch_cdogs-sdl() {
-    download "https://api.github.com/repos/cxong/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/cxong/cdogs-sdl/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_cdogs-sdl() {

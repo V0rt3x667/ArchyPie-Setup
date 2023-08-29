@@ -13,7 +13,7 @@ rp_module_section="main"
 rp_module_flags=""
 
 function _get_branch_snes9x() {
-    download "https://api.github.com/repos/snes9xgit/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/snes9xgit/snes9x/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_snes9x() {

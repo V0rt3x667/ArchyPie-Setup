@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function _get_branch_hatari() {
-    download "https://api.github.com/repos/${md_id}/${md_id}/tags" - | grep -m 1 name | cut -d\" -f4
+    download "https://api.github.com/repos/hatari/hatari/tags" - | grep -m 1 name | cut -d\" -f4
 }
 
 function depends_hatari() {

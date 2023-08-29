@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="!wayland xwayland"
 
 function _get_branch_ags() {
-    download "https://api.github.com/repos/adventuregamestudio/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/adventuregamestudio/ags/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_ags() {

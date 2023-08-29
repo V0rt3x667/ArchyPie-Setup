@@ -16,7 +16,7 @@ function _get_branch_hypseus() {
     if isPlatform "rpi"; then
         RetroPie
     else
-        download "https://api.github.com/repos/DirtBagXon/${md_id}-singe/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+        download "https://api.github.com/repos/DirtBagXon/hypseus-singe/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
     fi
 }
 

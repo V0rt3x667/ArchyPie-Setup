@@ -11,7 +11,7 @@ rp_module_repo="git https://github.com/supertuxkart/stk-code :_get_branch_supert
 rp_module_section="opt"
 
 function _get_branch_supertuxkart() {
-    download "https://api.github.com/repos/${md_id}/stk-code/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/supertuxkart/stk-code/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_supertuxkart() {

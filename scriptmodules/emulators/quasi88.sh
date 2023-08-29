@@ -13,7 +13,7 @@ rp_module_section="exp"
 rp_module_flags=""
 
 function _get_branch_quasi88() {
-    download "https://api.github.com/repos/winterheart/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/winterheart/quasi88/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_quasi88() {

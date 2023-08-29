@@ -12,7 +12,7 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function _get_branch_corsixth() {
-    download "https://api.github.com/repos/${md_id}/${md_id}/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/corsixth/corsixth/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_corsixth() {
