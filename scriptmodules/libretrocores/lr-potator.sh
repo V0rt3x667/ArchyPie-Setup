@@ -29,7 +29,6 @@ function build_lr-potator() {
     md_ret_require="${md_build}/platform/libretro/potator_libretro.so"
 }
 
-
 function install_lr-potator() {
     md_ret_files=('platform/libretro/potator_libretro.so')
 }

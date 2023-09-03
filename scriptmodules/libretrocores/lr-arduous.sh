@@ -36,7 +36,6 @@ function build_lr-arduous() {
     md_ret_require="${md_build}/build/arduous_libretro.so"
 }
 
-
 function install_lr-arduous() {
     md_ret_files=('build/arduous_libretro.so')
 }
