@@ -79,9 +79,12 @@ function configure_scummvm() {
         local name="ScummVM"
         cat > "${romdir}/${md_id}/+Start ${name}.sh" << _EOF_
 #!/bin/bash
-game="\$1"
+game="\${1}"
 pushd "${romdir}/${md_id}" >/dev/null
-${md_inst}/bin/${md_id} --fullscreen --joystick=0 --extrapath="${md_inst}/extra" "\${game}"
+if ! grep -qs extrapath "\${HOME}/.config/scummvm/scummvm.ini"; then
+    params="--extrapath="${md_inst}/extra""
+fi
+${md_inst}/bin/scummvm --fullscreen \${params} --joystick=0 --auto-detect -p "\${game}"
 while read id desc; do
     echo "\${desc}" > "${romdir}/${md_id}/\${id}.svm"
 done < <(${md_inst}/bin/${md_id} --list-targets | tail -n +3)
@@ -91,7 +94,7 @@ _EOF_
         chmod u+x "${romdir}/${md_id}/+Start ${name}.sh"
     fi
 
-    addEmulator 1 "${md_id}" "${md_id}" "bash ${romdir}/${md_id}/+Start\ ${name}.sh %BASENAME%"
+    addEmulator 1 "${md_id}" "${md_id}" "${romdir}/${md_id}/+Start\ ${name}.sh %ROM%"
 
     addSystem "${md_id}"
 }
