@@ -18,15 +18,19 @@ function depends_dolphin() {
         'cmake'
         'enet'
         'ffmpeg'
+        'fmt'
         'hidapi'
         'libxkbcommon'
         'lzo'
         'mbedtls2'
         'miniupnpc'
+        'minizip-ng'
         'ninja'
         'pugixml'
         'qt6-base'
+        'qt6-svg'
         'sfml'
+        'zlib-ng'
     )
     getDepends "${depends[@]}"
 }
@@ -34,14 +38,14 @@ function depends_dolphin() {
 function sources_dolphin() {
     gitPullOrClone
 
+    # Fix MiniZip Name
+    sed -e "s|MINIZIP minizip>=3.0.0|MINIZIP minizip-ng>=3.0.0|g" -i "${md_build}/CMakeLists.txt"
+
     # Set Default Config Path(s)
     sed -e "s|#define DOLPHIN_DATA_DIR \"dolphin-emu\"|#define DOLPHIN_DATA_DIR \"${md_id}\"|g" -i "${md_build}/Source/Core/Common/CommonPaths.h"
 }
 
 function build_dolphin() {
-    local params=()
-    ! isPlatform "x11" && params=('-DENABLE_X11=OFF')
-
     cmake . \
         -B"build" \
         -G"Ninja" \
@@ -50,18 +54,13 @@ function build_dolphin() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DENABLE_ANALYTICS="OFF" \
         -DENABLE_AUTOUPDATE="OFF" \
-        -DENABLE_HEADLESS="OFF" \
         -DENABLE_LTO="OFF" \
         -DENABLE_QT="ON" \
         -DENABLE_SDL="ON" \
         -DENABLE_TESTS="OFF" \
         -DUSE_SYSTEM_LIBS="ON" \
-        -DUSE_SYSTEM_FMT="OFF" \
         -DUSE_SYSTEM_LIBMGBA="OFF" \
-        -DUSE_SYSTEM_MINIZIP="OFF" \
         -DUSE_SYSTEM_SPNG="OFF" \
-        -DUSE_SYSTEM_ZLIB="OFF" \
-        "${params[@]}" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -98,10 +97,10 @@ function configure_dolphin() {
 
     local launcher_prefix="DOLPHIN_EMU_USERPATH=${arpdir}/${md_id}"
 
-    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -e %ROM%"
-    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -e %ROM%"
+    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
+    addEmulator 0 "${md_id}-gui" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
+    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
+    addEmulator 0 "${md_id}-gui" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
 
     addSystem "gc"
     addSystem "wii"
