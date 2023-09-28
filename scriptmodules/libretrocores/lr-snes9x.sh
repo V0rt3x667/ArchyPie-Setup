@@ -9,7 +9,7 @@ rp_module_desc="Nintendo SNES Libretro Core"
 rp_module_help="ROM Extensions: .bs .fig .sfc .smc .st .swc .zip\n\nCopy SNES ROMs To: ${romdir}/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/snes9x/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/snes9x master"
-rp_module_section="opt armv8=main x86=main"
+rp_module_section="main armv7=opt"
 
 function sources_lr-snes9x() {
     gitPullOrClone
