@@ -81,7 +81,7 @@ function configure_scummvm() {
 #!/bin/bash
 game="\${1}"
 pushd "${romdir}/${md_id}" >/dev/null
-if ! grep -qs extrapath "\${HOME}/.config/scummvm/scummvm.ini"; then
+if ! grep -qs extrapath "\${HOME}/ArchyPie/configs/scummvm/scummvm.ini"; then
     params="--extrapath="${md_inst}/extra""
 fi
 ${md_inst}/bin/scummvm --fullscreen \${params} --joystick=0 --auto-detect -p "\${game}"
