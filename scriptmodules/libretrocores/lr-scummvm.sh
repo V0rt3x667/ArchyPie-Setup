@@ -64,23 +64,9 @@ function configure_lr-scummvm() {
 
         # Enable Speed Hack Core Option For ARM Platform
         isPlatform "arm" && setRetroArchCoreOption "scummvm_speed_hack" "enabled"
-
-        # Create RetroArch Launcher For 'lr-scummvm'
-        cat > "${md_inst}/romdir-launcher.sh" << _EOF_
-#!/usr/bin/env bash
-ROM=\$1; shift
-SVM_FILES=()
-[[ -d \${ROM} ]] && mapfile -t SVM_FILES < <(compgen -G "\${ROM}/*.svm")
-[[ \${#SVM_FILES[@]} -eq 1 ]] && ROM=\${SVM_FILES[0]}
-${emudir}/retroarch/bin/retroarch \\
-    -L "${md_inst}/scummvm_libretro.so" \\
-    --config "${md_conf_root}/scummvm/retroarch.cfg" \\
-    "\${ROM}" "\$@"
-_EOF_
-        chmod +x "${md_inst}/romdir-launcher.sh"
     fi
 
-    addEmulator 0 "${md_id}" "scummvm" "${md_inst}/romdir-launcher.sh %ROM%"
+    addEmulator 0 "${md_id}" "scummvm" "${md_inst}/scummvm_libretro.so"
 
     addSystem "scummvm"
 }
