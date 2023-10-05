@@ -73,28 +73,26 @@ function configure_scummvm() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
+        local params
+
         mkRomDir "${md_id}"
 
         # Create Launcher Script
         local name="ScummVM"
         cat > "${romdir}/${md_id}/+Start ${name}.sh" << _EOF_
 #!/bin/bash
-game="\${1}"
 pushd "${romdir}/${md_id}" >/dev/null
 if ! grep -qs extrapath "\${HOME}/ArchyPie/configs/scummvm/scummvm.ini"; then
     params="--extrapath="${md_inst}/extra""
 fi
-${md_inst}/bin/scummvm --fullscreen \${params} --joystick=0 --auto-detect -p "\${game}"
-while read id desc; do
-    echo "\${desc}" > "${romdir}/${md_id}/\${id}.svm"
-done < <(${md_inst}/bin/${md_id} --list-targets | tail -n +3)
+${md_inst}/bin/scummvm --fullscreen \${params} --joystick=0
 popd >/dev/null
 _EOF_
         chown "${user}:${user}" "${romdir}/${md_id}/+Start ${name}.sh"
         chmod u+x "${romdir}/${md_id}/+Start ${name}.sh"
     fi
 
-    addEmulator 1 "${md_id}" "${md_id}" "${romdir}/${md_id}/+Start\ ${name}.sh %ROM%"
+    addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/scummvm --fullscreen ${params} --joystick=0 --auto-detect -p %ROM%"
 
     addSystem "${md_id}"
 }
