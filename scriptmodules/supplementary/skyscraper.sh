@@ -5,13 +5,13 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="skyscraper"
-rp_module_desc="Scraper For EmulationStation By Lars Muldjord (Detain Fork)"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/detain/skyscraper/master/LICENSE"
-rp_module_repo="git https://github.com/detain/skyscraper :_get_branch_skyscraper"
+rp_module_desc="Scraper For EmulationStation (Gemba Fork)"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/Gemba/skyscraper/master/LICENSE"
+rp_module_repo="git https://github.com/Gemba/skyscraper :_get_branch_skyscraper"
 rp_module_section="opt"
 
 function _get_branch_skyscraper() {
-    download "https://api.github.com/repos/detain/skyscraper/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    download "https://api.github.com/repos/Gemba/skyscraper/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
 function depends_skyscraper() {
@@ -57,12 +57,16 @@ function install_skyscraper() {
         'artwork.xml'
         'cache/priorities.xml.example'
         'config.ini.example'
-        'hints.txt'
+        'docs'
+        'hints.xml'
         'import'
         'LICENSE'
         'mameMap.csv'
+        'mobygames.json'
+        'platforms.json'
         'README.md'
         'resources'
+        'screenscraper.json'
         'Skyscraper'
         'tgdb_developers.json'
         'tgdb_publishers.json'
@@ -94,8 +98,8 @@ function _purge_skyscraper() {
 }
 
 function _clear_platform_skyscraper() {
-    local platform="$1"
-    local mode="$2"
+    local platform="${1}"
+    local mode="${2}"
     local cache_folder
     
     cache_folder=$(_cache_folder_skyscraper)
@@ -133,7 +137,7 @@ function _purge_platform_skyscraper() {
         return
     fi
 
-    local mode="$1"
+    local mode="${1}"
     [[ -z "${mode}" ]] && mode="purge"
 
     local cmd=(dialog --backtitle "${__backtitle}" --radiolist "Select Platform To ${mode}" 20 60 12)
@@ -144,7 +148,7 @@ function _purge_platform_skyscraper() {
     # Exit If No Platform Chosen
     [[ -z "${platform}" ]] && return
 
-    _clear_platform_skyscraper "${platform}" "$@"
+    _clear_platform_skyscraper "${platform}" "${@}"
 }
 
 function _get_ver_skyscraper() {
@@ -158,7 +162,7 @@ function _check_ver_skyscraper() {
 
     compareVersions "${ver}" "3.5"
 
-    if [[ $? == -1 ]]; then
+    if [[ ${?} == -1 ]]; then
         printMsgs "dialog" "The Version Of Skyscraper You Currently Have Installed Is Incompatible With Options Used By This Script. Please Update Skyscraper To The Latest Version To Continue."
         return 1
     fi
@@ -223,64 +227,59 @@ function _init_config_skyscraper() {
     local scraper_conf_dir="${configdir}/all/skyscraper"
 
     # Make Sure The `artwork.xml` And Other Conf Files Are Present
-    local f_conf
-    for f_conf in artwork.xml aliasMap.csv; do
-        if [[ -f "${scraper_conf_dir}/${f_conf}" ]]; then
-            cp -f "${md_inst}/${f_conf}" "${scraper_conf_dir}/${f_conf}.default"
-        else
-            cp "${md_inst}/${f_conf}" "${scraper_conf_dir}"
-        fi
+    local f_confs=(
+        'aliasMap.csv'
+        'artwork.xml'
+        'platforms.json'
+        'screenscraper.json'
+    )
+    for f_conf in "${f_confs[@]}"; do
+        copyDefaultConfig "${md_inst}/${f_conf}" "${scraper_conf_dir}/${f_conf}"
     done
 
-    # If We Don't Have A Previous 'config.ini' File Copy The Example One
-    if [[ ! -f "${scraper_conf_dir}/config.ini" ]]; then
-        cp "${md_inst}/config.ini.example" "${scraper_conf_dir}/config.ini"
-        sed -i 's|\[esgamelist\]|\[esgamelist\]\ncacheScreenshots="false"|' "${scraper_conf_dir}/config.ini"
-    fi
+    # If We Don't Have A Previous 'config.ini' File, Copy The Example One
+    [[ ! -f "${scraper_conf_dir}/config.ini" ]] && cp "${md_inst}/config.ini.example" "${scraper_conf_dir}/config.ini"
 
-    # Try To Find The Rest Of The Necessary Files From The Qmake Build File
-    # They Should Be Listed In The `unix:examples.file` Configuration Line
-    if [[ $(grep unix:examples.files "${md_build}/skyscraper.pro" 2>/dev/null | cut -d= -f2-) ]]; then
-        local files
-        local file
+    # Artwork Example Files
+    cp -f "${md_inst}/artwork.xml.example"* "${scraper_conf_dir}"
 
-        files=$(grep unix:examples.files "${md_build}/skyscraper.pro" | cut -d= -f2-)
-
-        for file in ${files}; do
-            # Copy The Files To The Configuration Folder Except 'config.ini', 'artwork.xml' & 'aliasMap.csv'
-            if [[ ${file} != "artwork.xml" && ${file} != "config.ini" && ${file} != "aliasMap.csv" ]]; then
-                cp -f "${md_build}/${file}" "${scraper_conf_dir}"
-            fi
-        done
-    else
-        # Fallback To The Known Resource Files List
-        cp -f "${md_inst}/artwork.xml.example"* "${scraper_conf_dir}"
-
-        # Copy Resources & Readme
-        local resource_file
-        for resource_file in hints.txt mameMap.csv README.md tgdb_developers.json tgdb_publishers.json; do
-            cp -f "${md_inst}/${resource_file}" "${scraper_conf_dir}"
-        done
-    fi
+    # Copy Remaining Resources
+    local resource_files=(
+        'hints.xml'
+        'mameMap.csv'
+        'mobygames.json'
+        'tgdb_developers.json'
+        'tgdb_publishers.json'
+    )
+    for resource_file in "${resource_files[@]}"; do
+        cp -f "${md_inst}/${resource_file}" "${scraper_conf_dir}"
+    done
 
     # Copy The Rest Of The Folders
     cp -rf "${md_inst}/resources" "${scraper_conf_dir}"
 
     # Create The Import Folders & Add The Sample Files
-    local folder
-    for folder in covers marquees screenshots textual videos wheels; do
+    local folders=(
+        'covers'
+        'marquees'
+        'screenshots'
+        'textual'
+        'videos'
+        'wheels'
+    )
+    for folder in "${folders[@]}"; do
         mkUserDir "${scraper_conf_dir}/import/${folder}"
     done
     cp -rf "${md_inst}/import" "${scraper_conf_dir}"
 
-    # Create The Cache Folder & Add The Sample 'priorities.xml' File
-    mkdir -p "${scraper_conf_dir}/cache"
+    # Create The 'cache' Folder & Add The Sample 'priorities.xml' File To It
+    mkUserDir "${scraper_conf_dir}/cache"
     cp -f "${md_inst}/priorities.xml.example" "${scraper_conf_dir}/cache"
 }
 
-# Scrape One System, Passed As Parameter
+# Scrape One System, Passed As A Parameter
 function _scrape_skyscraper() {
-    local system="$1"
+    local system="${1}"
 
     [[ -z "${system}" ]] && return
 
@@ -318,7 +317,7 @@ function _scrape_skyscraper() {
 
     # If 2nd Parameter Is Unset, Use The Configured Scraping Source, Otherwise Scrape From Cache
     # Scraping From Cache Means We Can Omit '-s' From The Parameter List
-    if [[ -z "$2" ]]; then
+    if [[ -z "${2}" ]]; then
         params+=(-s "${scrape_source}")
     fi
 
@@ -347,7 +346,7 @@ function _scrape_chosen_skyscraper() {
 
     while read system; do
         system=${system/${romdir}\//}
-        options+=($i "${system}" OFF)
+        options+=(${i} "${system}" OFF)
         ((i++))
     done < <(_list_systems_skyscraper)
 
@@ -362,17 +361,17 @@ function _scrape_chosen_skyscraper() {
     choices=($("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty))
 
     # Exit If Nothing Was Chosen Or Cancel Was Used
-    [[ ${#choices[@]} -eq 0 || $? -eq 1 ]] && return 1
+    [[ ${#choices[@]} -eq 0 || ${?} -eq 1 ]] && return 1
 
     # Confirm With The User That Scraping Can Start
     dialog --clear --colors --yes-label "Proceed" --no-label "Abort" --yesno "This Will Start The Gathering Process, Which Can Take A Long Time If You Have A Large Game Collection.\n\nYou Can Interrupt This Process Anytime By Pressing \ZbCtrl+C\Zn.\nProceed?" 12 70 2>&1 >/dev/tty
-    [[ ! $? -eq 0 ]] && return 1
+    [[ ! ${?} -eq 0 ]] && return 1
 
     local choice
 
     for choice in "${choices[@]}"; do
         choice="${options[choice*3-2]}"
-        _scrape_skyscraper "${choice}" "$@"
+        _scrape_skyscraper "${choice}" "${@}"
     done
 }
 
@@ -386,7 +385,7 @@ function _generate_chosen_skyscraper() {
 
     while read system; do
         system=${system/${romdir}\//}
-        options+=($i "${system}" OFF)
+        options+=("${i}" "${system}" OFF)
         ((i++))
     done < <(_list_systems_skyscraper)
 
@@ -401,11 +400,11 @@ function _generate_chosen_skyscraper() {
     choices=($("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty))
 
     # Exit If Nothing Was Chosen Or Cancel Was Used
-    [[ ${#choices[@]} -eq 0 || $? -eq 1 ]] && return 1
+    [[ ${#choices[@]} -eq 0 || ${?} -eq 1 ]] && return 1
 
     for choice in "${choices[@]}"; do
         choice="${options[choice*3-2]}"
-        _scrape_skyscraper "${choice}" "cache" "$@"
+        _scrape_skyscraper "${choice}" "cache" "${@}"
     done
 }
 
@@ -428,7 +427,7 @@ function _load_config_skyscraper() {
 function _open_editor_skyscraper() {
   local editor
   editor="${EDITOR:-nano}"
-  sudo -u "${user}" "${editor}" "$1" >/dev/tty </dev/tty
+  sudo -u "${user}" "${editor}" "${1}" >/dev/tty </dev/tty
 }
 
 function _gui_advanced_skyscraper() {
@@ -540,7 +539,7 @@ function gui_skyscraper() {
     while true; do
         [[ -z "${ver}" ]] && ver="v(Git)"
 
-        local cmd=(dialog --backtitle "$__backtitle" --colors --cancel-label "Exit" --help-button --no-collapse --cr-wrap --default-item "${default}" --menu "   Skyscraper: Game Scraper By Lars Muldjord (${ver})\\n \\n" 22 60 12)
+        local cmd=(dialog --backtitle "${__backtitle}" --colors --cancel-label "Exit" --help-button --no-collapse --cr-wrap --default-item "${default}" --menu "   Skyscraper: Game Scraper For EmulationStation (${ver})\\n \\n" 22 60 12)
 
         local options=(
             "-" "GATHER & Cache Resources"
@@ -555,9 +554,9 @@ function gui_skyscraper() {
         )
 
         for i in "${!s_source[@]}"; do
-            if [[ "${scrape_source}" == "${s_source[$i]}" ]]; then
-                [[ $i -ge 10 ]] && online="Local"
-                options+=(2 "Gather Source - ${s_source_names[$i]} (${online}) -->")
+            if [[ "${scrape_source}" == "${s_source[${i}]}" ]]; then
+                [[ ${i} -ge 10 ]] && online="Local"
+                options+=(2 "Gather Source - ${s_source_names[${i}]} (${online}) -->")
                 source_found=1
             fi
         done
@@ -598,7 +597,7 @@ function gui_skyscraper() {
                 1)
                     if _scrape_chosen_skyscraper; then
                         printMsgs "dialog" "ROM Information Gathered.\n\nDon't Forget To Use 'Generate Game List(s)' To Add This Information To EmulationStation."
-                    elif [[ $? -eq 2 ]]; then
+                    elif [[ ${?} -eq 2 ]]; then
                         printMsgs "dialog" "Gathering Was Aborted"
                     fi
                     ;;
@@ -611,11 +610,11 @@ function gui_skyscraper() {
                         online="Online:"
                         [[ i -ge 10 ]] && online="Local:"
 
-                        if [[ "${scrape_source}" == "${s_source[$i]}" ]]; then
-                            s_default="${online} ${s_source_names[$i]}"
+                        if [[ "${scrape_source}" == "${s_source[${i}]}" ]]; then
+                            s_default="${online} ${s_source_names[${i}]}"
                         fi
 
-                        s_options+=("${online} ${s_source_names[$i]}" "")
+                        s_options+=("${online} ${s_source_names[${i}]}" "")
                     done
 
                     if [[ -z "${s_default}" ]]; then
@@ -639,7 +638,7 @@ function gui_skyscraper() {
                     src=$(echo "${scrape_source_name}" | cut -d' ' -f2-)
 
                     for i in "${!s_source_names[@]}"; do
-                        [[ "${s_source_names[$i]}" == "${src}" ]] && scrape_source=${s_source[$i]}
+                        [[ "${s_source_names[${i}]}" == "${src}" ]] && scrape_source=${s_source[${i}]}
                     done
 
                     iniSet "scrape_source" "${scrape_source}"
@@ -649,8 +648,8 @@ function gui_skyscraper() {
                     ;;
                 4)
                     if _generate_chosen_skyscraper "cache"; then
-                        printMsgs "dialog" "Game List(s) Generated."
-                    elif [[ $? -eq 2 ]]; then
+                        printMsgs "dialog" "Game List(s) Generated"
+                    elif [[ ${?} -eq 2 ]]; then
                         printMsgs "dialog" "Game List Generation Aborted"
                     fi
                     ;;
@@ -669,7 +668,7 @@ function gui_skyscraper() {
                     latest_ver="$(_get_branch_skyscraper)"
                     # Check For Update
                     compareVersions "${latest_ver}" "${ver}"
-                    if [[ $? == -1 ]]; then
+                    if [[ ${?} == -1 ]]; then
                         printMsgs "dialog" "There Is A New Version Available. Latest Released Version Is ${latest_ver} (You Are Running ${ver}).\n\nYou Can Update The Package From ArchyPie-Setup -> Manage Packages"
                     else
                         printMsgs "dialog" "You Are Running The Latest Version (${ver})"
@@ -692,8 +691,10 @@ function gui_skyscraper() {
 
 function _gui_cache_skyscraper() {
     local db_size
-    local cache_folder=$(_cache_folder_skyscraper)
+    local cache_folder
     declare -A help_strings_cache
+
+    cache_folder=$(_cache_folder_skyscraper)
 
     iniConfig " = " '"' "${configdir}/all/skyscraper.cfg"
     eval "$(_load_config_skyscraper)"
@@ -799,7 +800,7 @@ function _gui_cache_skyscraper() {
                     ;;
                 P)
                     dialog --clear --defaultno --colors --yesno  "\Z1\ZbAre You Sure?\Zn\nThis Will \Zb\ZuERASE\Zn All Locally Cached Scraped Resources" 8 60 2>&1 >/dev/tty
-                    if [[ $? == 0 ]]; then
+                    if [[ ${?} == 0 ]]; then
                         _purge_skyscraper
                     fi
                     ;;
