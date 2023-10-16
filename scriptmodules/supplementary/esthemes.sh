@@ -250,6 +250,7 @@ function gui_esthemes() {
         'RetroHursty69 PopCom5x4'
         'RetroHursty69 ToggleBobble'
         'RetroHursty69 Sheeny'
+        'RetroHursty69 ballsy'
         'Saracade scv720'
         'chicueloarcade Chicuelo'
         'SuperMagicom nostalgic'
