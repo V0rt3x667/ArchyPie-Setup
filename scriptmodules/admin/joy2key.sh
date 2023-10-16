@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="joy2key"
-rp_module_desc="Provides Joystick to Keyboard Conversion for Navigation of ArchyPie Dialog Menus"
+rp_module_desc="Provides Joystick To Keyboard Conversion For Navigation Of ArchyPie Dialog Menus"
 rp_module_section="core"
 
 function _update_hook_joy2key() {
@@ -14,16 +14,20 @@ function _update_hook_joy2key() {
 }
 
 function depends_joy2key() {
-    local depends=(
-        'python-pip'
-        'python-pyudev'
-        'python-six'
-        'python-urwid'
-        'python-wheel'
-    )
-    getDepends "${depends[@]}"
+    # Remove Previously Installed PySDL2
+    pip list | grep "PySDL2" &>/dev/null
+    if [[ "${?}" -eq 0 ]]; then
+        pip uninstall "PySDL2" --break-system-packages -y
+    fi
 
-    pip install -U git+"https://github.com/marcusva/py-sdl2.git"
+    # Build & Install PySDL2 From The AUR
+    local builddir="${__builddir}/pkg"
+    mkdir "${builddir}"
+    chmod a+w "${builddir}"
+    gitPullOrClone "${builddir}" "https://aur.archlinux.org/python-pysdl2"
+    su "${user}" -c 'cd '"${builddir}"' && makepkg -cfs --noconfirm'
+    pacman -U "${builddir}"/python-pysdl2*.pkg.tar.zst --needed --noconfirm
+    rm -rf "${builddir}"
 }
 
 function install_bin_joy2key() {
@@ -36,8 +40,8 @@ function install_bin_joy2key() {
 
     local wrapper="${md_inst}/joy2key"
     cat >"${wrapper}" <<_EOF_
-#!/bin/bash
-mode="\$1"
+#!/usr/bin/env bash
+mode="\${1}"
 [[ -z "\${mode}" ]] && mode="start"
 shift
 
@@ -45,7 +49,7 @@ shift
 device="/dev/input/jsX"
 [[ -n "\${__joy2key_dev}" ]] && device="\${__joy2key_dev}"
 
-params=("\$@")
+params=("\${@}")
 if [[ "\${#params[@]}" -eq 0 ]]; then
     # Default Button-to-keyboard Mappings:
     # * Cursor Keys for Axis/Dpad
@@ -60,7 +64,7 @@ script="joy2key_sdl.py"
 case "\${mode}" in
     start)
         if pgrep -f "\${script}" &>/dev/null; then
-            "\$0" stop
+            "\${0}" stop
         fi
         "${md_inst}/\${script}" "\${device}" "\${params[@]}" || exit 1
         ;;
