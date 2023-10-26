@@ -168,16 +168,17 @@ function _purge_platform_skyscraper() {
 
 function _get_ver_skyscraper() {
     if [[ -f "${md_inst}/Skyscraper" ]]; then
-        echo $("${md_inst}/Skyscraper" -h | grep 'Running Skyscraper' | cut -d' ' -f 3 | tr -d v 2>/dev/null)
+        echo $("${md_inst}/Skyscraper" -v | cut -d' ' -f 2 2>/dev/null)
     fi
 }
 
 function _check_ver_skyscraper() {
-    ver=$(_get_ver_skyscraper)
+    local comparison
+    local ver
+    comparison="$(vercmp "${ver}" "3.5")"
+    ver="$(_get_ver_skyscraper)"
 
-    vercmp "${ver}" "3.5"
-
-    if [[ ${?} == -1 ]]; then
+    if [[ "${comparison}" == -1 ]]; then
         printMsgs "dialog" "The Version Of Skyscraper You Currently Have Installed Is Incompatible With Options Used By This Script. Please Update Skyscraper To The Latest Version To Continue."
         return 1
     fi
@@ -561,7 +562,7 @@ function gui_skyscraper() {
         [U]="Check For An Update To Skyscraper."
     )
 
-    ver=$(_get_ver_skyscraper)
+    ver="$(_get_ver_skyscraper)"
 
     while true; do
         [[ -z "${ver}" ]] && ver="v(Git)"
