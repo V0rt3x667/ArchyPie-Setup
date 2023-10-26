@@ -48,7 +48,22 @@ function build_skyscraper() {
 }
 
 function install_skyscraper() {
+    local config_files=($(_config_files_skyscraper))
+
     md_ret_files=(
+        'docs'
+        'LICENSE'
+        'README.md'
+        'Skyscraper'
+        'supplementary/scraperdata/check_screenscraper_json_to_idmap.py'
+        'supplementary/scraperdata/convert_platforms_json.py'
+        'supplementary/scraperdata/peas_and_idmap_verify.py'
+    )
+    md_ret_files+=("${config_files[@]}")
+}
+
+function _config_files_skyscraper() {
+    local config_files=(
         'aliasMap.csv'
         'artwork.xml.example1'
         'artwork.xml.example2'
@@ -57,20 +72,20 @@ function install_skyscraper() {
         'artwork.xml'
         'cache/priorities.xml.example'
         'config.ini.example'
-        'docs'
         'hints.xml'
         'import'
-        'LICENSE'
         'mameMap.csv'
-        'mobygames.json'
-        'platforms.json'
-        'README.md'
+        'mobygames_platforms.json'
+        'peas.json'
+        'platforms_idmap.csv'
         'resources'
-        'screenscraper.json'
-        'Skyscraper'
+        'screenscraper_platforms.json'
         'tgdb_developers.json'
+        'tgdb_genres.json'
+        'tgdb_platforms.json'
         'tgdb_publishers.json'
     )
+    echo "${config_files[@]}"
 }
 
 # Get The Location Of The Cached Resources Folder
@@ -132,7 +147,7 @@ function _purge_platform_skyscraper() {
     done < <(find "${configdir}/all/skyscraper/${cache_folder}" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
 
     # If No Folders Are Found, Show An Info Message Instead Of The Selection List
-    if [[ ${#options[@]} -eq 0 ]] ; then
+    if [[ ${#options[@]} -eq 0 ]]; then
         printMsgs "dialog" "Nothing To Delete! No Cached Platforms Found In: \n${configdir}/all/skyscraper/${cache_folder}"
         return
     fi
@@ -153,14 +168,14 @@ function _purge_platform_skyscraper() {
 
 function _get_ver_skyscraper() {
     if [[ -f "${md_inst}/Skyscraper" ]]; then
-        echo $("${md_inst}/Skyscraper" -h | grep 'Running Skyscraper' | cut -d' '  -f 3 | tr -d v 2>/dev/null)
+        echo $("${md_inst}/Skyscraper" -h | grep 'Running Skyscraper' | cut -d' ' -f 3 | tr -d v 2>/dev/null)
     fi
 }
 
 function _check_ver_skyscraper() {
     ver=$(_get_ver_skyscraper)
 
-    compareVersions "${ver}" "3.5"
+    vercmp "${ver}" "3.5"
 
     if [[ ${?} == -1 ]]; then
         printMsgs "dialog" "The Version Of Skyscraper You Currently Have Installed Is Incompatible With Options Used By This Script. Please Update Skyscraper To The Latest Version To Continue."
@@ -195,7 +210,7 @@ function configure_skyscraper() {
         local cache_folder="dbs"
         [[ -d "${home}/.skyscraper/cache" ]] && cache_folder="cache"
 
-        f_size=$(du --total -sm "${home}/.skyscraper/${cache_folder}" "${home}/.skyscraper/import" 2>/dev/null | tail -n 1 | cut -f 1 )
+        f_size=$(du --total -sm "${home}/.skyscraper/${cache_folder}" "${home}/.skyscraper/import" 2>/dev/null | tail -n 1 | cut -f 1)
         printMsgs "console" "INFO: Moving The Cache And Import Folders To New Configuration Folder (Total: ${f_size} Mb)"
 
         local folder
@@ -215,7 +230,7 @@ function configure_skyscraper() {
     for folder in ${cache_folder} import; do
         if [[ -d "${home}/.skyscraper-${folder}" ]]; then
             printMsgs "console" "INFO: Moving ${home}/.skyscraper-${folder} Back To The Configuration Folder"
-            mv  "${home}/.skyscraper-${folder}" "${configdir}/all/skyscraper/${folder}"
+            mv "${home}/.skyscraper-${folder}" "${configdir}/all/skyscraper/${folder}"
         fi
     done
 
@@ -224,41 +239,57 @@ function configure_skyscraper() {
 }
 
 function _init_config_skyscraper() {
+    local config_files=($(_config_files_skyscraper))
+
+    # Assume New(er) Install
+    mkdir -p .pristine_cfgs
+    for cf in "${config_files[@]}"; do
+        bn=${cf#*/} # Cut Off cache/
+        if [[ -e "${md_inst}/${bn}" ]]; then
+            cp -rf "${md_inst}/${bn}" ".pristine_cfgs/"
+            rm -rf "${md_inst}/${bn}"
+        fi
+    done
     local scraper_conf_dir="${configdir}/all/skyscraper"
 
     # Make Sure The `artwork.xml` And Other Conf Files Are Present
     local f_confs=(
         'aliasMap.csv'
         'artwork.xml'
-        'platforms.json'
-        'screenscraper.json'
+        'peas.json'
+        'platforms_idmap.csv'
     )
     for f_conf in "${f_confs[@]}"; do
-        copyDefaultConfig "${md_inst}/${f_conf}" "${scraper_conf_dir}/${f_conf}"
+        copyDefaultConfig "${md_inst}/.pristine_cfgs/${f_conf}" "${scraper_conf_dir}/${f_conf}"
     done
 
     # If We Don't Have A Previous 'config.ini' File, Copy The Example One
-    [[ ! -f "${scraper_conf_dir}/config.ini" ]] && cp "${md_inst}/config.ini.example" "${scraper_conf_dir}/config.ini"
+    if [[ ! -f "${scraper_conf_dir}/config.ini" ]]; then
+        cp "${md_inst}/.pristine_cfgs/config.ini.example" "${scraper_conf_dir}/config.ini"
+    fi
 
-    # Artwork Example Files
-    cp -f "${md_inst}/artwork.xml.example"* "${scraper_conf_dir}"
+    # Artwork Example Files, Always Overwrite
+    cp -f "${md_inst}/.pristine_cfgs/artwork.xml.example"* "${scraper_conf_dir}"
 
-    # Copy Remaining Resources
+    # Copy Remaining Resources, Always Overwrite
     local resource_files=(
         'hints.xml'
         'mameMap.csv'
-        'mobygames.json'
+        'mobygames_platforms.json'
+        'screenscraper_platforms.json'
         'tgdb_developers.json'
+        'tgdb_genres.json'
+        'tgdb_platforms.json'
         'tgdb_publishers.json'
     )
     for resource_file in "${resource_files[@]}"; do
-        cp -f "${md_inst}/${resource_file}" "${scraper_conf_dir}"
+        cp -f "${md_inst}/.pristine_cfgs/${resource_file}" "${scraper_conf_dir}"
     done
 
-    # Copy The Rest Of The Folders
-    cp -rf "${md_inst}/resources" "${scraper_conf_dir}"
+    # Copy The Resource Folder
+    cp -rf "${md_inst}/.pristine_cfgs/resources" "${scraper_conf_dir}"
 
-    # Create The Import Folders & Add The Sample Files
+    # Create The Import Folders & Add The Definition Template Examples
     local folders=(
         'covers'
         'marquees'
@@ -270,11 +301,11 @@ function _init_config_skyscraper() {
     for folder in "${folders[@]}"; do
         mkUserDir "${scraper_conf_dir}/import/${folder}"
     done
-    cp -rf "${md_inst}/import" "${scraper_conf_dir}"
+    cp -rf "${md_inst}/.pristine_cfgs/import" "${scraper_conf_dir}"
 
     # Create The 'cache' Folder & Add The Sample 'priorities.xml' File To It
     mkUserDir "${scraper_conf_dir}/cache"
-    cp -f "${md_inst}/priorities.xml.example" "${scraper_conf_dir}/cache"
+    cp -f "${md_inst}/.pristine_cfgs/priorities.xml.example" "${scraper_conf_dir}/cache"
 }
 
 # Scrape One System, Passed As A Parameter
@@ -457,19 +488,15 @@ function _gui_advanced_skyscraper() {
             local default="${choice}"
 
             case "${choice}" in
-
                 E)
                     _open_editor_skyscraper "${configdir}/all/skyscraper/config.ini"
                     ;;
-
                 F)
                     _open_editor_skyscraper "${configdir}/all/skyscraper/artwork.xml"
                     ;;
-
                 G)
                     _open_editor_skyscraper "${configdir}/all/skyscraper/aliasMap.csv"
                     ;;
-
                 HELP*)
                     # Retain Choice
                     default="${choice/HELP /}"
@@ -664,17 +691,17 @@ function gui_skyscraper() {
                     _gui_advanced_skyscraper
                     ;;
                 U)
+                    local comparison
                     local latest_ver
-                    latest_ver="$(_get_branch_skyscraper)"
                     # Check For Update
-                    compareVersions "${latest_ver}" "${ver}"
-                    if [[ ${?} == -1 ]]; then
+                    latest_ver="$(_get_branch_skyscraper)"
+                    comparison="$(vercmp "${ver}" "${latest_ver}")"
+                    if [[ "${comparison}" == -1 ]]; then
                         printMsgs "dialog" "There Is A New Version Available. Latest Released Version Is ${latest_ver} (You Are Running ${ver}).\n\nYou Can Update The Package From ArchyPie-Setup -> Manage Packages"
                     else
                         printMsgs "dialog" "You Are Running The Latest Version (${ver})"
                     fi
                     ;;
-
                 HELP*)
                     # Retain Choice When The Help Button Is Selected
                     default="${choice/HELP /}"
