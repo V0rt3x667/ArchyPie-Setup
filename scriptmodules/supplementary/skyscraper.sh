@@ -168,17 +168,15 @@ function _purge_platform_skyscraper() {
 
 function _get_ver_skyscraper() {
     if [[ -f "${md_inst}/Skyscraper" ]]; then
-        echo $("${md_inst}/Skyscraper" -v | cut -d' ' -f 2 2>/dev/null)
+        echo "$("${md_inst}/Skyscraper" -v | cut -d' ' -f 2 2>/dev/null)"
     fi
 }
 
 function _check_ver_skyscraper() {
-    local comparison
     local ver
-    comparison="$(vercmp "${ver}" "3.5")"
     ver="$(_get_ver_skyscraper)"
 
-    if [[ "${comparison}" == -1 ]]; then
+    if [[ "$(compareVersions "${ver}" "3.5")" == -1 ]]; then
         printMsgs "dialog" "The Version Of Skyscraper You Currently Have Installed Is Incompatible With Options Used By This Script. Please Update Skyscraper To The Latest Version To Continue."
         return 1
     fi
@@ -692,12 +690,11 @@ function gui_skyscraper() {
                     _gui_advanced_skyscraper
                     ;;
                 U)
-                    local comparison
                     local latest_ver
                     # Check For Update
                     latest_ver="$(_get_branch_skyscraper)"
-                    comparison="$(vercmp "${ver}" "${latest_ver}")"
-                    if [[ "${comparison}" == -1 ]]; then
+
+                    if [[ $(compareVersions "${ver}" "${latest_ver}") == -1 ]]; then
                         printMsgs "dialog" "There Is A New Version Available. Latest Released Version Is ${latest_ver} (You Are Running ${ver}).\n\nYou Can Update The Package From ArchyPie-Setup -> Manage Packages"
                     else
                         printMsgs "dialog" "You Are Running The Latest Version (${ver})"
