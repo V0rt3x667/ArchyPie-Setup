@@ -492,13 +492,15 @@ function diffFiles() {
 
 ## @fn compareVersions()
 ## @param version firstversion to compare
-## @brief version second version to compare
+## @param version second version to compare
+## @brief Compares two version numbers using vercmp
 ## @retval 0 if the comparison is eq
 ## @retval 1 if the comparison is gt
 ## @retval -1 if the comparison is lt
 function compareVersions() {
-    vercmp "$1" "$2" >/dev/null
-    return $?
+    local ver
+    ver=$(vercmp "${1}" "${2}")
+    echo "${ver}"
 }
 
 ## @fn dirIsEmpty()
@@ -1258,7 +1260,7 @@ function addPort() {
 
     cat >"${file}" << _EOF_
 #!/bin/bash
-"$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "$game"
+"$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "${game}"
 _EOF_
 
     chown "${user}:${user}" "${file}"
