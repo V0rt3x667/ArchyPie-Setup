@@ -144,7 +144,6 @@ function sources_emulationstation() {
 }
 
 function build_emulationstation() {
-    local comparison
     local params=('-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/')
 
     if isPlatform "rpi"; then
@@ -156,16 +155,14 @@ function build_emulationstation() {
             params+=('-DGLES=On')
             local gles_ver
             gles_ver=$(sudo -u "${user}" glxinfo -B | grep -oP 'Max GLES[23] profile version:\s\K.*')
-            comparison="$(vercmp "${gles_ver}" "2.0")"
-            if [[ "${comparison}" == -1 ]]; then
+            if [[ "$(compareVersions "${gles_ver}" "2.0")" == -1 ]]; then
                 params+=('-DUSE_GLES1=On')
             fi
         else
             params+=('-DGL=On')
             local gles_ver
             gl_ver=$(sudo -u "${user}" glxinfo -B | grep -oP 'Max compat profile version:\s\K.*')
-            comparison="$(vercmp "${gl_ver}" "2.0")"
-            if [[ "${comparison}" == 1 ]]; then
+            if [[ "$(compareVersions "${gl_ver}" "2.0")" == 1 ]]; then
                 params+=('-DUSE_GL21=On')
             fi
         fi
