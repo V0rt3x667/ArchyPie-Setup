@@ -14,18 +14,12 @@ function _update_hook_joy2key() {
 }
 
 function depends_joy2key() {
-    # Remove Previously Installed PySDL2
-    pip list | grep "PySDL2" &>/dev/null
-    if [[ "${?}" -eq 0 ]]; then
-        pip uninstall "PySDL2" --break-system-packages -y
-    fi
-
     # Build & Install PySDL2 From The AUR
-    local builddir="${__builddir}/pkg"
+    local builddir="${__tmpdir}/pkgs"
     mkdir "${builddir}"
-    chmod a+w "${builddir}"
+    chmod o+w "${builddir}"
     gitPullOrClone "${builddir}" "https://aur.archlinux.org/python-pysdl2"
-    su "${user}" -c 'cd '"${builddir}"' && makepkg -cfs --noconfirm'
+    su "${user}" -c 'cd '"${builddir}"' && makepkg -cfs --needed --noconfirm'
     pacman -U "${builddir}"/python-pysdl2*.pkg.tar.zst --needed --noconfirm
     rm -rf "${builddir}"
 }
@@ -82,4 +76,6 @@ _EOF_
 
 function remove_joy2key() {
     joy2keyStop
+
+    pacmanRemove python-pysdl2
 }
