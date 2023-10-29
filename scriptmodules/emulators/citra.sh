@@ -15,16 +15,32 @@ rp_module_flags="!all 64bit"
 function depends_citra() {
     local depends=(
         'boost'
+        'clang'
         'cmake'
         'doxygen'
         'ffmpeg'
         'fmt'
+        'glslang'
         'libfdk-aac'
+        'libinih'
+        'libusb'
+        'llvm'
+        'mbedtls'
         'ninja'
-        'qt5-base'
-        'qt5-multimedia'
+        'nlohmann-json'
+        'openssl'
+        'qt6-base'
+        'qt6-multimedia-ffmpeg'
+        'qt6-tools'
+        'rapidjson'
         'sdl2'
+        'sndio'
+        'soundtouch'
+        'speexdsp'
+        'zstd'
     )
+    isPlatform "wayland" && depends+=('qt6-wayland')
+    isPlatform "x11" && depends+=('libxkbcommon-x11')
     getDepends "${depends[@]}"
 }
 
@@ -37,24 +53,25 @@ function sources_citra() {
 }
 
 function build_citra() {
-    # "ninja -C build clean" Removes An Object From The Build Dir Resulting In A Compliation Failure:
-    # "fatal error: shaders/depth_to_color.frag: No such file or directory"
-    if [[ -d "${md_build}/build" ]]; then
-        rm -rf "${md_build}/build"
-    fi
-
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DENABLE_FFMPEG_AUDIO_DECODER="ON" \
-        -DENABLE_LTO="OFF" \
-        -DENABLE_WEB_SERVICE="OFF" \
-        -DUSE_SYSTEM_BOOST="ON" \
-        -DUSE_SYSTEM_SDL2="ON" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCITRA_ENABLE_COMPATIBILITY_REPORTING="ON" \
+        -DDISABLE_SYSTEM_CPP_HTTPLIB="ON" \
+        -DDISABLE_SYSTEM_CPP_JWT="ON" \
+        -DDISABLE_SYSTEM_DYNARMIC="ON" \
+        -DDISABLE_SYSTEM_XBYAK="ON" \
+        -DENABLE_COMPATIBILITY_LIST_DOWNLOAD="ON" \
+        -DENABLE_LTO="ON" \
+        -DENABLE_QT_TRANSLATION="ON" \
+        -DUSE_SYSTEM_LIBS="ON" \
         -Wno-dev
+    ninja -C build clean
     ninja -C build
     md_ret_require="${md_build}/build/bin/Release/${md_id}"
 }
