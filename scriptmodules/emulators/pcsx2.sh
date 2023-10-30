@@ -23,12 +23,16 @@ function depends_pcsx2() {
         'ninja'
         'png++'
         'portaudio'
+        'p7zip'
         'qt6-base'
+        'qt6-svg'
         'qt6-tools'
         'rapidyaml'
         'sdl2'
         'soundtouch'
+        'zlib'
     )
+    isPlatform "wayland" && depends+=('qt6-wayland')
     getDepends "${depends[@]}"
 }
 
@@ -37,6 +41,10 @@ function sources_pcsx2() {
 
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
+
+    # Get Patches & Compress Them
+    gitPullOrClone "${md_build}/patches" "https://github.com/PCSX2/pcsx2_patches" "main"
+    7z a -r "${md_build}/patches/patches.zip" "${md_build}/patches/patches/."
 
     # Get Latest "gamecontrollerdb.txt" File
     curl -sSL "https://github.com/gabomdq/SDL_GameControllerDB/archive/refs/heads/master.zip" | bsdtar xvf - --strip-components=1 -C "${md_build}"
@@ -53,10 +61,9 @@ function build_pcsx2() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DENABLE_TESTS="OFF" \
         -DDISABLE_BUILD_DATE="ON" \
-        -DUSE_SYSTEM_LIBS="ON" \
-        -DQT_BUILD="ON" \
+        -DENABLE_TESTS="OFF" \
+        -DLTO_PCSX2_CORE="ON" \
         "${params[@]}" \
         -Wno-dev
     ninja -C build clean
@@ -68,8 +75,11 @@ function install_pcsx2() {
     md_ret_files=(
         "build/bin/pcsx2-qt"
         "build/bin/resources"
+        "build/bin/translations"
         "gamecontrollerdb.txt"
     )
+    # Install Patch Files
+    install -Dm644 "${md_build}/patches/patches.zip" -t "${md_inst}/resources/"
 }
 
 function configure_pcsx2() {
@@ -101,7 +111,7 @@ function configure_pcsx2() {
     fi
 
     addEmulator 1 "${md_id}" "ps2" "${md_inst}/pcsx2-qt -nogui -fullscreen %ROM%"
-    addEmulator 0 "${md_id}-gui" "ps2" "${md_inst}/pcsx2-qt -fullscreen"
+    addEmulator 0 "${md_id}-gui" "ps2" "${md_inst}/pcsx2-qt -nofullscreen %ROM%"
 
     addSystem "ps2"
 }

@@ -1,23 +1,12 @@
 diff -ru a/pcsx2/Pcsx2Config.cpp b/pcsx2/Pcsx2Config.cpp
---- a/pcsx2/Pcsx2Config.cpp	2023-06-30 17:26:42.434269447 +0100
-+++ b/pcsx2/Pcsx2Config.cpp	2023-06-30 18:01:35.379606946 +0100
-@@ -1601,46 +1601,12 @@
- 		return;
+--- a/pcsx2/Pcsx2Config.cpp	2023-10-30 00:49:45.671892556 +0000
++++ b/pcsx2/Pcsx2Config.cpp	2023-10-30 01:05:53.479260500 +0000
+@@ -1728,26 +1728,10 @@
+ 		CoTaskMemFree(documents_directory);
  	}
- 
--#if defined(_WIN32)
--	// On Windows, use My Documents\PCSX2 to match old installs.
--	PWSTR documents_directory;
--	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
--	{
--		if (std::wcslen(documents_directory) > 0)
--			DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
--		CoTaskMemFree(documents_directory);
--	}
--#elif defined(__linux__) || defined(__FreeBSD__)
+ #elif defined(__linux__) || defined(__FreeBSD__)
 -	// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
 -	const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
-+#if defined(__linux__) || defined(__FreeBSD__)
 +	const char* xdg_config_home = getenv("HOME");
  	if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
  	{
@@ -30,24 +19,14 @@ diff -ru a/pcsx2/Pcsx2Config.cpp b/pcsx2/Pcsx2Config.cpp
 -		const char* home_dir = getenv("HOME");
 -		if (home_dir)
 -		{
--#ifdef USE_LEGACY_USER_DIRECTORY
--			DataRoot = Path::Combine(home_dir, "PCSX2");
--#else
 -			// ~/.config should exist, but just in case it doesn't and this is a fresh profile..
 -			const std::string config_dir(Path::Combine(home_dir, ".config"));
 -			if (!FileSystem::DirectoryExists(config_dir.c_str()))
 -				FileSystem::CreateDirectoryPath(config_dir.c_str(), false);
 -
 -			DataRoot = Path::Combine(config_dir, "PCSX2");
--#endif
 -		}
 +		DataRoot = Path::Combine(xdg_config_home, "ArchyPie/configs/pcsx2");
  	}
--#elif defined(__APPLE__)
--	static constexpr char MAC_DATA_DIR[] = "Library/Application Support/PCSX2";
--	const char* home_dir = getenv("HOME");
--	if (home_dir)
--		DataRoot = Path::Combine(home_dir, MAC_DATA_DIR);
- #endif
- 
- 	// make sure it exists
+ #elif defined(__APPLE__)
+ 	static constexpr char MAC_DATA_DIR[] = "Library/Application Support/PCSX2";
