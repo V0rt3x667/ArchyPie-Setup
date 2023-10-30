@@ -368,7 +368,7 @@ function _scrape_skyscraper() {
 
 # Scrape A List Of Systems Chosen By The User
 function _scrape_chosen_skyscraper() {
-    ! _check_ver_skyscraper && return 1
+    #! _check_ver_skyscraper && return 1
 
     local options=()
     local system
@@ -407,7 +407,7 @@ function _scrape_chosen_skyscraper() {
 
 # Generate Gamelists For A List Of Systems Chosen By The User
 function _generate_chosen_skyscraper() {
-    ! _check_ver_skyscraper && return 1
+    #! _check_ver_skyscraper && return 1
 
     local options=()
     local system
@@ -609,7 +609,7 @@ function gui_skyscraper() {
 
         options+=(A "Advanced Options -->")
 
-        options+=(U "Check For Updates")
+        #options+=(U "Check For Updates")
 
         # Run The GUI
         local choice
