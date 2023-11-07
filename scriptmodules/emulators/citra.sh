@@ -17,6 +17,7 @@ function depends_citra() {
         'boost'
         'clang'
         'cmake'
+        'crypto++'
         'doxygen'
         'ffmpeg'
         'fmt'
@@ -24,6 +25,7 @@ function depends_citra() {
         'libfdk-aac'
         'libinih'
         'libusb'
+        'lld'
         'llvm'
         'mbedtls'
         'ninja'
@@ -61,15 +63,21 @@ function build_citra() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCITRA_ENABLE_COMPATIBILITY_REPORTING="ON" \
         -DDISABLE_SYSTEM_CPP_HTTPLIB="ON" \
         -DDISABLE_SYSTEM_CPP_JWT="ON" \
+        -DDISABLE_SYSTEM_CUBEB="ON" \
         -DDISABLE_SYSTEM_DYNARMIC="ON" \
         -DDISABLE_SYSTEM_XBYAK="ON" \
         -DENABLE_COMPATIBILITY_LIST_DOWNLOAD="ON" \
         -DENABLE_LTO="ON" \
         -DENABLE_QT_TRANSLATION="ON" \
         -DUSE_SYSTEM_LIBS="ON" \
+        -DCRYPTOPP_INCLUDE_DIRS="/usr/include/cryptopp" \
+        -DCRYPTOPP_LIBRARY_DIRS="/usr/lib/libcryptopp.so" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
