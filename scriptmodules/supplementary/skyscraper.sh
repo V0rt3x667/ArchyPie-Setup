@@ -168,7 +168,7 @@ function _purge_platform_skyscraper() {
 
 function _get_ver_skyscraper() {
     if [[ -f "${md_inst}/Skyscraper" ]]; then
-        echo "$("${md_inst}/Skyscraper" -v | cut -d' ' -f 2 2>/dev/null)"
+        echo "$(sudo -u "${user}" "${md_inst}/Skyscraper" -v | cut -d' ' -f 2 2>/dev/null)"
     fi
 }
 
@@ -368,7 +368,7 @@ function _scrape_skyscraper() {
 
 # Scrape A List Of Systems Chosen By The User
 function _scrape_chosen_skyscraper() {
-    #! _check_ver_skyscraper && return 1
+    ! _check_ver_skyscraper && return 1
 
     local options=()
     local system
@@ -407,7 +407,7 @@ function _scrape_chosen_skyscraper() {
 
 # Generate Gamelists For A List Of Systems Chosen By The User
 function _generate_chosen_skyscraper() {
-    #! _check_ver_skyscraper && return 1
+    ! _check_ver_skyscraper && return 1
 
     local options=()
     local system
@@ -609,7 +609,7 @@ function gui_skyscraper() {
 
         options+=(A "Advanced Options -->")
 
-        #options+=(U "Check For Updates")
+        options+=(U "Check For Updates")
 
         # Run The GUI
         local choice
