@@ -18,12 +18,12 @@ function _get_branch_mame() {
 
 function depends_mame() {
     local depends=(
+        'asio'
         'flac'
         'glm'
         'libpulse'
         'libutf8proc'
-        'libx11'
-        'lua53'
+        'lua'
         'nasm'
         'portaudio'
         'portmidi'
@@ -33,8 +33,14 @@ function depends_mame() {
         'rapidjson'
         'sdl2_ttf'
         'sdl2'
+        'sqlite'
+        'zlib'
     )
-    isPlatform "x11" && params+=('libxinerama')
+    isPlatform "x11" && params+=(
+        'libx11'
+        'libxi'
+        'libxinerama'
+    )
     getDepends "${depends[@]}"
 }
 
@@ -42,13 +48,13 @@ function sources_mame() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|# SDL_INI_PATH = .;\$HOME/.mame/;ini;|SDL_INI_PATH = \$HOME/ArchyPie/configs/${md_id}/;|g" -i "${md_build}/makefile"
+    sed -e "s|# SDL_INI_PATH = .;\$HOME/.mame/;ini;|SDL_INI_PATH = ~/ArchyPie/configs/${md_id}/|g" -i "${md_build}/makefile"
 
     # Use System Libraries
     sed -e "s|\# USE_SYSTEM_LIB|USE_SYSTEM_LIB|g" -i "${md_build}/makefile"
 
-    # Except for ASIO
-    sed -e "s|USE_SYSTEM_LIB_ASIO|\# USE_SYSTEM_LIB_ASIO|g" -i "${md_build}/makefile"
+    # Use C++ LUA
+    sed -e "s|ext_lib(\"lua\")|ext_lib(\"lua++\")|g" -i "${md_build}/scripts/src/main.lua" -i "${md_build}/scripts/src/3rdparty.lua"
 }
 
 function build_mame() {
@@ -59,22 +65,13 @@ function build_mame() {
         rpSwap on 4096
     fi
 
-    export CFLAGS+=" -I/usr/include/lua5.3/"
-    export CXXFLAGS+=" -I/usr/include/lua5.3/"
-
-    # Force Linking To lua5.3
-    mkdir lib
-    ln -s /usr/lib/liblua5.3.so lib/liblua.so
-    export LDFLAGS+=" -L${PWD}/lib"
-
     local params=(
         'LTO=0'
         'NOWERROR=1'
-        'OPTIMIZE=2'
         'PYTHON_EXECUTABLE=python'
+        'STRIP_SYMBOLS=1'
     )
-    # ! isPlatform "x11" && params+=('NO_X11=1') Breaks Linking
-    # Error: '/usr/bin/ld: /usr/lib/libX11.so.6: error adding symbols: DSO missing from command line'
+    isPlatform "wayland" && params+=('USE_WAYLAND=1' 'NO_X11=1')
 
     make clean
     make "${params[@]}"
@@ -135,28 +132,31 @@ function configure_mame() {
         config="$(mktemp)"
 
         iniConfig " " "" "${config}"
+        iniSet "homepath"           "${md_conf_root}/${md_id}"
+        iniSet "rompath"            "${romdir}/${md_id};${romdir}/arcade;${biosdir}/${md_id}"
+        iniSet "hashpath"           "${md_inst}/hash"
+        iniSet "samplepath"         "${romdir}/${md_id}/samples;${romdir}/arcade/samples"
         iniSet "artpath"            "${romdir}/${md_id}/artwork;${romdir}/arcade/artwork"
         iniSet "ctrlrpath"          "${md_inst}/ctrlr"
-        iniSet "hashpath"           "${md_inst}/hash"
-        iniSet "languagepath"       "${md_inst}/language"
         iniSet "pluginspath"        "${md_inst}/plugins"
-        iniSet "rompath"            "${romdir}/${md_id};${romdir}/arcade;${biosdir}/${md_id}"
-        iniSet "samplepath"         "${romdir}/${md_id}/samples;${romdir}/arcade/samples"
+        iniSet "languagepath"       "${md_inst}/language"
 
         iniSet "cfg_directory"      "${romdir}/${md_id}/cfg"
-        iniSet "comment_directory"  "${romdir}/${md_id}/comments"
-        iniSet "diff_directory"     "${romdir}/${md_id}/diff"
-        iniSet "input_directory"    "${romdir}/${md_id}/inp"
         iniSet "nvram_directory"    "${romdir}/${md_id}/nvram"
-        iniSet "snapshot_directory" "${romdir}/${md_id}/snap"
+        iniSet "input_directory"    "${romdir}/${md_id}/inp"
         iniSet "state_directory"    "${romdir}/${md_id}/sta"
+        iniSet "snapshot_directory" "${romdir}/${md_id}/snap"
+        iniSet "diff_directory"     "${romdir}/${md_id}/diff"
+        iniSet "comment_directory"  "${romdir}/${md_id}/comments"
 
+        iniSet "skip_gameinfo" "1"
         iniSet "plugin" "hiscore"
         iniSet "samplerate" "44100"
-        iniSet "skip_gameinfo" "1"
 
         # Raspberry Pis Show Improved Performance Using Accelerated Mode Which Enables 'SDL_RENDERER_TARGETTEXTURE'
-        iniSet "video" "accel"
+        if isPlatform "rpi"; then
+            iniSet "video" "accel"
+        fi
 
         copyDefaultConfig "${config}" "${md_conf_root}/${md_id}/mame.ini"
         rm "${config}"
@@ -187,7 +187,7 @@ function configure_mame() {
     fi
 
     local params=()
-    isPlatform "wayland" && params+=('-videodriver wayland' '-video opengl')
+    isPlatform "wayland" && params+=('-videodriver wayland')
 
     addEmulator 0 "${md_id}" "arcade" "${md_inst}/mame ${params[*]} %BASENAME%"
     addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/mame ${params[*]} %BASENAME%"
