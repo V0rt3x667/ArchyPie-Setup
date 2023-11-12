@@ -18,9 +18,16 @@ function _get_branch_ppsspp() {
 
 function depends_ppsspp() {
     local depends=(
+        'clang'
         'cmake'
+        'ffmpeg'
+        'glew'
+        'libpng'
         'libzip'
+        'lld'
+        'miniupnpc'
         'ninja'
+        'sdl2_ttf'
         'sdl2'
         'snappy'
         'zlib'
@@ -69,9 +76,17 @@ function build_ppsspp() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DBUILD_TESTING="OFF" \
-        -DHEADLESS="ON" \
+        -DHEADLESS="OFF" \
+        -DUSE_SYSTEM_FFMPEG="ON" \
+        -DUSE_SYSTEM_LIBPNG="ON" \
         -DUSE_SYSTEM_LIBZIP="ON" \
+        -DUSE_SYSTEM_MINIUPNPC="ON" \
         -DUSE_SYSTEM_SNAPPY="ON" \
         -DUSE_SYSTEM_ZSTD="ON" \
         -DUSING_QT_UI="OFF" \
