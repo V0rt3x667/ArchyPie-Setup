@@ -7,10 +7,14 @@
 rp_module_id="lr-ppsspp"
 rp_module_desc="Sony PlayStation Portable Libretro Core"
 rp_module_help="ROM Extensions: .cso .elf .iso .pbp .prx\n\nCopy PlayStation Portable ROMs To: ${romdir}/psp"
-rp_module_licence="GPL2 https://raw.githubusercontent.com/RetroPie/ppsspp/master/LICENSE.TXT"
-rp_module_repo="git https://github.com/hrydgard/ppsspp master"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/hrydgard/ppsspp/master/LICENSE.TXT"
+rp_module_repo="git https://github.com/hrydgard/ppsspp :_get_branch_lr-ppsspp"
 rp_module_section="opt"
 rp_module_flags=""
+
+function _get_branch_lr-ppsspp() {
+    _get_branch_ppsspp
+}
 
 function depends_lr-ppsspp() {
     depends_ppsspp
@@ -29,14 +33,12 @@ function build_lr-ppsspp() {
 
 function install_lr-ppsspp() {
     md_ret_files=(
-        'assets'
+        'build/assets'
         'build/lib/ppsspp_libretro.so'
     )
 }
 
 function configure_lr-ppsspp() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/psp/${md_id}"
-
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "psp"
 
@@ -45,10 +47,6 @@ function configure_lr-ppsspp() {
         # Copy Assets
         cp -Rv "${md_inst}/assets/"* "${biosdir}/psp/"
         chown -R "${user}:${user}" "${biosdir}/psp"
-
-        # The Core Needs A Save File Directory
-        iniConfig " = " "" "${configdir}/psp/retroarch.cfg"
-        iniSet "savefile_directory" "${arpdir}/${md_id}"
     fi
 
     defaultRAConfig "psp"

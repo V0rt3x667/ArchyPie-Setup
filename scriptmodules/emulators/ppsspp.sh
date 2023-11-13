@@ -6,7 +6,7 @@
 
 rp_module_id="ppsspp"
 rp_module_desc="PPSSPP: Sony PlayStation Portable Emulator"
-rp_module_help="ROM Extensions: .cso .iso .pbp\n\nCopy PlayStation Portable ROMs To: ${romdir}/psp"
+rp_module_help="ROM Extensions: .cso .elf .iso .pbp .prx\n\nCopy PlayStation Portable ROMs To: ${romdir}/psp"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/hrydgard/ppsspp/master/LICENSE.TXT"
 rp_module_repo="git https://github.com/hrydgard/ppsspp :_get_branch_ppsspp"
 rp_module_section="opt"
@@ -20,7 +20,6 @@ function depends_ppsspp() {
     local depends=(
         'clang'
         'cmake'
-        'ffmpeg'
         'glew'
         'libpng'
         'libzip'
@@ -66,7 +65,7 @@ function build_ppsspp() {
     fi
 
     if [[ "${md_id}" == "lr-ppsspp" ]]; then
-        params+=('-DLIBRETRO=On')
+        params+=('-DLIBRETRO=ON')
         binary="lib/ppsspp_libretro.so"
     fi
 
@@ -83,7 +82,8 @@ function build_ppsspp() {
         -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DBUILD_TESTING="OFF" \
         -DHEADLESS="OFF" \
-        -DUSE_SYSTEM_FFMPEG="ON" \
+        -DUSE_FFMPEG="ON" \
+        -DUSE_SYSTEM_FFMPEG="OFF" \
         -DUSE_SYSTEM_LIBPNG="ON" \
         -DUSE_SYSTEM_LIBZIP="ON" \
         -DUSE_SYSTEM_MINIUPNPC="ON" \
@@ -115,7 +115,7 @@ function configure_ppsspp() {
         params+=('--fullscreen')
     fi
 
-    addEmulator 1 "${md_id}" "psp" "pushd ${md_inst}; ${md_inst}/bin/PPSSPPSDL ${params[*]} %ROM%; popd"
+    addEmulator 0 "${md_id}" "psp" "pushd ${md_inst}; ${md_inst}/bin/PPSSPPSDL ${params[*]} %ROM%; popd"
 
     addSystem "psp"
 }
