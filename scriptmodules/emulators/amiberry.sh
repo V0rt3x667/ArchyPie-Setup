@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .adf .chd .ipf .lha .zip\n\nCopy Amiga Games To: 
 rp_module_licence="GPL3 https://raw.githubusercontent.com/BlitterStudio/amiberry/master/LICENSE"
 rp_module_repo="git https://github.com/BlitterStudio/amiberry :_get_branch_amiberry"
 rp_module_section="opt"
-rp_module_flags="!all arm x86_64"
+rp_module_flags="!all arm rpi3 rpi4 rpi5 x86_64"
 
 function _get_branch_amiberry() {
     download "https://api.github.com/repos/BlitterStudio/amiberry/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
