@@ -18,6 +18,7 @@ function _get_branch_ags() {
 
 function depends_ags() {
     local depends=(
+        'clang'
         'cmake'
         'doxygen'
         'freetype2'
@@ -25,6 +26,7 @@ function depends_ags() {
         'libtheora'
         'libvorbis'
         'libxxf86vm'
+        'lld'
         'ninja'
         'sdl2_mixer'
         'sdl2'
@@ -36,7 +38,7 @@ function sources_ags() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|.Concat(\".local/share\");|.Concat(\"ArchyPie/configs\");|g" -i "${md_build}/Engine/platform/linux/acpllnx.cpp"
+    sed -e "s|.Concat(\".local/share\");|.Concat(\"ArchyPie/configs\");|g" -i "${md_build}/Engine/platform/base/agsplatform_xdg_unix.cpp"
 }
 
 function build_ags() {
@@ -46,10 +48,13 @@ function build_ags() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DAGS_USE_LOCAL_OGG="ON" \
-        -DAGS_USE_LOCAL_SDL2="ON" \
-        -DAGS_USE_LOCAL_THEORA="ON" \
-        -DAGS_USE_LOCAL_VORBIS="ON" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DAGS_USE_LOCAL_ALL_LIBRARIES="ON" \
+        -DAGS_USE_LOCAL_SDL2_SOUND="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -65,9 +70,6 @@ function configure_ags() {
 
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "${md_id}"
-
-        # Install Eawpatches GUS Patch Set (See: "http://liballeg.org/digmid.html")
-        download "http://www.eglebbk.dds.nl/program/download/digmid.dat" - | bzcat >"${md_inst}/bin/patches.dat"
     fi
 
     addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/${md_id} --gfxdriver ogl --fullscreen %ROM%"
