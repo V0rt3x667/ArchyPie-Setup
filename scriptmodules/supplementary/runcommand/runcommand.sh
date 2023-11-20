@@ -1299,21 +1299,21 @@ function restore_cursor_and_exit() {
 
 function launch_command() {
     local ret
-    # escape $ to avoid variable expansion (eg roms containing $!)
+    # Escape $ To Avoid Variable Expansion (Example: Roms Containing ${!})
     COMMAND="${COMMAND//\$/\\\$}"
-    # launch the command
-    echo -e "Parameters: $@\nExecuting: $COMMAND" >>"$LOG"
-    if [[ "$CONSOLE_OUT" -eq 1 ]]; then
-        # turn cursor on
+    # Launch The Command
+    echo -e "Parameters: ${@}\nExecuting: ${COMMAND}" >>"${LOG}"
+    if [[ "${CONSOLE_OUT}" -eq 1 ]]; then
+        # Turn Cursor On
         tput cnorm
-        eval $COMMAND </dev/tty 2>>"$LOG"
-        ret=$?
+        eval "${COMMAND}" </dev/tty 2>>"${LOG}"
+        ret=${?}
         tput civis
     else
-        eval $COMMAND </dev/tty &>>"$LOG"
-        ret=$?
+        eval "${COMMAND}" </dev/tty &>>"${LOG}"
+        ret=${?}
     fi
-    return $ret
+    return ${ret}
 }
 
 function log_info() {
@@ -1381,7 +1381,7 @@ function runcommand() {
     user_script "runcommand-onlaunch.sh"
 
     local ret
-    launch_command
+    launch_command "${@}"
     ret=$?
 
     [[ -n "$IMG_PID" ]] && kill -SIGINT "$IMG_PID"
