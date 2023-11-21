@@ -29,7 +29,7 @@ function depends_retroarch() {
         'zlib'
     )
     isPlatform "gles" && depends+=('libglvnd')
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     isPlatform "x11" && depends+=(
         'libx11'
         'libxcb'
