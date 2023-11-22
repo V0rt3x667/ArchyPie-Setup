@@ -43,18 +43,18 @@ function depends_fs-uae() {
 function sources_fs-uae() {
     downloadAndExtract "${md_repo_url}" "${md_build}" --strip-components 1
 
-    _sources_capsimg
-    _sources_fs-uae-launcher
+    _sources_capsimg_fs-uae
+    sources_launcher_fs-uae
 }
 
-function _sources_fs-uae-launcher() {
+function sources_launcher_fs-uae() {
     local url
     url="https://fs-uae.net/files/FS-UAE-Launcher/Stable/3.1.68/fs-uae-launcher-3.1.68.tar.xz"
 
     downloadAndExtract "${url}" "${md_build}/launcher" --strip-components 1
 }
 
-function _sources_capsimg() {
+function _sources_capsimg_fs-uae() {
     local url
     url="https://fs-uae.net/files/CAPSImg/Stable/5.1.3/CAPSImg_5.1.3_Linux_x86-64.tar.xz"
 
@@ -62,20 +62,19 @@ function _sources_capsimg() {
 }
 
 function build_fs-uae() {
-    ./bootstrap
     ./configure --prefix="${md_inst}"
     make clean
     make
     md_ret_require="${md_build}/${md_id}"
 }
 
-function _install_capsimg() {
+function install_capsimg_fs-uae() {
     install -Dm644 "${md_build}/capsimg/Linux/x86-64/capsimg.so" "${md_inst}/bin/"
 
     md_ret_require="${md_inst}/bin/capsimg.so"
 }
 
-function _install_fs-uae-launcher() {
+function install_launcher_fs-uae() {
     make -C "${md_build}/launcher" prefix="${md_inst}" install
 
     md_ret_require="${md_inst}/bin/${md_id}-launcher"
@@ -83,8 +82,8 @@ function _install_fs-uae-launcher() {
 
 function install_fs-uae() {
     make install
-    _install_capsimg
-    _install_fs-uae-launcher
+    install_capsimg_fs-uae
+    install_launcher_fs-uae
 
     md_ret_require="${md_inst}/bin/${md_id}"
 }
