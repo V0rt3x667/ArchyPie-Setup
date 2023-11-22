@@ -6,13 +6,16 @@
 
 rp_module_id="lr-fbneo"
 rp_module_desc="FinalBurn Neo Arcade Libretro Core"
-rp_module_help="ROM Extension: .zip\n\nCopy FBA ROMs To Any Of The Following Directories:\n\n${romdir}/arcade \n${romdir}/fba \n${romdir}/neocd \n${romdir}/neogeo\n\nCopy NeoCD BIOS File (neocdz.zip) To: ${biosdir}/neocd \n\nCopy NeoGeo BIOS File (neogeo.zip) To: ${biosdir}/neogeo"
+rp_module_help="ROM Extension: .7z .zip\n\nCopy FBA ROMs To One Of The Following Directories:\n\n${romdir}/arcade \n${romdir}/fba \n\nTo Keep Console & Computer ROMs Separate Use The Directories Created For Them Under: \n\n${romdir}/ \n\nCopy FBA BIOS Files To: ${biosdir}/fba"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/FBNeo/master/src/license.txt"
 rp_module_repo="git https://github.com/libretro/FBNeo master"
 rp_module_section="main"
 
 function sources_lr-fbneo() {
     gitPullOrClone
+
+    # Set BIOS Directory To 'fba'
+    sed -e "s|%s%cfbneo|%s%cfba|g" -i "${md_build}/src/burner/libretro/libretro.cpp"
 }
 
 function build_lr-fbneo() {
@@ -62,9 +65,10 @@ function configure_lr-fbneo() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
+            defaultRAConfig "${system}"
         done
 
-        # Create Directories For All Support Files
+        # Create Directories For Support Files
         local dirs=(
             'blend'
             'cheats'
@@ -73,46 +77,49 @@ function configure_lr-fbneo() {
         )
         for dir in "${dirs[@]}"; do
             mkUserDir "${biosdir}/fba/${dir}"
-            mkUserDir "${biosdir}/neocd/${dir}"
-            mkUserDir "${biosdir}/neogeo/${dir}"
         done
 
         # Copy 'hiscore.dat'
         cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fba"
         chown -R "${user}:${user}" "${biosdir}/fba"
+
+        setRetroArchCoreOption "fbneo-diagnostic-input" "Hold Start"
+
+        # OPTIONAL: Force AES System For The NeoGeo Platform
+        #local config="${md_conf_root}/neogeo/retroarch-core-options.cfg"
+        #iniConfig " = " '"' "${config}"
+        #iniSet "fbneo-neogeo-mode" "AES_EUR"
+        #chown "${user}:${user}" "${config}"
+
+        # OPTIONAL: Add AES Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
+        #local raconfig="${md_conf_root}/neogeo/retroarch.cfg"
+        #iniConfig " = " '"' "${raconfig}"
+        #iniSet "core_options_path" "${config}"
+        #chown "${user}:${user}" "${raconfig}"
     fi
 
-    defaultRAConfig "fba" "system_directory" "${biosdir}/fba"
-    defaultRAConfig "neocd" "system_directory" "${biosdir}/neocd"
-    defaultRAConfig "neogeo" "system_directory" "${biosdir}/neogeo"
-
-    setRetroArchCoreOption "fbneo-diagnostic-input" "Hold Start"
-
     addEmulator 0 "${md_id}" "arcade" "${md_inst}/fbneo_libretro.so"
-    addEmulator 0 "${md_id}-neocd" "arcade" "${md_inst}/fbneo_libretro.so --subsystem neocd"
+    addEmulator 1 "${md_id}" "fba"    "${md_inst}/fbneo_libretro.so"
     addEmulator 1 "${md_id}" "neogeo" "${md_inst}/fbneo_libretro.so"
-    addEmulator 0 "${md_id}-neocd" "neocd" "${md_inst}/fbneo_libretro.so --subsystem neocd"
-    addEmulator 1 "${md_id}" "fba" "${md_inst}/fbneo_libretro.so"
-    addEmulator 0 "${md_id}-neocd" "fba" "${md_inst}/fbneo_libretro.so --subsystem neocd"
 
-    addEmulator 0 "${md_id}-pce" "pcengine" "${md_inst}/fbneo_libretro.so --subsystem pce"
-    addEmulator 0 "${md_id}-sgx" "pcengine" "${md_inst}/fbneo_libretro.so --subsystem sgx"
-    addEmulator 0 "${md_id}-tg" "pcengine" "${md_inst}/fbneo_libretro.so --subsystem tg"
-    addEmulator 0 "${md_id}-gg" "gamegear" "${md_inst}/fbneo_libretro.so --subsystem gg"
-    addEmulator 0 "${md_id}-sms" "mastersystem" "${md_inst}/fbneo_libretro.so --subsystem sms"
-    addEmulator 0 "${md_id}-md" "megadrive" "${md_inst}/fbneo_libretro.so --subsystem md"
-    addEmulator 0 "${md_id}-sg1k" "sg-1000" "${md_inst}/fbneo_libretro.so --subsystem sg1k"
-    addEmulator 0 "${md_id}-cv" "coleco" "${md_inst}/fbneo_libretro.so --subsystem cv"
-    addEmulator 0 "${md_id}-msx" "msx" "${md_inst}/fbneo_libretro.so --subsystem msx"
-    addEmulator 0 "${md_id}-spec" "zxspectrum" "${md_inst}/fbneo_libretro.so --subsystem spec"
-    addEmulator 0 "${md_id}-fds" "fds" "${md_inst}/fbneo_libretro.so --subsystem fds"
-    addEmulator 0 "${md_id}-nes" "nes" "${md_inst}/fbneo_libretro.so --subsystem nes"
-    addEmulator 0 "${md_id}-ngp" "ngp" "${md_inst}/fbneo_libretro.so --subsystem ngp"
-    addEmulator 0 "${md_id}-ngpc" "ngpc" "${md_inst}/fbneo_libretro.so --subsystem ngp"
-    addEmulator 0 "${md_id}-chf" "channelf" "${md_inst}/fbneo_libretro.so --subsystem chf"
+    addEmulator 0 "${md_id}-chf"   "channelf"     "${md_inst}/fbneo_libretro.so --subsystem chf"
+    addEmulator 0 "${md_id}-cv"    "coleco"       "${md_inst}/fbneo_libretro.so --subsystem cv"
+    addEmulator 0 "${md_id}-fds"   "fds"          "${md_inst}/fbneo_libretro.so --subsystem fds"
+    addEmulator 0 "${md_id}-gg"    "gamegear"     "${md_inst}/fbneo_libretro.so --subsystem gg"
+    addEmulator 0 "${md_id}-md"    "megadrive"    "${md_inst}/fbneo_libretro.so --subsystem md"
+    addEmulator 0 "${md_id}-msx"   "msx"          "${md_inst}/fbneo_libretro.so --subsystem msx"
+    addEmulator 0 "${md_id}-neocd" "neocd"        "${md_inst}/fbneo_libretro.so --subsystem neocd"
+    addEmulator 0 "${md_id}-nes"   "nes"          "${md_inst}/fbneo_libretro.so --subsystem nes"
+    addEmulator 0 "${md_id}-ngp"   "ngp"          "${md_inst}/fbneo_libretro.so --subsystem ngp"
+    addEmulator 0 "${md_id}-ngpc"  "ngpc"         "${md_inst}/fbneo_libretro.so --subsystem ngp"
+    addEmulator 0 "${md_id}-pce"   "pcengine"     "${md_inst}/fbneo_libretro.so --subsystem pce"
+    addEmulator 0 "${md_id}-sg1k"  "sg-1000"      "${md_inst}/fbneo_libretro.so --subsystem sg1k"
+    addEmulator 0 "${md_id}-sgx"   "pcengine"     "${md_inst}/fbneo_libretro.so --subsystem sgx"
+    addEmulator 0 "${md_id}-sms"   "mastersystem" "${md_inst}/fbneo_libretro.so --subsystem sms"
+    addEmulator 0 "${md_id}-spec"  "zxspectrum"   "${md_inst}/fbneo_libretro.so --subsystem spec"
+    addEmulator 0 "${md_id}-tg"    "pcengine"     "${md_inst}/fbneo_libretro.so --subsystem tg"
 
     for system in "${systems[@]}"; do
         addSystem "${system}"
-        defaultRAConfig "${system}"
     done
 }
