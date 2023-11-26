@@ -99,9 +99,9 @@ function build_retroarch() {
     )
     isPlatform "kms" && params+=(
         '--disable-wayland'
-        '--disable-x11'
-        '--disable-xinerama'
-        '--disable-xrandr'
+        #'--disable-x11'
+        #'--disable-xinerama'
+        #'--disable-xrandr'
         '--enable-egl'
         '--enable-kms'
     )
