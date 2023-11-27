@@ -207,6 +207,81 @@ function get_rpi_video() {
     export PKG_CONFIG_PATH="${pkgconfig}"
 }
 
+function has_video_output_device() {
+    # Check If There Is A Video Output Device With A Connected Display
+    if [[ -d "/sys/class/drm" ]]; then
+        local device
+        for device in /sys/class/drm/*/; do
+            [[ -f "${device}/status" ]] && [[ $(cat "${device}/status") == "connected" ]] && return 0
+        done
+    fi
+    return 1
+}
+
+function has_render_device() {
+    # Check If There Is A Render Note
+    [[ -n "$(ls /dev/dri/render*)" ]] && return 0
+    return 1
+}
+
+function get_graphics_platform() {
+    case "$(systemctl get-default)" in
+        multi-user.target)
+            # For KMS/DRM We Need A Card For Video Output & A Render Device For GL/GLES Acceleration
+            has_video_output_device && __platform_flags+=('kms')
+            ;;
+        graphical.target)
+            local session_type
+            session_type="$(loginctl show-session "$(awk -v u="${USER}" '$0 ~ u{print $1}'<<<$(loginctl))" -p Type)"
+
+            if [[ ${session_type} == "Type=wayland" ]]; then
+                __platform_flags+=('wayland')
+            elif [[ ${session_type} == "Type=x11" ]]; then
+                __platform_flags+=('x11')
+            fi
+            ;;
+    esac
+}
+
+function get_opengl_target_platform() {
+    local gl_info
+    local glcore_ver
+    local gl_ver
+    local gles_ver
+    local platform
+
+    ! hasPackage "mesa-utils" && pacmanInstall "mesa-utils"
+
+    isPlatform "wayland" && platform="wayland"
+    isPlatform "x11" && platform="x11"
+
+    if isPlatform "x11" || isPlatform "wayland"; then
+        gl_info=$(sudo -u "${user}" DISPLAY=:0 eglinfo -B -p "${platform}")
+        glcore_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL core profile version:' | cut -d" " -f5)
+        gl_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL compatibility profile version:' | cut -d" " -f5)
+        gles_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL ES profile version:' | cut -d" " -f7)
+
+        # Use ${glcore_ver} As ${gl_ver} If Version Is Higher
+        if [[ "$(compareVersions "${glcore_ver}" "${gl_ver}")" == 1 ]]; then
+            gl_ver="${glcore_ver}"
+        fi
+
+        if [[ "$(compareVersions "${gles_ver}" "1.1")" == 1 ]] && [[ "$(compareVersions "${gl_ver}" "4.2")" == -1 ]]; then
+            [[ "$(compareVersions "${gles_ver}" "3.1")" == 1 ]] && __platform_flags+=('gles3' 'gles31' 'gles32')
+            __platform_flags+=('gles')
+        else
+            [[ "$(compareVersions "${gl_ver}" "2.0")" == 1 ]] && __platform_flags+=('gl2')
+            __platform_flags+=('gl')
+        fi
+    else
+        # Fallback For Other Platforms
+        # Use GL For 'x86', Most 'x86' Platforms Have Better GL Support
+        # Use GLES For 'arm', Most 'arm' Platforms Have Better GLES Support
+        isPlatform "x86" && __platform_flags+=('gl') || __platform_flags+=('gles')
+        isPlatform "kms" && ! has_render_device && __platform_flags+=('softpipe')
+    fi
+}
+
 function get_platform() {
     local architecture
     architecture="$(uname -m)"
@@ -292,7 +367,7 @@ function set_platform_defaults() {
 }
 
 function cpu_armv7() {
-    local cpu="$1"
+    local cpu="${1}"
     if [[ -n "${cpu}" ]]; then
         __default_cpu_flags="-mcpu=${cpu} -mfpu=neon-vfpv4"
     else
@@ -304,7 +379,7 @@ function cpu_armv7() {
 }
 
 function cpu_armv8() {
-    local cpu="$1"
+    local cpu="${1}"
     __default_cpu_flags="-mcpu=${cpu}"
     if isPlatform "32bit"; then
         __default_cpu_flags+=" -mfpu=neon-fp-armv8"
@@ -319,6 +394,11 @@ function cpu_arm_state() {
     if isPlatform "32bit"; then
         __default_cpu_flags+=" -marm"
     fi
+}
+
+function platform_conf_glext() {
+   # Required For 'mali-fbdev' Headers To Define GL Functions
+    __default_cflags="-DGL_GLEXT_PROTOTYPES"
 }
 
 function platform_rpi2() {
@@ -344,18 +424,19 @@ function platform_rpi5() {
 function platform_odroid-c1() {
     cpu_armv7 "cortex-a5"
     cpu_arm_state
-    __platform_flags+=('mali' 'gles')
+    __platform_flags+=('gles' 'mali')
 }
 
 function platform_odroid-c2() {
     cpu_armv8 "cortex-a72"
     cpu_arm_state
-    __platform_flags+=('mali' 'gles')
+    __platform_flags+=('gles' 'mali')
 }
 
 function platform_odroid-xu() {
-    cpu_armv7 "cortex-a15"
-    __default_cpu_flags+=" -marm"
+    cpu_armv7 "cortex-a7"
+    cpu_arm_state
+    platform_conf_glext
     __platform_flags+=('gles' 'mali')
 }
 
@@ -366,23 +447,15 @@ function platform_rockpro64() {
 
 function platform_native() {
     __default_cpu_flags="-march=native -mtune=native -pipe"
-    __platform_flags+=('gl' 'vulkan')
-
-    if isPlatform "64bit"; then
-        __platform_flags+=('gl3')
-    fi
-
-    if [[ "${__XDG_SESSION_TYPE}" == "x11" ]]; then
-        __platform_flags+=('x11')
-    elif [[ "${__XDG_SESSION_TYPE}" == "wayland" ]]; then
-        __platform_flags+=('wayland')
+    # Add 'x86' Platform Flag For x86/x86_64 Architectures
+    [[ "${__platform_arch}" =~ (i386|i686|x86_64) ]] && __platform_flags+=('x86')
+    # Get Native Video Platform Flags
+    if [[ "${__has_kms}" -eq 1 ]]; then
+        __platform_flags+=('gl' 'kms' 'vulkan')
     else
-        __platform_flags+=('kms') && __has_kms=1
+        get_graphics_platform
+        get_opengl_target_platform
     fi
-    hasPackage "xorg-xwayland" && __platform_flags+=('xwayland')
-
-    # Add x86 Platform Flag For x86/x86_64 Architectures
-    [[ "$__platform_arch" =~ (i386|i686|x86_64) ]] && __platform_flags+=('x86')
 }
 
 function platform_armv7-mali() {
@@ -392,6 +465,7 @@ function platform_armv7-mali() {
 
 function platform_imx6() {
     cpu_armv7 "cortex-a9"
+    [[ -d "/sys/class/drm/card0/device/driver/etnaviv" ]] && __platform_flags+=(x11 gles mesa)
 }
 
 function platform_rk3588() {

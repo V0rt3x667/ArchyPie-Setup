@@ -36,10 +36,10 @@ function onstart_emulationstation_joystick() {
 }
 
 function map_emulationstation_joystick() {
-    local input_name="$1"
-    local input_type="$2"
+    local input_name="${1}"
+    local input_type="${2}"
     local input_id="$3"
-    local input_value="$4"
+    local input_value="${4}"
 
     local key
     case "$input_name" in

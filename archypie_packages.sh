@@ -31,7 +31,7 @@ arpdir="${datadir}/configs"
 emudir="${rootdir}/emulators"
 configdir="${rootdir}/configs"
 
-scriptdir="$(dirname "$0")"
+scriptdir="$(dirname "${0}")"
 scriptdir="$(cd "${scriptdir}" && pwd)"
 
 __logdir="${scriptdir}/logs"
@@ -42,9 +42,8 @@ __swapdir="${__tmpdir}"
 # Launch Script
 launch_dir="$(pwd)"
 if [[ "$(id -u)" -ne 0 ]]; then
-    display="${XDG_SESSION_TYPE}"
-    sudo __XDG_SESSION_TYPE="${display}" "${launch_dir}/archypie_packages.sh" "$@"
-    exit $?
+    echo "The ArchyPie Setup script must be run under sudo. Try 'sudo ${0}'"
+    exit 1
 fi
 
 __backtitle="ArchyPie Setup - Installation Folder: ${rootdir} User: ${user}"
@@ -59,17 +58,17 @@ setup_env
 rp_registerAllModules
 
 rp_ret=0
-if [[ "$#" -gt 0 ]]; then
+if [[ "${#}" -gt 0 ]]; then
     setupDirectories
-    rp_callModule "$@"
-    rp_ret="$?"
+    rp_callModule "${@}"
+    rp_ret="${?}"
 else
     rp_printUsageinfo
 fi
 
 if [[ "${#__ERRMSGS[@]}" -gt 0 ]]; then
     # Override Return Code If ERRMSGS Is Set
-    [[ "$rp_ret" -eq 0 ]] && rp_ret=1
+    [[ "${rp_ret}" -eq 0 ]] && rp_ret=1
     printMsgs "console" "Errors:\n" "${__ERRMSGS[@]}"
 fi
 
