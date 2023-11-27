@@ -218,11 +218,11 @@ function has_video_output_device() {
     return 1
 }
 
-function has_render_device() {
-    # Check If There Is A Render Note
-    [[ -n "$(ls /dev/dri/render*)" ]] && return 0
-    return 1
-}
+# function has_render_device() {
+#     # Check If There Is A Render Note
+#     [[ -n "$(ls /dev/dri/render*)" ]] && return 0
+#     return 1
+# }
 
 function get_graphics_platform() {
     case "$(systemctl get-default)" in
@@ -243,44 +243,44 @@ function get_graphics_platform() {
     esac
 }
 
-function get_opengl_target_platform() {
-    local gl_info
-    local glcore_ver
-    local gl_ver
-    local gles_ver
-    local platform
+# function get_opengl_target_platform() {
+#     local gl_info
+#     local glcore_ver
+#     local gl_ver
+#     local gles_ver
+#     local platform
 
-    ! hasPackage "mesa-utils" && pacmanInstall "mesa-utils"
+#     ! hasPackage "mesa-utils" && pacmanInstall "mesa-utils"
 
-    isPlatform "wayland" && platform="wayland"
-    isPlatform "x11" && platform="x11"
+#     isPlatform "wayland" && platform="wayland"
+#     isPlatform "x11" && platform="x11"
 
-    if isPlatform "x11" || isPlatform "wayland"; then
-        gl_info=$(sudo -u "${user}" DISPLAY=:0 eglinfo -B -p "${platform}")
-        glcore_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL core profile version:' | cut -d" " -f5)
-        gl_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL compatibility profile version:' | cut -d" " -f5)
-        gles_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL ES profile version:' | cut -d" " -f7)
+#     if isPlatform "x11" || isPlatform "wayland"; then
+#         gl_info=$(sudo -u "${user}" DISPLAY=:0 eglinfo -B -p "${platform}")
+#         glcore_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL core profile version:' | cut -d" " -f5)
+#         gl_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL compatibility profile version:' | cut -d" " -f5)
+#         gles_ver=$(echo "${gl_info}" | grep -m 1 'OpenGL ES profile version:' | cut -d" " -f7)
 
-        # Use ${glcore_ver} As ${gl_ver} If Version Is Higher
-        if [[ "$(compareVersions "${glcore_ver}" "${gl_ver}")" == 1 ]]; then
-            gl_ver="${glcore_ver}"
-        fi
+#         # Use ${glcore_ver} As ${gl_ver} If Version Is Higher
+#         if [[ "$(compareVersions "${glcore_ver}" "${gl_ver}")" == 1 ]]; then
+#             gl_ver="${glcore_ver}"
+#         fi
 
-        if [[ "$(compareVersions "${gles_ver}" "1.1")" == 1 ]] && [[ "$(compareVersions "${gl_ver}" "4.2")" == -1 ]]; then
-            [[ "$(compareVersions "${gles_ver}" "3.1")" == 1 ]] && __platform_flags+=('gles3' 'gles31' 'gles32')
-            __platform_flags+=('gles')
-        else
-            [[ "$(compareVersions "${gl_ver}" "2.0")" == 1 ]] && __platform_flags+=('gl2')
-            __platform_flags+=('gl')
-        fi
-    else
-        # Fallback For Other Platforms
-        # Use GL For 'x86', Most 'x86' Platforms Have Better GL Support
-        # Use GLES For 'arm', Most 'arm' Platforms Have Better GLES Support
-        isPlatform "x86" && __platform_flags+=('gl') || __platform_flags+=('gles')
-        isPlatform "kms" && ! has_render_device && __platform_flags+=('softpipe')
-    fi
-}
+#         if [[ "$(compareVersions "${gles_ver}" "1.1")" == 1 ]] && [[ "$(compareVersions "${gl_ver}" "4.2")" == -1 ]]; then
+#             [[ "$(compareVersions "${gles_ver}" "3.1")" == 1 ]] && __platform_flags+=('gles3' 'gles31' 'gles32')
+#             __platform_flags+=('gles')
+#         else
+#             [[ "$(compareVersions "${gl_ver}" "2.0")" == 1 ]] && __platform_flags+=('gl2')
+#             __platform_flags+=('gl')
+#         fi
+#     else
+#         # Fallback For Other Platforms
+#         # Use GL For 'x86', Most 'x86' Platforms Have Better GL Support
+#         # Use GLES For 'arm', Most 'arm' Platforms Have Better GLES Support
+#         isPlatform "x86" && __platform_flags+=('gl') || __platform_flags+=('gles')
+#         isPlatform "kms" && ! has_render_device && __platform_flags+=('softpipe')
+#     fi
+# }
 
 function get_platform() {
     local architecture
@@ -454,13 +454,13 @@ function platform_native() {
         __platform_flags+=('gl' 'kms' 'vulkan')
     else
         get_graphics_platform
-        get_opengl_target_platform
+        #get_opengl_target_platform
     fi
 }
 
 function platform_armv7-mali() {
     cpu_armv7
-    __platform_flags+=('mali' 'gles')
+    __platform_flags+=('gles' 'mali')
 }
 
 function platform_imx6() {
