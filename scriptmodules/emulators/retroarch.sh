@@ -20,7 +20,7 @@ function depends_retroarch() {
         'libusb'
         'libxkbcommon'
         'libxml2'
-        'mbedtls'
+        'mbedtls2'
         'mesa'
         'miniupnpc'
         'openal'
@@ -111,6 +111,9 @@ function build_retroarch() {
     else
         params+=('--disable-vulkan')
     fi
+
+    export CFLAGS+=" -I/usr/include/mbedtls2"
+    export LDFLAGS+=" -L/usr/lib/mbedtls2"
 
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
