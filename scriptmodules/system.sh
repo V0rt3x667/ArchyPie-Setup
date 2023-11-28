@@ -27,7 +27,7 @@ function setup_env() {
 }
 
 function test_chroot() {
-    # Detect: chroot
+    # Detect: "chroot"
     if [[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
         [[ -z "${QEMU_CPU}" && -n "${__qemu_cpu}" ]] && export QEMU_CPU=${__qemu_cpu}
         __chroot=1
@@ -119,9 +119,9 @@ function conf_build_vars() {
     [[ -z "${__default_cxxflags}" ]] && __default_cxxflags="${__default_cflags}"
 
     # Add: CPU & Optimisation Flags
-    __default_cflags="${__cpu_flags} ${__opt_flags}"
-    __default_cxxflags="${__cpu_flags} ${__opt_flags}"
-    __default_asflags="${__cpu_flags}"
+    __default_cflags+=" ${__cpu_flags} ${__opt_flags}"
+    __default_cxxflags+=" ${__cpu_flags} ${__opt_flags}"
+    __default_asflags+=" ${__cpu_flags}"
 
     # If Not Overridden By User, Configure Compiler Flags
     [[ -z "${__cflags}" ]] && __cflags="${__default_cflags}"
@@ -182,7 +182,7 @@ function get_archypie_depends() {
     [[ "${__use_ccache}" -eq 1 ]] && depends+=('ccache')
 
     if ! getDepends "${depends[@]}"; then
-        fatalError "Unable To Install Packages Required By: $0 - ${md_ret_errors[*]}"
+        fatalError "Unable To Install Packages Required By: ${0} - ${md_ret_errors[*]}"
     fi
 }
 
@@ -292,7 +292,7 @@ function set_platform_defaults() {
 }
 
 function cpu_armv7() {
-    local cpu="$1"
+    local cpu="${1}"
     if [[ -n "${cpu}" ]]; then
         __default_cpu_flags="-mcpu=${cpu} -mfpu=neon-vfpv4"
     else
@@ -304,7 +304,7 @@ function cpu_armv7() {
 }
 
 function cpu_armv8() {
-    local cpu="$1"
+    local cpu="${1}"
     __default_cpu_flags="-mcpu=${cpu}"
     if isPlatform "32bit"; then
         __default_cpu_flags+=" -mfpu=neon-fp-armv8"
@@ -321,6 +321,11 @@ function cpu_arm_state() {
     fi
 }
 
+function platform_conf_glext() {
+   # Required For 'mali-fbdev' Headers To Define GL Functions
+    __default_cflags="-DGL_GLEXT_PROTOTYPES"
+}
+
 function platform_rpi2() {
     cpu_armv7 "cortex-a7"
     __platform_flags+=('rpi' 'gles')
@@ -333,29 +338,30 @@ function platform_rpi3() {
 
 function platform_rpi4() {
     cpu_armv8 "cortex-a72"
-    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32')
+    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32' 'vulkan')
 }
 
 function platform_rpi5() {
     cpu_armv8 "cortex-a76"
-    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32')
+    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32' 'vulkan')
 }
 
 function platform_odroid-c1() {
     cpu_armv7 "cortex-a5"
     cpu_arm_state
-    __platform_flags+=('mali' 'gles')
+    __platform_flags+=('gles' 'mali')
 }
 
 function platform_odroid-c2() {
     cpu_armv8 "cortex-a72"
     cpu_arm_state
-    __platform_flags+=('mali' 'gles')
+    __platform_flags+=('gles' 'mali')
 }
 
 function platform_odroid-xu() {
-    cpu_armv7 "cortex-a15"
-    __default_cpu_flags+=" -marm"
+    cpu_armv7 "cortex-a7"
+    cpu_arm_state
+    platform_conf_glext
     __platform_flags+=('gles' 'mali')
 }
 
@@ -367,31 +373,23 @@ function platform_rockpro64() {
 function platform_native() {
     __default_cpu_flags="-march=native -mtune=native -pipe"
     __platform_flags+=('gl' 'vulkan')
-
-    if isPlatform "64bit"; then
-        __platform_flags+=('gl3')
-    fi
-
-    if [[ "${__XDG_SESSION_TYPE}" == "x11" ]]; then
-        __platform_flags+=('x11')
-    elif [[ "${__XDG_SESSION_TYPE}" == "wayland" ]]; then
-        __platform_flags+=('wayland')
+    if [[ "${__has_kms}" -eq 1 ]]; then
+        __platform_flags+=('kms')
     else
-        __platform_flags+=('kms') && __has_kms=1
+        __platform_flags+=('x11')
     fi
-    hasPackage "xorg-xwayland" && __platform_flags+=('xwayland')
-
-    # Add x86 Platform Flag For x86/x86_64 Architectures
+    # Add 'x86' Platform Flag For x86/x86_64 Architectures
     [[ "$__platform_arch" =~ (i386|i686|x86_64) ]] && __platform_flags+=('x86')
 }
 
 function platform_armv7-mali() {
     cpu_armv7
-    __platform_flags+=('mali' 'gles')
+    __platform_flags+=('gles' 'mali')
 }
 
 function platform_imx6() {
     cpu_armv7 "cortex-a9"
+    [[ -d "/sys/class/drm/card0/device/driver/etnaviv" ]] && __platform_flags+=(x11 gles mesa)
 }
 
 function platform_rk3588() {
