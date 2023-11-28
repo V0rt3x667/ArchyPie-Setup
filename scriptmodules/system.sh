@@ -187,8 +187,6 @@ function get_archypie_depends() {
 }
 
 function get_rpi_video() {
-    local pkgconfig="/opt/vc/lib/pkgconfig"
-
     if [[ -z "${__has_kms}" ]]; then
         if [[ "${__chroot}" -eq 1 ]]; then
                 # Force KMS When Running In A Chroot
@@ -202,9 +200,6 @@ function get_rpi_video() {
     if [[ "${__has_kms}" -eq 1 ]]; then
         __platform_flags+=('kms' 'mesa')
     fi
-
-    # Set "pkgconfig" Path For Vendor Libraries
-    export PKG_CONFIG_PATH="${pkgconfig}"
 }
 
 function get_platform() {
@@ -389,7 +384,7 @@ function platform_armv7-mali() {
 
 function platform_imx6() {
     cpu_armv7 "cortex-a9"
-    [[ -d "/sys/class/drm/card0/device/driver/etnaviv" ]] && __platform_flags+=(x11 gles mesa)
+    [[ -d "/sys/class/drm/card0/device/driver/etnaviv" ]] && __platform_flags+=('gles' 'mesa' 'x11')
 }
 
 function platform_rk3588() {
