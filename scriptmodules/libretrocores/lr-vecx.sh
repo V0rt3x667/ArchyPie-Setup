@@ -11,13 +11,6 @@ rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/libretro-vecx
 rp_module_repo="git https://github.com/libretro/libretro-vecx master"
 rp_module_section="main"
 
-function depends_lr-vecx() {
-    local depends=()
-    isPlatform "mesa" && depends+=('libglvnd')
-    isPlatform "rpi" && depends+=('libraspberrypi-firmware')
-    getDepends "${depends[@]}"
-}
-
 function sources_lr-vecx() {
     gitPullOrClone
 }
