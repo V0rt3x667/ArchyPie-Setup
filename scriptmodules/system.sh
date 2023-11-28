@@ -376,13 +376,13 @@ function platform_rpi3() {
 
 function platform_rpi4() {
     cpu_armv8 "cortex-a72"
-    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32')
+    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32' 'vulkan')
     get_graphics_platform
 }
 
 function platform_rpi5() {
     cpu_armv8 "cortex-a76"
-    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32')
+    __platform_flags+=('rpi' 'gles' 'gles3' 'gles31' 'gles32' 'vulkan')
     get_graphics_platform
 }
 
