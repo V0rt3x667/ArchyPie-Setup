@@ -28,7 +28,6 @@ function depends_retroarch() {
         'systemd-libs'
         'zlib'
     )
-    isPlatform "gles" && depends+=('libglvnd')
     isPlatform "rpi" && depends+=('firmware-raspberrypi')
     isPlatform "x11" && depends+=(
         'libx11'
@@ -80,6 +79,7 @@ function build_retroarch() {
         --enable-dbus \
         --enable-sdl2
     )
+
     isPlatform "arm" && params+=('--enable-floathard')
     isPlatform "gles" && params+=('--enable-opengles')
     isPlatform "gles3" && params+=('--enable-opengles3')
@@ -88,25 +88,29 @@ function build_retroarch() {
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
     isPlatform "rpi" && params+=('--disable-videocore')
-    isPlatform "rpi" && ! isPlatform "rpi4" && params+=('--disable-vulkan')
-    isPlatform "wayland" && params+=(
-        '--disable-x11'
-        '--disable-xinerama'
-        '--disable-xrandr'
-        '--enable-egl'
-        '--enable-kms'
-        '--enable-wayland'
-    )
+
     isPlatform "kms" && params+=(
         '--disable-wayland'
-        #'--disable-x11'
-        #'--disable-xinerama'
-        #'--disable-xrandr'
+        '--disable-x11'
         '--enable-egl'
         '--enable-kms'
     )
-    isPlatform "x11" && params+=('--enable-x11')
-    isPlatform "vulkan" && params+=('--enable-vulkan')
+
+    isPlatform "wayland" && params+=(
+        '--disable-x11'
+        '--enable-wayland'
+    )
+
+    isPlatform "x11" && params+=(
+        '--enable-wayland'
+        '--enable-x11'
+    )
+
+    if isPlatform "vulkan"; then
+        params+=('--enable-vulkan')
+    else
+        params+=('--disable-vulkan')
+    fi
 
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
