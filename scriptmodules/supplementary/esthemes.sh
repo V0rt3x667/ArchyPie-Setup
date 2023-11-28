@@ -10,7 +10,7 @@ rp_module_section="config"
 
 function depends_esthemes() {
     local depends=()
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         depends=('imv')
     else
         depends=('fbida')
@@ -351,7 +351,7 @@ function gui_esthemes() {
                     case "${choice}" in
                         1)
                             cd "${gallerydir}" || exit
-                            if isPlatform "x11" || isPlatform "wayland"; then
+                            if isPlatform "x11"; then
                                 imv -f -d -t 6 -x "${gallerydir}"
                             else
                                 fbi --timeout 6 --once --autozoom --list images.list

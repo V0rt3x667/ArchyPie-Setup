@@ -86,7 +86,7 @@ function configure_ioquake3() {
     local launcher=("${md_inst}/${md_id}.$(_arch_${md_id}) +set fs_game %ROM%")
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
-    isPlatform "x11" || isPlatform "wayland" && launcher+=("+set r_mode -2" "+set cl_renderer opengl2" "+set r_fullscreen 1")
+    isPlatform "x11" && launcher+=("+set r_mode -2" "+set cl_renderer opengl2" "+set r_fullscreen 1")
 
     _add_games_ioquake3 "${launcher[*]}"
 }

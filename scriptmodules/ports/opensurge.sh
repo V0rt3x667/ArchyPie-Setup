@@ -9,7 +9,7 @@ rp_module_desc="Open Surge: A Fun 2D Retro Platformer & Game Engine"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/alemart/opensurge/master/LICENSE"
 rp_module_repo="git https://github.com/alemart/opensurge :_get_branch_opensurge"
 rp_module_section="opt"
-rp_module_flags="!wayland"
+rp_module_flags=""
 
 function _get_branch_opensurge() {
     download "https://api.github.com/repos/alemart/opensurge/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4

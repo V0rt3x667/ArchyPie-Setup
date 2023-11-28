@@ -75,7 +75,7 @@ function install_srb2() {
 function configure_srb2() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         addPort "${md_id}" "${md_id}" "Sonic Robo Blast 2" "${md_inst}/${md_id} -home ${md_conf_root} -opengl"
     else
         addPort "${md_id}" "${md_id}" "Sonic Robo Blast 2" "${md_inst}/${md_id} -home ${md_conf_root}"

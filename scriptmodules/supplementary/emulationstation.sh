@@ -24,7 +24,7 @@ function _update_hook_emulationstation() {
 }
 
 function _sort_systems_emulationstation() {
-    local field="$1"
+    local field="${1}"
     cp "/etc/emulationstation/es_systems.cfg" "/etc/emulationstation/es_systems.cfg.bak"
     xmlstarlet sel -D -I \
         -t -m "/" -e "systemList" \
@@ -33,13 +33,13 @@ function _sort_systems_emulationstation() {
 }
 
 function _add_system_emulationstation() {
-    local fullname="$1"
-    local name="$2"
-    local path="$3"
-    local extension="$4"
-    local command="$5"
-    local platform="$6"
-    local theme="$7"
+    local fullname="${1}"
+    local name="${2}"
+    local path="${3}"
+    local extension="${4}"
+    local command="${5}"
+    local platform="${6}"
+    local theme="${7}"
 
     local conf="/etc/emulationstation/es_systems.cfg"
     mkdir -p "/etc/emulationstation"
@@ -79,20 +79,20 @@ function _add_system_emulationstation() {
 }
 
 function _del_system_emulationstation() {
-    local fullname="$1"
-    local name="$2"
+    local fullname="${1}"
+    local name="${2}"
     if [[ -f "/etc/emulationstation/es_systems.cfg" ]]; then
         xmlstarlet ed -L -P -d "/systemList/system[name='${name}']" "/etc/emulationstation/es_systems.cfg"
     fi
 }
 
 function _add_rom_emulationstation() {
-    local system_name="$1"
-    local system_fullname="$2"
-    local path="./$3"
-    local name="$4"
-    local desc="$5"
-    local image="$6"
+    local system_name="${1}"
+    local system_fullname="${2}"
+    local path="./${3}"
+    local name="${4}"
+    local desc="${5}"
+    local image="${6}"
 
     local config_dir="${configdir}/all/emulationstation"
 
@@ -135,7 +135,7 @@ function depends_emulationstation() {
         'sdl2'
         'vlc'
     )
-    isPlatform "x11" || isPlatform "wayland" && depends+=('gnome-terminal' 'mesa-utils')
+    isPlatform "x11" && depends+=('gnome-terminal' 'mesa-utils')
     getDepends "${depends[@]}"
 }
 
@@ -147,9 +147,9 @@ function build_emulationstation() {
     local params=('-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/')
 
     if isPlatform "rpi"; then
-        params+=('-DRPI=On')
+        params+=('-DRPI=ON')
         # Use OpenGL On RPI/KMS
-        isPlatform "mesa" && params+=('-DGL=On' '-DUSE_GL21=On')
+        isPlatform "mesa" && params+=('-DGL=ON' '-DUSE_GL21=ON')
     elif isPlatform "x11"; then
         if isPlatform "gles"; then
             params+=('-DGLES=On')
@@ -167,9 +167,9 @@ function build_emulationstation() {
             fi
         fi
     elif isPlatform "gles"; then
-        params+=('-DGLES=On')
+        params+=('-DGLES=ON')
     elif isPlatform "gl"; then
-        params+=('-DGL=On')
+        params+=('-DGL=ON')
     fi
 
     rpSwap on 1000
@@ -248,15 +248,15 @@ export TTY="\${TTY:8:1}"
 
 clear
 tput civis
-"${md_inst}/emulationstation.sh" "\$@"
-if [[ \$? -eq 139 ]]; then
+"${md_inst}/emulationstation.sh" "\${@}"
+if [[ \${?} -eq 139 ]]; then
     dialog --cr-wrap --no-collapse --msgbox "EmulationStation Crashed!\n\nIf this is your first boot of ArchyPie, make sure you are using the correct image for your system.\n\\nCheck your rom file/folder permissions and if running on a Raspberry Pi, make sure your gpu_split is set high enough and/or switch back to using the Carbon theme." 20 60 >/dev/tty
 fi
 tput cnorm
 _EOF_
     chmod +x "/usr/bin/emulationstation"
 
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         mkdir -p /usr/share/{icons,applications}
         cp "${scriptdir}/scriptmodules/${md_type}/emulationstation/retropie.svg" "/usr/share/icons/"
         cat > /usr/share/applications/archypie.desktop << _EOF_
@@ -283,7 +283,7 @@ function clear_input_emulationstation() {
 
 function remove_emulationstation() {
     rm -f "/usr/bin/emulationstation"
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         rm -rfv "/usr/share/icons/retropie.svg" "/usr/share/applications/archypie.desktop"
     fi
 }

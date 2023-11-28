@@ -33,7 +33,7 @@ function depends_ppsspp() {
     )
     isPlatform "rpi" && depends+=('raspberrypi-firmware')
     isPlatform "mesa" && depends+=('libglvnd')
-    isPlatform "x11" || isPlatform "wayland" && depends+=('spirv-tools')
+    isPlatform "x11" && depends+=('spirv-tools')
     getDepends "${depends[@]}"
 }
 
@@ -58,7 +58,7 @@ function build_ppsspp() {
 
     isPlatform "x86" && isPlatform "32bit" && params+=('-DX86=ON' '-DX86_64=OFF')
     isPlatform "x86" && isPlatform "64bit" && params+=('-DX86=OFF' '-DX86_64=ON')
-    isPlatform "wayland" && params+=('-DUSING_X11_VULKAN=OFF' '-DUSE_WAYLAND_WSI=ON')
+    isPlatform "x11" && params+=('-DUSE_WAYLAND_WSI=ON' '-DUSING_X11_VULKAN=ON')
 
     if isPlatform "arm" && ! isPlatform "vulkan"; then
         params+=('-DARM_NO_VULKAN=ON')
@@ -111,7 +111,7 @@ function configure_ppsspp() {
     fi
 
     local params=()
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         params+=('--fullscreen')
     fi
 

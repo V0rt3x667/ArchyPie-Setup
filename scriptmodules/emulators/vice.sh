@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .crt .d64 .g64 .prg .t64 .tap .vsf .x64 .zip\n\n
 rp_module_licence="GPL2 https://raw.githubusercontent.com/VICE-Team/svn-mirror/main/vice/COPYING"
 rp_module_repo="git https://github.com/VICE-Team/svn-mirror :_get_branch_vice"
 rp_module_section="opt"
-rp_module_flags="!wayland xwayland"
+rp_module_flags=""
 
 function _get_branch_vice() {
     download "https://api.github.com/repos/VICE-Team/svn-mirror/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
@@ -60,7 +60,7 @@ function build_vice() {
         '--without-oss'
         '--libdir=/usr/lib'
     )
-    ! isPlatform "x11" || ! isPlatform "wayland" && params+=('--disable-catweasel' '--without-pulse')
+    ! isPlatform "x11" && params+=('--disable-catweasel' '--without-pulse')
     
     export CFLAGS="${CFLAGS} -w -Wl,--allow-multiple-definition"
     PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig"
@@ -117,7 +117,7 @@ _EOF_
         iniConfig "=" "" "${config}"
 
         echo "[C64]" > "${config}"
-        if ! isPlatform "x11" || ! isPlatform "wayland"; then
+        if ! isPlatform "x11"; then
             iniSet "Mouse" "1"
             iniSet "VICIIDoubleSize" "0"
             iniSet "VICIIDoubleScan" "0"
@@ -131,7 +131,7 @@ _EOF_
             iniSet "SidEngine" "0"
         fi
 
-        if isPlatform "x11" || isPlatform "kms" || isPlatform "wayland"; then
+        if isPlatform "x11" || isPlatform "kms"; then
             iniSet "VICIIFullscreen" "1"
         fi
 

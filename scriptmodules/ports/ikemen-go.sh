@@ -10,7 +10,7 @@ rp_module_licence="MIT https://raw.githubusercontent.com/ikemen-engine/Ikemen-GO
 rp_module_help="ROM Extensions: .mgn\n\nCopy Game Folder To: ${romdir}/mugen & Create An Empty File Named After The Folder Plus .mgn Suffix"
 rp_module_repo="git https://github.com/ikemen-engine/Ikemen-GO :_get_branch_ikemen-go"
 rp_module_section="exp"
-rp_module_flags="!all x11 xwayland"
+rp_module_flags="!all x11"
 
 function _get_branch_ikemen-go() {
     download "https://api.github.com/repos/ikemen-engine/Ikemen-GO/releases" - | grep -m 1 tag_name | cut -d\" -f4

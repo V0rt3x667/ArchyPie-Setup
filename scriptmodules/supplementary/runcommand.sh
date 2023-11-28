@@ -20,7 +20,7 @@ function _update_hook_runcommand() {
 
 function depends_runcommand() {
     local depends=()
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         depends=('imv')
     else
         depends=('fbida')

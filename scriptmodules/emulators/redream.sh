@@ -9,7 +9,7 @@ rp_module_desc="Redream: Sega Dreamcast Emulator"
 rp_module_help="ROM Extensions: .cdi .chd .cue .gdi .iso\n\nCopy Dreamcast ROMs To: ${romdir}/dreamcast"
 rp_module_licence="PROP"
 rp_module_section="exp"
-rp_module_flags="noinstclean !all !wayland gles31 aarch64 x86_64"
+rp_module_flags="noinstclean !all gles31 aarch64 x86_64"
 
 function __binary_url_redream() {
     local platf="universal-raspberry"
