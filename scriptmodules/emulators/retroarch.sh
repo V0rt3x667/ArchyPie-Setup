@@ -31,7 +31,7 @@ function depends_retroarch() {
     isPlatform "rpi" && depends+=('firmware-raspberrypi')
     isPlatform "vulkan" && depends+=('vulkan-icd-loader')
     isPlatform "x11" && depends+=(
-        'glslang'
+        #'glslang'
         'libpulse'
         'libx11'
         'libxcb'
@@ -61,7 +61,7 @@ function build_retroarch() {
     local params=(
         --disable-builtinbearssl \
         --disable-builtinflac \
-        --disable-builtinglslang \
+        #--disable-builtinglslang \
         --disable-builtinmbedtls \
         --disable-builtinzlib \
         --disable-cg \
