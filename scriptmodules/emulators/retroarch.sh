@@ -85,10 +85,16 @@ function build_retroarch() {
     isPlatform "kms" && params+=('--disable-wayland' '--disable-x11' '--enable-egl' '--enable-kms')
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
-    isPlatform "rpi" && ! isPlatform "rpi4" && params+=('--disable-vulkan')
     isPlatform "rpi" && params+=('--disable-videocore')
-    isPlatform "vulkan" && params+=('--enable-vulkan')
     isPlatform "x11" && params+=('--enable-wayland' '--enable-x11')
+    if isPlatform "vulkan"; then
+        params+=('--enable-vulkan')
+    else
+        params+=('--disable-vulkan')
+    fi
+
+    export CFLAGS+=" -I/usr/include/mbedtls2"
+    export LDFLAGS+=" -L/usr/lib/mbedtls2"
 
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
