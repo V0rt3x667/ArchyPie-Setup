@@ -249,6 +249,12 @@ function get_platform() {
                         *rockpro64*)
                             __platform="rockpro64"
                             ;;
+                        *imx6dl*)
+                            __platform="imx6"
+                            ;;
+                        *imx6q*)
+                            __platform="imx6"
+                            ;;
                         *rk3588*)
                             __platform="rk3588"
                             ;;
