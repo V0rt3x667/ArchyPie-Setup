@@ -27,7 +27,7 @@ function setup_env() {
 }
 
 function test_chroot() {
-    # Detect: chroot
+    # Detect: "chroot"
     if [[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
         [[ -z "${QEMU_CPU}" && -n "${__qemu_cpu}" ]] && export QEMU_CPU=${__qemu_cpu}
         __chroot=1
@@ -119,9 +119,9 @@ function conf_build_vars() {
     [[ -z "${__default_cxxflags}" ]] && __default_cxxflags="${__default_cflags}"
 
     # Add: CPU & Optimisation Flags
-    __default_cflags="${__cpu_flags} ${__opt_flags}"
-    __default_cxxflags="${__cpu_flags} ${__opt_flags}"
-    __default_asflags="${__cpu_flags}"
+    __default_cflags+=" ${__cpu_flags} ${__opt_flags}"
+    __default_cxxflags+=" ${__cpu_flags} ${__opt_flags}"
+    __default_asflags+=" ${__cpu_flags}"
 
     # If Not Overridden By User, Configure Compiler Flags
     [[ -z "${__cflags}" ]] && __cflags="${__default_cflags}"
@@ -187,8 +187,6 @@ function get_archypie_depends() {
 }
 
 function get_rpi_video() {
-    local pkgconfig="/opt/vc/lib/pkgconfig"
-
     if [[ -z "${__has_kms}" ]]; then
         if [[ "${__chroot}" -eq 1 ]]; then
                 # Force KMS When Running In A Chroot
@@ -202,9 +200,6 @@ function get_rpi_video() {
     if [[ "${__has_kms}" -eq 1 ]]; then
         __platform_flags+=('kms')
     fi
-
-    # Set "pkgconfig" Path For Vendor Libraries
-    export PKG_CONFIG_PATH="${pkgconfig}"
 }
 
 function has_video_output_device() {

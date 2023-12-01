@@ -168,7 +168,7 @@ function _purge_platform_skyscraper() {
 
 function _get_ver_skyscraper() {
     if [[ -f "${md_inst}/Skyscraper" ]]; then
-        echo "$(sudo -u "${user}" "${md_inst}/Skyscraper" -v | cut -d' ' -f 2 2>/dev/null)"
+        echo "$(sudo -u "${user}" "${md_inst}/Skyscraper" -h | grep 'Running Skyscraper'  | cut -d' ' -f 3 | tr -d v 2>/dev/null)"
     fi
 }
 

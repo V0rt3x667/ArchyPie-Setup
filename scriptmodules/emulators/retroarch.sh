@@ -29,6 +29,7 @@ function depends_retroarch() {
         'zlib'
     )
     isPlatform "rpi" && depends+=('firmware-raspberrypi')
+    isPlatform "vulkan" && depends+=('vulkan-icd-loader')
     isPlatform "x11" && depends+=(
         'libx11'
         'libxcb'
@@ -45,7 +46,6 @@ function depends_retroarch() {
         'wayland-protocols'
         'wayland'
     )
-    isPlatform "vulkan" && depends+=('vulkan-icd-loader')
     getDepends "${depends[@]}"
 }
 
@@ -63,7 +63,7 @@ function build_retroarch() {
     local params=(
         --disable-builtinbearssl \
         --disable-builtinflac \
-        --disable-builtinglslang \
+        #--disable-builtinglslang \
         --disable-builtinmbedtls \
         --disable-builtinzlib \
         --disable-cg \
@@ -85,26 +85,12 @@ function build_retroarch() {
     isPlatform "gles3" && params+=('--enable-opengles3')
     isPlatform "gles31" && params+=('--enable-opengles3_1')
     isPlatform "gles32" && params+=('--enable-opengles3_2')
+    isPlatform "kms" && params+=('--disable-wayland' '--disable-x11' '--enable-egl' '--enable-kms')
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
     isPlatform "rpi" && params+=('--disable-videocore')
-
-    isPlatform "kms" && params+=(
-        '--disable-wayland'
-        '--disable-x11'
-        '--enable-egl'
-        '--enable-kms'
-    )
-
-    isPlatform "wayland" && params+=(
-        '--disable-x11'
-        '--enable-wayland'
-    )
-
-    isPlatform "x11" && params+=(
-        '--enable-wayland'
-        '--enable-x11'
-    )
+    isPlatform "wayland" && params+=('--disable-x11' '--enable-wayland')
+    isPlatform "x11" && params+=('--disable-wayland' '--enable-x11')
 
     if isPlatform "vulkan"; then
         params+=('--enable-vulkan')

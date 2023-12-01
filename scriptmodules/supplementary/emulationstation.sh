@@ -153,23 +153,27 @@ function build_emulationstation() {
     if isPlatform "rpi"; then
         params+=('-DRPI=ON')
         # Use OpenGL On RPI/KMS
-        isPlatform "kms" && params+=('-DGL=ON' '-DUSE_GL21=ON')
+        isPlatform "mesa" && params+=('-DGL=ON' '-DUSE_GL21=ON')
     elif isPlatform "x11" || isPlatform "wayland"; then
         if isPlatform "gles"; then
             params+=('-DGLES=ON')
             local gles_ver
-            gles_ver=$(sudo -u "${user}" DISPLAY=:0 eglinfo -B -p "${platform}" | grep -m 1 'OpenGL ES profile version:' | cut -d" " -f7)
+            gles_ver=$(sudo -u "${user}" eglinfo -B -p "${platform}" | grep -m 1 'OpenGL ES profile version:' | cut -d" " -f7)
             if [[ "$(compareVersions "${gles_ver}" "2.0")" == -1 ]]; then
                 params+=('-DUSE_GLES1=ON')
             fi
         else
             params+=('-DGL=ON')
             local gl_ver
-            gl_ver=$(sudo -u "${user}" DISPLAY=:0 eglinfo -B -p "${platform}" | grep -m 1 'OpenGL compatibility profile version:' | cut -d" " -f5)
+            gl_ver=$(sudo -u "${user}" eglinfo -B -p "${platform}" | grep -m 1 'OpenGL compatibility profile version:' | cut -d" " -f5)
             if [[ "$(compareVersions "${gl_ver}" "2.0")" == 1 ]]; then
                 params+=('-DUSE_GL21=ON')
             fi
         fi
+    elif isPlatform "gles"; then
+        params+=('-DGLES=ON')
+    elif isPlatform "gl"; then
+        params+=('-DGL=ON')
     fi
 
     rpSwap on 1000

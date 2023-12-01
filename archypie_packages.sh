@@ -39,8 +39,7 @@ __tmpdir="${scriptdir}/tmp"
 __builddir="${__tmpdir}/build"
 __swapdir="${__tmpdir}"
 
-# Launch Script
-launch_dir="$(pwd)"
+# Check If 'sudo' Is Used
 if [[ "$(id -u)" -ne 0 ]]; then
     echo "The ArchyPie Setup script must be run under sudo. Try 'sudo ${0}'"
     exit 1
