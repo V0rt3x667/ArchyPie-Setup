@@ -152,18 +152,18 @@ function build_emulationstation() {
         isPlatform "mesa" && params+=('-DGL=ON' '-DUSE_GL21=ON')
     elif isPlatform "x11"; then
         if isPlatform "gles"; then
-            params+=('-DGLES=On')
+            params+=('-DGLES=ON')
             local gles_ver
-            gles_ver=$(sudo -u "${user}" glxinfo -B | grep -oP 'Max GLES[23] profile version:\s\K.*')
+            gles_ver=$(sudo -u "${user}" eglinfo -B | grep -m 1 'OpenGL ES profile version:' | cut -d" " -f7)
             if [[ "$(compareVersions "${gles_ver}" "2.0")" == -1 ]]; then
-                params+=('-DUSE_GLES1=On')
+                params+=('-DUSE_GLES1=ON')
             fi
         else
-            params+=('-DGL=On')
-            local gles_ver
-            gl_ver=$(sudo -u "${user}" glxinfo -B | grep -oP 'Max compat profile version:\s\K.*')
+            params+=('-DGL=ON')
+            local gl_ver
+            gl_ver=$(sudo -u "${user}" eglinfo -B | grep -m 1 'OpenGL compatibility profile version:' | cut -d" " -f5)
             if [[ "$(compareVersions "${gl_ver}" "2.0")" == 1 ]]; then
-                params+=('-DUSE_GL21=On')
+                params+=('-DUSE_GL21=ON')
             fi
         fi
     elif isPlatform "gles"; then
