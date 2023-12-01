@@ -102,7 +102,7 @@ function configure_hatari() {
     fi
 
     local params=("--confirm-quit 0" "--statusbar 0" "--tos ${biosdir}/atarist/tos.img")
-    if ! isPlatform "x11" && ! isPlatform "wayland"; then
+    if ! isPlatform "x11"; then
         params+=("--zoom 1" "-w")
     else
         params+=("-f")

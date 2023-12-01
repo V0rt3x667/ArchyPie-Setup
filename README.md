@@ -1,5 +1,5 @@
 # ArchyPie-Setup
-Clone of RetroPie for Arch Based Systems
+A clone of RetroPie for Arch Linux Based Systems
 
 To run the ArchyPie Setup Script make sure that your pacman repositories are up-to-date and that Git is installed:
 
@@ -11,11 +11,11 @@ sudo pacman -S git
 Then you can download the latest ArchyPie setup script with:
 
 ```shell
-git clone --depth=1 https://github.com/V0rt3x667/ArchyPie-Setup.git
+git clone --depth 1 https://github.com/V0rt3x667/ArchyPie-Setup.git
 ```
 
 The script is executed with:
 
 ```shell
 cd ArchyPie-Setup
-./archypie_setup.sh
+sudo ./archypie_setup.sh

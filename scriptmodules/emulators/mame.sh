@@ -71,7 +71,9 @@ function build_mame() {
         'PYTHON_EXECUTABLE=python'
         'STRIP_SYMBOLS=1'
     )
-    isPlatform "wayland" && params+=('USE_WAYLAND=1' 'NO_X11=1')
+    isPlatform "kms" && params+=('NO_X11=1')
+    isPlatform "x11" && params+=('USE_WAYLAND=1')
+
 
     make clean
     make "${params[@]}"
@@ -187,8 +189,6 @@ function configure_mame() {
     fi
 
     local params=()
-    isPlatform "wayland" && params+=('-videodriver wayland')
-
     addEmulator 0 "${md_id}" "arcade" "${md_inst}/mame ${params[*]} %BASENAME%"
     addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/mame ${params[*]} %BASENAME%"
 

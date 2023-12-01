@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCo
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dolphin-emu/dolphin/master/COPYING"
 rp_module_repo="git https://github.com/dolphin-emu/dolphin master"
 rp_module_section="exp"
-rp_module_flags="!all x11 xwayland 64bit"
+rp_module_flags="!all x11 64bit"
 
 function depends_dolphin() {
     local depends=(

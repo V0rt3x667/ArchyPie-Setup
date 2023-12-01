@@ -10,7 +10,7 @@ rp_module_section="config"
 
 function depends_esthemes() {
     local depends=()
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         depends=('imv')
     else
         depends=('fbida')
@@ -44,10 +44,17 @@ function install_theme_esthemes() {
 
     mkdir -p "/etc/emulationstation/themes"
     gitPullOrClone "/etc/emulationstation/themes/${name}" "https://github.com/${repo}/es-theme-${theme}.git" "${branch}"
+
+    # Apply Any Patches For Themes Broken Due To ES Fixes
+    if [[ -f "${md_data}/patch-${repo}-${theme}.diff" ]]; then
+        pushd "/etc/emulationstation/themes/${name}"
+        applyPatch "${md_data}/patch-${repo}-${theme}.diff"
+        popd
+    fi
 }
 
 function uninstall_theme_esthemes() {
-    local theme="$1"
+    local theme="${1}"
     if [[ -d "/etc/emulationstation/themes/${theme}" ]]; then
         rm -rf "/etc/emulationstation/themes/${theme}"
     fi
@@ -351,7 +358,7 @@ function gui_esthemes() {
                     case "${choice}" in
                         1)
                             cd "${gallerydir}" || exit
-                            if isPlatform "x11" || isPlatform "wayland"; then
+                            if isPlatform "x11"; then
                                 imv -f -d -t 6 -x "${gallerydir}"
                             else
                                 fbi --timeout 6 --once --autozoom --list images.list

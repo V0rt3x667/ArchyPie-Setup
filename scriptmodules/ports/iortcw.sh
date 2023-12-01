@@ -107,7 +107,7 @@ function configure_iortcw() {
     local launcher=("${md_inst}/%ROM%.$(_arch_"${md_id}")")
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
-    isPlatform "x11" || isPlatform "wayland" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
+    isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
 
     _add_games_iortcw "${launcher[*]}"
 }

@@ -23,7 +23,7 @@ function depends_duckstation() {
         'qt6-tools'
         'sdl2'
     )
-    isPlatform "kms" || isPlatform "wayland" && depends+=('libdrm')
+    isPlatform "kms" && depends+=('libdrm')
     isPlatform "x11" && depends+=('xorg-xrandr')
     getDepends "${depends[@]}"
 }
@@ -40,9 +40,8 @@ function sources_duckstation() {
 
 function build_duckstation() {
     local params=()
-    # Enabling: ! isPlatform "x11" && params+=(-DUSE_X11="OFF") Breaks Building DuckStation
-    isPlatform "wayland" && params+=(-DUSE_WAYLAND="ON")
-    isPlatform "kms" && params+=(-DUSE_DRMKMS="ON")
+    isPlatform "kms" && params+=(-DUSE_DRMKMS="ON" -DUSE_X11="OFF")
+    isPlatform "x11" && params+=(-DUSE_WAYLAND="ON")
 
     cmake . \
         -B"build" \
