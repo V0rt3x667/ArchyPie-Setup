@@ -798,7 +798,7 @@ function setESSystem() {
 ## @fn defaultRAConfig()
 ## @param system system to create retroarch.cfg for
 ## @param ... optional key then value parameters to be used in the config
-## @brief Creates a default retroarch.cfg for specified system & libretro core in `${md_root_dir}/${system}/${md_id}/retroarch.cfg`
+## @brief Creates a default retroarch.cfg for the specified system in `${md_root_dir}/${system}/retroarch.cfg`
 ## @details Additional default configuration values can be provided as parameters to the function. Example: "fps_show" "true"
 ## as two parameters would add a default entry of fps_show = "true" to the default configuration.
 ## This function uses ${md_conf_root} as a base, so there is no need to use "ports/${system}" for libretro ports.
@@ -810,7 +810,7 @@ function defaultRAConfig() {
     shift
     local defaults=("${@}")
 
-    local config_path="${md_conf_root}/${system}/${md_id}"
+    local config_path="${md_conf_root}/${system}"
 
     [[ ! -d "${config_path}" ]] && mkUserDir "${config_path}"
 
@@ -1305,7 +1305,7 @@ function addEmulator() {
 
     # Automatically Add Parameters For Libretro Modules
     if [[ "${id}" == lr-* && "${cmd}" =~ ^"${md_inst}"[^[:space:]]*\.so ]]; then
-        cmd="${emudir}/retroarch/bin/retroarch -L ${cmd} --config ${md_conf_root}/${system}/${md_id}/retroarch.cfg %ROM%"
+        cmd="${emudir}/retroarch/bin/retroarch -L ${cmd} --config ${md_conf_root}/${system}/retroarch.cfg %ROM%"
     fi
 
     # Create A Config Folder For The System / Port
