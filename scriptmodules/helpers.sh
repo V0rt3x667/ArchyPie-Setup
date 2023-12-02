@@ -798,43 +798,43 @@ function setESSystem() {
 ## @fn defaultRAConfig()
 ## @param system system to create retroarch.cfg for
 ## @param ... optional key then value parameters to be used in the config
-## @brief Creates a default retroarch.cfg for specified system in `$md_root_dir/$system/retroarch.cfg`.
-## @details Additional default configuration values can be provided as parameters to the function - eg. "fps_show" "true"
+## @brief Creates a default retroarch.cfg for specified system & libretro core in `${md_root_dir}/${system}/${md_id}/retroarch.cfg`
+## @details Additional default configuration values can be provided as parameters to the function. Example: "fps_show" "true"
 ## as two parameters would add a default entry of fps_show = "true" to the default configuration.
-## This function uses $md_conf_root as a base, so there is no need to use "ports/$system" for libretro ports as with
-## the older ensureSystemretroconfig
+## This function uses ${md_conf_root} as a base, so there is no need to use "ports/${system}" for libretro ports.
 function defaultRAConfig() {
-    # don't do any config work on module removal
-    [[ "$md_mode" == "remove" ]] && return
+    # Don't Do Any Config Work On Module Removal
+    [[ "${md_mode}" == "remove" ]] && return
 
-    local system="$1"
+    local system="${1}"
     shift
-    local defaults=("$@")
+    local defaults=("${@}")
 
-    local config_path="$md_conf_root/$system"
+    local config_path="${md_conf_root}/${system}/${md_id}"
 
-    [[ ! -d "$config_path" ]] && mkUserDir "$config_path"
+    [[ ! -d "${config_path}" ]] && mkUserDir "${config_path}"
 
-    local config="$(mktemp)"
-    # add the initial comment regarding include order
-    echo -e "# Settings made here will only override settings in the global retroarch.cfg if placed above the #include line\n" >"$config"
+    local config
+    config="$(mktemp)"
+    # Add The Initial Comment Regarding Include Order
+    echo -e "# Settings made here will only override settings in the global retroarch.cfg if placed above the #include line\n" >"${config}"
 
-    # add the per system default settings
-    iniConfig " = " '"' "$config"
-    iniSet "input_remapping_directory" "$config_path"
+    # Add The Per System Default Settings
+    iniConfig " = " '"' "${config}"
+    iniSet "input_remapping_directory" "${config_path}"
 
-    # add any additional config key / values from function parameters
+    # Add Any Additional Config Key / Values From Function Parameters
     local key
     local value
     while read key value; do
-        [[ -n "${key}" ]] && iniSet "${key}" "$value"
+        [[ -n "${key}" ]] && iniSet "${key}" "${value}"
     done <<< "${defaults[@]}"
 
-    # include the main retroarch config
-    echo -e "\n#include \"$configdir/all/retroarch.cfg\"" >>"$config"
+    # Include The Main RetroArch Config
+    echo -e "\n#include \"${configdir}/all/retroarch.cfg\"" >>"${config}"
 
-    copyDefaultConfig "$config" "$config_path/retroarch.cfg"
-    rm "$config"
+    copyDefaultConfig "${config}" "${config_path}/retroarch.cfg"
+    rm "${config}"
 }
 
 ## @fn setRetroArchCoreOption()
@@ -1279,52 +1279,48 @@ _EOF_
 ## @details This is the primary function for adding emulators to a system which can be
 ## switched between via the runcommand launch menu
 ##
-##     addEmulator 1 "vice-x64" "c64" "$md_inst/bin/x64 %ROM%"
-##     addEmulator 0 "vice-xvic" "c64" "$md_inst/bin/xvic %ROM%"
+## The example below adds two optional emulators for the c64, with vice-x64 being the default if no default
+## was already set. The entries are added to `${configdir}/${system}/emulators.cfg`.
 ##
-## Would add two optional emulators for the c64 - with vice-x64 being the default if no default
-## was already set. This adds entries to `$configdir/$system/emulators.cfg` with
+## EXAMPLE:
+##    addEmulator 1 "vice-x64" "c64" "${md_inst}/bin/x64 %ROM%"
+##    addEmulator 0 "vice-xvic" "c64" "${md_inst}/bin/xvic %ROM%"
 ##
-##     id = "cmd"
-##     default = id
+## For Libretro emulators, cmd needs to only contain the path to the libretro library.
 ##
-## Which are then selectable from runcommand when launching roms
+## EXAMPLE:
+##    addEmulator 1 "${md_id}" "nes" "${md_inst}/fceumm_libretro.so"
 ##
-## For libretro emulators, cmd needs to only contain the path to the libretro library.
-##
-## eg. for the lr-fcuemm module
-##
-##     addEmulator 1 "$md_id" "nes" "$md_inst/fceumm_libretro.so"
 function addEmulator() {
-    local default="$1"
-    local id="$2"
-    local system="$3"
-    local cmd="$4"
+    local default="${1}"
+    local id="${2}"
+    local system="${3}"
+    local cmd="${4}"
 
-    # check if we are removing the system
-    if [[ "$md_mode" == "remove" ]]; then
-        delEmulator "${id}" "$system"
+    # Check If We Are Removing The System
+    if [[ "${md_mode}" == "remove" ]]; then
+        delEmulator "${id}" "${system}"
         return
     fi
 
-    # automatically add parameters for libretro modules
-    if [[ "${id}" == lr-* && "$cmd" =~ ^"$md_inst"[^[:space:]]*\.so ]]; then
-        cmd="$emudir/retroarch/bin/retroarch -L $cmd --config $md_conf_root/$system/retroarch.cfg %ROM%"
+    # Automatically Add Parameters For Libretro Modules
+    if [[ "${id}" == lr-* && "${cmd}" =~ ^"${md_inst}"[^[:space:]]*\.so ]]; then
+        cmd="${emudir}/retroarch/bin/retroarch -L ${cmd} --config ${md_conf_root}/${system}/${md_id}/retroarch.cfg %ROM%"
     fi
 
-    # create a config folder for the system / port
-    mkUserDir "$md_conf_root/$system"
+    # Create A Config Folder For The System / Port
+    mkUserDir "${md_conf_root}/${system}"
 
-    # add the emulator to the $conf_dir/emulators.cfg if a commandline exists (not used for some ports)
-    if [[ -n "$cmd" ]]; then
-        iniConfig " = " '"' "$md_conf_root/$system/emulators.cfg"
-        iniSet "${id}" "$cmd"
-        # set a default unless there is one already set
+    # Add The Emulator To The ${conf_dir}/emulators.cfg If A Commandline Exists (Not Used For Some Ports)
+    if [[ -n "${cmd}" ]]; then
+        iniConfig " = " '"' "${md_conf_root}/${system}/emulators.cfg"
+        iniSet "${id}" "${cmd}"
+        # Set A Default Unless There Is One Already Set
         iniGet "default"
-        if [[ -z "$ini_value" && "$default" -eq 1 ]]; then
+        if [[ -z "${ini_value}" && "${default}" -eq 1 ]]; then
             iniSet "default" "${id}"
         fi
-        chown "${user}:${user}" "$md_conf_root/$system/emulators.cfg"
+        chown "${user}:${user}" "${md_conf_root}/${system}/emulators.cfg"
     fi
 }
 
