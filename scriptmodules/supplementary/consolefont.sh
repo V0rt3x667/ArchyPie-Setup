@@ -7,7 +7,7 @@
 rp_module_id="consolefont"
 rp_module_desc="Configure Default Console Font Size & Type"
 rp_module_section="config"
-rp_module_flags="!x11 !wayland"
+rp_module_flags="!x11"
 
 function set_consolefont() {
     iniConfig "=" '"' "/etc/default/console-setup"

@@ -154,9 +154,9 @@ function sources_attractmodeplus() {
 function build_attractmodeplus() {
     make clean
     local params=(prefix="${md_inst}")
-    isPlatform "kms" || isPlatform "wayland" && params+=('USE_DRM=1')
+    isPlatform "kms" && params+=('USE_DRM=1')
     isPlatform "rpi" && params+=('USE_MMAL=1' 'USE_GLES=1')
-    isPlatform "x11" || isPlatform "wayland" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
+    isPlatform "x11" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
     make "${params[@]}"
 
     # Remove Example Configs

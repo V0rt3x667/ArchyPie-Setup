@@ -36,7 +36,7 @@ function sources_gemrb() {
 
 function build_gemrb() {
     local params
-    ! isPlatform "wayland" && isPlatform "gl" && params+=('-DOPENGL_BACKEND=OpenGL')
+    isPlatform "gl" && params+=('-DOPENGL_BACKEND=OpenGL')
     
     cmake . \
         -B"build" \

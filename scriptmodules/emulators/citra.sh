@@ -25,6 +25,7 @@ function depends_citra() {
         'libfdk-aac'
         'libinih'
         'libusb'
+        'libxkbcommon'
         'lld'
         'llvm'
         'mbedtls'
@@ -34,6 +35,7 @@ function depends_citra() {
         'qt6-base'
         'qt6-multimedia-ffmpeg'
         'qt6-tools'
+        'qt6-wayland'
         'rapidjson'
         'sdl2'
         'sndio'
@@ -41,8 +43,6 @@ function depends_citra() {
         'speexdsp'
         'zstd'
     )
-    isPlatform "wayland" && depends+=('qt6-wayland')
-    isPlatform "x11" && depends+=('libxkbcommon-x11')
     getDepends "${depends[@]}"
 }
 

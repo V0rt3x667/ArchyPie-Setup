@@ -20,7 +20,7 @@ function depends_retroarch() {
         'libusb'
         'libxkbcommon'
         'libxml2'
-        'mbedtls'
+        'mbedtls2'
         'mesa'
         'miniupnpc'
         'openal'
@@ -28,9 +28,11 @@ function depends_retroarch() {
         'systemd-libs'
         'zlib'
     )
-    isPlatform "gles" && depends+=('libglvnd')
     isPlatform "rpi" && depends+=('firmware-raspberrypi')
+    isPlatform "vulkan" && depends+=('vulkan-icd-loader')
     isPlatform "x11" && depends+=(
+        #'glslang'
+        'libpulse'
         'libx11'
         'libxcb'
         'libxext'
@@ -38,15 +40,10 @@ function depends_retroarch() {
         'libxrandr'
         'libxv'
         'libxxf86vm'
-    )
-    isPlatform "x11" || isPlatform "wayland" && depends+=(
-        'glslang'
-        'libpulse'
         'spirv-tools'
         'wayland-protocols'
         'wayland'
     )
-    isPlatform "vulkan" && depends+=('vulkan-icd-loader')
     getDepends "${depends[@]}"
 }
 
@@ -64,7 +61,7 @@ function build_retroarch() {
     local params=(
         --disable-builtinbearssl \
         --disable-builtinflac \
-        --disable-builtinglslang \
+        #--disable-builtinglslang \
         --disable-builtinmbedtls \
         --disable-builtinzlib \
         --disable-cg \
@@ -85,28 +82,19 @@ function build_retroarch() {
     isPlatform "gles3" && params+=('--enable-opengles3')
     isPlatform "gles31" && params+=('--enable-opengles3_1')
     isPlatform "gles32" && params+=('--enable-opengles3_2')
+    isPlatform "kms" && params+=('--disable-wayland' '--disable-x11' '--enable-egl' '--enable-kms')
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
     isPlatform "rpi" && params+=('--disable-videocore')
-    isPlatform "rpi" && ! isPlatform "rpi4" && params+=('--disable-vulkan')
-    isPlatform "wayland" && params+=(
-        '--disable-x11'
-        '--disable-xinerama'
-        '--disable-xrandr'
-        '--enable-egl'
-        '--enable-kms'
-        '--enable-wayland'
-    )
-    isPlatform "kms" && params+=(
-        '--disable-wayland'
-        #'--disable-x11'
-        #'--disable-xinerama'
-        #'--disable-xrandr'
-        '--enable-egl'
-        '--enable-kms'
-    )
-    isPlatform "x11" && params+=('--enable-x11')
-    isPlatform "vulkan" && params+=('--enable-vulkan')
+    isPlatform "x11" && params+=('--enable-wayland' '--enable-x11')
+    if isPlatform "vulkan"; then
+        params+=('--enable-vulkan')
+    else
+        params+=('--disable-vulkan')
+    fi
+
+    export CFLAGS+=" -I/usr/include/mbedtls2"
+    export LDFLAGS+=" -L/usr/lib/mbedtls2"
 
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean

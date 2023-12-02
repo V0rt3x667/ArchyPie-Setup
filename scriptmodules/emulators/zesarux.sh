@@ -24,7 +24,7 @@ function depends_zesarux() {
         'sdl2'
     )
     isPlatform "x11" && depends+=('libxxf86vm')
-    isPlatform "x11" || isPlatform "wayland" && depends+=('libpulse')
+    isPlatform "x11" && depends+=('libpulse')
     getDepends "${depends[@]}"
 }
 
@@ -38,7 +38,7 @@ function sources_zesarux() {
 function build_zesarux() {
     local params=()
     isPlatform "rpi" && params+=('--enable-raspberry')
-    isPlatform "kms" || isPlatform "wayland" && params+=('--disable-xwindows' '--disable-xext' '--disable-xvidmode')
+    isPlatform "kms" && params+=('--disable-xwindows' '--disable-xext' '--disable-xvidmode')
 
     cd src || exit
     ./configure \
@@ -81,7 +81,7 @@ _EOF_
         # Create Default Config File
         local ao="sdl"
         local config
-        isPlatform "x11" || isPlatform "wayland" && ao="pulse"
+        isPlatform "x11" && ao="pulse"
         config="$(mktemp)"
 
         cat > "${config}" << _EOF_

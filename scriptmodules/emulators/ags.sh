@@ -10,7 +10,7 @@ rp_module_help="ROM Extension: .ags .exe\n\nCopy Adventure Game Studio Games To:
 rp_module_licence="OTHER https://raw.githubusercontent.com/adventuregamestudio/ags/master/License.txt"
 rp_module_repo="git https://github.com/adventuregamestudio/ags :_get_branch_ags"
 rp_module_section="opt"
-rp_module_flags="!wayland xwayland"
+rp_module_flags=""
 
 function _get_branch_ags() {
     download "https://api.github.com/repos/adventuregamestudio/ags/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4

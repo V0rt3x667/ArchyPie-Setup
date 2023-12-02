@@ -219,7 +219,7 @@ function advanced_configedit() {
     local config="$1"
 
     local audio_opts="alsa alsathread sdl2"
-    if isPlatform "x11" || isPlatform "wayland"; then
+    if isPlatform "x11"; then
         audio_opts+=" pulse"
     fi
 

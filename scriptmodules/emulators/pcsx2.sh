@@ -32,9 +32,9 @@ function depends_pcsx2() {
         'soundtouch'
         'zlib'
     )
-    isPlatform "wayland" && depends+=('qt6-wayland')
     getDepends "${depends[@]}"
 }
+isPlatform "x11" && depends+=('qt6-wayland')
 
 function sources_pcsx2() {
     gitPullOrClone
@@ -52,8 +52,8 @@ function sources_pcsx2() {
 
 function build_pcsx2() {
     local params=()
-    isPlatform "wayland" && params+=(-DWAYLAND_API="ON")
-    isPlatform "wayland" || isPlatform "kms" && params+=(-DX11_API="OFF")
+    isPlatform "x11" && params+=(-DWAYLAND_API="ON" -DX11_API="ON")
+    isPlatform "kms" && params+=(-DWAYLAND_API="OFF" -DX11_API="OFF")
 
     cmake . \
         -B"build" \
