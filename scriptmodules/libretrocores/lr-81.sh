@@ -16,22 +16,23 @@ function sources_lr-81() {
 }
 
 function build_lr-81() {
-    make clean
+    make -f Makefile.libretro clean
     make -f Makefile.libretro
     md_ret_require="${md_build}/81_libretro.so"
 }
 
 function install_lr-81() {
     md_ret_files=(
-        'README.md'
         '81_libretro.so'
+        'README.md'
     )
 }
 
 function configure_lr-81() {
-    mkRomDir "zx81"
-
-    defaultRAConfig "zx81"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "zx81"
+        defaultRAConfig "zx81"
+    fi
 
     addEmulator 1 "${md_id}" "zx81" "${md_inst}/81_libretro.so"
 

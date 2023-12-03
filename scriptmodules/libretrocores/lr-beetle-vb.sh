@@ -29,9 +29,10 @@ function install_lr-beetle-vb() {
 }
 
 function configure_lr-beetle-vb() {
-    mkRomDir "virtualboy"
-
-    defaultRAConfig "virtualboy"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "virtualboy"
+        defaultRAConfig "virtualboy"
+    fi
 
     addEmulator 1 "${md_id}" "virtualboy" "${md_inst}/mednafen_vb_libretro.so"
 

@@ -6,7 +6,7 @@
 
 rp_module_id="lr-blastem"
 rp_module_desc="Sega Mega Drive (Genesis) Libretro Core"
-rp_module_help="ROM Extensions: .68k .bin .gen .md .sgd .smd\n\nCopy Sega Mega Drive (Genesis) ROMs To: ${romdir}/megadrive Or ${romdir}/genesis"
+rp_module_help="ROM Extensions: .68k .bin .gen .md .sgd .smd\n\nCopy Sega Mega Drive (Genesis) ROMs To Either: ${romdir}/megadrive\n${romdir}/genesis"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/blastem/master/COPYING"
 rp_module_repo="git https://github.com/libretro/blastem libretro"
 rp_module_section="opt"
@@ -16,7 +16,7 @@ function sources_lr-blastem() {
 }
 
 function build_lr-blastem() {
-    make clean
+    make -f Makefile.libretro clean
     make -f Makefile.libretro
     md_ret_require="${md_build}/blastem_libretro.so"
 }
@@ -26,9 +26,10 @@ function install_lr-blastem() {
 }
 
 function configure_lr-blastem() {
-    mkRomDir "megadrive"
-
-    defaultRAConfig "megadrive"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "megadrive"
+        defaultRAConfig "megadrive"
+    fi
 
     addEmulator 0 "${md_id}" "megadrive" "${md_inst}/blastem_libretro.so"
 

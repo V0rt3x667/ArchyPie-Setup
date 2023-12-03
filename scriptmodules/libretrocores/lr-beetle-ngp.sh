@@ -26,17 +26,20 @@ function install_lr-beetle-ngp() {
 }
 
 function configure_lr-beetle-ngp() {
+    local systems=(
+        'ngp'
+        'ngpc'
+    )
+
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ngp"
-        mkRomDir "ngpc"
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            defaultRAConfig "${system}"
+        done
     fi
 
-    defaultRAConfig "ngp"
-    defaultRAConfig "ngpc"
-
-    addEmulator 1 "${md_id}" "ngp" "${md_inst}/mednafen_ngp_libretro.so"
-    addEmulator 1 "${md_id}" "ngpc" "${md_inst}/mednafen_ngp_libretro.so"
-
-    addSystem "ngp"
-    addSystem "ngpc"
+    for system in "${systems[@]}"; do
+        addEmulator 1 "${md_id}" "${system}" "${md_inst}/mednafen_ngp_libretro.so"
+        addSystem "${system}"
+    done
 }

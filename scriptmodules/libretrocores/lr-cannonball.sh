@@ -6,7 +6,7 @@
 
 rp_module_id="lr-cannonball"
 rp_module_desc="Cannonball (Enhanced OutRun Engine) Libretro Core"
-rp_module_help="Unzip OutRun Set B From MAME (outrun.zip) To: ${romdir}/ports/cannonball\n\nRename File 'epr-10381a.132' To 'epr-10381b.132'."
+rp_module_help="Unzip OutRun Set B From MAME (outrun.zip) To: ${romdir}/ports/cannonball\n\nRename File 'epr-10381a.132' To 'epr-10381b.132'"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/cannonball/master/docs/license.txt"
 rp_module_repo="git https://github.com/libretro/cannonball master"
 rp_module_section="opt"
@@ -39,11 +39,11 @@ function configure_lr-cannonball() {
 
         cp -v roms.txt "${romdir}/ports/cannonball/"
         chown -R "${user}:${user}" "${romdir}/ports/cannonball"
+
+        setConfigRoot "ports"
+
+        defaultRAConfig "cannonball"
     fi
-
-    setConfigRoot "ports"
-
-    defaultRAConfig "cannonball"
 
     addPort "${md_id}" "cannonball" "Cannonball: OutRun Engine" "${md_inst}/cannonball_libretro.so ${romdir}/ports/cannonball/"
 }

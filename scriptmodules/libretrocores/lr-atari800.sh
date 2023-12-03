@@ -6,7 +6,7 @@
 
 rp_module_id="lr-atari800"
 rp_module_desc="Atari 5200, 400, 800, XL & XE Libretro Core"
-rp_module_help="ROM Extensions: .a52 .atr .bas .bin .car .cas .cdm .com .dcm .xex .xfd .zip\n\nCopy Atari800 Games To: ${romdir}/atari800\n\nCopy Atari 5200 ROMs To: ${romdir}/atari5200Copy Atari800 Games To: ${romdir}/atari800\n\nCopy Atari 5200 ROMs To: ${romdir}/atari5200\n\nCopy BIOS Files:\n\n5200.ROM\nATARIBAS.ROM\nATARIOSB.ROM\nATARIXL.ROM\n\nTo: ${biosdir}\atari800"
+rp_module_help="ROM Extensions: .a52 .atr .bas .bin .car .cas .cdm .com .dcm .xex .xfd .zip\n\nCopy Atari800 Games To: ${romdir}/atari800\n\nCopy Atari 5200 ROMs To: ${romdir}/atari5200\n\nCopy Atari 800 & 5200 BIOS Files: ATARIBAS.ROM, ATARIOSA.ROM, ATARIOSB.ROM, ATARIXL.ROM & 5200.rom\nTo: ${biosdir}\atari800"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-atari800/master/atari800/COPYING"
 rp_module_repo="git https://github.com/libretro/libretro-atari800 master"
 rp_module_section="main"
@@ -25,28 +25,28 @@ function build_lr-atari800() {
 }
 
 function install_lr-atari800() {
-    md_ret_files=(
-        'atari800_libretro.so'
-        'atari800/COPYING'
-    )
+    md_ret_files=('atari800_libretro.so')
 }
 
 function configure_lr-atari800() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/atari800/${md_id}"
 
+    local systems=(
+        'atari800'
+        'atari5200'
+    )
+
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "atari800"
-        mkRomDir "atari5200"
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            defaultRAConfig "${system}" "system_directory" "${biosdir}/atari800"
+        done
 
         mkUserDir "${biosdir}/atari800"
     fi
 
-    defaultRAConfig "atari800" "system_directory" "${biosdir}/atari800"
-    defaultRAConfig "atari5200" "system_directory" "${biosdir}/atari800"
-
-    addEmulator 1 "lr-atari800" "atari800" "${md_inst}/atari800_libretro.so"
-    addEmulator 1 "lr-atari800" "atari5200" "${md_inst}/atari800_libretro.so"
-
-    addSystem "atari800"
-    addSystem "atari5200"
+    for system in "${systems[@]}"; do
+        addEmulator 1 "${md_id}" "${system}" "${md_inst}/atari800_libretro.so"
+        addSystem "${system}"
+    done
 }

@@ -6,7 +6,7 @@
 
 rp_module_id="lr-beetle-wswan"
 rp_module_desc="Bandai WonderSwan & WonderSwan Color Libretro Core"
-rp_module_help="ROM Extensions: .pc2 .ws .wsc\n\nCopy Wonderswan ROMs To: ${romdir}/wonderswan\n\nCopy Wonderswan Color ROMs To: ${romdir}/wonderswancolor"
+rp_module_help="ROM Extensions: .pc2 .ws .wsc\n\nCopy WonderSwan ROMs To: ${romdir}/wonderswan\n\nCopy WonderSwan Color ROMs To: ${romdir}/wonderswancolor"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-wswan-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/beetle-wswan-libretro master"
 rp_module_section="opt"
@@ -26,15 +26,20 @@ function install_lr-beetle-wswan() {
 }
 
 function configure_lr-beetle-wswan() {
-    mkRomDir "wonderswan"
-    mkRomDir "wonderswancolor"
+    local systems=(
+        'wonderswan"'
+        'wonderswancolor'
+    )
 
-    defaultRAConfig "wonderswan"
-    defaultRAConfig "wonderswancolor"
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            defaultRAConfig "${system}"
+        done
+    fi
 
-    addEmulator 1 "${md_id}" "wonderswan" "${md_inst}/mednafen_wswan_libretro.so"
-    addEmulator 1 "${md_id}" "wonderswancolor" "${md_inst}/mednafen_wswan_libretro.so"
-
-    addSystem "wonderswan"
-    addSystem "wonderswancolor"
+    for system in "${systems[@]}"; do
+        addEmulator 1 "${md_id}" "${system}" "${md_inst}/mednafen_wswan_libretro.so"
+        addSystem "${system}"
+    done
 }

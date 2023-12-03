@@ -30,6 +30,7 @@ function build_lr-arduous() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DWERROR="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -41,9 +42,10 @@ function install_lr-arduous() {
 }
 
 function configure_lr-arduous() {
-    mkRomDir "arduboy"
-
-    defaultRAConfig "arduboy"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "arduboy"
+        defaultRAConfig "arduboy"
+    fi
 
     addEmulator 1 "${md_id}" "arduboy" "${md_inst}/arduous_libretro.so"
 

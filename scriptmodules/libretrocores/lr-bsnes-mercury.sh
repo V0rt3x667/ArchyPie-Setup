@@ -46,13 +46,14 @@ function install_lr-bsnes-mercury() {
 }
 
 function configure_lr-bsnes-mercury() {
-    mkRomDir "snes"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "snes"
+        defaultRAConfig "snes"
+    fi
 
-    defaultRAConfig "snes"
-
-    addEmulator 0 "${md_id}" "snes" "${md_inst}/bsnes_mercury_accuracy_libretro.so"
-    addEmulator 0 "${md_id}" "snes" "${md_inst}/bsnes_mercury_balanced_libretro.so"
-    addEmulator 0 "${md_id}" "snes" "${md_inst}/bsnes_mercury_performance_libretro.so"
+    addEmulator 0 "${md_id}-a" "snes" "${md_inst}/bsnes_mercury_accuracy_libretro.so"
+    addEmulator 0 "${md_id}-b" "snes" "${md_inst}/bsnes_mercury_balanced_libretro.so"
+    addEmulator 0 "${md_id}-p" "snes" "${md_inst}/bsnes_mercury_performance_libretro.so"
 
     addSystem "snes"
 }

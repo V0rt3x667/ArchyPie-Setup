@@ -28,9 +28,10 @@ function install_lr-bsnes() {
 }
 
 function configure_lr-bsnes() {
-    mkRomDir "snes"
-
-    defaultRAConfig "snes"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "snes"
+        defaultRAConfig "snes"
+    fi
 
     addEmulator 1 "${md_id}" "snes" "${md_inst}/bsnes_libretro.so"
 
