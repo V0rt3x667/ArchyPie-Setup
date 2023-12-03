@@ -18,22 +18,33 @@ function depends_cemu() {
         'boost'
         'clang'
         'cmake'
+        'curl'
         'doxygen'
         'fmt'
         'glm'
         'glslang'
         'glu'
+        'libglvnd'
         'libpng'
         'libpulse'
+        'libusb'
+        'libx11'
         'libzip'
+        'lld'
         'llvm-libs'
         'nasm'
         'ninja'
+        'openssl'
         'pugixml'
         'rapidjson'
         'sdl2'
         'vulkan-headers'
+        'wayland-protocols'
+        'wayland'
         'wxwidgets-gtk3'
+        'zarchive'
+        'zlib'
+        'zstd'
     )
     getDepends "${depends[@]}"
 }
@@ -41,11 +52,11 @@ function depends_cemu() {
 function sources_cemu() {
     gitPullOrClone
 
+    # Fix 'glslang' & 'cubeb'
+    applyPatch "${md_data}/01_fix_glslang_cubeb_errors.patch"
+
     # Use System 'fmt'
     sed "/FMT_HEADER_ONLY/d" -i "${md_build}/src/Common/precompiled.h"
-
-    # Fix 'cubeb'
-    sed "/find_package(cubeb)/d" -i "${md_build}/CMakeLists.txt"
 
     # Fix 'glm'
     sed -e "s|glm::glm|glm|g" -i "${md_build}/src/Common/CMakeLists.txt" "${md_build}/src/input/CMakeLists.txt"
@@ -64,7 +75,9 @@ function build_cemu() {
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_MAKE_PROGRAM="/usr/bin/ninja" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DENABLE_VCPKG="OFF" \
         -DPORTABLE="OFF" \
         -Wno-dev
@@ -74,7 +87,12 @@ function build_cemu() {
 }
 
 function install_cemu() {
-    md_ret_files=("bin/")
+    md_ret_files=(
+        'bin/Cemu_release'
+        'bin/gameProfiles'
+        'bin/shaderCache'
+        'bin/resources'
+    )
 }
 
 function configure_cemu() {
@@ -84,7 +102,7 @@ function configure_cemu() {
         mkRomDir "wiiu"
     fi
 
-    addEmulator 1 "${md_id}" "wiiu" "${md_inst}/bin/Cemu_release -f -g %ROM%"
+    addEmulator 1 "${md_id}" "wiiu" "${md_inst}/Cemu_release -f -g %ROM%"
 
     addSystem "wiiu"
 }

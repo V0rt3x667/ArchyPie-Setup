@@ -1,0 +1,46 @@
+diff -ru a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2023-12-03 21:52:27.106027333 +0000
++++ b/CMakeLists.txt	2023-12-03 21:59:20.880320234 +0000
+@@ -129,7 +129,7 @@
+ find_package(RapidJSON REQUIRED)
+ find_package(Boost COMPONENTS program_options filesystem nowide REQUIRED)
+ find_package(libzip REQUIRED)
+-find_package(glslang REQUIRED)
++find_package(Vulkan COMPONENTS glslang REQUIRED)
+ find_package(ZLIB REQUIRED)
+ find_package(zstd MODULE REQUIRED) # MODULE so that zstd::zstd is available
+ find_package(OpenSSL COMPONENTS Crypto SSL REQUIRED)
+@@ -137,11 +137,6 @@
+ find_package(fmt 9 REQUIRED)
+ find_package(PNG REQUIRED)
+ 
+-# glslang versions older than 11.11.0 define targets without a namespace
+-if (NOT TARGET glslang::SPIRV AND TARGET SPIRV)
+-	add_library(glslang::SPIRV ALIAS SPIRV)
+-endif()
+-
+ if (UNIX AND NOT APPLE)
+ 	find_package(X11 REQUIRED)
+ 	if (ENABLE_WAYLAND)
+@@ -194,9 +189,6 @@
+ endif()
+ 
+ if (ENABLE_CUBEB)
+-	if (NOT ENABLE_VCPKG)
+-	find_package(cubeb)
+-	endif()
+ 	if (NOT cubeb_FOUND)
+ 		option(BUILD_TESTS "" OFF)
+ 		option(BUILD_TOOLS "" OFF)
+diff -ru a/src/Cafe/CMakeLists.txt b/src/Cafe/CMakeLists.txt
+--- a/src/Cafe/CMakeLists.txt	2023-12-03 21:52:27.414032792 +0000
++++ b/src/Cafe/CMakeLists.txt	2023-12-03 21:57:28.756350726 +0000
+@@ -516,7 +516,7 @@
+ 	Boost::nowide
+ 	CURL::libcurl
+ 	fmt::fmt
+-	glslang::SPIRV
++	Vulkan::glslang
+ 	ih264d
+ 	OpenSSL::Crypto
+ 	OpenSSL::SSL
