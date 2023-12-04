@@ -27,7 +27,7 @@ function install_lr-beetle-wswan() {
 
 function configure_lr-beetle-wswan() {
     local systems=(
-        'wonderswan"'
+        'wonderswan'
         'wonderswancolor'
     )
 
