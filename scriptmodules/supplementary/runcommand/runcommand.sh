@@ -83,6 +83,7 @@ EMU_CONF="$CONFIGDIR/all/emulators.cfg"
 BACKENDS_CONF="$CONFIGDIR/all/backends.cfg"
 RETRONETPLAY_CONF="$CONFIGDIR/all/retronetplay.cfg"
 JOY2KEY="$ROOTDIR/admin/joy2key/joy2key"
+BIOSDIR="${HOME}/ArchyPie/BIOS"
 
 # modesetting tools
 TVSERVICE="/opt/vc/bin/tvservice"
@@ -1108,6 +1109,13 @@ function retroarch_append_config() {
     local core_dir=$(echo "$COMMAND" | grep -Eo "$ROOTDIR/libretrocores/.*libretro\.so" | head -n 1)
     core_dir=$(dirname "$core_dir")
     [[ -n "$core_dir" ]] && iniSet "libretro_directory" "$core_dir"
+
+    # Dynamically Set BIOS Location
+    if [[ "${SYSTEM}" == "fba" ]] || [[ "${SYSTEM}" == "mame-libretro" ]]; then
+        iniSet "system_directory" "${BIOSDIR}"
+    else
+        iniSet "system_directory" "${BIOSDIR}/${SYSTEM}"
+    fi
 
     # if verbose logging is on, set core logging to INFO
     [[ "$VERBOSE" -eq 1 ]] && iniSet "libretro_log_level" "1"
