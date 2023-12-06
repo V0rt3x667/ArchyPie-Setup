@@ -29,9 +29,10 @@ function install_lr-gw() {
 }
 
 function configure_lr-gw() {
-    mkRomDir "gameandwatch"
-
-    defaultRAConfig "gameandwatch"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "gameandwatch"
+        defaultRAConfig "gameandwatch"
+    fi
 
     addEmulator 1 "${md_id}" "gameandwatch" "${md_inst}/gw_libretro.so"
 

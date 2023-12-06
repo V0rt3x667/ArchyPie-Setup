@@ -6,7 +6,7 @@
 
 rp_module_id="lr-freechaf"
 rp_module_desc="Fairchild ChannelF Libretro Core"
-rp_module_help="ROM Extensions: .bin .rom\n\nCopy ChannelF ROMs To: ${romdir}/channelf\n\nCopy BIOS Files (sl31245.bin & sl31253.bin Or sl90025.bin) To: ${biosdir}/channelf"
+rp_module_help="ROM Extensions: .bin .rom\n\nCopy ChannelF ROMs To: ${romdir}/channelf\n\nCopy BIOS Files: sl31245.bin & sl31253.bin Or sl90025.bin To: ${biosdir}/channelf"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/FreeChaF/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/FreeChaF master"
 rp_module_section="exp"
@@ -28,11 +28,9 @@ function install_lr-freechaf() {
 function configure_lr-freechaf() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "channelf"
-
         mkUserDir "${biosdir}/channelf"
+        defaultRAConfig "channelf"
     fi
-
-    defaultRAConfig "channelf" "system_directory" "${biosdir}/channelf"
 
     addEmulator 1 "${md_id}" "channelf" "${md_inst}/freechaf_libretro.so"
 

@@ -6,7 +6,7 @@
 
 rp_module_id="lr-dosbox-pure"
 rp_module_desc="DOSBox Pure Libretro Core"
-rp_module_help="ROM Extensions: .bat .com .conf .cue .dosz .exe .ima .img .ins .iso .jrc .m3u .m3u8 .tc .vhd .zip\n\nCopy DOS Games To: ${romdir}/pc"
+rp_module_help="ROM Extensions: .bat .com .conf .cue .dosz .exe .ima .img .ins .iso .jrc .m3u .m3u8 .tc .vhd .zip\n\nCopy DOS Games To: ${romdir}/pc\n\nOPTIONAL: Copy Soundfont *.sf2 & MT32 Files _control.rom & _pcm.rom To: ${biosdir}/pc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/dosbox-pure/main/LICENSE"
 rp_module_repo="git https://github.com/libretro/dosbox-pure main"
 rp_module_section="exp"
@@ -25,15 +25,16 @@ function build_lr-dosbox-pure() {
 function install_lr-dosbox-pure() {
     md_ret_files=(
         'dosbox_pure_libretro.so'
-        'LICENSE'
         'README.md'
     )
 }
 
 function configure_lr-dosbox-pure() {
-    mkRomDir "pc"
-
-    defaultRAConfig "pc"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "pc"
+        mkUserDir "${biosdir}/pc"
+        defaultRAConfig "pc"
+    fi
 
     addEmulator 0 "${md_id}" "pc" "${md_inst}/dosbox_pure_libretro.so"
 

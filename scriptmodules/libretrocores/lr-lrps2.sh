@@ -6,7 +6,7 @@
 
 rp_module_id="lr-lrps2"
 rp_module_desc="Sony PlayStation 2 Libretro Core"
-rp_module_help="ROM Extensions: .bin .chd .ciso .cso .cue .dump .elf .gz .img .iso .m3u .mdf .nrg\n\nCopy PS2 ROMs To: ${romdir}/ps2\n\nCopy BIOS Files (ps2-0230a-20080220, ps2-0230e-20080220 & ps2-0230j-20080220) To: ${biosdir}/ps2"
+rp_module_help="ROM Extensions: .bin .chd .ciso .cso .cue .dump .elf .gz .img .iso .m3u .mdf .nrg\n\nCopy PS2 ROMs To: ${romdir}/ps2\n\nCopy BIOS Files: ps2-0230a-20080220, ps2-0230e-20080220 & ps2-0230j-20080220 To: ${biosdir}/ps2"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/LRPS2/main/COPYING.GPLv3"
 rp_module_repo="git https://github.com/libretro/lrps2 main"
 rp_module_section="exp"
@@ -14,7 +14,6 @@ rp_module_flags="!all x86"
 
 function depends_lr-lrps2() {
     local depends=(
-        'ccache'
         'cmake'
         'gcc-libs'
         'glibc'
@@ -31,11 +30,20 @@ function depends_lr-lrps2() {
 function sources_lr-lrps2() {
     gitPullOrClone
 
-    # Set BIOS Directory
-    sed -e "s|Path::Combine(system, \"pcsx2/bios\");|Path::Combine(system, \"ps2\");|g" -i "${md_build}/libretro/main.cpp"
+    # Remove Hardcoded BIOS Directory
+    sed -e "s|Path::Combine(system, \"pcsx2/bios\");|Path::Combine(system, \"\");|g" -i "${md_build}/libretro/main.cpp"
+
+    # Disable 'ccache'
+    sed -i '/ccache/d' ${md_build}/CMakeLists.txt
+
+    # Fix Missing Includes
+    sed -i '/include <vector>/a #include <string>' "${md_build}/pcsx2/CDVD/CDVDdiscReader.h"
+    sed -i '/include <thread>/a #include <system_error>' "${md_build}/pcsx2/CDVD/CDVDdiscThread.cpp"
+    sed -i '/include <vector>/a #include <cstdint>' "${md_build}/pcsx2/MemoryPatchDatabase.h"
 }
 
 function build_lr-lrps2() {
+    # Will Not Build With 'clang' Or 'LTO' Enabled
     cmake . \
         -B"build" \
         -G"Ninja" \
@@ -56,11 +64,9 @@ function install_lr-lrps2() {
 function configure_lr-lrps2() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ps2"
-
         mkUserDir "${biosdir}/ps2"
+        defaultRAConfig "ps2"
     fi
-
-    defaultRAConfig "ps2"
 
     addEmulator 0 "${md_id}" "ps2" "${md_inst}/pcsx2_libretro.so"
 

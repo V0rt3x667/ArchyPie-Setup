@@ -30,7 +30,7 @@ function configure_lr-beetle-saturn() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "saturn"
         mkUserDir "${biosdir}/saturn"
-        defaultRAConfig "saturn" "system_directory" "${biosdir}/saturn"
+        defaultRAConfig "saturn"
     fi
 
     addEmulator 1 "${md_id}" "saturn" "${md_inst}/mednafen_saturn_libretro.so"

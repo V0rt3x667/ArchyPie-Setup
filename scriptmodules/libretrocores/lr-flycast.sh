@@ -6,7 +6,7 @@
 
 rp_module_id="lr-flycast"
 rp_module_desc="Sega Dreamcast, Naomi, Naomi 2 & Sammy Atomiswave Libretro Core"
-rp_module_help="ROM Extensions: .7z .bin .cdi .chd .cue .dat .elf .gdi .lst .m3u .zip \n\nCopy Dreamcast ROMs To: ${romdir}/dreamcast \n\nCopy Atomiswave ROMs To: ${romdir}/atomiswave \n\nCopy Naomi ROMs To: ${romdir}/naomi \n\nCopy Naomi2 ROMs To: ${romdir}/naomi2 \n\nCopy Dreamcast BIOS File (dc_boot.bin) To: ${biosdir}/dreamcast/dc \n\nCopy Naomi, Naomi2 & Atomiswave BIOS Files (awbios.zip, naomi.zip & naomi2.zip) To: ${biosdir}/dreamcast/dc/"
+rp_module_help="ROM Extensions: .7z .bin .cdi .chd .cue .dat .elf .gdi .lst .m3u .zip\n\nCopy Dreamcast ROMs To: ${romdir}/dreamcast\n\nCopy Atomiswave ROMs To: ${romdir}/atomiswave\n\nCopy Naomi ROMs To: ${romdir}/naomi\n\nCopy Naomi2 ROMs To: ${romdir}/naomi2\n\nCopy Dreamcast, Naomi, Naomi2 & Atomiswave BIOS Files: dc_boot.bin, awbios.zip, naomi.zip & naomi2.zip To: ${biosdir}/dreamcast/dc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/flyinghead/flycast/master/LICENSE"
 rp_module_repo="git https://github.com/flyinghead/flycast master"
 rp_module_section="opt"
@@ -14,26 +14,34 @@ rp_module_flags=""
 
 function depends_lr-flycast() {
     local depends=(
+        'clang'
         'cmake'
-        'ninja'
+        'libgl'
         'libzip'
+        'lld'
+        'ninja'
         'zlib'
     )
-    isPlatform "x11" && depends+=('libgl')
 
     getDepends "${depends[@]}"
 }
 
 function sources_lr-flycast() {
     gitPullOrClone
+
+    # Remove Hardcoded BIOS Directory
+    #sed -e "s|\"/dc/textures/\"|\"/textures/\"|g" -i "${md_build}/shell/libretro/oslib.cpp"
 }
 
 function build_lr-flycast() {
     local params=()
 
-    isPlatform "gles" && ! isPlatform "gles3" && params+=("-DUSE_GLES2=ON")
-    isPlatform "gles3" && params+=("-DUSE_GLES=ON")
-    ! isPlatform "x86" && params+=("-DUSE_VULKAN=OFF")
+    if isPlatform "gles3"; then
+        params+=("-DUSE_GLES=ON")
+    elif isPlatform "gles2"; then
+        params+=("-DUSE_GLES2=ON")
+    fi
+    isPlatform "vulkan" && params+=("-DUSE_VULKAN=ON") || params+=("-DUSE_VULKAN=OFF")
 
     cmake . \
         -B"build" \
@@ -41,8 +49,13 @@ function build_lr-flycast() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DLIBRETRO="ON" \
-        -DUSE_HOST_LIBZIP="ON" \
+        -DWITH_SYSTEM_ZLIB="ON" \
         "${params[@]}" \
         -Wno-dev
     ninja -C build clean
@@ -67,10 +80,15 @@ function configure_lr-flycast() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
+            defaultRAConfig "${system}"
         done
 
-        mkUserDir "${biosdir}/dreamcast"
+        # Symlink Supported Systems BIOS Dirs To 'dreamcast/dc'
         mkUserDir "${biosdir}/dreamcast/dc"
+        if [[ "${system}" != "dreamcast" ]]; then
+            mkUserDir "${biosdir}/${system}"
+            ln -snf "${biosdir}/dreamcast/dc" "${biosdir}/${system}/dc"
+        fi
     fi
 
     for system in "${systems[@]}"; do
@@ -78,8 +96,6 @@ function configure_lr-flycast() {
         if [[ "${system}" == "arcade" ]]; then
             def=0
         fi
-
-        defaultRAConfig "${system}" "system_directory" "${biosdir}/dreamcast"
         addEmulator "${def}" "${md_id}" "${system}" "${md_inst}/flycast_libretro.so"
         addSystem "${system}"
     done

@@ -30,14 +30,12 @@ function install_lr-dinothawr() {
 function configure_lr-dinothawr() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/dinothawr"
+        setConfigRoot "ports"
+        defaultRAConfig "dinothawr"
 
         cp -Rv "${md_inst}"/dinothawr/* "${romdir}/ports/dinothawr/"
         chown "${user}:${user}" -R "${romdir}/ports/dinothawr"
     fi
-
-    setConfigRoot "ports"
-
-    defaultRAConfig "dinothawr"
 
     addPort "${md_id}" "dinothawr" "Dinothawr" "${md_inst}/dinothawr_libretro.so" "${romdir}/ports/dinothawr/dinothawr.game"
 }

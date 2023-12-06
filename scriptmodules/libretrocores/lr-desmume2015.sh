@@ -6,7 +6,7 @@
 
 rp_module_id="lr-desmume2015"
 rp_module_desc="Nintendo DS Libretro Core"
-rp_module_help="ROM Extensions: .nds .zip\n\nCopy Nintendo DS ROMs To: ${romdir}/nds"
+rp_module_help="ROM Extensions: .bin .nds .zip\n\nCopy Nintendo DS ROMs To: ${romdir}/nds\n\nOPTIONAL: Copy BIOS Files: bios7.bin, bios9.bin & firmware.bin To: ${biosdir}/nds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/desmume/master/desmume/COPYING"
 rp_module_repo="git https://github.com/libretro/desmume2015 master"
 rp_module_section="exp"
@@ -34,9 +34,11 @@ function install_lr-desmume2015() {
 }
 
 function configure_lr-desmume2015() {
-    mkRomDir "nds"
-
-    defaultRAConfig "nds"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "nds"
+        mkUserDir "${biosdir}/nds"
+        defaultRAConfig "nds"
+    fi
 
     addEmulator 0 "${md_id}" "nds" "${md_inst}/desmume2015_libretro.so"
 

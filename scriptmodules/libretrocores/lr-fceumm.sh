@@ -6,7 +6,7 @@
 
 rp_module_id="lr-fceumm"
 rp_module_desc="Nintendo NES & Famicom Libretro Core"
-rp_module_help="ROM Extensions: .fds .nes .unf .unif .zip\n\nCopy NES ROMs To: ${romdir}/nes\n\nCopy Famicom Disk System Games To: ${romdir}/fds\n\nCopy Famicom Disk System BIOS File (disksys.rom} To: ${biosdir}/fds"
+rp_module_help="ROM Extensions: .fds .nes .unf .unif .zip\n\nCopy NES ROMs To: ${romdir}/nes\n\nCopy Famicom Disk System Games To: ${romdir}/fds\n\nCopy Famicom Disk System BIOS File: disksys.rom To: ${biosdir}/fds\n\nOPTIONAL: Copy NES Game Genie File: gamegenie.nes To: ${biosdir}/nes"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-fceumm/master/Copying"
 rp_module_repo="git https://github.com/libretro/libretro-fceumm master"
 rp_module_section="main"
@@ -27,19 +27,25 @@ function install_lr-fceumm() {
 }
 
 function configure_lr-fceumm() {
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "fds"
-        mkRomDir "nes"
+    local systems=(
+        'fds'
+        'nes'
+    )
 
-        mkUserDir "${biosdir}/fds"
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
+            defaultRAConfig "${system}"
+        done
     fi
 
-    defaultRAConfig "fds" "system_directory" "${biosdir}/fds"
-    defaultRAConfig "nes"
-
-    addEmulator 0 "${md_id}" "fds" "${md_inst}/fceumm_libretro.so"
-    addEmulator 1 "${md_id}" "nes" "${md_inst}/fceumm_libretro.so"
-
-    addSystem "fds"
-    addSystem "nes"
+    for system in "${systems[@]}"; do
+        local def=1
+        if [[ "${system}" == "fds" ]]; then
+            def=0
+        fi
+        addEmulator "${def}" "${md_id}" "${system}" "${md_inst}/fceumm_libretro.so"
+        addSystem "${system}"
+    done
 }

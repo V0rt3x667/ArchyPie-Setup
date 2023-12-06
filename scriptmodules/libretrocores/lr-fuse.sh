@@ -27,12 +27,13 @@ function install_lr-fuse() {
 }
 
 function configure_lr-fuse() {
-    mkRomDir "zxspectrum"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "zxspectrum"
+        defaultRAConfig "zxspectrum"
 
-    defaultRAConfig "zxspectrum"
-
-    # Default To 128k Spectrum
-    setRetroArchCoreOption "fuse_machine" "Spectrum 128K"
+        # Default To 128k Spectrum
+        setRetroArchCoreOption "fuse_machine" "Spectrum 128K"
+    fi
 
     addEmulator 1 "${md_id}" "zxspectrum" "${md_inst}/fuse_libretro.so"
 

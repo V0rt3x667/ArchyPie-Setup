@@ -35,10 +35,16 @@ function configure_lr-beetle-pce() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
-            defaultRAConfig "${system}" "system_directory" "${biosdir}/pcengine"
+            defaultRAConfig "${system}"
         done
 
+        # Symlink Supported Systems BIOS Dirs To 'pcengine'
         mkUserDir "${biosdir}/pcengine"
+        for system in "${systems[@]}"; do
+            if [[ "${system}" != "pcengine" ]]; then
+                ln -sf "${biosdir}/pcengine" "${biosdir}/${system}"
+            fi
+        done
     fi
 
     setRetroArchCoreOption "pce_aspect_ratio" "4:3"

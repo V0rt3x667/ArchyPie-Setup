@@ -34,10 +34,16 @@ function configure_lr-beetle-pce-fast() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
-            defaultRAConfig "${system}" "system_directory" "${biosdir}/pcengine"
+            defaultRAConfig "${system}"
         done
 
+        # Symlink Supported Systems BIOS Dirs To 'pcengine'
         mkUserDir "${biosdir}/pcengine"
+        for system in "${systems[@]}"; do
+            if [[ "${system}" != "pcengine" ]]; then
+                ln -sf "${biosdir}/pcengine" "${biosdir}/${system}"
+            fi
+        done
     fi
 
     for system in "${systems[@]}"; do

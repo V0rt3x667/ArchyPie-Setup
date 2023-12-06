@@ -6,7 +6,7 @@
 
 rp_module_id="lr-hatari"
 rp_module_desc="Atari ST, STE, TT & Falcon Libretro Core"
-rp_module_help="ROM Extensions: .dim .ipf .m3u .msa .st .stx .zip\n\nCopy Atari ST Games To: ${romdir}/atarist\n\nCopy Atari ST BIOS File (tos.img) To: ${biosdir}/atarist"
+rp_module_help="ROM Extensions: .dim .ipf .m3u .msa .st .stx .zip\n\nCopy Atari ST Games To: ${romdir}/atarist\n\nCopy Atari ST BIOS File: tos.img To: ${biosdir}/atarist"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/hatari/master/gpl.txt"
 rp_module_repo="git https://github.com/libretro/hatari master"
 rp_module_section="exp"
@@ -52,9 +52,9 @@ function configure_lr-hatari() {
 
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "atarist"
+        mkUserDir "${biosdir}/atarist"
+        defaultRAConfig "atarist"
     fi
-
-    defaultRAConfig "atarist" "system_directory" "${biosdir}/atarist"
 
     addEmulator 1 "${md_id}" "atarist" "${md_inst}/hatari_libretro.so"
 

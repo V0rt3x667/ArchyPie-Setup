@@ -6,32 +6,27 @@
 
 rp_module_id="lr-dolphin"
 rp_module_desc="Nintendo Gamecube & Wii Libretro Core"
-rp_module_help="ROM Extensions: .ciso .dff .dol .elf .gcm .gcz .iso .m3u .rvz .tgc .wad .wbfs .wia\n\nCopy Gamecube ROMs To: ${romdir}/gc\nCopy Wii ROMs To: ${romdir}/wii\n\nOPTIONAL: Copy BIOS File (IPL.bin) To:\n${biosdir}/gc/EUR\n${biosdir}/gc/JAP\n${biosdir}/gc/USA"
+rp_module_help="ROM Extensions: .ciso .dff .dol .elf .gcm .gcz .iso .m3u .rvz .tgc .wad .wbfs .wia\n\nCopy Gamecube ROMs To: ${romdir}/gc\n\nCopy Wii ROMs To: ${romdir}/wii\n\nOPTIONAL: Copy BIOS File: IPL.bin To: ${biosdir}/gc/EUR, ${biosdir}/gc/JAP & ${biosdir}/gc/USA"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/dolphin/master/license.txt"
 rp_module_repo="git https://github.com/libretro/dolphin master"
 rp_module_section="exp"
 rp_module_flags="!all 64bit"
 
 function depends_lr-dolphin() {
-    local depends=(
-        'bluez-libs'
-        'cmake'
-        'enet'
-        'ffmpeg'
-        'lzo'
-        'mbedtls'
-        'miniupnpc'
-        'minizip'
-        'ninja'
-        'pugixml'
-        'qt5-base'
-        'sfml'
-    )
-    getDepends "${depends[@]}"
+    depends_dolphin
 }
 
 function sources_lr-dolphin() {
     gitPullOrClone
+
+    # Use 'minizip-ng'
+    sed -e "s|minizip>=2.0.0|minizip-ng>=2.0.0|g" -i "${md_build}/CMakeLists.txt"
+
+    # Use Bundled 'fmt' Build Fails With System Library
+    sed -e "s|find_package(fmt 6.0)|#find_package(fmt 6.0)|g" -i "${md_build}/CMakeLists.txt"
+
+    # Use Bundled 'mbedtls' Build Fails With System Library
+    sed -e "s|find_package(MbedTLS)|#find_package(MbedTLS)|g" -i "${md_build}/CMakeLists.txt"
 }
 
 function build_lr-dolphin() {
@@ -41,11 +36,17 @@ function build_lr-dolphin() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DENABLE_LTO="OFF" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DENABLE_LTO="ON" \
+        -DENABLE_NOGUI="OFF" \
         -DENABLE_QT="OFF" \
         -DENABLE_TESTS="OFF" \
-        -DLIBRETRO_STATIC="ON" \
         -DLIBRETRO="ON" \
+        -DUSE_DISCORD_PRESENCE="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -60,23 +61,29 @@ function install_lr-dolphin() {
 }
 
 function configure_lr-dolphin() {
+    local systems=(
+        'gc'
+        'wii'
+    )
+
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "gc"
-        mkRomDir "wii"
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
+            defaultRAConfig "${system}"
+        done
 
-        mkUserDir "${biosdir}/gc"
+        # Copy 'Sys' Directory
         mkUserDir "${biosdir}/gc/dolphin-emu"
+        cp -r "${md_inst}/Sys" "${biosdir}/gc/dolphin-emu/Sys"
+        chown -R "${user}:${user}" "${biosdir}/gc/dolphin-emu/Sys"
 
-        cp -r "${md_inst}/Sys" "${biosdir}/gc/dolphin-emu"
-        chown -R "${user}:${user}" "${biosdir}/gc/dolphin-emu"
+        # Symlink 'dolphin-emu' To 'wii' BIOS Folder
+        ln -snf "${biosdir}/gc/dolphin-emu" "${biosdir}/wii/dolphin-emu"
     fi
 
-    defaultRAConfig "gc" "system_directory" "${biosdir}/gc"
-    defaultRAConfig "wii"
-
-    addEmulator 0 "${md_id}" "gc" "${md_inst}/dolphin_libretro.so"
-    addEmulator 0 "${md_id}" "wii" "${md_inst}/dolphin_libretro.so"
-
-    addSystem "gc"
-    addSystem "wii"
+    for system in "${systems[@]}"; do
+        addEmulator 1 "${md_id}" "${system}" "${md_inst}/dolphin_libretro.so"
+        addSystem "${system}"
+    done
 }

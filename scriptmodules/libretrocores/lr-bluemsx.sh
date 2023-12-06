@@ -42,7 +42,7 @@ function configure_lr-bluemsx() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
-            defaultRAConfig "${system}" "system_directory" "${biosdir}/msx" 
+            defaultRAConfig "${system}"
         done
 
         mkUserDir "${biosdir}/msx"
@@ -50,6 +50,15 @@ function configure_lr-bluemsx() {
         # Copy Data To BIOS Directory
         cp -rv "${md_inst}/"{Databases,Machines} "${biosdir}/msx"
         chown -R "${user}:${user}" "${biosdir}/msx/"{Databases,Machines}
+
+        # Symlink Supported Systems BIOS Dirs To 'Databases' & 'Machines' Folders
+        for system in "${systems[@]}"; do
+            if [[ "${system}" != "msx" ]]; then
+                mkUserDir "${biosdir}/${system}"
+                ln -sf "${biosdir}/msx/Databases" "${biosdir}/${system}/Databases"
+                ln -sf "${biosdir}/msx/Machines" "${biosdir}/${system}/Machines"
+            fi
+        done
 
         # Force ColecoVision System
         local config="${md_conf_root}/coleco/retroarch-core-options.cfg"

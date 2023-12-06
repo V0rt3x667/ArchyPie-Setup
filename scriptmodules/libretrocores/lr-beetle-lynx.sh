@@ -29,7 +29,7 @@ function configure_lr-beetle-lynx() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "atarilynx"
         mkUserDir "${biosdir}/atarilynx"
-        defaultRAConfig "atarilynx" "system_directory" "${biosdir}/atarilynx"
+        defaultRAConfig "atarilynx"
     fi
 
     addEmulator 0 "${md_id}" "atarilynx" "${md_inst}/mednafen_lynx_libretro.so"

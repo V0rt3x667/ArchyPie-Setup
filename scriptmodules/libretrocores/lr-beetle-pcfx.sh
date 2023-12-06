@@ -29,7 +29,7 @@ function configure_lr-beetle-pcfx() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "pcfx"
         mkUserDir "${biosdir}/pcfx"
-        defaultRAConfig "pcfx" "system_directory" "${biosdir}/pcfx"
+        defaultRAConfig "pcfx"
     fi
 
     addEmulator 1 "${md_id}" "pcfx" "${md_inst}/mednafen_pcfx_libretro.so"

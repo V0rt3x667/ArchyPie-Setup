@@ -49,7 +49,7 @@ function configure_lr-beetle-psx() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "psx"
         mkUserDir "${biosdir}/psx"
-        defaultRAConfig "psx" "system_directory" "${biosdir}/psx"
+        defaultRAConfig "psx"
     fi
 
     addEmulator 1 "${md_id}-hw" "psx" "${md_inst}/mednafen_psx_hw_libretro.so"

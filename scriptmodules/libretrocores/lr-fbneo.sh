@@ -6,7 +6,7 @@
 
 rp_module_id="lr-fbneo"
 rp_module_desc="FinalBurn Neo Arcade Libretro Core"
-rp_module_help="ROM Extension: .7z .zip\n\nCopy FBA ROMs To One Of The Following Directories:\n\n${romdir}/arcade \n${romdir}/fba \n\nTo Keep Console & Computer ROMs Separate Use The Directories Created For Them Under: \n\n${romdir}/ \n\nCopy FBA BIOS Files To: ${biosdir}/fba"
+rp_module_help="ROM Extension: .7z .zip\n\nCopy FBA ROMs To One Of The Following Directories:\n${romdir}/arcade\n${romdir}/fba\n\nTo Keep Console & Computer ROMs Separate Use The Directories Created For Them Under:\n${romdir}/\n\nCopy FBA BIOS Files To: ${biosdir}/fba"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/FBNeo/master/src/license.txt"
 rp_module_repo="git https://github.com/libretro/FBNeo master"
 rp_module_section="main"
@@ -66,6 +66,7 @@ function configure_lr-fbneo() {
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
             defaultRAConfig "${system}"
+            mkUserDir "${biosdir}/${system}"
         done
 
         # Create Directories For Support Files
@@ -82,6 +83,13 @@ function configure_lr-fbneo() {
         # Copy 'hiscore.dat'
         cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fba"
         chown -R "${user}:${user}" "${biosdir}/fba"
+
+        # Symlink Supported Systems BIOS Dirs To 'fba'
+        for system in "${systems[@]}"; do
+            if [[ "${system}" != "fba" ]]; then
+                ln -snf "${biosdir}/fba" "${biosdir}/${system}/fba"
+            fi
+        done
 
         setRetroArchCoreOption "fbneo-diagnostic-input" "Hold Start"
 

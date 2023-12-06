@@ -6,7 +6,7 @@
 
 rp_module_id="lr-atari800"
 rp_module_desc="Atari 5200, 400, 800, XL & XE Libretro Core"
-rp_module_help="ROM Extensions: .a52 .atr .bas .bin .car .cas .cdm .com .dcm .xex .xfd .zip\n\nCopy Atari800 Games To: ${romdir}/atari800\n\nCopy Atari 5200 ROMs To: ${romdir}/atari5200\n\nCopy Atari 800 & 5200 BIOS Files: ATARIBAS.ROM, ATARIOSA.ROM, ATARIOSB.ROM, ATARIXL.ROM & 5200.rom\nTo: ${biosdir}\atari800"
+rp_module_help="ROM Extensions: .a52 .atr .bas .bin .car .cas .cdm .com .dcm .xex .xfd .zip\n\nCopy Atari800 Games To: ${romdir}/atari800\n\nCopy Atari 5200 ROMs To: ${romdir}/atari5200\n\nCopy Atari 800 BIOS Files: ATARIBAS.ROM, ATARIOSA.ROM, ATARIOSB.ROM, ATARIXL.ROM & 5200.rom\nTo: ${biosdir}\atari800\n\nCopy Atari 5200 BIOS File: 5200.rom\nTo: ${biosdir}\atari5200"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-atari800/master/atari800/COPYING"
 rp_module_repo="git https://github.com/libretro/libretro-atari800 master"
 rp_module_section="main"
@@ -39,10 +39,9 @@ function configure_lr-atari800() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
-            defaultRAConfig "${system}" "system_directory" "${biosdir}/atari800"
+            defaultRAConfig "${system}"
+            mkUserDir "${biosdir}/${system}"
         done
-
-        mkUserDir "${biosdir}/atari800"
     fi
 
     for system in "${systems[@]}"; do

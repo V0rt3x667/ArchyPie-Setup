@@ -6,7 +6,7 @@
 
 rp_module_id="lr-desmume"
 rp_module_desc="Nintendo DS Libretro Core"
-rp_module_help="ROM Extensions: .nds .zip\n\nCopy Nintendo DS ROMs To: ${romdir}/nds"
+rp_module_help="ROM Extensions: .bin .nds .zip\n\nCopy Nintendo DS ROMs To: ${romdir}/nds\n\nOPTIONAL: Copy BIOS Files: bios7.bin, bios9.bin & firmware.bin To: ${biosdir}/nds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/desmume/master/desmume/COPYING"
 rp_module_repo="git https://github.com/libretro/desmume master"
 rp_module_section="exp"
@@ -28,7 +28,7 @@ function build_lr-desmume() {
     isPlatform "arm" && params+=("platform=unixarmvhardfloat")
     isPlatform "aarch64" && params+=("DESMUME_JIT=0")
 
-    make -C desmume/src/frontend/libretro clean
+    make -C desmume/src/frontend/libretro -f Makefile.libretro clean
     make -C desmume/src/frontend/libretro -f Makefile.libretro "${params[@]}"
 
     md_ret_require="${md_build}/desmume/src/frontend/libretro/desmume_libretro.so"
@@ -39,11 +39,13 @@ function install_lr-desmume() {
 }
 
 function configure_lr-desmume() {
-    mkRomDir "nds"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "nds"
+        mkUserDir "${biosdir}/nds"
+        defaultRAConfig "nds"
+    fi
 
-    defaultRAConfig "nds"
-
-    addEmulator 0 "${md_id}" "nds" "${md_inst}/desmume_libretro.so"
+    addEmulator 1 "${md_id}" "nds" "${md_inst}/desmume_libretro.so"
 
     addSystem "nds"
 }

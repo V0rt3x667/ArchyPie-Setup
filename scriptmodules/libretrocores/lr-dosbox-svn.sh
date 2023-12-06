@@ -12,15 +12,6 @@ rp_module_repo="git https://github.com/libretro/dosbox-svn libretro"
 rp_module_section="exp"
 rp_module_flags=""
 
-function depends_lr-dosbox-svn() {
-    local depends=(
-        'sdl_net'
-        'sdl12-compat'
-        'sdl2'
-    )
-    getDepends "${depends[@]}"
-}
-
 function sources_lr-dosbox-svn() {
     gitPullOrClone
 }
@@ -31,22 +22,22 @@ function build_lr-dosbox-svn() {
         params+=('WITH_DYNAREC=arm')
     fi
     make -C libretro -f Makefile.libretro clean
-    make -C libretro -f Makefile.libretro "${params[@]}"
+    make -C libretro -f Makefile.libretro WITH_FAKE_SDL=1 "${params[@]}"
     md_ret_require="${md_build}/libretro/dosbox_svn_libretro.so"
 }
 
 function install_lr-dosbox-svn() {
     md_ret_files=(
-        'COPYING'
         'libretro/dosbox_svn_libretro.so'
         'README'
     )
 }
 
 function configure_lr-dosbox-svn() {
-    mkRomDir "pc"
-
-    defaultRAConfig "pc"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "pc"
+        defaultRAConfig "pc"
+    fi
 
     addEmulator 0 "${md_id}" "pc" "${md_inst}/dosbox_svn_libretro.so"
 
