@@ -8,7 +8,7 @@ rp_module_id="dolphin"
 rp_module_desc="Dolphin: Nintendo Gamecube & Wii Emulator"
 rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy Gamecube ROMs To: ${romdir}/gc\n\nCopy Wii ROMs To: ${romdir}/wii"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dolphin-emu/dolphin/master/COPYING"
-rp_module_repo="git https://github.com/dolphin-emu/dolphin master"
+rp_module_repo="git https://github.com/dolphin-emu/dolphin master dc0814ae4622313d513468bdc377ee9c031de199"
 rp_module_section="exp"
 rp_module_flags="!all x11 64bit"
 
@@ -16,10 +16,12 @@ function depends_dolphin() {
     local depends=(
         'bluez-libs'
         'cmake'
+        'curl'
         'enet'
         'ffmpeg'
         'fmt'
         'hidapi'
+        'libspng'
         'libxkbcommon'
         'lzo'
         'mbedtls2'
@@ -30,6 +32,7 @@ function depends_dolphin() {
         'qt6-base'
         'qt6-svg'
         'sfml'
+        #'xxhash'
         'zlib-ng'
     )
     getDepends "${depends[@]}"
@@ -46,21 +49,23 @@ function sources_dolphin() {
 }
 
 function build_dolphin() {
+    export LDFLAGS+=" -Wl,--copy-dt-needed-entries"
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
         -DENABLE_ANALYTICS="OFF" \
         -DENABLE_AUTOUPDATE="OFF" \
-        -DENABLE_LTO="OFF" \
+        -DENABLE_LTO="ON" \
         -DENABLE_QT="ON" \
         -DENABLE_SDL="ON" \
         -DENABLE_TESTS="OFF" \
         -DUSE_SYSTEM_LIBS="ON" \
         -DUSE_SYSTEM_LIBMGBA="OFF" \
-        -DUSE_SYSTEM_SPNG="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -74,16 +79,24 @@ function install_dolphin() {
 function configure_dolphin() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/gc/${md_id}"
 
+    local systems=(
+        'gc'
+        'wii'
+    )
+
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "gc"
-        mkRomDir "wii"
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+        done
 
         mkUserDir "${biosdir}/gc"
+
+        # Create Default Configuration File
         mkUserDir "${arpdir}/${md_id}/Config"
 
         local config
-
         config="$(mktemp)"
+
         iniConfig " = " "" "${config}"
 
         # Set Fullscreen By Default
@@ -97,11 +110,9 @@ function configure_dolphin() {
 
     local launcher_prefix="DOLPHIN_EMU_USERPATH=${arpdir}/${md_id}"
 
-    addEmulator 1 "${md_id}" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "gc" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
-    addEmulator 1 "${md_id}" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
-    addEmulator 0 "${md_id}-gui" "wii" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
-
-    addSystem "gc"
-    addSystem "wii"
+    for system in "${systems[@]}"; do
+        addEmulator 1 "${md_id}" "${system}" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
+        addEmulator 0 "${md_id}-gui" "${system}" "${launcher_prefix} ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
+        addSystem "${system}"
+    done
 }
