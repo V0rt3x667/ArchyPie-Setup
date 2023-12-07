@@ -1111,7 +1111,7 @@ function retroarch_append_config() {
     [[ -n "$core_dir" ]] && iniSet "libretro_directory" "$core_dir"
 
     # Dynamically Set BIOS Location
-    if [[ "${SYSTEM}" == "fba" ]] || [[ "${SYSTEM}" == "mame-libretro" ]]; then
+    if [[ "${SYSTEM}" == "fba" ]]; then
         iniSet "system_directory" "${BIOSDIR}"
     else
         iniSet "system_directory" "${BIOSDIR}/${SYSTEM}"
