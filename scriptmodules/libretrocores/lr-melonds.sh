@@ -6,7 +6,7 @@
 
 rp_module_id="lr-melonds"
 rp_module_desc="Nintendo DS Libretro Core"
-rp_module_help="ROM Extensions: .dsi .nds .zip\n\nCopy NDS ROMs To: ${romdir}/nds\n\nCopy BIOS Files:\n\nbios7.bin\nbios9.bin\nfirmware.bin\n\nTo: ${biosdir}/nds"
+rp_module_help="ROM Extensions: .dsi .nds .zip\n\nCopy NDS ROMs To: ${romdir}/nds\n\nCopy BIOS Files: nbios7.bin, bios9.bin & firmware.bin To: ${biosdir}/nds"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/melonDS/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/melonDS master"
 rp_module_section="opt"
@@ -32,11 +32,9 @@ function install_lr-melonds() {
 function configure_lr-melonds() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "nds"
-
         mkUserDir "${biosdir}/nds"
+        defaultRAConfig "nds"
     fi
-
-    defaultRAConfig "nds" "system_directory" "${biosdir}/nds"
 
     addEmulator 0 "${md_id}" "nds" "${md_inst}/melonds_libretro.so"
 
