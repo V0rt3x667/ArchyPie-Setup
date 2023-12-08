@@ -31,11 +31,9 @@ function install_lr-np2kai() {
 function configure_lr-np2kai() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "pc98"
-
         mkUserDir "${biosdir}/pc98"
+        defaultRAConfig "pc98"
     fi
-
-    defaultRAConfig "pc98"
 
     addEmulator 1 "${md_id}" "pc98" "${md_inst}/np2kai_libretro.so"
 
