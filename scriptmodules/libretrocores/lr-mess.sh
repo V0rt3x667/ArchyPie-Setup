@@ -43,25 +43,41 @@ function install_lr-mess() {
 }
 
 function configure_lr-mess() {
-    local module="$1"
+    local module="${1}"
     [[ -z "${module}" ]] && module="mamemess_libretro.so"
 
+    local systems=(
+        'arcadia'
+        'coleco'
+        'crvision'
+        'gb'
+        'nes'
+    )
+
     if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
+            defaultRAConfig "${system}"
+        done
+
+        # Copy 'hash' Directory To Shared 'mame' Directory
         mkUserDir "${biosdir}/mame"
-        
         cp -rv "${md_inst}/hash" "${biosdir}/mame/"
         chown -R "${user}:${user}" "${biosdir}/mame"
+
+        # Symlink Supported Systems BIOS Dirs To 'mame'
+        for system in "${systems[@]}"; do
+            ln -snf "${biosdir}/mame" "${biosdir}/${system}/mame"
+        done
+
+        setRetroArchCoreOption "mame_softlists_enable" "enabled"
+        setRetroArchCoreOption "mame_softlists_auto_media" "enabled"
+        setRetroArchCoreOption "mame_boot_from_cli" "enabled"
     fi
 
-    local system
-    for system in 'arcadia' 'coleco' 'crvision' 'gb' 'nes'; do
-        mkRomDir "${system}"
-        defaultRAConfig "${system}"
+    for system in "${systems[@]}"; do
         addEmulator 0 "${md_id}" "${system}" "${md_inst}/${module}"
         addSystem "${system}"
     done
-
-    setRetroArchCoreOption "mame_softlists_enable" "enabled"
-    setRetroArchCoreOption "mame_softlists_auto_media" "enabled"
-    setRetroArchCoreOption "mame_boot_from_cli" "enabled"
 }
