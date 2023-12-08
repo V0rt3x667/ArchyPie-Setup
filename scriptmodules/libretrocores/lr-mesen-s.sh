@@ -6,9 +6,9 @@
 
 rp_module_id="lr-mesen-s"
 rp_module_desc="Nintendo SNES (Super Famicom), Game Boy, Game Boy Color & Super Game Boy Libretro Core"
-rp_module_help="ROM Extensions: .bs .fig .gb .gbc .sfc .smc .swc\n\nCopy Game Boy ROMs To: ${romdir}/gb\n\nCopy Game Boy Color ROMs To: ${romdir}/gbc\n\nCopy SNES ROMs To: ${romdir}/snes"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/SourMesen/Mesen-S/master/LICENSE"
-rp_module_repo="git https://github.com/SourMesen/Mesen-S master"
+rp_module_help="ROM Extensions: .7z .bs .fig .gb .gbc .sfc .smc .swc .zip\n\nCopy Game Boy ROMs To: ${romdir}/gb\n\nCopy Game Boy Color ROMs To: ${romdir}/gbc\n\nCopy SNES ROMs To: ${romdir}/snes\n\nCopy Super Game Boy ROMs To: ${romdir}/sgb\n\nCopy Super Game Boy BIOS Files: sgb_boot.bin, sgb2_boot.bin, SGB1.sfc & SGB2.sfc To: ${biosdir}/sgb"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/Mesen-S/master/LICENSE"
+rp_module_repo="git https://github.com/libretro/Mesen-S master"
 rp_module_section="opt"
 
 function sources_lr-mesen-s() {
@@ -26,11 +26,27 @@ function install_lr-mesen-s() {
 }
 
 function configure_lr-mesen-s() {
-    local system
-    for system in "gb" "gbc" "snes"; do
-        mkRomDir "${system}"
-        defaultRAConfig "${system}"
-        addEmulator 0 "${md_id}" "${system}" "${md_inst}/mesens_libretro.so"
+    local systems=(
+        'gb'
+        'gbc'
+        'sgb'
+        'snes'
+    )
+
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
+            defaultRAConfig "${system}"
+        done
+    fi
+
+    for system in "${systems[@]}"; do
+        local def=0
+        if [[ "${system}" == "sgb" ]]; then
+            def=1
+        fi
+        addEmulator "${def}" "${md_id}" "${system}" "${md_inst}/mesens_libretro.so"
         addSystem "${system}"
     done
 }
