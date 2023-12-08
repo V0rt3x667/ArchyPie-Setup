@@ -30,39 +30,5 @@ function install_lr-puae2021() {
 }
 
 function configure_lr-puae2021() {
-    local systems=(
-        'amiga'
-        'amigacd32'
-        'amigacdtv'
-    )
-
-    if [[ "${md_mode}" == "install" ]]; then
-        for system in "${systems[@]}"; do
-            mkRomDir "${system}"
-            defaultRAConfig "${system}" "system_directory" "${biosdir}/amiga"
-        done
-
-        mkUserDir "${biosdir}/amiga"
-
-        # Copy CAPs Image & Floppy Disk Audio Files To BIOS Directory
-        install -Dm644 "${md_inst}/capsimg.so" -t "${biosdir}/amiga/"
-        cp -r "${md_inst}/uae_data" -t "${biosdir}/amiga/"
-
-        # Force CDTV System
-        local config="${md_conf_root}/amigacdtv/retroarch-core-options.cfg"
-        iniConfig " = " '"' "${config}"
-        iniSet "puae_model" "CDTV"
-        chown "${user}:${user}" "${config}"
-
-        # Add CDTV Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
-        local raconfig="${md_conf_root}/amigacdtv/retroarch.cfg"
-        iniConfig " = " '"' "${raconfig}"
-        iniSet "core_options_path" "${config}"
-        chown "${user}:${user}" "${raconfig}"
-    fi
-
-    for system in "${systems[@]}"; do
-        addEmulator 1 "${md_id}" "${system}" "${md_inst}/puae2021_libretro.so"
-        addSystem "${system}"
-    done
+    configure_lr-puae "puae2021_libretro.so"
 }
