@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-nestopia"
-rp_module_desc="Nintendo Entertainment System Libretro Core"
-rp_module_help="ROM Extensions: .fds .nes .unf .unif .zip\n\nCopy NES ROMs To: ${romdir}/nes\n\nCopy Famicom Disk System ROMs To: ${romdir}/fds\n\nCopy BIOS File (disksys.rom) To: ${biosdir}/fds"
+rp_module_desc="Nintendo NES (Famicom) & Famicom Disk System Libretro Core"
+rp_module_help="ROM Extensions: .fds .nes .unf .unif .zip\n\nCopy NES ROMs To: ${romdir}/nes\n\nCopy Famicom Disk System ROMs To: ${romdir}/fds\n\nCopy BIOS File: disksys.rom To: ${biosdir}/fds"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/nestopia/master/COPYING"
 rp_module_repo="git https://github.com/libretro/nestopia master"
 rp_module_section="main"
@@ -28,19 +28,25 @@ function install_lr-nestopia() {
 }
 
 function configure_lr-nestopia() {
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "fds"
-        mkRomDir "nes"
+    local systems=(
+        'fds'
+        'nes'
+    )
 
-        mkUserDir "${biosdir}/fds"
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
+            defaultRAConfig "${system}"
+        done
     fi
 
-    defaultRAConfig "fds" "system_directory" "${biosdir}/fds"
-    defaultRAConfig "nes"
-
-    addEmulator 1 "${md_id}" "fds" "${md_inst}/nestopia_libretro.so"
-    addEmulator 0 "${md_id}" "nes" "${md_inst}/nestopia_libretro.so"
-
-    addSystem "fds"
-    addSystem "nes"
+    for system in "${systems[@]}"; do
+        local def=1
+        if [[ "${system}" == "nes" ]]; then
+            def=0
+        fi
+        addEmulator "${def}" "${md_id}" "${system}" "${md_inst}/nestopia_libretro.so"
+        addSystem "${system}"
+    done
 }
