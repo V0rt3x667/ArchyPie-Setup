@@ -13,11 +13,15 @@ rp_module_section="opt kms=main"
 rp_module_flags=""
 
 function depends_lr-mupen64plus-next() {
-    local depends=()
-    isPlatform "x11" && depends+=('glew' 'libglvnd')
+    local depends=(
+        'libpng'
+        'minizip'
+        'xxhash'
+        'zlib'
+    )
+    isPlatform "x11" && depends+=('glew')
     isPlatform "x86" && depends+=('nasm')
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
-    isPlatform "mesa" && depends+=('libglvnd')
+    isPlatform "mesa" || isPlatform "x11" && depends+=('libglvnd')
     getDepends "${depends[@]}"
 }
 
@@ -26,12 +30,19 @@ function sources_lr-mupen64plus-next() {
 }
 
 function build_lr-mupen64plus-next() {
-    local params=()
+    local params=(
+        'CORE_NAME=mupen64plus-next'
+        'SYSTEM_LIBPNG=1'
+        'SYSTEM_MINIZIP=1'
+        'SYSTEM_XXHASH=1'
+        'SYSTEM_ZLIB=1'
+    )
+
     if isPlatform "arm"; then
         if isPlatform "rpi"; then
-            params+=(platform="$__platform")
+            params+=(platform="${__platform}")
         elif isPlatform "mesa"; then
-            params+=(platform="$__platform-mesa")
+            params+=(platform="${__platform}-mesa")
         elif isPlatform "mali"; then
             params+=(platform="odroid")
         fi
@@ -45,7 +56,6 @@ function build_lr-mupen64plus-next() {
         params+=(FORCE_GLES=1)
     fi
 
-    params+=(CORE_NAME=mupen64plus-next)
     make "${params[@]}" clean
     make "${params[@]}"
 
@@ -57,19 +67,22 @@ function install_lr-mupen64plus-next() {
 }
 
 function configure_lr-mupen64plus-next() {
-    mkRomDir "n64"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "n64"
+        mkUserDir "${biosdir}/n64"
+        defaultRAConfig "n64"
 
-    defaultRAConfig "n64" "system_directory" "${biosdir}/n64"
+        if isPlatform "rpi"; then
+            # Disable Hybrid Upscaling Filter (Needs Better GPU)
+            setRetroArchCoreOption "mupen64plus-next-HybridFilter" "False"
+            # Disable Overscan/VI Emulation (Slight Performance Drain)
+            setRetroArchCoreOption "mupen64plus-next-EnableOverscan" "Disabled"
+            # Enable Threaded GL Calls
+            setRetroArchCoreOption "mupen64plus-next-ThreadedRenderer" "True"
+        fi
 
-    if isPlatform "rpi"; then
-        # Disable Hybrid Upscaling Filter (Needs Better GPU)
-        setRetroArchCoreOption "mupen64plus-next-HybridFilter" "False"
-        # Disable Overscan/VI Emulation (Slight Performance Drain)
-        setRetroArchCoreOption "mupen64plus-next-EnableOverscan" "Disabled"
-        # Enable Threaded GL Calls
-        setRetroArchCoreOption "mupen64plus-next-ThreadedRenderer" "True"
+        setRetroArchCoreOption "mupen64plus-next-EnableNativeResFactor" "1"
     fi
-    setRetroArchCoreOption "mupen64plus-next-EnableNativeResFactor" "1"
 
     addEmulator 1 "${md_id}" "n64" "${md_inst}/mupen64plus_next_libretro.so"
 
