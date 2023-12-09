@@ -6,7 +6,7 @@
 
 rp_module_id="lr-o2em"
 rp_module_desc="Magnavox Odyssey 2 (Philips VideoPac+) Libretro Core"
-rp_module_help="ROM Extensions: .bin .zip\n\nCopy Odyssey 2 (Videopac+) ROMs To: ${romdir}/videopac\n\nCopy BIOS File (o2rom.bin) To: ${biosdir}/videopac"
+rp_module_help="ROM Extensions: .bin .zip\n\nCopy Odyssey 2 (Videopac+) ROMs To: ${romdir}/videopac\n\nCopy BIOS File: o2rom.bin To: ${biosdir}/videopac"
 rp_module_licence="OTHER https://raw.githubusercontent.com/libretro/libretro-o2em/master/COPYING"
 rp_module_repo="git https://github.com/libretro/libretro-o2em master"
 rp_module_section="opt"
@@ -31,11 +31,9 @@ function install_lr-o2em() {
 function configure_lr-o2em() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "videopac"
-
         mkUserDir "${biosdir}/videopac"
+        defaultRAConfig "videopac"
     fi
-
-    defaultRAConfig "videopac" "system_directory" "${biosdir}/videopac"
 
     addEmulator 1 "${md_id}" "videopac" "${md_inst}/o2em_libretro.so"
 
