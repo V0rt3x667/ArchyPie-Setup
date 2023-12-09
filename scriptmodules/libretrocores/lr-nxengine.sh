@@ -33,11 +33,11 @@ function _add_data_lr-nxengine() {
 }
 
 function configure_lr-nxengine() {
-    [[ "${md_mode}" == "install" ]] && _add_data_lr-nxengine
-
-    setConfigRoot "ports"
-
-    defaultRAConfig "cavestory"
+    if [[ "${md_mode}" == "install" ]]; then
+        _add_data_lr-nxengine
+        setConfigRoot "ports"
+        defaultRAConfig "cavestory"
+    fi
 
     addPort "${md_id}" "cavestory" "Cave Story" "${md_inst}/nxengine_libretro.so ${romdir}/ports/cavestory/Doukutsu.exe"
 }
