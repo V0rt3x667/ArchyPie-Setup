@@ -80,15 +80,17 @@ function configure_lr-flycast() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
             defaultRAConfig "${system}"
         done
 
         # Symlink Supported Systems BIOS Dirs To 'dreamcast/dc'
         mkUserDir "${biosdir}/dreamcast/dc"
-        if [[ "${system}" != "dreamcast" ]]; then
-            mkUserDir "${biosdir}/${system}"
-            ln -snf "${biosdir}/dreamcast/dc" "${biosdir}/${system}/dc"
-        fi
+        for system in "${systems[@]}"; do
+            if [[ "${system}" != "dreamcast" ]]; then
+                ln -snf "${biosdir}/dreamcast/dc" "${biosdir}/${system}/dc"
+            fi
+        done
     fi
 
     for system in "${systems[@]}"; do
