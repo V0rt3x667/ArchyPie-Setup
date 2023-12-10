@@ -36,16 +36,12 @@ function configure_lr-kronos() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
             defaultRAConfig "${system}"
-            if [[ "${system}" != "segastv" ]]; then
-                mkUserDir "${biosdir}/${system}"
-            fi
 
             # Symlink Supported Systems BIOS Dirs To 'saturn'
-            if [[ "${system}" == "segastv" ]]; then
-                ln -snf "${biosdir}/saturn" "${biosdir}/segastv" 
-            elif [[ "${system}" == "arcade" ]]; then
-                ln -snf "${biosdir}/saturn" "${biosdir}/arcade/kronos"
+            if [[ "${system}" != "saturn" ]]; then
+                ln -snf "${biosdir}/saturn" "${biosdir}/${system}/kronos"
             fi
         done
     fi
