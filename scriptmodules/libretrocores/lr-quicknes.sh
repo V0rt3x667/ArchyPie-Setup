@@ -26,9 +26,10 @@ function install_lr-quicknes() {
 }
 
 function configure_lr-quicknes() {
-    mkRomDir "nes"
-
-    defaultRAConfig "nes"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "nes"
+        defaultRAConfig "nes"
+    fi
 
     addEmulator 0 "${md_id}" "nes" "${md_inst}/quicknes_libretro.so"
 
