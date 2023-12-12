@@ -13,9 +13,6 @@ rp_module_section="main"
 
 function sources_lr-fbneo() {
     gitPullOrClone
-
-    # Set BIOS Directory To 'fba'
-    sed -e "s|%s%cfbneo|%s%cfba|g" -i "${md_build}/src/burner/libretro/libretro.cpp"
 }
 
 function build_lr-fbneo() {
@@ -77,17 +74,17 @@ function configure_lr-fbneo() {
             'samples'
         )
         for dir in "${dirs[@]}"; do
-            mkUserDir "${biosdir}/fba/${dir}"
+            mkUserDir "${biosdir}/fba/fbneo/${dir}"
         done
 
         # Copy 'hiscore.dat'
-        cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fba"
-        chown -R "${user}:${user}" "${biosdir}/fba"
+        cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fba/fbneo"
+        chown -R "${user}:${user}" "${biosdir}/fba/fbneo"
 
         # Symlink Supported Systems BIOS Dirs To 'fba'
         for system in "${systems[@]}"; do
             if [[ "${system}" != "fba" ]]; then
-                ln -snf "${biosdir}/fba" "${biosdir}/${system}/fba"
+                ln -snf "${biosdir}/fba/fbneo" "${biosdir}/${system}/fbneo"
             fi
         done
 
