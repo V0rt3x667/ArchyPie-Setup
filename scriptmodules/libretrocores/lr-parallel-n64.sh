@@ -12,10 +12,8 @@ rp_module_repo="git https://github.com/libretro/parallel-n64 master"
 rp_module_section="exp x86=main"
 
 function depends_lr-parallel-n64() {
-    local depends=()
-    isPlatform "x11" && depends+=('libglvnd')
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
-    isPlatform "kms" && isPlatform "gles" && depends+=('libglvnd')
+    local depends=('mesa')
+
     getDepends "${depends[@]}"
 }
 
@@ -51,8 +49,12 @@ function install_lr-parallel-n64() {
 function configure_lr-parallel-n64() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "n64"
-
         mkUserDir "${biosdir}/n64"
+        defaultRAConfig "n64"
+
+        setRetroArchCoreOption "parallel-n64-gfxplugin" "auto"
+        setRetroArchCoreOption "parallel-n64-gfxplugin-accuracy" "low"
+        setRetroArchCoreOption "parallel-n64-screensize" "640x480"
 
         # Create Config File
         cat > ${home}/ArchyPie/BIOS/n64/gles2n64rom.conf << _EOF_
@@ -91,80 +93,91 @@ target FPS=17
 rom name=ZELDA MAJORA'S MASK
 texture use IA=0
 hack zelda=1
+
 rom name=F-ZERO X
 window width=864
 window height=520
 target FPS=55
+
 rom name=WAVE RACE 64
 window width=864
 window height=520
 target FPS=27
+
 rom name=SMASH BROTHERS
 framebuffer enable=1
 window width=864
 window height=520
 target FPS=27
+
 rom name=1080 SNOWBOARDING
 update mode=2
 target FPS=27
+
 rom name=PAPER MARIO
 update mode=4
+
 rom name=STAR WARS EP1 RACER
 video force=1
 video width=320
 video height=480
+
 rom name=JET FORCE GEMINI
 framebuffer enable=1
 update mode=2
 ignore offscreen rendering=1
 target FPS=27
+
 rom name=RIDGE RACER 64
 window width=864
 window height=520
 enable lighting=0
 target FPS=27
+
 rom name=Diddy Kong Racing
 target FPS=27
 rom name=MarioParty
 update mode=4
+
 rom name=MarioParty3
 update mode=4
+
 rom name=Beetle Adventure Rac
 window width=864
 window height=520
 target FPS=27
+
 rom name=EARTHWORM JIM 3D
 rom name=LEGORacers
 rom name=GOEMONS GREAT ADV
 window width=864
 window height=520
+
 rom name=Buck Bumble
 window width=864
 window height=520
+
 rom name=BOMBERMAN64U2
 window width=864
 window height=520
+
 rom name=ROCKETROBOTONWHEELS
 window width=864
 window height=520
+
 rom name=GOLDENEYE
 force screen clear=1
 framebuffer enable=1
 window width=864
 window height=520
 target FPS=25
+
 rom name=Mega Man 64
 framebuffer enable=1
 target FPS=25
 _EOF_
         chown "${user}:${user}" "${biosdir}/n64/gles2n64rom.conf"
     fi
-
-    defaultRAConfig "n64" "system_directory" "${biosdir}/n64"
-
-    setRetroArchCoreOption "parallel-n64-gfxplugin" "auto"
-    setRetroArchCoreOption "parallel-n64-gfxplugin-accuracy" "low"
-    setRetroArchCoreOption "parallel-n64-screensize" "640x480"
 
     addEmulator 0 "${md_id}" "n64" "${md_inst}/parallel_n64_libretro.so"
 
