@@ -16,7 +16,7 @@ function sources_lr-px68k() {
     gitPullOrClone
 
     # Remove Hardcoded BIOS Directory
-    sed -e "s|sprintf(retro_system_conf, \"%s%ckeropi\", RETRO_DIR, SLASH);|sprintf(retro_system_conf, \"%s%c\", RETRO_DIR, SLASH);|g" -i "${md_build}/libretro.c"
+    sed -e "s|sprintf(retro_system_conf, \"%s%ckeropi\", RETRO_DIR, SLASH);|sprintf(retro_system_conf, \"%s\", RETRO_DIR);|g" -i "${md_build}/libretro.c"
 }
 
 function build_lr-px68k() {
