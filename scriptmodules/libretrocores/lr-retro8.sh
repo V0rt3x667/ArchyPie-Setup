@@ -26,10 +26,11 @@ function install_lr-retro8() {
 }
 
 function configure_lr-retro8() {
-    mkRomDir "pico8"
-
-    # Disable RetroArch Built-in Image Viewer So We Can Run .p8.png Files
-    defaultRAConfig "pico8" "builtin_imageviewer_enable" "false"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "pico8"
+        # Disable RetroArch Built-in Image Viewer So We Can Run .p8.png Files
+        defaultRAConfig "pico8" "builtin_imageviewer_enable" "false"
+    fi
 
     addEmulator 1 "${md_id}" "pico8" "${md_inst}/retro8_libretro.so"
 
