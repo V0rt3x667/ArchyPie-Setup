@@ -6,7 +6,7 @@
 
 rp_module_id="lr-mame2016"
 rp_module_desc="MAME 0.174 Libretro Core"
-rp_module_help="ROM Extension: .zip\n\nCopy MAME ROMs To: ${romdir}/mame-libretro\nOr\n${romdir}/arcade"
+rp_module_help="ROM Extension: .zip\n\nCopy MAME ROMs To Either: ${romdir}/mame-libretro\n${romdir}/arcade"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame2016-libretro/master/LICENSE.md"
 rp_module_repo="git https://github.com/libretro/mame2016-libretro master"
 rp_module_section="exp"
@@ -19,6 +19,8 @@ function depends_lr-mame2016() {
 
 function sources_lr-mame2016() {
     gitPullOrClone
+
+    applyPatch "${md_path%/*}/lr-mame2016/01_fix_python_irgen.patch"
 }
 
 function build_lr-mame2016() {
@@ -35,11 +37,5 @@ function install_lr-mame2016() {
 }
 
 function configure_lr-mame2016() {
-    local system
-    for system in arcade mame-libretro; do
-        mkRomDir "${system}"
-        defaultRAConfig "${system}"
-        addEmulator 0 "${md_id}" "${system}" "${md_inst}/mamearcade2016_libretro.so"
-        addSystem "${system}"
-    done
+    configure_lr-mame "mamearcade2016_libretro.so"
 }

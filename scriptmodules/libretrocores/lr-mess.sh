@@ -17,7 +17,7 @@ function depends_lr-mess() {
 }
 
 function sources_lr-mess() {
-    gitPullOrClone
+    sources_lr-mame
 }
 
 function build_lr-mess() {
@@ -28,7 +28,7 @@ function build_lr-mess() {
         rpSwap on 4096
     fi
 
-    local params=($(_get_params_lr-mame) SUBTARGET=mess)
+    local params=($(_get_params_lr-mame) 'SUBTARGET=mess')
     make clean
     make "${params[@]}"
     rpSwap off
@@ -37,14 +37,14 @@ function build_lr-mess() {
 
 function install_lr-mess() {
     md_ret_files=(
-        'mamemess_libretro.so'
         'hash'
+        'mamemess_libretro.so'
     )
 }
 
 function configure_lr-mess() {
-    local module="${1}"
-    [[ -z "${module}" ]] && module="mamemess_libretro.so"
+    local core="${1}"
+    [[ -z "${core}" ]] && core="mamemess_libretro.so"
 
     local systems=(
         'arcadia'
@@ -59,17 +59,23 @@ function configure_lr-mess() {
             mkRomDir "${system}"
             mkUserDir "${biosdir}/${system}"
             defaultRAConfig "${system}"
+
+            # Create BIOS Directories For The MESS Cores
+            local dir
+            if [[ "${md_id}" == "lr-mess2016" ]]; then
+                dir="mame2016"
+            else
+                dir="mame"
+            fi
+
+            [[ ! -d "${biosdir}/mame-libretro/${dir}" ]] && mkUserDir "${biosdir}/mame-libretro/${dir}"
+
+            ln -snf "${biosdir}/mame-libretro/${dir}" "${biosdir}/${system}/${dir}"
         done
 
-        # Copy 'hash' Directory To Shared 'mame' Directory
-        mkUserDir "${biosdir}/mame"
-        cp -rv "${md_inst}/hash" "${biosdir}/mame/"
-        chown -R "${user}:${user}" "${biosdir}/mame"
-
-        # Symlink Supported Systems BIOS Dirs To 'mame'
-        for system in "${systems[@]}"; do
-            ln -snf "${biosdir}/mame" "${biosdir}/${system}/mame"
-        done
+        # Copy 'hash' Directory To Shared 'mame-libretro' Directory
+        cp -rv "${md_inst}/hash" "${biosdir}/mame-libretro/${dir}"
+        chown -R "${user}:${user}" "${biosdir}/mame-libretro/${dir}"
 
         setRetroArchCoreOption "mame_softlists_enable" "enabled"
         setRetroArchCoreOption "mame_softlists_auto_media" "enabled"
@@ -77,7 +83,7 @@ function configure_lr-mess() {
     fi
 
     for system in "${systems[@]}"; do
-        addEmulator 0 "${md_id}" "${system}" "${md_inst}/${module}"
+        addEmulator 0 "${md_id}" "${system}" "${md_inst}/${core}"
         addSystem "${system}"
     done
 }

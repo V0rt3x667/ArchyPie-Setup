@@ -36,6 +36,8 @@ function configure_lr-mame2003-plus() {
     local systems=(
         'arcade'
         'mame-libretro'
+        'neogeo'
+        'segastv'
     )
 
     if [[ "${md_mode}" == "install" ]]; then
@@ -43,27 +45,29 @@ function configure_lr-mame2003-plus() {
 
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
             defaultRAConfig "${system}"
+
+            [[ ! -d "${biosdir}/mame-libretro/${core_name}" ]] && mkUserDir "${biosdir}/mame-libretro/${core_name}"
+
+            if [[ "${system}" != "mame-libretro" ]]; then
+                ln -snf "${biosdir}/mame-libretro/${core_name}" "${biosdir}/${system}/${core_name}"
+            fi
         done
 
-        # Create BIOS Directory
-        mkUserDir "${biosdir}/mame-libretro/${core_name}/"{artwork,samples}
-
         # Copy 'hiscore.dat', 'cheat.dat' & 'artwork'
+        mkUserDir "${biosdir}/mame-libretro/${core_name}/"{artwork,samples}
         cp -rv "${md_inst}/metadata/"{cheat.dat,hiscore.dat} "${biosdir}/mame-libretro/${core_name}/"
-        cp "${md_inst}/metadata/artwork/"* "${biosdir}/mame-libretro/${core_name}/artwork/"
+        cp -v "${md_inst}/metadata/artwork/"* "${biosdir}/mame-libretro/${core_name}/artwork/"
         chown -R "${user}:${user}" "${biosdir}/mame-libretro/${core_name}"
-
-        # Symlink BIOS Directory To 'arcade' So Assets Can Be Shared
-        ln -snf "${biosdir}/mame-libretro/${core_name}" "${biosdir}/arcade/${core_name}"
 
         setRetroArchCoreOption "${core_name}_skip_disclaimer" "enabled"
     fi
 
     for system in "${systems[@]}"; do
-        local def=1
-        if [[ "${system}" == "arcade" ]]; then
-            def=0
+        local def=0
+        if [[ "${system}" == "mame-libretro" ]]; then
+            def=1
         fi
         addEmulator "${def}" "${md_id}" "${system}" "${md_inst}/mame2003_plus_libretro.so"
         addSystem "${system}"

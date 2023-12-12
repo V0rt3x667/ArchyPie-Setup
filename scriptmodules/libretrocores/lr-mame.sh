@@ -47,7 +47,7 @@ function build_lr-mame() {
         rpSwap on 4096
     fi
 
-    local params=($(_get_params_lr-mame) SUBTARGET=arcade)
+    local params=($(_get_params_lr-mame) 'SUBTARGET=arcade')
     make clean
     make "${params[@]}"
     rpSwap off
@@ -59,12 +59,16 @@ function install_lr-mame() {
 }
 
 function configure_lr-mame() {
+    local core="${1}"
+    [[ -z "${core}" ]] && core="mamearcade_libretro.so"
+
     local systems=(
         'arcade'
         'atomiswave'
         'mame-libretro'
         'naomi'
         'naomi2'
+        'neogeo'
         'segastv'
     )
 
@@ -73,17 +77,27 @@ function configure_lr-mame() {
             mkRomDir "${system}"
             mkUserDir "${biosdir}/${system}"
             defaultRAConfig "${system}"
-        done
 
-        # Symlink Supported Systems BIOS Dirs To 'mame'
-        mkUserDir "${biosdir}/mame"
-        for system in "${systems[@]}"; do
-            ln -snf "${biosdir}/mame" "${biosdir}/${system}/mame"
+            # Create BIOS Directories For The MAME Cores
+            local dir
+            if [[ "${md_id}" == "lr-mame2010" ]]; then
+                dir="mame2010"
+            elif [[ "${md_id}" == "lr-mame2016" ]]; then
+                dir="mame2016"
+            else
+                dir="mame"
+            fi
+
+            [[ ! -d "${biosdir}/mame-libretro/${dir}" ]] && mkUserDir "${biosdir}/mame-libretro/${dir}"
+
+            if [[ "${system}" != "mame-libretro" ]]; then
+                ln -snf "${biosdir}/mame-libretro/${dir}" "${biosdir}/${system}/${dir}"
+            fi
         done
     fi
 
     for system in "${systems[@]}"; do
-        addEmulator 0 "${md_id}" "${system}" "${md_inst}/mamearcade_libretro.so"
+        addEmulator 0 "${md_id}" "${system}" "${md_inst}/${core}"
         addSystem "${system}"
     done
 }

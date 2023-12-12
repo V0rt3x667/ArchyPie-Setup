@@ -17,12 +17,12 @@ function depends_lr-mess2016() {
 }
 
 function sources_lr-mess2016() {
-    gitPullOrClone
+    sources_lr-mame2016
 }
 
 function build_lr-mess2016() {
     rpSwap on 1200
-    local params=($(_get_params_lr-mame) SUBTARGET=mess)
+    local params=($(_get_params_lr-mame) 'SUBTARGET=mess')
     make clean
     make "${params[@]}"
     rpSwap off
@@ -30,7 +30,10 @@ function build_lr-mess2016() {
 }
 
 function install_lr-mess2016() {
-    md_ret_files=('mess2016_libretro.so')
+    md_ret_files=(
+        'hash'
+        'mess2016_libretro.so'
+    )
 }
 
 function configure_lr-mess2016() {
