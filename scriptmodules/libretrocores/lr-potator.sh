@@ -34,9 +34,10 @@ function install_lr-potator() {
 }
 
 function configure_lr-potator() {
-    mkRomDir "supervision"
-
-    defaultRAConfig "supervision"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "supervision"
+        defaultRAConfig "supervision"
+    fi
 
     addEmulator 1 "${md_id}" "supervision" "${md_inst}/potator_libretro.so"
 
