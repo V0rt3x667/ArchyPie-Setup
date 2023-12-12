@@ -6,7 +6,7 @@
 
 rp_module_id="lr-pokemini"
 rp_module_desc="Pokémon-Mini Libretro Core"
-rp_module_help="ROM Extensions: .min .zip\n\nCopy Pokemon Mini ROMs To: ${romdir}/pokemini\n\nOPTIONAL: Copy BIOS File (bios.min) To: ${biosdir}/pokemini"
+rp_module_help="ROM Extensions: .min .zip\n\nCopy Pokemon Mini ROMs To: ${romdir}/pokemini\n\nOPTIONAL: Copy BIOS File: bios.min To: ${biosdir}/pokemini"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/PokeMini/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/pokemini master"
 rp_module_section="exp"
@@ -28,11 +28,9 @@ function install_lr-pokemini() {
 function configure_lr-pokemini() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "pokemini"
-
         mkUserDir "${biosdir}/pokemini"
+        defaultRAConfig "pokemini"
     fi
-
-    defaultRAConfig "pokemini" "system_directory" "${biosdir}/pokemini"
 
     addEmulator 1 "${md_id}" "pokemini" "${md_inst}/pokemini_libretro.so"
 
