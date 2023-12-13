@@ -27,9 +27,10 @@ function install_lr-theodore() {
 }
 
 function configure_lr-theodore() {
-    mkRomDir "moto"
-
-    defaultRAConfig "moto"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "moto"
+        defaultRAConfig "moto"
+    fi
 
     addEmulator 1 "${md_id}" "moto" "${md_inst}/theodore_libretro.so"
 
