@@ -14,7 +14,9 @@ rp_module_flags=""
 
 function depends_lr-swanstation() {
     local depends=(
+        'clang'
         'cmake'
+        'lld'
         'ninja'
     )
     getDepends "${depends[@]}"
