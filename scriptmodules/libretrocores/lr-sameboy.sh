@@ -6,7 +6,7 @@
 
 rp_module_id="lr-sameboy"
 rp_module_desc="Nintendo Game Boy & Game Boy Color Core"
-rp_module_help="ROM Extensions: .gb .gbc .zip\n\nCopy Game Boy ROMs To: ${romdir}/gb\nCopy Game Boy Color ROMs To: ${romdir}/gbc\nOPTIONAL:\n\nCopy BIOS File (gb_bios.bin) To: ${biosdir}/gb\nCopy BIOS File (gbc_bios.bin) To: ${biosdir}/gbc"
+rp_module_help="ROM Extensions: .gb .gbc .zip\n\nCopy Game Boy ROMs To: ${romdir}/gb\n\nCopy Game Boy Color ROMs To: ${romdir}/gbc\n\nOPTIONAL: Copy BIOS File: dmg_boot.bin To: ${biosdir}/gb\nCopy BIOS File: cgb_boot.bin To: ${biosdir}/gbc"
 rp_module_licence="MIT https://raw.githubusercontent.com/libretro/SameBoy/buildbot/LICENSE"
 rp_module_repo="git https://github.com/libretro/SameBoy buildbot"
 rp_module_section="opt"
@@ -40,17 +40,20 @@ function install_lr-sameboy() {
 }
 
 function configure_lr-sameboy() {
-    local systems=('gb' 'gbc')
+    local systems=(
+        'gb'
+        'gbc'
+    )
 
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
             mkUserDir "${biosdir}/${system}"
+            defaultRAConfig "${system}"
         done
     fi
 
     for system in "${systems[@]}"; do
-        defaultRAConfig "${system}" "system_directory" "${biosdir}/${system}"
         addEmulator 0 "${md_id}" "${system}" "${md_inst}/sameboy_libretro.so"
         addSystem "${system}"
     done
