@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-snes9x"
-rp_module_desc="Nintendo SNES Libretro Core"
-rp_module_help="ROM Extensions: .bs .fig .sfc .smc .st .swc .zip\n\nCopy SNES ROMs To: ${romdir}/snes"
+rp_module_desc="Nintendo SNES & Satellaview Libretro Core"
+rp_module_help="ROM Extensions: .bs .fig .sfc .smc .st .swc .zip\n\nCopy SNES ROMs To: ${romdir}/snes\n\nCopy Satellaview ROMs To: ${romdir}/satellaview\n\nOPTIONAL: Copy BIOS Files: BS-X.bin & STBIOS.bin To: ${biosdir}/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/snes9x/master/LICENSE"
 rp_module_repo="git https://github.com/libretro/snes9x master"
 rp_module_section="main armv7=opt"
@@ -29,13 +29,28 @@ function install_lr-snes9x() {
 }
 
 function configure_lr-snes9x() {
-    mkRomDir "snes"
+    local systems=(
+        'satellaview'
+        'snes'
+    )
 
-    defaultRAConfig "snes"
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            defaultRAConfig "${system}"
+        done
 
-    local def=0
-    ! isPlatform "armv7" && def=1
-    addEmulator ${def} "${md_id}" "snes" "${md_inst}/snes9x_libretro.so"
+        mkUserDir "${biosdir}/snes"
 
-    addSystem "snes"
+        # Symlink Satellaview BIOS Directory To 'snes'
+        ln -snf "${biosdir}/snes" "${biosdir}/satellaview"
+    fi
+
+    for system in "${systems[@]}"; do
+        local def=0
+        ! isPlatform "armv7" && def=1
+
+        addEmulator "${def}" "${md_id}" "${system}" "${md_inst}/snes9x_libretro.so"
+        addSystem "${system}"
+    done
 }
