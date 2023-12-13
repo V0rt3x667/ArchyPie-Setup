@@ -14,6 +14,8 @@ rp_module_section="exp"
 function depends_lr-tic80() {
     local depends=(
         'cmake'
+        'doxygen'
+        'libuv'
         'ninja'
     )
     getDepends "${depends[@]}"
@@ -24,6 +26,8 @@ function sources_lr-tic80() {
 }
 
 function build_lr-tic80() {
+    # Cannot Build With Clang Due To Error 'https://github.com/wasm3/wasm3/issues/447'
+
     cmake . \
         -B"build" \
         -G"Ninja" \
@@ -31,11 +35,13 @@ function build_lr-tic80() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DBUILD_DEMO_CARTS=OFF \
-        -DBUILD_LIBRETRO=ON \
-        -DBUILD_PLAYER=OFF \
-        -DBUILD_SDL=OFF \
-        -DBUILD_SOKOL=OFF \
+        -DBUILD_DEMO_CARTS="OFF" \
+        -DBUILD_LIBRETRO="ON" \
+        -DBUILD_PLAYER="OFF" \
+        -DBUILD_SDL="OFF" \
+        -DBUILD_SOKOL="OFF" \
+        -DBUILD_TESTING="OFF" \
+        -DBUILD_WITH_MRUBY="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -51,11 +57,12 @@ function install_lr-tic80() {
 }
 
 function configure_lr-tic80() {
-    mkRomDir "tic80"
-
-    defaultRAConfig "tic80"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "tic80"
+        defaultRAConfig "tic80"
+    fi
 
     addEmulator 1 "${md_id}" "tic80" "${md_inst}/tic80_libretro.so"
 
-    addSystem "tic80" "TIC-80"
+    addSystem "tic80"
 }
