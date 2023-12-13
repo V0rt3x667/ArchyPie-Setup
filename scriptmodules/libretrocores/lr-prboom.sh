@@ -6,7 +6,7 @@
 
 rp_module_id="lr-prboom"
 rp_module_desc="PrBoom (Doom, Doom II, Final Doom & Doom IWAD Mods) Libretro Core"
-rp_module_help="ROM Extensions: .iwad .pwad .wad\n\nCopy Doom Files To: ${romdir}/ports/doom/doom1\nCopy Doom 2 Files To: ${romdir}/ports/doom/doom2\nCopy Final Doom Files To: ${romdir}/ports/doom/finaldoom"
+rp_module_help="ROM Extensions: .iwad .pwad .wad\n\nCopy Doom Files To: ${romdir}/ports/doom/doom1\n\nCopy Doom 2 Files To: ${romdir}/ports/doom/doom2\n\nCopy Final Doom Files To: ${romdir}/ports/doom/finaldoom"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/libretro-prboom/master/COPYING"
 rp_module_repo="git https://github.com/libretro/libretro-prboom master"
 rp_module_section="opt"
@@ -34,24 +34,27 @@ function install_lr-prboom() {
 
 function _game_data_lr-prboom() {
     local dest="${romdir}/ports/doom"
+    local file
 
+    # Download DOOM Shareware If No WAD Exists In The ROM Directory
     for file in "${dest}/doom1/"*.*; do
         if [[ -e "${file}" ]]; then
             break
         else
-            # Download DOOM Shareware
             download "${__archive_url}/doom1.wad" "${dest}/doom1/doom1.wad"
         fi
     done
+
+    # Download Or Update Freedoom
     if ! echo "e9bf428b73a04423ea7a0e9f4408f71df85ab175 ${dest}/freedoom/freedoom1.wad" | sha1sum -c &>/dev/null; then
-        # Download Or Update Freedoom
         downloadAndExtract "https://github.com/freedoom/freedoom/releases/download/v0.12.1/freedoom-0.12.1.zip" "${dest}/freedoom" -j -LL
     fi
+
     chown -R "${user}:${user}" "${dest}"
 }
 
 function _add_games_lr-prboom() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
@@ -67,7 +70,7 @@ function _add_games_lr-prboom() {
         ['freedoom/freedoom2.wad']="Freedoom: Phase II"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted To Lowercase
+    # Create .sh Files For Each Game Found, Uppercase Filenames Will Be Converted To Lowercase
     for game in "${!games[@]}"; do
         portname="doom"
         dir="${romdir}/ports/${portname}/${game%/*}"
@@ -110,7 +113,7 @@ function configure_lr-prboom() {
 
     setConfigRoot "ports"
 
-    defaultRAConfig "${portname}" "system_directory" "${biosdir}/${portname}"
+    defaultRAConfig "${portname}"
 
     _add_games_lr-prboom "${md_inst}/prboom_libretro.so"
 }
