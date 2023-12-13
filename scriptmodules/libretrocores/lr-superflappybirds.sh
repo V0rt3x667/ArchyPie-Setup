@@ -12,8 +12,9 @@ rp_module_section="exp"
 
 function depends_lr-superflappybirds() {
     local depends=(
-        'clang14'
+        'clang'
         'cmake'
+        'lld'
         'ninja'
         'openmp'
     )
@@ -31,8 +32,11 @@ function build_lr-superflappybirds() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_C_COMPILER="/usr/lib/llvm14/bin/clang" \
-        -DCMAKE_CXX_COMPILER="/usr/lib/llvm14/bin/clang++" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -47,16 +51,10 @@ function install_lr-superflappybirds() {
 }
 
 function configure_lr-superflappybirds() {
-    local portname
-    portname="superflappybirds"
-
     if [[ "${md_mode}" == "install" ]]; then
-        mkUserDir "${biosdir}/${portname}"
+        setConfigRoot "ports"
+        defaultRAConfig "superflappybirds"
     fi
 
-    setConfigRoot "ports"
-
-    defaultRAConfig "superflappybirds" "system_directory" "${biosdir}/${portname}"
-
-    addPort "${md_id}" "${portname}" "Super Flappy Birds" "${md_inst}/${portname}_libretro.so"
+    addPort "${md_id}" "superflappybirds" "Super Flappy Birds" "${md_inst}/superflappybirds_libretro.so"
 }
