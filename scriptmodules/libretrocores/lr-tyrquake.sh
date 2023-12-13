@@ -6,7 +6,7 @@
 
 rp_module_id="lr-tyrquake"
 rp_module_desc="Quake Libretro Core"
-rp_module_help="ROM Extensions: .pak\n\nCopy Quake File (pak0.pak) To: ${romdir}/ports/quake/id1"
+rp_module_help="ROM Extensions: .pak\n\nCopy Quake Files To: ${romdir}/ports/quake"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/tyrquake/master/LICENSE.txt"
 rp_module_repo="git https://github.com/libretro/tyrquake master"
 rp_module_section="opt"
@@ -52,7 +52,7 @@ function _game_data_lr-tyrquake() {
 }
 
 function _add_games_lr-tyrquake() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
