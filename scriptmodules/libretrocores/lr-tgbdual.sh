@@ -26,18 +26,23 @@ function install_lr-tgbdual() {
 }
 
 function configure_lr-tgbdual() {
-    mkRomDir "gbc"
-    mkRomDir "gb"
+    local systems=(
+        'gb'
+        'gbc'
+    )
 
-    # Enable Dual Link By Default
-    setRetroArchCoreOption "tgbdual_gblink_enable" "enabled"
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            defaultRAConfig "${system}"
+        done
 
-    defaultRAConfig "gb"
-    defaultRAConfig "gbc"
+        # Enable Dual Link By Default
+        setRetroArchCoreOption "tgbdual_gblink_enable" "enabled"
+    fi
 
-    addEmulator 0 "${md_id}" "gb" "${md_inst}/tgbdual_libretro.so"
-    addEmulator 0 "${md_id}" "gbc" "${md_inst}/tgbdual_libretro.so"
-
-    addSystem "gb"
-    addSystem "gbc"
+    for system in "${systems[@]}"; do
+        addEmulator 0 "${md_id}" "${system}" "${md_inst}/tgbdual_libretro.so"
+        addSystem "${system}"
+    done
 }
