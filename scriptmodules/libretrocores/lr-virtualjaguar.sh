@@ -27,9 +27,10 @@ function install_lr-virtualjaguar() {
 }
 
 function configure_lr-virtualjaguar() {
-    mkRomDir "atarijaguar"
-
-    defaultRAConfig "atarijaguar"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "atarijaguar"
+        defaultRAConfig "atarijaguar"
+    fi
 
     addEmulator 1 "${md_id}" "atarijaguar" "${md_inst}/virtualjaguar_libretro.so"
 
