@@ -20,7 +20,7 @@ function build_lr-vecx() {
     isPlatform "gles" && params+=" HAS_GLES=1"
     isPlatform "rpi" && params+="platform=rpi"
 
-    make clean
+    make -f Makefile.libretro clean
     make -f Makefile.libretro "${params}"
     md_ret_require="${md_build}/vecx_libretro.so"
 }
@@ -35,9 +35,10 @@ function install_lr-vecx() {
 }
 
 function configure_lr-vecx() {
-    mkRomDir "vectrex"
-
-    defaultRAConfig "vectrex"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "vectrex"
+        defaultRAConfig "vectrex"
+    fi
 
     addEmulator 1 "${md_id}" "vectrex" "${md_inst}/vecx_libretro.so"
 
