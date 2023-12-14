@@ -33,7 +33,6 @@ function build_lr-vice() {
 
 function install_lr-vice() {
     md_ret_files=(
-        'vice/COPYING'
         'vice/data'
     )
     local target
@@ -43,11 +42,12 @@ function install_lr-vice() {
 }
 
 function configure_lr-vice() {
-    mkRomDir "c64"
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "c64"
+        defaultRAConfig "c64"
 
-    defaultRAConfig "c64"
-
-    isPlatform "arm" && setRetroArchCoreOption "vice_sid_engine" "FastSID"
+        isPlatform "arm" && setRetroArchCoreOption "vice_sid_engine" "FastSID"
+    fi
 
     local target
     local name
