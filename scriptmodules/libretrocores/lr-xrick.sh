@@ -33,11 +33,11 @@ function _add_data_lr-xrick() {
 }
 
 function configure_lr-xrick() {
-    [[ "${md_mode}" == "install" ]] && _add_data_lr-xrick
+    if [[ "${md_mode}" == "install" ]]; then
+        setConfigRoot "ports"
+        defaultRAConfig "xrick"
+        _add_data_lr-xrick
+    fi
 
-    setConfigRoot "ports"
-
-    defaultRAConfig "xrick"
-
-    addPort "${md_id}" "xrick" "XRick" "${md_inst}/xrick_libretro.so" "${biosdir}/xrick/data.zip"
+    addPort "${md_id}" "xrick" "Rick Dangerous" "${md_inst}/xrick_libretro.so" "${biosdir}/xrick/data.zip"
 }
