@@ -23,8 +23,8 @@ function depends_lr-ppsspp() {
 function sources_lr-ppsspp() {
     sources_ppsspp
 
-    # Set BIOS Directory
-    sed -e "s|retro_base_dir /= \"PPSSPP\";|retro_base_dir /= \"psp\";|g" -i "${md_build}/libretro/libretro.cpp"
+    # Remove Hardcoded BIOS Directory
+    sed -e "s|retro_base_dir /= \"PPSSPP\";|//retro_base_dir /= \"PPSSPP\";|g" -i "${md_build}/libretro/libretro.cpp"
 }
 
 function build_lr-ppsspp() {
@@ -41,15 +41,13 @@ function install_lr-ppsspp() {
 function configure_lr-ppsspp() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "psp"
-
         mkUserDir "${biosdir}/psp"
+        defaultRAConfig "psp"
 
         # Copy Assets
-        cp -Rv "${md_inst}/assets/"* "${biosdir}/psp/"
+        cp -Rv "${md_inst}/assets" "${biosdir}/psp/"
         chown -R "${user}:${user}" "${biosdir}/psp"
     fi
-
-    defaultRAConfig "psp"
 
     addEmulator 1 "${md_id}" "psp" "${md_inst}/ppsspp_libretro.so"
 
