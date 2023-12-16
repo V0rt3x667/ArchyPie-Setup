@@ -22,15 +22,11 @@ function depends_lr-flycast() {
         'ninja'
         'zlib'
     )
-
     getDepends "${depends[@]}"
 }
 
 function sources_lr-flycast() {
     gitPullOrClone
-
-    # Remove Hardcoded BIOS Directory
-    #sed -e "s|\"/dc/textures/\"|\"/textures/\"|g" -i "${md_build}/shell/libretro/oslib.cpp"
 }
 
 function build_lr-flycast() {
