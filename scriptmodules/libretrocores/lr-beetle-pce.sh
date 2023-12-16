@@ -45,11 +45,11 @@ function configure_lr-beetle-pce() {
                 ln -sf "${biosdir}/pcengine" "${biosdir}/${system}"
             fi
         done
-    fi
 
-    setRetroArchCoreOption "pce_aspect_ratio" "4:3"
-    setRetroArchCoreOption "pce_multitap" "disabled"
-    setRetroArchCoreOption "pce_scaling" "hires"
+        setRetroArchCoreOption "pce_aspect_ratio" "4:3"
+        setRetroArchCoreOption "pce_multitap" "disabled"
+        setRetroArchCoreOption "pce_scaling" "hires"
+    fi
 
     for system in "${systems[@]}"; do
         addEmulator 1 "${md_id}" "${system}" "${md_inst}/mednafen_pce_libretro.so"

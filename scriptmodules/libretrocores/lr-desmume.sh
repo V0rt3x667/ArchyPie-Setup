@@ -25,8 +25,8 @@ function sources_lr-desmume() {
 
 function build_lr-desmume() {
     local params=()
-    isPlatform "arm" && params+=("platform=unixarmvhardfloat")
-    isPlatform "aarch64" && params+=("DESMUME_JIT=0")
+    isPlatform "arm" && params+=('platform=unixarmvhardfloat')
+    isPlatform "aarch64" && params+=('DESMUME_JIT=0')
 
     make -C desmume/src/frontend/libretro -f Makefile.libretro clean
     make -C desmume/src/frontend/libretro -f Makefile.libretro "${params[@]}"

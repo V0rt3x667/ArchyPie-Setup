@@ -44,26 +44,9 @@ function configure_lr-puae() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
-        done
 
-        # Create BIOS Directory
-        mkUserDir "${biosdir}/amiga"
-
-        # Copy CAPs Image & Floppy Disk Audio Files To BIOS Directory
-        install -Dm644 "${md_inst}/capsimg.so" -t "${biosdir}/amiga/"
-        cp -r "${md_inst}/uae_data" -t "${biosdir}/amiga/"
-        chown -R "${user}:${user}" "${biosdir}/amiga"
-
-        # Symlink Supported Systems' BIOS Dirs To 'amiga'
-        for system in "${systems[@]}"; do
-            if [[ "${system}" != "amiga" ]]; then
-                ln -snf "${biosdir}/amiga" "${biosdir}/${system}"
-            fi
-        done
-
-        # Force CDTV System
-        local config="${md_conf_root}/amigacdtv/retroarch-core-options.cfg"
-        for system in "${systems[@]}"; do
+            # Force CDTV System
+            local config="${md_conf_root}/${system}/retroarch-core-options.cfg"
             if [[ "${system}" == "amigacdtv" ]]; then
                 defaultRAConfig  "${system}" "core_options_path" "${config}"
                 iniConfig " = " '"' "${config}"
@@ -72,7 +55,18 @@ function configure_lr-puae() {
             else
                 defaultRAConfig "${system}"
             fi
+
+            # Symlink Supported Systems' BIOS Directories To 'amiga'
+            [[ ! -d "${biosdir}/amiga" ]] && mkUserDir "${biosdir}/amiga"
+            if [[ "${system}" != "amiga" ]]; then
+                ln -snf "${biosdir}/amiga" "${biosdir}/${system}"
+            fi
         done
+
+        # Copy CAPs Image & Floppy Disk Audio Files To BIOS Directory
+        install -Dm644 "${md_inst}/capsimg.so" -t "${biosdir}/amiga/"
+        cp -r "${md_inst}/uae_data" -t "${biosdir}/amiga/"
+        chown -R "${user}:${user}" "${biosdir}/amiga"
     fi
 
     for system in "${systems[@]}"; do

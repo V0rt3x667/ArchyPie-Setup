@@ -28,13 +28,8 @@ function build_lr-bsnes-mercury() {
     for profile in "${profiles[@]}"; do
         make clean
         make PROFILE="${profile}"
+        md_ret_require=("${md_build}/bsnes_mercury_${profile}_libretro.so")
     done
-
-    md_ret_require=(
-        "${md_build}/bsnes_mercury_accuracy_libretro.so"
-        "${md_build}/bsnes_mercury_balanced_libretro.so"
-        "${md_build}/bsnes_mercury_performance_libretro.so"
-    )
 }
 
 function install_lr-bsnes-mercury() {
@@ -46,14 +41,19 @@ function install_lr-bsnes-mercury() {
 }
 
 function configure_lr-bsnes-mercury() {
+    local profiles=(
+        'accuracy'
+        'balanced'
+        'performance'
+    )
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "snes"
         defaultRAConfig "snes"
     fi
 
-    addEmulator 0 "${md_id}-a" "snes" "${md_inst}/bsnes_mercury_accuracy_libretro.so"
-    addEmulator 0 "${md_id}-b" "snes" "${md_inst}/bsnes_mercury_balanced_libretro.so"
-    addEmulator 0 "${md_id}-p" "snes" "${md_inst}/bsnes_mercury_performance_libretro.so"
-
-    addSystem "snes"
+    for profile in "${profiles[@]}"; do
+        addEmulator 0 "${md_id}-${profile}" "snes" "${md_inst}/bsnes_mercury_${profile}_libretro.so"
+        addSystem "snes"
+    done
 }

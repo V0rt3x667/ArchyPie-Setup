@@ -6,7 +6,7 @@
 
 rp_module_id="lr-mame"
 rp_module_desc="MAME (Latest Version) Libretro Core"
-rp_module_help="ROM Extension: .zip\n\nCopy MAME ROMs To Either: ${romdir}/mame-libretro\n${romdir}/arcade\n\nIf You Wish To Have Seperate Systems For Sega Titan Video (ST-V), Naomi, Naomi 2 & Sammy Atomiswave Copy Their ROMs To:\n${romdir}/segastv\n${romdir}/naomi\n${romdir}/naomi2\n${romdir}/atomiswave"
+rp_module_help="ROM Extension: .zip\n\nCopy MAME ROMs To Either: ${romdir}/mame-libretro\n${romdir}/arcade\n\nIf You Wish To Have Seperate Systems For Sega Titan Video (ST-V), Naomi, Naomi 2, SNK Neo Geo (MVS) & Sammy Atomiswave Copy Their ROMs To:\n${romdir}/segastv\n${romdir}/naomi\n${romdir}/naomi2\n${romdir}/neogeo\n${romdir}/atomiswave"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/mame/master/COPYING"
 rp_module_repo="git https://github.com/libretro/mame master"
 rp_module_section="exp"

@@ -42,47 +42,33 @@ function configure_lr-bluemsx() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
-            defaultRAConfig "${system}"
-        done
+            mkUserDir "${biosdir}/${system}"
 
-        mkUserDir "${biosdir}/msx"
-
-        # Copy Data To BIOS Directory
-        cp -rv "${md_inst}/"{Databases,Machines} "${biosdir}/msx"
-        chown -R "${user}:${user}" "${biosdir}/msx/"{Databases,Machines}
-
-        # Symlink Supported Systems BIOS Dirs To 'Databases' & 'Machines' Folders
-        for system in "${systems[@]}"; do
+            # Symlink Supported Systems BIOS Directories To 'Databases' & 'Machines' Folders
             if [[ "${system}" != "msx" ]]; then
-                mkUserDir "${biosdir}/${system}"
                 ln -sf "${biosdir}/msx/Databases" "${biosdir}/${system}/Databases"
                 ln -sf "${biosdir}/msx/Machines" "${biosdir}/${system}/Machines"
             fi
+
+            # Force ColecoVision & SpectraVideo Systems
+            local config="${md_conf_root}/${system}/retroarch-core-options.cfg"
+            if [[ "${system}" == "coleco" ]] || [[ "${system}" == "spectravideo" ]]; then
+                defaultRAConfig  "${system}" "core_options_path" "${config}"
+                iniConfig " = " '"' "${config}"
+                if [[ "${system}" == "coleco" ]]; then
+                    iniSet "bluemsx_msxtype" "ColecoVision" "${config}"
+                elif [[ "${system}" == "spectravideo" ]]; then
+                    iniSet "bluemsx_msxtype" "SVI - Spectravideo SVI-328 MK2" "${config}"
+                fi
+                chown "${user}:${user}" "${config}"
+            else
+                defaultRAConfig "${system}"
+            fi
         done
 
-        # Force ColecoVision System
-        local config="${md_conf_root}/coleco/retroarch-core-options.cfg"
-        iniConfig " = " '"' "${config}"
-        iniSet "bluemsx_msxtype" "ColecoVision"
-        chown "${user}:${user}" "${config}"
-
-        # Add ColecoVision Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
-        local raconfig="${md_conf_root}/coleco/retroarch.cfg"
-        iniConfig " = " '"' "${raconfig}"
-        iniSet "core_options_path" "${config}"
-        chown "${user}:${user}" "${raconfig}"
-
-        # Force SpectraVideo System
-        local config="${md_conf_root}/spectravideo/retroarch-core-options.cfg"
-        iniConfig " = " '"' "${config}"
-        iniSet "bluemsx_msxtype" "SVI - Spectravideo SVI-328 MK2"
-        chown "${user}:${user}" "${config}"
-
-        # Add SpectraVideo Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
-        local raconfig="${md_conf_root}/spectravideo/retroarch.cfg"
-        iniConfig " = " '"' "${raconfig}"
-        iniSet "core_options_path" "${config}"
-        chown "${user}:${user}" "${raconfig}"
+        # Copy Data To 'msx' BIOS Directory
+        cp -r "${md_inst}/"{Databases,Machines} "${biosdir}/msx"
+        chown -R "${user}:${user}" "${biosdir}/msx"
     fi
 
     for system in "${systems[@]}"; do

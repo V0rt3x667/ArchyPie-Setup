@@ -14,7 +14,7 @@ rp_module_section="exp"
 function sources_lr-np2kai() {
     gitPullOrClone
 
-    # Remove Hard-coded BIOS Path
+    # Remove Hardcoded BIOS Path
     sed -e "s|milstr_ncat(np2path, OEMTEXT(\"/np2kai\"), MAX_PATH);|milstr_ncat(np2path, OEMTEXT(\"\"), MAX_PATH);|g" -i "${md_build}/sdl/libretro/libretro.c"
 }
 

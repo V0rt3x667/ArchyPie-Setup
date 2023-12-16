@@ -49,9 +49,9 @@ function configure_lr-vice() {
         isPlatform "arm" && setRetroArchCoreOption "vice_sid_engine" "FastSID"
     fi
 
-    local target
-    local name
     local def
+    local name
+    local target
     for target in $(_get_targets_lr-vice); do
         def=0
         name="-${target}"

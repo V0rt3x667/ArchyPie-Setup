@@ -40,11 +40,11 @@ function build_lr-hatari() {
 }
 
 function install_lr-hatari() {
+    md_ret_files=('hatari_libretro.so')
+
     # Install: CapsImg Library
     mkdir "${md_inst}/lib"
     cp -Pv "${md_build}/lib"/*.so* "${md_inst}/lib/"
-
-    md_ret_files=('hatari_libretro.so')
 }
 
 function configure_lr-hatari() {
@@ -63,5 +63,5 @@ function configure_lr-hatari() {
     # Add LD_LIBRARY_PATH='${md_inst}/lib' To Start Of Launch Command
     iniConfig " = " '"' "${configdir}/atarist/emulators.cfg"
     iniGet "${md_id}"
-    iniSet "${md_id}" "LD_LIBRARY_PATH='${md_inst}/lib' ${ini_value}"
+    iniSet "${md_id}" "LD_LIBRARY_PATH=${md_inst}/lib ${ini_value}"
 }

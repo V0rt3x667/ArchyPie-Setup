@@ -101,9 +101,8 @@ function configure_lr-prboom() {
             mkRomDir "ports/${portname}/${dir}"
         done
 
-        mkUserDir "${biosdir}/${portname}"
-
         # Copy Data File
+        mkUserDir "${biosdir}/${portname}"
         cp "${md_inst}/prboom.wad" "${biosdir}/${portname}"
         chown -R "${user}:${user}" "${biosdir}/${portname}"
 

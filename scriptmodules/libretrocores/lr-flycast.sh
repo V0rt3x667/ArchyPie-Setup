@@ -33,11 +33,11 @@ function build_lr-flycast() {
     local params=()
 
     if isPlatform "gles3"; then
-        params+=("-DUSE_GLES=ON")
+        params+=('-DUSE_GLES="ON"')
     elif isPlatform "gles2"; then
-        params+=("-DUSE_GLES2=ON")
+        params+=('-DUSE_GLES2="ON"')
     fi
-    isPlatform "vulkan" && params+=("-DUSE_VULKAN=ON") || params+=("-DUSE_VULKAN=OFF")
+    isPlatform "vulkan" && params+=('-DUSE_VULKAN="ON"') || params+=('-DUSE_VULKAN="OFF"')
 
     cmake . \
         -B"build" \
@@ -80,7 +80,7 @@ function configure_lr-flycast() {
             defaultRAConfig "${system}"
         done
 
-        # Symlink Supported Systems BIOS Dirs To 'dreamcast/dc'
+        # Symlink Supported Systems BIOS Directories To 'dreamcast/dc'
         mkUserDir "${biosdir}/dreamcast/dc"
         for system in "${systems[@]}"; do
             if [[ "${system}" != "dreamcast" ]]; then

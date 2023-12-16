@@ -35,9 +35,10 @@ function install_lr-mrboom() {
 
 
 function configure_lr-mrboom() {
-    setConfigRoot "ports"
-
-    defaultRAConfig "mrboom"
+    if [[ "${md_mode}" == "install" ]]; then
+        setConfigRoot "ports"
+        defaultRAConfig "mrboom"
+    fi
 
     addPort "${md_id}" "mrboom" "Mr.Boom" "${md_inst}/mrboom_libretro.so --config ${md_conf_root}/mrboom/retroarch.cfg"
 }

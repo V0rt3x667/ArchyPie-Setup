@@ -17,7 +17,7 @@ function sources_lr-snes9x() {
 
 function build_lr-snes9x() {
     local params=()
-    isPlatform "arm" && params+=(platform="armv")
+    isPlatform "arm" && params+=('platform="armv"')
 
     make -C libretro "${params[@]}" clean
     make -C libretro "${params[@]}"
@@ -40,9 +40,8 @@ function configure_lr-snes9x() {
             defaultRAConfig "${system}"
         done
 
-        mkUserDir "${biosdir}/snes"
-
         # Symlink Satellaview BIOS Directory To 'snes'
+        mkUserDir "${biosdir}/snes"
         ln -snf "${biosdir}/snes" "${biosdir}/satellaview"
     fi
 

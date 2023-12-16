@@ -13,7 +13,6 @@ rp_module_section="exp x86=main"
 
 function depends_lr-parallel-n64() {
     local depends=('mesa')
-
     getDepends "${depends[@]}"
 }
 

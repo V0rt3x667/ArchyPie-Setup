@@ -21,8 +21,8 @@ function sources_lr-desmume2015() {
 
 function build_lr-desmume2015() {
     local params=()
-    isPlatform "arm" && params+=("platform=unixarmvhardfloat")
-    isPlatform "aarch64" && params+=("DESMUME_JIT=0")
+    isPlatform "arm" && params+=('platform=unixarmvhardfloat')
+    isPlatform "aarch64" && params+=('DESMUME_JIT=0')
 
     make -C desmume clean
     make -C desmume "${params[@]}"

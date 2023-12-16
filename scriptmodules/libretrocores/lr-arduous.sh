@@ -13,7 +13,9 @@ rp_module_section="exp"
 
 function depends_lr-arduous() {
     local depends=(
+        'clang'
         'cmake'
+        'lld'
         'ninja'
     )
     getDepends "${depends[@]}"
@@ -30,6 +32,11 @@ function build_lr-arduous() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DWERROR="OFF" \
         -Wno-dev
     ninja -C build clean

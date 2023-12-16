@@ -64,6 +64,11 @@ function configure_lr-fbneo() {
             mkRomDir "${system}"
             defaultRAConfig "${system}"
             mkUserDir "${biosdir}/${system}"
+
+            # Symlink Supported Systems BIOS Directories To 'fba'
+            if [[ "${system}" != "fba" ]]; then
+                ln -snf "${biosdir}/fba/fbneo" "${biosdir}/${system}/fbneo"
+            fi
         done
 
         # Create Directories For Support Files
@@ -80,13 +85,6 @@ function configure_lr-fbneo() {
         # Copy 'hiscore.dat'
         cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fba/fbneo"
         chown -R "${user}:${user}" "${biosdir}/fba/fbneo"
-
-        # Symlink Supported Systems BIOS Dirs To 'fba'
-        for system in "${systems[@]}"; do
-            if [[ "${system}" != "fba" ]]; then
-                ln -snf "${biosdir}/fba/fbneo" "${biosdir}/${system}/fbneo"
-            fi
-        done
 
         setRetroArchCoreOption "fbneo-diagnostic-input" "Hold Start"
 

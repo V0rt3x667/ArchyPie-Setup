@@ -38,6 +38,7 @@ function configure_lr-fmsx() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system}"
             defaultRAConfig "${system}"
         done
 
@@ -45,9 +46,8 @@ function configure_lr-fmsx() {
         cp "${md_inst}/CARTS.SHA" "${biosdir}/msx"
         chown "${user}:${user}" "${biosdir}/msx/CARTS.SHA"
 
-        # Setup BIOS Directory, Symlink 'msx2' Directory
-        mkUserDir "${biosdir}/msx"
-        ln -snf "${biosdir}/msx" "${biosdir}/msx2"
+        # Symlink 'CARTS.SHA' To 'msx2' BIOS Directory
+        ln -snf "${biosdir}/msx/CARTS.SHA" "${biosdir}/msx2/CARTS.SHA"
 
         # Default To MSX2+ Core
         setRetroArchCoreOption "fmsx_mode" "MSX2+"
