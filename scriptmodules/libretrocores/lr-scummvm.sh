@@ -21,10 +21,9 @@ function sources_lr-scummvm() {
 }
 
 function build_lr-scummvm() {
-    cd backends/platform/libretro || exit
-    make clean
-    make USE_MT32EMU=1
-    make datafiles
+    make -C backends/platform/libretro clean
+    make -C backends/platform/libretro USE_MT32EMU=1
+    make -C backends/platform/libretro datafiles
     md_ret_require="${md_build}/backends/platform/libretro/scummvm_libretro.so"
 }
 
@@ -38,29 +37,30 @@ function install_lr-scummvm() {
 function configure_lr-scummvm() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "scummvm"
-
-        defaultRAConfig "scummvm" "system_directory" "${biosdir}/scummvm"
+        defaultRAConfig "scummvm"
 
         # Unpack Data Files To System Directory
         runCmd unzip -q -o "${md_inst}/scummvm.zip" -d "${biosdir}"
         chown -R "${user}:${user}" "${biosdir}/scummvm"
 
         # Create Default Configuration File
-        local config
-        config="$(mktemp)"
-        iniConfig " = " "" "${config}"
+        if [[ ! -f "${biosdir}/scummvm/scummvm.ini" ]]; then
+            local config
+            config="$(mktemp)"
+            iniConfig " = " "" "${config}"
         
-        echo "[scummvm]" > "${config}"
-        iniSet "extrapath" "${biosdir}/scummvm/extra"
-        iniSet "themepath" "${biosdir}/scummvm/theme"
-        iniSet "soundfont" "${biosdir}/scummvm/extra/Roland_SC-55.sf2"
-        iniSet "gui_theme" "scummremastered"
-        iniSet "subtitles" "true"
-        iniSet "multi_midi" "true"
-        iniSet "gm_device" "fluidsynth"
+            echo "[scummvm]" > "${config}"
+            iniSet "extrapath" "${biosdir}/scummvm/extra"
+            iniSet "themepath" "${biosdir}/scummvm/theme"
+            iniSet "soundfont" "${biosdir}/scummvm/extra/Roland_SC-55.sf2"
+            iniSet "gui_theme" "scummremastered"
+            iniSet "subtitles" "true"
+            iniSet "multi_midi" "true"
+            iniSet "gm_device" "fluidsynth"
 
-        copyDefaultConfig "${config}" "${biosdir}/scummvm/scummvm.ini"
-        rm "${config}"
+            copyDefaultConfig "${config}" "${biosdir}/scummvm/scummvm.ini"
+            rm "${config}"
+        fi
 
         # Enable Speed Hack Core Option For ARM Platform
         isPlatform "arm" && setRetroArchCoreOption "scummvm_speed_hack" "enabled"
