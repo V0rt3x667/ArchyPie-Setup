@@ -6,20 +6,23 @@
 
 rp_module_id="smw"
 rp_module_desc="Super Mario War: Fan-made Multiplayer Super Mario Bros. Style Deathmatch Game"
-rp_module_licence="NONCOM"
+rp_module_licence="GPL2 https://smwstuff.net"
 rp_module_repo="git https://github.com/mmatyas/supermariowar master"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function depends_smw() {
     local depends=(
+        'clang'
         'cmake'
         'enet'
+        'lld'
         'ninja'
         'sdl2_image'
         'sdl2_mixer'
         'sdl2'
         'yaml-cpp'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
@@ -32,24 +35,32 @@ function sources_smw() {
 }
 
 function build_smw() {
+    local params=()
+    isPlatform "gles2" && params+=('-DSDL2_FORCE_GLES=ON')
+
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DBUILD_STATIC_LIBS="OFF" \
-        -DSMW_BINDIR="${md_inst}" \
-        -DSMW_DATADIR="${md_inst}/data" \
+        -DSMW_INSTALL_PORTABLE="ON" \
+        -DUSE_SDL2_LIBS="ON" \
+        "${params[@]}" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
-    md_ret_require="${md_build}/build/Binaries/Release/${md_id}"
+    md_ret_require="${md_build}/build/${md_id}"
 }
 
 function install_smw() {
     ninja -C build install/strip
-    chmod a+x "${md_inst}"/{smw,smw-leveledit,smw-worldedit}
 }
 
 function configure_smw() {
