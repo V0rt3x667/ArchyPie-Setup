@@ -63,6 +63,7 @@ function _add_games_lr-tyrquake() {
         ['hipnotic']="Quake: Mission Pack 1: Scourge of Armagon"
         ['rogue']="Quake: Mission Pack 2: Dissolution of Eternity"
         ['dopa']="Quake: Episode 5: Dimensions of the Past"
+        ['quoth']="Quake: Quoth"
     )
 
     # Create .sh Files For Each Game Found, Uppercase Filenames Will Be Converted To Lowercase
@@ -92,6 +93,7 @@ function configure_lr-tyrquake() {
             'dopa'
             'hipnotic'
             'id1'
+            'quoth'
             'rogue'
         )
 
