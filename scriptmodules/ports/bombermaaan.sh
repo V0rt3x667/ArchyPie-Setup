@@ -9,15 +9,18 @@ rp_module_desc="Bombermaaan: Bomberman Clone"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/bjaraujo/Bombermaaan/master/LICENSE.txt"
 rp_module_repo="git https://github.com/bjaraujo/Bombermaaan master"
 rp_module_section="exp"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function depends_bombermaaan() {
     local depends=(
+        'clang'
         'cmake'
-        'dos2unix'
+        'lld'
         'ninja'
+        'python'
         'sdl_mixer'
         'sdl12-compat'
+        'sdl2_mixer'
         'sdl2'
     )
     getDepends "${depends[@]}"
@@ -25,9 +28,6 @@ function depends_bombermaaan() {
 
 function sources_bombermaaan() {
     gitPullOrClone
-
-    # Line Endings Need To Be Converted Or Patching Will Fail
-    find . -type f -exec dos2unix {} \;
 
     # Set Default Config Path(s)
     sed -e "s|append(\"/.Bombermaaan/\");|append(\"/ArchyPie/configs/${md_id}/\");|g" -i "${md_build}/trunk/src/CGame.cpp"
@@ -55,24 +55,29 @@ function build_bombermaaan() {
     _build_sdl && cd "${md_build}" || exit
 
     cmake . \
-        -B"trunk/build" \
+        -B"build" \
         -G"Ninja" \
         -S"trunk" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DLOAD_RESOURCES_FROM_FILES="ON" \
         -DSDL_INCLUDE_DIR="${md_build}/sdl/include" \
         -DSDL_LIBRARY="${md_build}/sdl/build/.libs/libSDL.so" \
         -DSDLMAIN_LIBRARY="${md_build}/sdl/build/.libs/libSDLmain.a" \
         -Wno-dev
-    ninja -C trunk/build clean
-    ninja -C trunk/build
-    md_ret_require="${md_build}/trunk/build/bin/Bombermaaan"
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="${md_build}/build/bin/Bombermaaan"
 }
 
 function install_bombermaaan() {
-    ninja -C trunk/build install/strip
+    ninja -C build install/strip
 }
 
 function configure_bombermaaan() {
