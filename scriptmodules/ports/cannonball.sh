@@ -47,6 +47,11 @@ function build_cannonball() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DTARGET="${target}" \
         -Wno-dev
     ninja -C build clean
@@ -59,7 +64,6 @@ function install_cannonball() {
         'build/cannonball'
         'build/config.xml'
         'build/res'
-        'roms/roms.txt'
     )
 }
 
@@ -71,8 +75,6 @@ function configure_cannonball() {
         mkRomDir "ports/${md_id}/hiscores"
 
         copyDefaultConfig "${md_inst}/config.xml" "${md_conf_root}/${md_id}/config.xml"
-
-        cp -v "${md_inst}/roms.txt" "${romdir}/ports/${md_id}/roms.txt"
     fi
 
     addPort "${md_id}" "${md_id}" "Cannonball: OutRun Engine" "pushd ${md_inst}; ${md_inst}/${md_id} -cfgfile ${arpdir}/${md_id}/config.xml; popd"
