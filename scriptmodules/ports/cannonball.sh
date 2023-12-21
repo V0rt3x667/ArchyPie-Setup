@@ -14,7 +14,9 @@ rp_module_section="opt"
 function depends_cannonball() {
     local depends=(
         'boost'
+        'clang'
         'cmake'
+        'lld'
         'ninja'
         'sdl2'
     )
