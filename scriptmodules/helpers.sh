@@ -1482,3 +1482,14 @@ function signFile() {
     fi
     return 0
 }
+
+## @fn changeFileCase()
+## @param directory path to files to be renamed
+## @brief changes filename case from uppercase to lowercase
+## @details passes a directory of files to 'perl-rename', case is then changed from uppercase to lowercase using regex
+function changeFileCase() {
+    local dir="${1}"
+    pushd "${dir}" || return
+    perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+    popd || return
+}
