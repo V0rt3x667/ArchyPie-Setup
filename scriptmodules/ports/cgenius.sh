@@ -24,6 +24,7 @@ function depends_cgenius() {
         'sdl2_mixer'
         'sdl2_ttf'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
@@ -45,6 +46,14 @@ function build_cgenius() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_C_FLAGS="${CFLAGS} -Wno-implicit-function-declaration" \
+        -DAPPDIR="${md_inst}/bin" \
+        -DSHAREDIR="${md_inst}/share" \
         -DBUILD_COSMOS="ON" \
         -DNOTYPESAVE="ON" \
         -DUSE_BOOST="OFF" \
@@ -56,10 +65,7 @@ function build_cgenius() {
 }
 
 function install_cgenius() {
-    md_ret_files=(
-        'build/src/CGeniusExe'
-        'vfsroot'
-    )
+    ninja -C build install/strip
 }
 
 function _add_games_cgenius(){
@@ -78,27 +84,15 @@ function _add_games_cgenius(){
         ['keen6/keen6.exe']="Keen 6: Aliens Ate My Baby Sitter! (Goodbye, Galaxy!)"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
-        dir="${romdir}/ports/${md_id}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}/${game%%/*}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game}" ]]; then
-            addPort "${md_id}" "${md_id}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "dir=games/${game%/*}"
+        dir="${romdir}/ports/${md_id}/${game%%/*}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${dir}/${game##*/}" ]]; then
+            addPort "${md_id}" "${md_id}" "${games[${game}]}" "${cmd} dir=games/%ROM%" "${game%%/*}"
         fi
     done
-
-    if [[ "${md_mode}" == "install" ]]; then
-        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments
-        cat >"${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
-${cmd} \$*
-_EOF_
-        chmod +x "${md_inst}/${md_id}.sh"
-    fi
 }
 
 function configure_cgenius() {
@@ -119,6 +113,7 @@ function configure_cgenius() {
             mkRomDir "ports/${md_id}/${dir}"
         done
 
+        # Symlink 'games' Directory To ${romdir}/ports/cgenius
         moveConfigDir "${arpdir}/${md_id}/games" "${romdir}/ports/${md_id}/"
 
         # Create Default Configuration File
@@ -126,10 +121,9 @@ function configure_cgenius() {
         config="$(mktemp)"
         iniConfig " = " "" "${config}"
 
-        echo "[FileHandling]" > "${config}"
-        iniSet "EnableLogfile" "false"
-        echo "[Video]" >> "${config}"
+        echo "[Video]" > "${config}"
         iniSet "fullscreen" "true"
+        isPlatform "gl" && iniSet "OpenGL" "true"
         echo "[FileHandling]" >> "${config}"
         iniSet "EnableLogfile" "false"
         iniSet "SearchPath1" "${md_conf_root}/${md_id}"
@@ -138,5 +132,5 @@ function configure_cgenius() {
         rm "${config}"
     fi
 
-    _add_games_cgenius "${md_inst}/CGeniusExe"
+    _add_games_cgenius "${md_inst}/bin/CGeniusExe"
 }
