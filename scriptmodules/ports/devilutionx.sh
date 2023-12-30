@@ -17,16 +17,20 @@ function _get_branch_devilutionx() {
 
 function depends_devilutionx() {
     local depends=(
+        'bzip2'
+        'clang'
         'cmake'
         'fmt'
         'gettext'
         'libpng'
         'libsodium'
+        'lld'
         'ninja'
         'perl-rename'
         'sdl2_mixer'
         'sdl2_ttf'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
@@ -38,12 +42,18 @@ function sources_devilutionx() {
 function build_devilutionx() {
     local ver
     ver="$(_get_branch_devilutionx)"
+
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DBUILD_TESTING="OFF" \
         -DDEVILUTIONX_SYSTEM_LIBFMT="ON" \
         -DDEVILUTIONX_SYSTEM_LIBSODIUM="ON" \
@@ -64,7 +74,7 @@ function install_devilutionx() {
 }
 
 function _add_games_devilutionx() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
@@ -75,22 +85,17 @@ function _add_games_devilutionx() {
         ['spawn.mpq']="Diablo: Spawn (Shareware)"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="diablo"
         dir="${romdir}/ports/${portname}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
         if [[ -f "${dir}/${game}" ]]; then
             if [[ "${game}" == "diabdat.mpq" ]]; then
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} --%ROM%" "diablo"
-            elif [[ "${game}" == "hellfire.mpq" ]]; then
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} --%ROM%" "hellfire"
             else
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} --%ROM%" "spawn"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} --%ROM%" "${game%%.*}"
             fi
         fi
     done
@@ -100,11 +105,9 @@ function configure_devilutionx() {
     local portname
     portname="diablo"
 
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ports/${portname}"
-    fi
-
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/"
+
+    [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${portname}"
 
     local params=(
         "--config-dir ${arpdir}/${md_id}"
