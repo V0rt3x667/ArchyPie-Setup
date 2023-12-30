@@ -84,7 +84,7 @@ function configure_alephone() {
         _game_data_alephone
     fi
 
-    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon"              "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon/"
-    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon 2: Durandal"  "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon 2/"
-    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon Infinity"     "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon Infinity/"
+    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon"             "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon/"
+    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon 2: Durandal" "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon 2/"
+    addPort "${md_id}" "${md_id}" "Aleph One Engine: Marathon Infinity"    "${md_inst}/bin/${md_id} %ROM%" "${romdir}/ports/${md_id}/Marathon Infinity/"
 }
