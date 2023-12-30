@@ -16,8 +16,10 @@ function _get_branch_cgenius() {
 
 function depends_cgenius() {
     local depends=(
+        'clang'
         'cmake'
         'curl'
+        'lld'
         'ninja'
         'perl-rename'
         'sdl2_image'
