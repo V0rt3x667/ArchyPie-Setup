@@ -17,9 +17,12 @@ function _get_branch_corsixth() {
 
 function depends_corsixth() {
     local depends=(
+        'clang'
         'cmake'
         'doxygen'
         'ffmpeg'
+        'freetype2'
+        'lld'
         'lua-filesystem'
         'lua-lpeg'
         'lua'
@@ -51,6 +54,11 @@ function build_corsixth() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
