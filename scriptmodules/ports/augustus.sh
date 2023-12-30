@@ -63,5 +63,5 @@ function configure_augustus() {
 
     [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${portname}"
 
-    addPort "${md_id}" "${portname}" "Caesar III" "${md_inst}/bin/${md_id} ${romdir}/ports/${portname}"
+    addPort "${md_id}" "${portname}" "Caesar III" "pushd ${md_inst}; ${md_inst}/bin/${md_id} ${romdir}/ports/${portname}; popd"
 }
