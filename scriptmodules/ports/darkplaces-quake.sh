@@ -13,7 +13,13 @@ rp_module_flags=""
 
 function depends_darkplaces-quake() {
     local depends=(
+        'curl'
+        'freetype2'
         'libjpeg-turbo'
+        'libogg'
+        'libpng'
+        'libtheora'
+        'libvorbis'
         'sdl2'
     )
     isPlatform "mesa" && depends+=('mesa')
