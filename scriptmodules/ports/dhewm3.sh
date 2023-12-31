@@ -17,20 +17,26 @@ function _get_branch_dhewm3() {
 
 function depends_dhewm3() {
     local depends=(
+        'clang'
         'cmake'
         'curl'
         'libjpeg'
         'libvorbis'
+        'lld'
         'ninja'
         'openal'
         'perl-rename'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_dhewm3() {
     gitPullOrClone
+
+    # Remove 'register' Keyword, Can Be Removed When 1.5.3 Is Released
+    applyPatch "${md_data}/01_remove_register_keyword.patch"
 
     # Set Default Config Path(s)
     sed -e "s|%s/.local/share/${md_id}|%s/ArchyPie/configs/${md_id}|g" -i "${md_build}/neo/sys/linux/main.cpp"
@@ -45,9 +51,12 @@ function build_dhewm3() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
-        -DD3XP="ON" \
-        -DDEDICATED="ON" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DLINUX_RELEASE_BINS="ON" \
         -DREPRODUCIBLE_BUILD="ON" \
         -Wno-dev
     ninja -C build clean
@@ -62,6 +71,7 @@ function install_dhewm3() {
 function _game_data_dhewm3() {
     local url
     local portname
+
     portname="doom3"
     url="https://files.holarse-linuxgaming.de/native/Spiele/Doom%203/Demo/${portname}-linux-1.1.1286-demo.x86.run"
 
@@ -75,7 +85,7 @@ function _game_data_dhewm3() {
 }
 
 function _add_games_dhewm3() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
@@ -86,16 +96,13 @@ function _add_games_dhewm3() {
         ['d3xp/pak000.pk4']="Doom3: Resurrection of Evil"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="doom3"
-        dir="${romdir}/ports/${portname}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}/${game%%/*}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game}" ]]; then
+        dir="${romdir}/ports/${portname}/${game%%/*}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${dir}/${game##*/}" ]]; then
             addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
         fi
     done
@@ -105,15 +112,20 @@ function configure_dhewm3() {
     local portname
     portname="doom3"
 
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
+        local dirs=(
+            'base'
+            'd3xp'
+        )
         mkRomDir "ports/${portname}"
-        mkRomDir "ports/${portname}/base"
-        mkRomDir "ports/${portname}/d3xp"
+        for dir in "${dirs[@]}"; do
+            mkRomDir "ports/${portname}/${dir}"
+        done
 
         _game_data_dhewm3
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     local basedir="${romdir}/ports/${portname}"
     _add_games_dhewm3 "${md_inst}/bin/${md_id} +set fs_basepath ${basedir} +set r_fullscreen 1 +set fs_game %ROM%"
