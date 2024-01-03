@@ -10,18 +10,21 @@ rp_module_help="ROM Extensions: .3ds .3dsx .app .axf .cci .cia .cxi .elf\n\nCopy
 rp_module_licence="GPL2 https://raw.githubusercontent.com/citra-emu/citra/master/license.txt"
 rp_module_repo="git https://github.com/citra-emu/citra master"
 rp_module_section="main"
-rp_module_flags="!all 64bit"
+rp_module_flags="!all 64bit vulkan"
 
 function depends_citra() {
     local depends=(
         'boost'
+        'catch2'
         'clang'
         'cmake'
         'crypto++'
         'doxygen'
+        'enet'
+        'faad2'
         'ffmpeg'
         'fmt'
-        'glslang'
+        #'glslang'
         'libfdk-aac'
         'libinih'
         'libusb'
@@ -31,6 +34,7 @@ function depends_citra() {
         'mbedtls'
         'ninja'
         'nlohmann-json'
+        'openal'
         'openssl'
         'qt6-base'
         'qt6-multimedia-ffmpeg'
@@ -41,6 +45,7 @@ function depends_citra() {
         'sndio'
         'soundtouch'
         'speexdsp'
+        'vulkan-headers'
         'zstd'
     )
     getDepends "${depends[@]}"
@@ -67,17 +72,19 @@ function build_citra() {
         -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCITRA_ENABLE_COMPATIBILITY_REPORTING="ON" \
+        -DUSE_SYSTEM_LIBS="ON" \
         -DDISABLE_SYSTEM_CPP_HTTPLIB="ON" \
         -DDISABLE_SYSTEM_CPP_JWT="ON" \
         -DDISABLE_SYSTEM_CUBEB="ON" \
         -DDISABLE_SYSTEM_DYNARMIC="ON" \
+        -DDISABLE_SYSTEM_GLSLANG="ON" \
+        -DDISABLE_SYSTEM_LODEPNG="ON" \
+        -DDISABLE_SYSTEM_VMA="ON" \
         -DDISABLE_SYSTEM_XBYAK="ON" \
         -DENABLE_COMPATIBILITY_LIST_DOWNLOAD="ON" \
         -DENABLE_LTO="ON" \
         -DENABLE_QT_TRANSLATION="ON" \
-        -DUSE_SYSTEM_LIBS="ON" \
-        -DCRYPTOPP_INCLUDE_DIRS="/usr/include/cryptopp" \
-        -DCRYPTOPP_LIBRARY_DIRS="/usr/lib/libcryptopp.so" \
+        -DENABLE_TESTS="OFF" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -91,9 +98,7 @@ function install_citra() {
 function configure_citra() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/3ds/${md_id}"
 
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "3ds"
-    fi
+    [[ "${md_mode}" == "install" ]] && mkRomDir "3ds"
 
     addEmulator 1 "${md_id}" "3ds" "${md_inst}/bin/${md_id} -f %ROM%"
     addEmulator 0 "${md_id}-gui" "3ds" "${md_inst}/bin/${md_id}-qt %ROM%"
