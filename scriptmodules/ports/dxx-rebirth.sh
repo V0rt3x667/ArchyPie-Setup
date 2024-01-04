@@ -9,7 +9,7 @@ rp_module_desc="DXX-Rebirth: Descent & Descent 2 Source Port"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/COPYING.txt"
 rp_module_repo="git https://github.com/dxx-rebirth/dxx-rebirth master"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function depends_dxx-rebirth() {
     local depends=(
@@ -17,6 +17,7 @@ function depends_dxx-rebirth() {
         'libpng'
         'mesa'
         'physfs'
+        'python'
         'scons'
         'sdl2_image'
         'sdl2_mixer'
@@ -119,28 +120,32 @@ function _game_data_dxx-rebirth() {
 }
 
 function configure_dxx-rebirth() {
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ports/descent1"
-        mkRomDir "ports/descent2"
-        _game_data_dxx-rebirth
-    fi
+    local vers=(
+        '1'
+        '2'
+    )
 
-    moveConfigDir "${arpdir}/dxx1-rebirth" "${md_conf_root}/descent1/"
-    moveConfigDir "${arpdir}/dxx2-rebirth" "${md_conf_root}/descent2/"
-
-    addPort "${md_id}" "descent1" "Descent Rebirth" "${md_inst}/d1x-rebirth -hogdir ${romdir}/ports/descent1"
-    addPort "${md_id}" "descent2" "Descent II Rebirth" "${md_inst}/d2x-rebirth -hogdir ${romdir}/ports/descent2"
+    for ver in "${vers[@]}"; do
+        moveConfigDir "${arpdir}/dxx${ver}-rebirth" "${md_conf_root}/descent${ver}/"
+    done
 
     if [[ "${md_mode}" == "install" ]]; then
-        if isPlatform "kms"; then
-            for ver in 1 2; do
+        for ver in "${vers[@]}"; do
+            mkRomDir "ports/descent${ver}"
+            # Set VSync For 'kms' Platform
+            if isPlatform "kms"; then
                 config="$(mktemp)"
                 iniConfig '=' '' "${config}"
                 iniSet "VSync" "1"
-
                 copyDefaultConfig "${config}" "${md_conf_root}/descent${ver}/descent.cfg"
                 rm "${config}"
-            done
-        fi
+            fi
+        done
+
+        # Install Shareware & Data Files
+        _game_data_dxx-rebirth
     fi
+
+    addPort "${md_id}" "descent1" "Descent Rebirth" "${md_inst}/d1x-rebirth -hogdir ${romdir}/ports/descent1"
+    addPort "${md_id}" "descent2" "Descent II Rebirth" "${md_inst}/d2x-rebirth -hogdir ${romdir}/ports/descent2"
 }
