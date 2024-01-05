@@ -14,24 +14,28 @@ rp_module_flags=""
 
 function depends_ecwolf() {
     depends=(
+        'bzip2'
+        'clang'
         'cmake'
         'flac'
         'fluidsynth'
         'libjpeg'
         'libmodplug'
         'libvorbis'
+        'lld'
         'ninja'
         'opusfile'
         'perl-rename'
+        'sdl2_mixer'
         'sdl2_net'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_ecwolf() {
-    # "updaterevision" Will Fail With: "fatal: No names found, cannot describe anything", A Full Clone Of The Repo is Required.
-    gitPullOrClone "${md_build}" "${md_repo_url}" "${md_repo_branch}" "" 0
+    gitPullOrClone
 
     # Set Default Config Path(s)
     sed -e "s|\"%s/.config/\"|\"%s/ArchyPie/configs/\"|g" -i "${md_build}/src/filesys.cpp"
@@ -48,8 +52,12 @@ function build_ecwolf() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DGPL="ON" \
-        -DINTERNAL_SDL_MIXER="ON" \
         -DNO_GTK="ON" \
         -Wno-dev
     ninja -C build clean
@@ -65,17 +73,17 @@ function configure_ecwolf() {
     local portname
     portname="wolf3d"
 
-    if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ports/${portname}"
-        _game_data_wolf4sdl
-    fi
-
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     if [[ "${md_mode}" == "install" ]]; then
-        local config
+        mkRomDir "ports/${portname}"
+
+        # Add Shareware Files
+        _game_data_wolf4sdl
 
         # Set Default Settings
+        local config
+
         config="$(mktemp)"
         iniConfig ' = ' '' "${config}"
         iniSet "BaseDataPaths" "\"${romdir}/ports/${portname}\";"
