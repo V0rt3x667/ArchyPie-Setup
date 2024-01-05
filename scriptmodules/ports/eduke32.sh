@@ -7,7 +7,7 @@
 rp_module_id="eduke32"
 rp_module_desc="EDuke32: Duke Nukem 3D, 'NAM & World War II GI Port"
 rp_module_help="Copy .grp Files To:\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/ww2gi"
-rp_module_licence="GPL2 https://voidpoint.io/terminx/eduke32/-/raw/master/package/common/gpl-2.0.txt?inline=false"
+rp_module_licence="GPL2 https://voidpoint.io/terminx/eduke32/-/raw/master/package/common/gpl-2.0.txt"
 rp_module_repo="git https://voidpoint.io/terminx/eduke32 master"
 rp_module_section="opt"
 
@@ -23,7 +23,7 @@ function depends_eduke32() {
         'sdl2'
     )
     isPlatform "x86" && isPlatform "32bit" && depends+=('nasm')
-    isPlatform "gl" || isPlatform "mesa" && depends+=('mesa' 'glu')
+    isPlatform "gl" || isPlatform "mesa" && depends+=('glu' 'mesa')
     isPlatform "x11" && depends+=('gtk2')
     getDepends "${depends[@]}"
 }
@@ -81,14 +81,17 @@ function _game_data_eduke32() {
 }
 
 function _add_games_eduke32() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
     declare -A games=()
 
     if [[ "${md_id}" == "ionfury" ]]; then
-        games=(['ionfury/fury.grp']="Ion Fury")
+        games=(
+            ['fury/fury.grp']="Ion Fury"
+            ['aftershock/fury.grp']="Ion Fury: Aftershock"
+        )
     else
         games=(
             ['duke/duke3d.grp']="Duke Nukem 3D"
@@ -102,20 +105,17 @@ function _add_games_eduke32() {
         )
     fi
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         if [[ "${md_id}" == "ionfury" ]]; then
             portname="ionfury"
-            dir="${romdir}/ports/${portname}"
+            dir="${romdir}/ports/${portname}/${game%/*}"
         else
             portname="duke3d"
             dir="${romdir}/ports/${portname}/${game%/*}"
         fi
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
         if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}" == "fury.grp" ]]; then
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "pushd ${md_conf_root}/${md_id}; ${md_inst}/${md_id}.sh %ROM%; popd" "-j ${dir}"
@@ -155,7 +155,11 @@ function configure_eduke32() {
         if [[ "${md_id}" == "ionfury" ]]; then
             local portname
             portname="ionfury"
+            local dirs=('aftershock' 'fury')
             mkRomDir "ports/${portname}"
+            for dir in "${dirs[@]}"; do
+                mkRomDir "ports/${portname}/${dir}"
+            done
         elif [[ "${md_id}" == "eduke32" ]]; then
             local portname
             portname="duke3d"
