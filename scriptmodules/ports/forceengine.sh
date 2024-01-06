@@ -17,13 +17,16 @@ function _get_branch_forceengine() {
 
 function depends_forceengine() {
     local depends=(
+        'clang'
         'cmake'
-        'devil'
         'glew'
+        'lld'
         'mesa'
         'ninja'
+        'perl-rename'
         'rtaudio'
         'rtmidi'
+        'sdl2_image'
         'sdl2'
         'zenity'
     )
@@ -32,6 +35,9 @@ function depends_forceengine() {
 
 function sources_forceengine() {
     gitPullOrClone
+
+    # Fix 'sdl2' Linking Error
+    sed "s|#pragma comment(lib, \"SDL2main.lib\")|//#pragma comment(lib, \"SDL2main.lib\")|g" -i "${md_build}/TheForceEngine/main.cpp"
 }
 
 function build_forceengine() {
@@ -41,6 +47,11 @@ function build_forceengine() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -71,16 +82,13 @@ function _add_games_forceengine() {
         ['outlaws/outlaws.lab']="Outlaws" # To Be Added In A Future Release
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="forceengine"
-        dir="${romdir}/ports/${portname}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}/${game%%/*}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-] {*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game}" ]]; then
+        dir="${romdir}/ports/${portname}/${game%%/*}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${dir}/${game##*/}" ]]; then
             addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
         fi
     done
