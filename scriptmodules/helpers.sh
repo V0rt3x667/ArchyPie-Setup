@@ -1490,6 +1490,6 @@ function signFile() {
 function changeFileCase() {
     local dir="${1}"
     pushd "${dir}" || return
-    perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
+    perl-rename 'y/A-Z/a-z/' [^.-]* && perl-rename 'y/A-Z/a-z/' [^.-]*/*
     popd || return
 }
