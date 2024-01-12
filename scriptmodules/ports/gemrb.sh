@@ -55,6 +55,7 @@ function build_gemrb() {
         -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DSDL_BACKEND="SDL2" \
+        -DSDL_RESOLUTION_INDEPENDANCE="ON" \
         -DUSE_SDLMIXER="OFF" \
         "${params[@]}" \
         -Wno-dev
