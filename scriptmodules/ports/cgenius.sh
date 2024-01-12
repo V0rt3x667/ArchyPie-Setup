@@ -87,12 +87,13 @@ function _add_games_cgenius(){
     )
 
     for game in "${!games[@]}"; do
-        dir="${romdir}/ports/${md_id}/${game%%/*}"
+        portname="cgenius"
+        dir="${romdir}/ports/${portname}/${game%%/*}"
         # Convert Uppercase Filenames To Lowercase
         [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
         # Create Launch Scripts For Each Game Found
         if [[ -f "${dir}/${game##*/}" ]]; then
-            addPort "${md_id}" "${md_id}" "${games[${game}]}" "${cmd} dir=games/%ROM%" "${game%%/*}"
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} dir=games/%ROM%" "${game%%/*}"
         fi
     done
 }
