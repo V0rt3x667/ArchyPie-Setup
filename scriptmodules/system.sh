@@ -173,6 +173,7 @@ function get_archypie_depends() {
         'git'
         'gnupg'
         'linuxconsole'
+        'perl-rename'
         'python'
         'unzip'
         'xmlstarlet'
