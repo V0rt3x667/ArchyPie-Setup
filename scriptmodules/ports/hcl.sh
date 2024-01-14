@@ -12,7 +12,9 @@ rp_module_section="opt"
 
 function depends_hcl() {
     local depends=(
+        'clang'
         'cmake'
+        'lld'
         'ninja'
         'sdl2_mixer'
         'sdl2'
@@ -35,6 +37,11 @@ function build_hcl() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DUSE_SDL2="ON" \
         -Wno-dev
     ninja -C build clean
