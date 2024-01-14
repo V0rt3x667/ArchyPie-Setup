@@ -126,25 +126,26 @@ function _add_games_gzdoom() {
     local game
     local portname
     declare -A games=(
-        ['doom1/doom.wad']="Doom: The Ultimate Doom"
-        ['doom1/doom1.wad']="Doom (Shareware)"
-        ['doom1/doomu.wad']="Doom: The Ultimate Doom"
-        ['doom2/doom2.wad']="Doom II: Hell on Earth"
-        ['doom2/masterlevels.wad']="Doom II: Master Levels"
-        ['finaldoom/plutonia.wad']="Final Doom: The Plutonia Experiment"
-        ['finaldoom/tnt.wad']="Final Doom: TNT: Evilution"
-        ['freedoom/freedoom1.wad']="Freedoom: Phase I"
-        ['freedoom/freedoom2.wad']="Freedoom: Phase II"
         ['addons/bloom/bloom.pk3']="Doom II: Bloom"
         ['addons/brutal/brutal.pk3']="Doom: Brutal Doom"
         ['addons/brutal/brutality.pk3']="Doom: Project Brutality"
         ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
+        ['addons/misc/masterlevels.wad']="Doom II: Master Levels"
+        ['addons/misc/nerve.wad']="Doom II: No Rest for the Living"
         ['addons/sigil/sigil.wad']="Doom: SIGIL"
         ['addons/sigil/sigil2.wad']="Doom: SIGIL II"
         ['addons/strain/strainfix.wad']="Doom II: Strain"
         ['chex/chex.wad']="Chex Quest"
         ['chex/chex2.wad']="Chex Quest 2"
         ['chex/chex3.wad']="Chex Quest 3"
+        ['doom1/doom.wad']="Doom: The Ultimate Doom"
+        ['doom1/doom1.wad']="Doom (Shareware)"
+        ['doom1/doomu.wad']="Doom: The Ultimate Doom"
+        ['doom2/doom2.wad']="Doom II: Hell on Earth"
+        ['finaldoom/plutonia.wad']="Final Doom: The Plutonia Experiment"
+        ['finaldoom/tnt.wad']="Final Doom: TNT: Evilution"
+        ['freedoom/freedoom1.wad']="Freedoom: Phase I"
+        ['freedoom/freedoom2.wad']="Freedoom: Phase II"
         ['hacx/hacx.wad']="HacX"
         ['heretic/heretic.wad']="Heretic: Shadow of the Serpent Riders"
         ['heretic/hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
@@ -178,12 +179,18 @@ function _add_games_gzdoom() {
             # Add Strain
             elif [[ "${game##*/}" == "strainfix.wad" ]]; then
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
+            # Add Doom II: Master Levels
+            elif [[ "${game##*/}" == "masterlevels.wad" ]]; then
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
+             # Add Doom II: No Rest for the Living
+            elif [[ "${game##*/}" == "nerve.wad" ]]; then
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
             # Add Project Brutality & Other "Brutality" Mods If Available
             elif [[ "${game##*/}" =~ "brutal" ]]; then
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad * -file ${game##*/}"
             else
                 # Add Games Which Do Not Require Additional Parameters
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh -iwad %ROM%" "${game##*/}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad  ${game##*/}"
                 # Use 'addEmulator 0' To Prevent Addon Option From Becoming The Default
                 addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
             fi
