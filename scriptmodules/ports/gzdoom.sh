@@ -22,26 +22,32 @@ function _get_branch_zmusic() {
 function depends_gzdoom() {
     depends=(
         'alsa-lib'
+        'bzip2'
+        'clang'
         'cmake'
         'fluidsynth'
         'gtk3'
         'libjpeg-turbo'
+        'libsndfile'
+        'libvpx'
+        'lld'
+        'mpg123'
+        'ninja'
         'openal'
-        'perl-rename'
+        'openmp'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_gzdoom() {
     gitPullOrClone
+
     _sources_zmusic
 
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
-
-    # Fix Building On GCC 13.1
-    sed -i "1i#include <cstdio>" "${md_build}/src/common/rendering/vulkan/thirdparty/vk_mem_alloc/vk_mem_alloc.h"
 }
 
 function _sources_zmusic() {
@@ -62,8 +68,11 @@ function _build_zmusic() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DDYN_MPG123="OFF" \
-        -DDYN_SNDFILE="OFF" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -Wno-dev
     ninja -C zmusic clean
     ninja -C zmusic
@@ -72,15 +81,19 @@ function _build_zmusic() {
 
 function build_gzdoom() {
     _build_zmusic
+
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
-        -DDYN_GTK="OFF" \
-        -DDYN_OPENAL="OFF" \
         -DZMUSIC_INCLUDE_DIR="${md_build}/zmusic/include" \
         -DZMUSIC_LIBRARIES="${md_build}/zmusic/source/libzmusic.so" \
         -Wno-dev
@@ -101,12 +114,14 @@ function install_gzdoom() {
         'build/soundfonts'
         'docs'
     )
+
+    # Install ZMusic Library
     mkdir "${md_inst}/lib"
     cp -Pv "${md_build}"/zmusic/source/*.so* "${md_inst}/lib"
 }
 
 function _add_games_gzdoom() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
@@ -125,6 +140,7 @@ function _add_games_gzdoom() {
         ['addons/brutal/brutality.pk3']="Doom: Project Brutality"
         ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
         ['addons/sigil/sigil.wad']="Doom: SIGIL"
+        ['addons/sigil/sigil2.wad']="Doom: SIGIL II"
         ['addons/strain/strainfix.wad']="Doom II: Strain"
         ['chex/chex.wad']="Chex Quest"
         ['chex/chex2.wad']="Chex Quest 2"
@@ -137,45 +153,48 @@ function _add_games_gzdoom() {
         ['wboa/boa.ipk3']="Wolfenstein: Blade of Agony"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="doom"
-        dir="${romdir}/ports/${portname}/${game%/*}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game##*/}" ]]; then
-            if [[ "${game##*/}" == "sigil.wad" ]] && [[ -f "${dir}/sigil_shreds.wad" ]]; then
-                # Add Sigil & Buckethead Soundtrack if Available
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file sigil.wad -file ${dir}/sigil_shreds.wad"
-            elif [[ "${game##*/}" == "sigil.wad" ]] && [[ ! -f "${dir}/sigil_shreds.wad" ]]; then
-                # Add Sigil
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/}" 
-            elif [[ "${game##*/}" == "bloom.wad" ]]; then
-                # Add Bloom
+        dir="${romdir}/ports/${portname}/${game%%/*}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${dir}/${game#*/}" ]]; then
+            # Add SIGIL (Buckethead Soundtrack)
+            if [[ "${game##*/}" == "sigil.wad" ]] && [[ -f "${dir}/sigil/sigil_shreds.wad" ]]; then
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/} -file sigil_shreds.wad"
+            # Add SIGIL (MIDI Soundtrack)
+            elif [[ "${game##*/}" == "sigil.wad" ]] && [[ ! -f "${dir}/sigil/sigil_shreds.wad" ]]; then
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/}"
+            # Add SIGIL II (Thorr Soundtrack)
+            elif [[ "${game##*/}" == "sigil2.wad" ]] && [[ -f "${dir}/sigil/sigil2_mp3.wad" ]]; then
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/} -file sigil2_mp3.wad"
+            # Add SIGIL II (MIDI Soundtrack)
+            elif [[ "${game##*/}" == "sigil2.wad" ]] && [[ ! -f "${dir}/sigil/sigil2_mp3.wad" ]]; then
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom.wad -file ${game##*/}"
+            # Add Bloom
+            elif [[ "${game##*/}" == "bloom.pk3" ]]; then
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
+            # Add Strain
             elif [[ "${game##*/}" == "strainfix.wad" ]]; then
-                # Add Strain
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad doom2.wad -file ${game##*/}"
+            # Add Project Brutality & Other "Brutality" Mods If Available
             elif [[ "${game##*/}" =~ "brutal" ]]; then
-                # Add Project Brutality and Other "Brutality" Mods if Available
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad * -file ${game##*/}"
             else
                 # Add Games Which Do Not Require Additional Parameters
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh -iwad %ROM%" "${game##*/}"
-                # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
+                # Use 'addEmulator 0' To Prevent Addon Option From Becoming The Default
                 addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
             fi
         fi
     done
 
     if [[ "${md_mode}" == "install" ]]; then
-        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments
+        # Create A Launcher Script To Strip Quotes From 'runcommand.sh' Generated Arguments
         cat > "${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
-${cmd} \$*
+${cmd} \${*}
 _EOF_
         chmod +x "${md_inst}/${md_id}.sh"
     fi
@@ -184,6 +203,8 @@ _EOF_
 function configure_gzdoom() {
     local portname
     portname=doom
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
@@ -210,8 +231,6 @@ function configure_gzdoom() {
 
         _game_data_lr-prboom
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
     local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}/"
     _add_games_gzdoom "${launcher_prefix} ${md_inst}/${md_id} +vid_renderer 1 +vid_fullscreen 1"
