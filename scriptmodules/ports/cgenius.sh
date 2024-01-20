@@ -74,6 +74,8 @@ function _add_games_cgenius(){
     local cmd="${1}"
     local dir
     local game
+    local portname
+
     declare -A games=(
         ['keen1/keen1.exe']="Keen 1: Marooned on Mars (Invasion of the Vorticons)"
         ['keen2/keen2.exe']="Keen 2: The Earth Explodes (Invasion of the Vorticons)"
