@@ -48,7 +48,6 @@ function build_cdogs-sdl() {
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
-        -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
