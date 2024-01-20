@@ -6,7 +6,7 @@
 
 rp_module_id="ioquake3"
 rp_module_desc="ioquake3: Quake 3 Arena Port"
-rp_module_help="ROM Extensions: .pak\n\nCopy Quake III Arena Files To: ${romdir}/ports/quake3/baseq3\n\nCopy Quake III Team Fortress Files To: ${romdir}/ports/quake3/missionpack"
+rp_module_help="ROM Extensions: .pk3\n\nCopy Quake III Arena Files To: ${romdir}/ports/quake3/baseq3\n\nCopy Quake III Team Fortress Files To: ${romdir}/ports/quake3/missionpack"
 rp_module_licence="GPL2 https://github.com/ioquake/ioq3/blob/master/COPYING.txt"
 rp_module_repo="git https://github.com/ioquake/ioq3 main"
 rp_module_section="opt"
