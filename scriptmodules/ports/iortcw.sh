@@ -6,6 +6,7 @@
 
 rp_module_id="iortcw"
 rp_module_desc="iortcw: Return to Castle Wolfenstein Port"
+rp_module_help="ROM Extensions: .pk3\n\nCopy Return to Castle Wolfenstein Files To: ${romdir}/ports/rtcw/main"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/iortcw/iortcw/master/LICENCE.md"
 rp_module_repo="git https://github.com/iortcw/iortcw master"
 rp_module_section="opt"
@@ -18,11 +19,11 @@ function depends_iortcw() {
         'harfbuzz'
         'libjpeg-turbo'
         'libogg'
+        'libvorbis'
         'openal'
         'opus'
         'opusfile'
         'pcre'
-        'perl-rename'
         'sdl2'
         'zlib'
     )
@@ -41,10 +42,12 @@ function sources_iortcw() {
 
 function build_iortcw() {
     local dirs=('MP' 'SP')
+
     for dir in "${dirs[@]}"; do
         make -C "${dir}" clean
-        make -C "${dir}" COPYDIR="${md_inst}" USE_INTERNAL_LIBS=0
+        make -C "${dir}" COPYDIR="${md_inst}" USE_INTERNAL_LIBS=0 DEFAULT_BASEDIR="${romdir}/ports/rtcw"
     done
+
     md_ret_require=(
         "${md_build}/MP/build/release-linux-$(_arch_"${md_id}")/iowolfmp.$(_arch_"${md_id}")"
         "${md_build}/SP/build/release-linux-$(_arch_"${md_id}")/iowolfsp.$(_arch_"${md_id}")"
@@ -57,13 +60,14 @@ function _arch_iortcw() {
 
 function install_iortcw() {
     local dirs=('MP' 'SP')
+
     for dir in "${dirs[@]}"; do
-        make -C "${dir}" COPYDIR="${md_inst}" USE_INTERNAL_LIBS=0 copyfiles
+        make -C "${dir}" COPYDIR="${md_inst}" USE_INTERNAL_LIBS=0 DEFAULT_BASEDIR="${romdir}/ports/rtcw" copyfiles
     done
 }
 
 function _add_games_iortcw() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
@@ -72,17 +76,14 @@ function _add_games_iortcw() {
         ['main/pak0.pk3']="Return to Castle Wolfenstein (SP)"
         ['main/mp_pak0.pk3']="Return to Castle Wolfenstein (MP)"
     )
-    portname="rtcw"
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
-        dir="${romdir}/ports/${portname}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}/${game%%/*}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game}" ]]; then
+        portname="rtcw"
+        dir="${romdir}/ports/${portname}/${game%%/*}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${dir}/${game##*/}" ]]; then
             if [[ "${game##*/}"  == "mp_pak0.pk3" ]]; then
                 addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "iowolfmp"
             else
@@ -96,18 +97,21 @@ function configure_iortcw() {
     local portname
     portname="rtcw"
 
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${portname}"
         mkRomDir "ports/${portname}/main"
+
+        # Symlink Required Libraries To '${romdir}'
+        ln -snf "${md_inst}"/main/*.so "${romdir}/ports/${portname}/main/"
     fi
 
-    moveConfigDir "${md_inst}/main" "${romdir}/ports/${portname}/main"
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
-
     local launcher=("${md_inst}/%ROM%.$(_arch_"${md_id}")")
+
     isPlatform "mesa" && launcher+=("+set cl_renderer opengl1")
     isPlatform "kms" && launcher+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_swapInterval 1")
-    isPlatform "x11" && launcher+=("+set r_mode -2" "+set r_fullscreen 1")
+    isPlatform "x11" && launcher+=("+set r_mode -2" "+set cl_renderer rend2" "+set r_fullscreen 1")
 
     _add_games_iortcw "${launcher[*]}"
 }
