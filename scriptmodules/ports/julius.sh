@@ -17,11 +17,15 @@ function _get_branch_julius() {
 
 function depends_julius() {
     local depends=(
+        'clang'
         'cmake'
         'libpng'
+        'lld'
+        'mpg123'
         'ninja'
         'sdl2_mixer'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
@@ -37,6 +41,10 @@ function build_julius() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -52,8 +60,6 @@ function configure_julius() {
     portname="caesar3"
 
     [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${portname}"
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
     addPort "${md_id}" "${portname}" "Caesar III" "${md_inst}/bin/${md_id} ${romdir}/ports/${portname}"
 }
