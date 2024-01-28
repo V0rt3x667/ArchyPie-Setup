@@ -125,13 +125,14 @@ function _add_games_gzdoom() {
     local dir
     local game
     local portname
+
     declare -A games=(
         ['addons/bloom/bloom.pk3']="Doom II: Bloom"
         ['addons/brutal/brutal.pk3']="Doom: Brutal Doom"
         ['addons/brutal/brutality.pk3']="Doom: Project Brutality"
         ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
-        ['addons/misc/masterlevels.wad']="Doom II: Master Levels"
-        ['addons/misc/nerve.wad']="Doom II: No Rest for the Living"
+        ['addons/masterlevels/masterlevels.wad']="Doom II: Master Levels"
+        ['addons/nerve/nerve.wad']="Doom II: No Rest for the Living"
         ['addons/sigil/sigil.wad']="Doom: SIGIL"
         ['addons/sigil/sigil2.wad']="Doom: SIGIL II"
         ['addons/strain/strainfix.wad']="Doom II: Strain"
@@ -211,14 +212,16 @@ function configure_gzdoom() {
     local portname
     portname=doom
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'addons'
             'addons/bloom'
             'addons/brutal'
+            'addons/masterlevels'
             'addons/misc'
+            'addons/nerve'
             'addons/sigil'
             'addons/strain'
             'chex'
@@ -236,9 +239,38 @@ function configure_gzdoom() {
             mkRomDir "ports/${portname}/${dir}"
         done
 
+        cat > "${md_conf_root}/${portname}/${md_id}/gzdoom.ini" << _INI_
+[IWADSearch.Directories]
+Path=\$DOOMWADDIR/doom1
+Path=\$DOOMWADDIR/doom2
+Path=\$DOOMWADDIR/chex
+Path=\$DOOMWADDIR/finaldoom
+Path=\$DOOMWADDIR/freedoom
+Path=\$DOOMWADDIR/hecx
+Path=\$DOOMWADDIR/heretic
+Path=\$DOOMWADDIR/strife
+Path=\$DOOMWADDIR/wboa
+
+[FileSearch.Directories]
+Path=\$DOOMWADDIR/addons/bloom
+Path=\$DOOMWADDIR/addons/brutal
+Path=\$DOOMWADDIR/addons/masterlevels
+Path=\$DOOMWADDIR/addons/misc
+Path=\$DOOMWADDIR/addons/nerve
+Path=\$DOOMWADDIR/addons/sigil
+Path=\$DOOMWADDIR/addons/strain
+
+[SoundfontSearch.Directories]
+Path=\$PROGDIR/fm_banks
+Path=\$PROGDIR/soundfonts
+Path=/usr/share/fm_banks
+Path=/usr/share/soundfonts
+_INI_
+        chown "${user}:${user}" "${md_conf_root}/${portname}/${md_id}/gzdoom.ini"
+
         _game_data_lr-prboom
     fi
 
-    local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}/"
+    local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}"
     _add_games_gzdoom "${launcher_prefix} ${md_inst}/${md_id} +vid_renderer 1 +vid_fullscreen 1"
 }
