@@ -6,7 +6,7 @@
 
 rp_module_id="jumpnbump"
 rp_module_desc="Jump 'n Bump: Play Cute Bunnies Jumping On Each Other's Heads"
-rp_module_help="Copy Custom Game Levels (.dat) To: ${romdir}/ports/jumpnbump"
+rp_module_help="Copy Custom Game Levels .dat To: ${romdir}/ports/jumpnbump"
 rp_module_licence="GPL2 https://gitlab.com/LibreGames/jumpnbump/raw/master/COPYING"
 rp_module_repo="git https://gitlab.com/LibreGames/jumpnbump master"
 rp_module_section="exp"
@@ -14,6 +14,7 @@ rp_module_flags=""
 
 function depends_jumpnbump() {
     local depends=(
+        'bzip2'
         'sdl2_mixer'
         'sdl2_net'
         'sdl2'
@@ -28,7 +29,8 @@ function sources_jumpnbump() {
 
 function build_jumpnbump() {
     make clean
-    CFLAGS="$CFLAGS -fsigned-char" make PREFIX="${md_inst}"
+    make PREFIX="${md_inst}"
+
     md_ret_require="${md_build}/${md_id}"
 }
 
@@ -44,7 +46,7 @@ function _game_data_jumpnbump() {
 
     dest="${__tmpdir}/archives"
 
-    # Install Extra Levels From Debian's jumpnbump-levels Package
+    # Install Extra Levels From Debian's 'jumpnbump-levels' Package
     downloadAndExtract "https://salsa.debian.org/games-team/${md_id}-levels/-/archive/master/${md_id}-levels-master.tar.bz2" "${dest}" --strip-components 1 --wildcards "*.bz2"
     for compressed in "${dest}"/*.bz2; do
         uncompressed="${compressed##*/}"
@@ -58,10 +60,10 @@ function _game_data_jumpnbump() {
 }
 
 function configure_jumpnbump() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${md_id}"
-
-        _game_data_jumpnbump
 
         # Install Launch Script
         cp "${md_data}/${md_id}.sh" "${md_inst}"
@@ -76,9 +78,9 @@ function configure_jumpnbump() {
             iniConfig " = " "" "${md_conf_root}/${md_id}/options.cfg"
             iniSet "nogore" "1"
         fi
-    fi
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+        _game_data_jumpnbump
+    fi
 
     addPort "${md_id}" "${md_id}" "Jump 'n Bump" "${md_inst}/${md_id}.sh"
 }
