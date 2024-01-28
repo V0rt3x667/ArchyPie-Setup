@@ -1238,9 +1238,9 @@ function addPort() {
     local game="$5"
 
     # move configurations from old ports location
-    if [[ -d "$configdir/$port" ]]; then
-        mv "$configdir/$port" "$md_conf_root/"
-    fi
+    #if [[ -d "$configdir/$port" ]]; then
+    #    mv "$configdir/$port" "$md_conf_root/"
+    #fi
 
     # remove the emulator / port
     if [[ "$md_mode" == "remove" ]]; then
