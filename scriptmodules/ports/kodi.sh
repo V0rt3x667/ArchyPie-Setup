@@ -8,7 +8,7 @@ rp_module_id="kodi"
 rp_module_desc="Kodi: Open Source Home Theatre Software"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/xbmc/xbmc/master/LICENSE.md"
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
 
 function _update_hook_kodi() {
     # Show As Installed In ArchyPie-Setup
@@ -27,7 +27,6 @@ function install_bin_kodi() {
         'kodi-eventclients'
         'kodi-platform'
         'kodi'
-        'mediaelch'
         'p8-platform'
     )
     pacmanInstall "${packages[@]}"
@@ -41,7 +40,6 @@ function remove_kodi() {
         'kodi-eventclients'
         'kodi-platform'
         'kodi'
-        'mediaelch'
         'p8-platform'
     )
     pacmanRemove "${packages[@]}"
