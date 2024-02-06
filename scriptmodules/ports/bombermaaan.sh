@@ -6,7 +6,7 @@
 
 rp_module_id="bombermaaan"
 rp_module_desc="Bombermaaan: Bomberman Clone"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/bjaraujo/Bombermaaan/master/LICENSE.txt"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/bjaraujo/Bombermaaan/master/COPYING.txt"
 rp_module_repo="git https://github.com/bjaraujo/Bombermaaan :_get_branch_bombermaaan"
 rp_module_section="exp"
 rp_module_flags=""
