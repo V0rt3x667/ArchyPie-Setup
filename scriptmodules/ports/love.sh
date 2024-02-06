@@ -5,8 +5,8 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="love"
-rp_module_desc="Love: A 2D Game Engine for Lua"
-rp_module_help="Copy Love Games to: ${romdir}/love"
+rp_module_desc="Love: A 2D Game Engine For Lua"
+rp_module_help="Copy Love Games To: ${romdir}/love"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/love2d/love/master/license.txt"
 rp_module_repo="git https://github.com/love2d/love :_get_branch_love"
 rp_module_section="opt"
@@ -18,32 +18,56 @@ function _get_branch_love() {
 
 function depends_love() {
     local depends=(
+        'clang'
+        'cmake'
         'freetype2'
+        'libjpeg-turbo'
         'libmodplug'
+        'libpng'
         'libtheora'
         'libvorbis'
+        'lld'
         'luajit'
         'mpg123'
+        'ninja'
         'openal'
+        'physfs'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_love() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed "s|.local/share/|ArchyPie/configs/|g" -i "${md_build}/src/libraries/physfs/physfs_platform_unix.c" "${md_build}/src/modules/filesystem/physfs/Filesystem.cpp"
 }
 
 function build_love() {
-    ./platform/unix/automagic
-    ./configure --prefix="${md_inst}"
-    make clean
-    make
-    md_ret_require="${md_build}/src/${md_id}"
+    cmake . \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="${md_build}/build/${md_id}"
 }
 
 function install_love() {
-    make install
+    md_ret_files=(
+        'build/love'
+        'build/libliblove.so'
+    )
 }
 
 function _game_data_love() {
@@ -66,7 +90,9 @@ function configure_love() {
 
     setConfigRoot ""
 
-    addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/${md_id} %ROM%"
-    
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
+    addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/${md_id} %ROM%"
+
     addSystem "${md_id}"
 }
