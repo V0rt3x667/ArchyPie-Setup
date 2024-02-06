@@ -1,0 +1,16 @@
+diff -ru a/src/lincity-ng/main.cpp b/src/lincity-ng/main.cpp
+--- a/src/lincity-ng/main.cpp	2024-01-30 21:07:24.409111137 +0000
++++ b/src/lincity-ng/main.cpp	2024-02-06 18:13:21.115597512 +0000
+@@ -174,11 +174,9 @@
+     
+     // Initialize physfs (this is a slightly modified version of
+     // PHYSFS_setSaneConfig
+-    const char* writedir = PHYSFS_getPrefDir(LC_ORG, LC_APP);
++    const char* writedir = "/opt/archypie/configs/ports/lincity-ng";
+     if(!writedir) {
+       std::ostringstream msg;
+-      // Unfortunately, PHYSFS_getPrefDir does not expose the path name if
+-      // creating the directory failed.
+       msg << "Failed to get configuration directory '";
+       throw std::runtime_error(msg.str());
+     }

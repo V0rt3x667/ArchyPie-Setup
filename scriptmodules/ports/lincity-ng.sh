@@ -7,20 +7,30 @@
 rp_module_id="lincity-ng"
 rp_module_desc="LinCity NG: A City Simulation Game"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/lincity-ng/lincity-ng/master/COPYING"
-rp_module_repo="git https://github.com/lincity-ng/lincity-ng master"
+rp_module_repo="git https://github.com/lincity-ng/lincity-ng master" # Build From Master Until Next Release Is >2.9.0
 rp_module_section="opt"
-rp_module_flags="!mali"
+rp_module_flags=""
+
+function _get_branch_lincity-ng() {
+    download "https://api.github.com/repos/lincity-ng/lincity-ng/releases" - | grep -m 1 tag_name | cut -d\" -f4
+}
 
 function depends_lincity-ng() {
     local depends=(
-        'ftjam'
+        'clang'
+        'cmake'
+        'icu'
         'libxml2'
+        'libxslt'
+        'lld'
+        'ninja'
         'physfs'
         'sdl2_gfx'
         'sdl2_image'
         'sdl2_mixer'
         'sdl2_ttf'
         'sdl2'
+        'xz'
         'zlib'
     )
     getDepends "${depends[@]}"
@@ -30,18 +40,28 @@ function sources_lincity-ng() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|LC_SAVE_DIR \".lincity-ng\"|LC_SAVE_DIR \"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/src/${md_id/-ng/}/loadsave.h"
+    applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
 function build_lincity-ng() {
-    ./autogen.sh
-    ./configure --prefix="${md_inst}"
-    jam
-    md_ret_require="${md_build}/${md_id}"
+    cmake . \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="${md_build}/build/bin/${md_id}"
 }
 
 function install_lincity-ng() {
-    jam -sprefix="${md_inst}" install
+    ninja -C build install/strip
 }
 
 function configure_lincity-ng() {
