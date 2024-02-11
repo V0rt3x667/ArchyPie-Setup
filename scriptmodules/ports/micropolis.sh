@@ -6,7 +6,7 @@
 
 rp_module_id="micropolis"
 rp_module_desc="Micropolis: Open Source City Building Game"
-rp_module_licence="GPL3 https://www.donhopkins.com/home/micropolis/#license"
+rp_module_licence="GPL3 https://git.zerfleddert.de/cgi-bin/gitweb.cgi/micropolis/blob_plain/refs/heads/master:/COPYING"
 rp_module_repo="git https://git.zerfleddert.de/git/micropolis"
 rp_module_section="opt"
 rp_module_flags="!all x11"
@@ -14,9 +14,11 @@ rp_module_flags="!all x11"
 function depends_micropolis() {
     local depends=(
         'inetutils'
+        'libx11'
         'libxpm'
         'sdl_mixer'
         'sdl12-compat'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
@@ -37,5 +39,5 @@ function install_micropolis() {
 }
 
 function configure_micropolis() {
-    addPort "${md_id}" "${md_id}" "Micropolis" "${md_inst}/bin/${md_id}"
+    addPort "${md_id}" "${md_id}" "Micropolis" "SDL_VIDEODRIVER=x11 ${md_inst}/bin/${md_id}"
 }
