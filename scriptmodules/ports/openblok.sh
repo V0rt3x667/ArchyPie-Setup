@@ -36,9 +36,6 @@ function sources_openblok() {
     # Set Default Config Path(s)
     sed "s|const auto path_raw = SDL_GetPrefPath(NULL, \"openblok\");|const char* path_raw = \"/opt/archypie/configs/ports/${md_id}/\";|g" -i "${md_build}/src/system/Paths.cpp"
     sed "s|SDL_free(path_raw);|\/\/SDL_free(path_raw);|g" -i "${md_build}/src/system/Paths.cpp"
-
-    # Fix Missing Include, Remove After Release v0.8.6
-    sed -i "1i#include <iterator>" "${md_build}/src/system/InputConfigFile.cpp"
 }
 
 function build_openblok() {
@@ -62,9 +59,6 @@ function build_openblok() {
 
 function install_openblok() {
     ninja -C build install/strip
-
-    # Copy Missing 'gamecontrollerdb' File
-    cp ./data/gamecontrollerdb_2010.txt "${md_inst}/data/gamecontrollerdb_2010"
 }
 
 function configure_openblok() {
