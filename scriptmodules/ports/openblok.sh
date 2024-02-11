@@ -17,8 +17,10 @@ function _get_branch_openblok() {
 
 function depends_openblok() {
     local depends=(
+        'clang'
         'cmake'
         'gettext'
+        'lld'
         'ninja'
         'sdl2_image'
         'sdl2_mixer'
@@ -31,7 +33,11 @@ function depends_openblok() {
 function sources_openblok() {
     gitPullOrClone
 
-    # Fix GCC12 Build Error
+    # Set Default Config Path(s)
+    sed "s|const auto path_raw = SDL_GetPrefPath(NULL, \"openblok\");|const char* path_raw = \"/opt/archypie/configs/ports/${md_id}/\";|g" -i "${md_build}/src/system/Paths.cpp"
+    sed "s|SDL_free(path_raw);|\/\/SDL_free(path_raw);|g" -i "${md_build}/src/system/Paths.cpp"
+
+    # Fix Missing Include, Remove After Release v0.8.6
     sed -i "1i#include <iterator>" "${md_build}/src/system/InputConfigFile.cpp"
 }
 
@@ -42,6 +48,11 @@ function build_openblok() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DINSTALL_PORTABLE="ON" \
         -Wno-dev
     ninja -C build clean
@@ -51,12 +62,16 @@ function build_openblok() {
 
 function install_openblok() {
     ninja -C build install/strip
+
+    # Copy Missing 'gamecontrollerdb' File
+    cp ./data/gamecontrollerdb_2010.txt "${md_inst}/data/gamecontrollerdb_2010"
 }
 
 function configure_openblok() {
-    moveConfigDir "${home}/.local/share/${md_id}" "${md_conf_root}/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     if [[ "${md_mode}" == "install" ]]; then
+        # Set Fullscreen By Default
         local config
         config="$(mktemp)"
 
