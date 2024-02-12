@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="opensurge"
-rp_module_desc="Open Surge: A Fun 2D Retro Platformer & Game Engine"
+rp_module_desc="Open Surge: A Fun 2D Retro Platformer"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/alemart/opensurge/master/LICENSE"
 rp_module_repo="git https://github.com/alemart/opensurge :_get_branch_opensurge"
 rp_module_section="opt"
@@ -22,7 +22,9 @@ function _get_branch_surgescript() {
 function depends_opensurge() {
     local depends=(
         'allegro'
+        'clang'
         'cmake'
+        'lld'
         'ninja'
     )
     getDepends "${depends[@]}"
@@ -30,12 +32,12 @@ function depends_opensurge() {
 
 function sources_opensurge() {
     gitPullOrClone
+
     _sources_surgescript
 
     # Set Default Config Path(s)
-    sed -e "s|path = \"/.config/\"|path = \"/ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/src/core/assetfs.c"
-    sed -e "s|path = \"/.local/share/\"|path = \"/ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/src/core/assetfs.c"
-    sed -e "s|path = \"/.cache/\"|path = \"/ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/src/core/assetfs.c"
+    sed -e "s|path = \"/.config/opensurge2d/\"|path = \"/ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/src/core/assetfs.c"
+    sed -e "s|path = \"/.local/share/opensurge2d/\"|path = \"/ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/src/core/assetfs.c"
 }
 
 function _sources_surgescript() {
@@ -53,6 +55,11 @@ function _build_surgescript() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DWANT_EXECUTABLE="OFF" \
         -DWANT_SHARED="ON" \
         -DWANT_STATIC="OFF" \
         -Wno-dev
@@ -70,10 +77,16 @@ function build_opensurge() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
+        -DDESKTOP_INSTALL="OFF" \
         -DGAME_BINDIR="${md_inst}/bin" \
         -DGAME_DATADIR="${md_inst}/data" \
-        -DDESKTOP_INSTALL="OFF" \
+        -DLSURGESCRIPT="${md_build}/surgescript/libsurgescript.so" \
         -DSURGESCRIPT_INCLUDE_PATH="${md_build}/surgescript/src" \
         -DSURGESCRIPT_LIBRARY_PATH="${md_build}/surgescript" \
         -Wno-dev
@@ -87,11 +100,10 @@ function install_opensurge() {
 
     mkdir "${md_inst}/lib"
     cp -Pv "${md_build}/surgescript"/*.so* "${md_inst}/lib"
-    cp -Pv "${md_build}/surgescript/surgescript" "${md_inst}/bin"
 }
 
 function configure_opensurge() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     addPort "${md_id}" "${md_id}" "Open Surge" "${md_inst}/bin/${md_id} --fullscreen"
 }
