@@ -5,37 +5,57 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="openjazz"
-rp_module_desc="OpenJazz: Open-Source Version of the Classic Jazz Jackrabbit Games"
+rp_module_desc="OpenJazz: Open-Source Version Of The Classic Jazz Jackrabbit Games"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/AlisterT/openjazz/master/COPYING"
-rp_module_help="For Registered Version, Replace the Shareware Files by Adding the Full Version Game Files to: ${romdir}/ports/jazz."
-rp_module_repo="git https://github.com/AlisterT/openjazz master"
+rp_module_help="For Registered Version, Replace The Shareware Files By Adding The Full Version Game Files To: ${romdir}/ports/jazz"
+rp_module_repo="git https://github.com/AlisterT/openjazz :_get_branch_openjazz"
 rp_module_section="opt"
 rp_module_flags=""
 
+function _get_branch_openjazz() {
+    download "https://api.github.com/repos/AlisterT/openjazz/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+}
+
 function depends_openjazz() {
     local depends=(
-        'sdl_net'
-        'sdl12-compat'
+        'asciidoctor'
+        'astyle'
+        'clang'
+        'cmake'
+        'lld'
+        'ninja'
+        'sdl2'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_openjazz() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed "s|\"/.config\"|\"/ArchyPie/configs\"|g" -i "${md_build}/src/platforms/xdg.cpp"
+    sed "s|\"/.local/share\"|\"/ArchyPie/configs\"|g" -i "${md_build}/src/platforms/xdg.cpp"
 }
 
 function build_openjazz() {
-    make clean
-    make PREFIX="${md_inst}" USE_SDL_NET=1
-    md_ret_require="${md_build}/OpenJazz"
+    cmake . \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    md_ret_require="${md_build}/build/OpenJazz"
 }
 
 function install_openjazz() {
-    md_ret_files=(
-        'openjazz.000'
-        'OpenJazz'
-        'README.md'
-    )
+    ninja -C build install/strip
 }
 
 function _game_data_openjazz() {
@@ -46,12 +66,12 @@ function _game_data_openjazz() {
 }
 
 function configure_openjazz() {
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/jazz"
         _game_data_openjazz
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
     addPort "${md_id}" "${md_id}" "Jazz Jackrabbit" "pushd ${md_conf_root}/${md_id}; ${md_inst}/OpenJazz -f DATAPATH ${romdir}/ports/jazz; popd"
 }
