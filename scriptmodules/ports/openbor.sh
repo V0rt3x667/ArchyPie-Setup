@@ -6,7 +6,7 @@
 
 rp_module_id="openbor"
 rp_module_desc="OpenBOR: Beat 'Em Up Game Engine"
-rp_module_help="Copy OpenBOR Games (.pak) To: ${romdir}/openbor"
+rp_module_help="Copy OpenBOR Games .pak To: ${romdir}/openbor"
 rp_module_licence="BSD https://raw.githubusercontent.com/DCurrent/openbor/master/LICENSE"
 rp_module_repo="git https://github.com/DCurrent/openbor master"
 rp_module_section="opt"
@@ -38,6 +38,7 @@ function sources_openbor() {
 
 function build_openbor() {
     cd "${md_build}/engine" || exit
+    chmod u+x ./version.sh
     ./version.sh
     ./build.sh 4
 
@@ -51,16 +52,15 @@ function install_openbor() {
 function configure_openbor() {
     setConfigRoot ""
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "${md_id}"
-
         local dirs=(
             'Logs'
             'Saves'
             'ScreenShots'
         )
+        mkRomDir "${md_id}"
         for dir in "${dirs[@]}"; do
             mkUserDir "${md_conf_root}/${md_id}/${dir}"
             ln -snf "${md_conf_root}/${md_id}/${dir}" "${md_inst}/${dir}"
