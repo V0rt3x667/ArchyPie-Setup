@@ -51,9 +51,12 @@ function _game_data_opentyrian() {
 }
 
 function configure_opentyrian() {
-    [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${md_id}" && _game_data_opentyrian
-    
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
+    if [[ "${md_mode}" == "install" ]]; then
+        mkRomDir "ports/${md_id}"
+        _game_data_opentyrian
+    fi
 
     addPort "${md_id}" "${md_id}" "OpenTyrian" "${md_inst}/bin/${md_id} --data ${romdir}/ports/${md_id}/data/"
 }
