@@ -6,7 +6,7 @@
 
 rp_module_id="rigelengine"
 rp_module_desc="RigelEngine: Duke Nukem II Source Port"
-rp_module_help="Copy (NUKEM2.CMP, NUKEM2.F1, NUKEM2.F2, NUKEM2.F3, NUKEM2.F4, NUKEM2.F5) To: ${romdir}/duke2"
+rp_module_help="Copy NUKEM2.CMP, NUKEM2.F1, NUKEM2.F2, NUKEM2.F3, NUKEM2.F4, NUKEM2.F5 To: ${romdir}/duke2"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/lethal-guitar/RigelEngine/master/LICENSE.md"
 rp_module_repo="git https://github.com/lethal-guitar/RigelEngine :_get_branch_rigelengine"
 rp_module_section="exp"
@@ -18,10 +18,19 @@ function _get_branch_rigelengine() {
 
 function depends_rigelengine() {
     local depends=(
+        'clang'
         'cmake'
+        'entityx'
+        'glad'
+        'glm'
+        'lld'
         'ninja'
+        'nlohmann-json'
+        'python-loguru'
         'sdl2_mixer'
         'sdl2'
+        'speex'
+        'stb'
     )
     getDepends "${depends[@]}"
 }
@@ -34,13 +43,20 @@ function sources_rigelengine() {
 }
 
 function build_rigelengine() {
+    isPlatform "arm" && params+=('-DUSE_GL_ES=ON')
+
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DWARNINGS_AS_ERRORS="OFF" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        "${params[@]}" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -48,11 +64,11 @@ function build_rigelengine() {
 }
 
 function install_rigelengine() {
-    md_ret_files=('build/src/RigelEngine')
+    ninja -C build install/strip
 }
 
 function configure_rigelengine() {
     mkRomDir "ports/duke2"
 
-    addPort "${md_id}" "${md_id}" "Duke Nukem II" "${md_inst}/RigelEngine ${romdir}/ports/duke2"
+    addPort "${md_id}" "${md_id}" "Duke Nukem II" "${md_inst}/bin/RigelEngine ${romdir}/ports/duke2"
 }
