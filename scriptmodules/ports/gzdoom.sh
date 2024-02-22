@@ -15,7 +15,7 @@ function _get_branch_gzdoom() {
     download "https://api.github.com/repos/coelckers/gzdoom/releases" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
-function _get_branch_zmusic() {
+function _get_branch_zmusic_gzdoom() {
     download "https://api.github.com/repos/coelckers/zmusic/tags" - | grep -m 1 name | cut -d\" -f4
 }
 
@@ -44,15 +44,15 @@ function depends_gzdoom() {
 function sources_gzdoom() {
     gitPullOrClone
 
-    _sources_zmusic
+    _sources_zmusic_gzdoom
 
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
-function _sources_zmusic() {
+function _sources_zmusic_gzdoom() {
     local tag 
-    tag="$(_get_branch_zmusic)"
+    tag="$(_get_branch_zmusic_gzdoom)"
 
     gitPullOrClone "${md_build}/zmusic" "https://github.com/coelckers/ZMusic" "${tag}"
 
@@ -60,7 +60,7 @@ function _sources_zmusic() {
     sed -e "s|/sounds/sf2|/soundfonts|g" -i "${md_build}/zmusic/source/mididevices/music_fluidsynth_mididevice.cpp"
 }
 
-function _build_zmusic() {
+function _build_zmusic_gzdoom() {
     cmake . \
         -B"zmusic" \
         -G"Ninja" \
@@ -80,7 +80,7 @@ function _build_zmusic() {
 }
 
 function build_gzdoom() {
-    _build_zmusic
+    _build_zmusic_gzdoom
 
     cmake . \
         -B"build" \
@@ -239,6 +239,7 @@ function configure_gzdoom() {
             mkRomDir "ports/${portname}/${dir}"
         done
 
+        # Create Default Config File
         cat > "${md_conf_root}/${portname}/${md_id}/gzdoom.ini" << _INI_
 [IWADSearch.Directories]
 Path=\$DOOMWADDIR/doom1
