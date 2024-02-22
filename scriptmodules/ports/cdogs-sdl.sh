@@ -51,6 +51,8 @@ function build_cdogs-sdl() {
         -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DBUILD_EDITOR="OFF" \
+        -DBUILD_TESTING="OFF" \
         -DCDOGS_DATA_DIR="${md_inst}/" \
         -DUSE_SHARED_ENET="ON" \
         -Wno-dev
