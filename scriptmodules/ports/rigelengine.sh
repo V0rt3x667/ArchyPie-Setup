@@ -38,6 +38,9 @@ function depends_rigelengine() {
 function sources_rigelengine() {
     gitPullOrClone
 
+    # Set Default Config Path(s)
+    applyPatch "${md_data}/01_set_default_config_path.patch"
+
     # Add Missing Include
     sed -i "25i#include <cstdint>" "${md_build}/src/assets/user_profile_import.hpp"
 }
@@ -68,7 +71,12 @@ function install_rigelengine() {
 }
 
 function configure_rigelengine() {
-    mkRomDir "ports/duke2"
+    local portname
+    portname="duke2"
 
-    addPort "${md_id}" "${md_id}" "Duke Nukem II" "${md_inst}/bin/RigelEngine ${romdir}/ports/duke2"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+
+    [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${portname}"
+
+    addPort "${md_id}" "${portname}" "Duke Nukem II" "${md_inst}/bin/RigelEngine ${romdir}/ports/${portname}"
 }

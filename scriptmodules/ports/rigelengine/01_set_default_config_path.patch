@@ -1,0 +1,23 @@
+diff -ru a/src/frontend/user_profile.cpp b/src/frontend/user_profile.cpp
+--- a/src/frontend/user_profile.cpp	2024-02-25 13:26:12.733618544 +0000
++++ b/src/frontend/user_profile.cpp	2024-02-25 14:32:54.729210886 +0000
+@@ -909,8 +909,7 @@
+   auto deleter = [](char* path) {
+     SDL_free(path);
+   };
+-  const auto pPreferencesDirName = std::unique_ptr<char, decltype(deleter)>{
+-    SDL_GetPrefPath(PREF_PATH_ORG_NAME, PREF_PATH_APP_NAME), deleter};
++  const char* pPreferencesDirName = "/opt/archypie/configs/ports/duke2/rigelengine";
+ 
+   if (!pPreferencesDirName)
+   {
+@@ -918,7 +917,8 @@
+     return {};
+   }
+ 
+-  return fs::u8path(std::string{pPreferencesDirName.get()});
++  //return fs::u8path(std::string{pPreferencesDirName.get()});
++  return fs::u8path(std::string{pPreferencesDirName});
+ }
+ 
+ 
