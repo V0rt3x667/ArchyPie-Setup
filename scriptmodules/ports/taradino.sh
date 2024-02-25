@@ -27,6 +27,7 @@ function depends_taradino() {
 function sources_taradino() {
     gitPullOrClone
 
+    # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
