@@ -1,7 +1,7 @@
 diff -ru a/rott/rt_datadir.c b/rott/rt_datadir.c
 --- a/rott/rt_datadir.c	2024-02-25 01:25:28.993830559 +0000
-+++ b/rott/rt_datadir.c	2024-02-25 02:45:23.729706385 +0000
-@@ -53,26 +53,14 @@
++++ b/rott/rt_datadir.c	2024-02-25 03:00:02.139079387 +0000
+@@ -53,21 +53,10 @@
          char *result;
  
  #ifndef _WIN32
@@ -24,14 +24,8 @@ diff -ru a/rott/rt_datadir.c b/rott/rt_datadir.c
 -
  #if !(SHAREWARE == 1)
          result = dir;
--        dir = M_StringJoin(result, "darkwar", PATH_SEP_STR, NULL);
-+        dir = M_StringJoin(result, "Darkwar", PATH_SEP_STR, NULL);
-         free(result);
--
-         M_MakeDirectory(dir);
- #endif
-     }
-@@ -140,20 +128,12 @@
+         dir = M_StringJoin(result, "darkwar", PATH_SEP_STR, NULL);
+@@ -140,20 +129,12 @@
              homedir = "/";
          }
  
