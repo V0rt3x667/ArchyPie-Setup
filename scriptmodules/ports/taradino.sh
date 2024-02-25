@@ -56,7 +56,7 @@ function install_taradino() {
 
 function configure_taradino() {
     local portname
-    portname=rott
+    portname="rott"
 
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
