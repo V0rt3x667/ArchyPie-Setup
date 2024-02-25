@@ -59,19 +59,25 @@ function install_openjazz() {
 }
 
 function _game_data_openjazz() {
-    if [[ ! -f "${romdir}/ports/jazz/JAZZ.EXE" ]]; then
-        downloadAndExtract "https://image.dosgamesarchive.com/games/jazz.zip" "${romdir}/ports/jazz"
-        chown -R "${user}:${user}" "${romdir}/ports/jazz"
+    local portname
+    portname="openjazz"
+
+    if [[ ! -f "${romdir}/ports/${portname}/JAZZ.EXE" ]]; then
+        downloadAndExtract "https://image.dosgamesarchive.com/games/jazz.zip" "${romdir}/ports/${portname}"
+        chown -R "${user}:${user}" "${romdir}/ports/${portname}"
     fi
 }
 
 function configure_openjazz() {
+    local portname
+    portname="openjazz"
+
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "ports/jazz"
+        mkRomDir "ports/${portname}"
         _game_data_openjazz
     fi
 
-    addPort "${md_id}" "${md_id}" "Jazz Jackrabbit" "pushd ${md_conf_root}/${md_id}; ${md_inst}/OpenJazz -f DATAPATH ${romdir}/ports/jazz; popd"
+    addPort "${md_id}" "${portname}" "Jazz Jackrabbit" "pushd ${md_conf_root}/${md_id}; ${md_inst}/OpenJazz -f DATAPATH ${romdir}/ports/${portname}; popd"
 }
