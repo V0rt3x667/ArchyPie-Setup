@@ -7,7 +7,7 @@
 rp_module_id="solarus"
 rp_module_desc="Solarus: Action-RPG/Adventure 2D Game Engine"
 rp_module_help="Copy Solarus Games (.solarus) To: ${romdir}/solarus"
-rp_module_licence="GPL3 https://gitlab.com/solarus-games/solarus/raw/dev/license.txt"
+rp_module_licence="GPL3 https://gitlab.com/solarus-games/solarus/-/raw/dev/license"
 rp_module_repo="git https://gitlab.com/solarus-games/solarus master"
 rp_module_section="opt"
 rp_module_flags=""
@@ -18,11 +18,14 @@ function _options_cfg_file_solarus() {
 
 function depends_solarus() {
     local depends=(
+        'clang'
         'cmake'
         'glm'
         'libmodplug'
+        'libogg'
         'libpng'
         'libvorbis'
+        'lld'
         'luajit'
         'ninja'
         'openal'
@@ -36,6 +39,9 @@ function depends_solarus() {
 
 function sources_solarus() {
     gitPullOrClone
+
+    # Fix Build Error 'error: GLM: GLM_GTX_string_cast is an experimental extension and may change in the future.'
+    applyPatch "${md_data}/01_fix_glm_error.patch"
 }
 
 function build_solarus() {
@@ -48,6 +54,11 @@ function build_solarus() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
         -DSOLARUS_BASE_WRITE_DIR="${configdir}" \
         -DSOLARUS_FILE_LOGGING="OFF" \
@@ -67,13 +78,17 @@ function install_solarus() {
 }
 
 function configure_solarus() {
+    setConfigRoot ""
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "${md_id}"
 
         # Create A Launcher For Solarus That:
         #  1) Starts In Fullscreen Mode
-        #  2) Disables The Mouse Cursor, JACK Driver In OpenAL And The Lua Console
-        #  3) Configures The Joypad Deadzone And Quit Combo Options
+        #  2) Disables The Mouse Cursor, JACK Driver In OpenAL & The Lua Console
+        #  3) Configures The Joypad Deadzone & Quit Combo Options
         cat > "${md_inst}/${md_id}.sh" << _EOF_
 #!/usr/bin/env bash
 export ALSOFT_DRIVERS="-jack,"
@@ -86,10 +101,6 @@ exec "${md_inst}/bin/${md_id}-run" "\${ARGS[@]}" "\$@"
 _EOF_
         chmod +x "${md_inst}/${md_id}.sh"
     fi
-
-    setConfigRoot ""
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
     addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/${md_id}.sh %ROM%"
 
@@ -128,7 +139,7 @@ function gui_solarus() {
             D)
                 cmd=(dialog --backtitle "${__backtitle}" --inputbox "Please enter a joypad axis deadzone value between 0-32767, higher is less sensitive (leave BLANK to use engine default)" 10 65)
                 choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-                if [[ $? -eq 0 ]]; then
+                if [[ "${?}" -eq 0 ]]; then
                     if [[ -n "${choice}" ]]; then
                         iniSet "JOYPAD_DEADZONE" "${choice}"
                     else
@@ -140,7 +151,7 @@ function gui_solarus() {
             Q)
                 cmd=(dialog --backtitle "${__backtitle}" --inputbox "Please enter joypad button numbers to use for quitting separated by '+' signs (leave BLANK to unset)\n\nTip: use 'jstest' to find button numbers for your joypad" 12 65)
                 choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-                if [[ $? -eq 0 ]]; then
+                if [[ "${?}" -eq 0 ]]; then
                     if [[ -n "${choice}" ]]; then
                         iniSet "QUIT_COMBO" "${choice}"
                     else

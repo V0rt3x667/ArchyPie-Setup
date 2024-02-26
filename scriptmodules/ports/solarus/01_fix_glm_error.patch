@@ -1,0 +1,60 @@
+diff -ru a/src/graphics/glrenderer/GlRenderer.cpp b/src/graphics/glrenderer/GlRenderer.cpp
+--- a/src/graphics/glrenderer/GlRenderer.cpp	2024-02-26 11:40:16.013675928 +0000
++++ b/src/graphics/glrenderer/GlRenderer.cpp	2024-02-26 12:14:50.478320965 +0000
+@@ -9,6 +9,8 @@
+ #include <solarus/graphics/DefaultShaders.h>
+ #include <solarus/core/System.h>
+ 
++#define GLM_ENABLE_EXPERIMENTAL
++
+ #include <glm/gtx/matrix_transform_2d.hpp>
+ #include <glm/gtc/type_ptr.hpp>
+ 
+diff -ru a/src/graphics/glrenderer/GlShader.cpp b/src/graphics/glrenderer/GlShader.cpp
+--- a/src/graphics/glrenderer/GlShader.cpp	2024-02-26 11:40:16.013675928 +0000
++++ b/src/graphics/glrenderer/GlShader.cpp	2024-02-26 12:11:55.855153022 +0000
+@@ -28,6 +28,8 @@
+ #include "solarus/graphics/VertexArray.h"
+ #include "solarus/graphics/DefaultShaders.h"
+ 
++#define GLM_ENABLE_EXPERIMENTAL
++
+ #include <glm/gtc/type_ptr.hpp>
+ #include <glm/gtx/transform.hpp>
+ #include <glm/gtx/matrix_transform_2d.hpp>
+diff -ru a/src/graphics/glrenderer/GlTexture.cpp b/src/graphics/glrenderer/GlTexture.cpp
+--- a/src/graphics/glrenderer/GlTexture.cpp	2024-02-26 11:40:16.013675928 +0000
++++ b/src/graphics/glrenderer/GlTexture.cpp	2024-02-26 12:15:14.110895399 +0000
+@@ -3,6 +3,8 @@
+ #include "solarus/core/Debug.h"
+ #include "solarus/graphics/Video.h"
+ 
++#define GLM_ENABLE_EXPERIMENTAL
++
+ #include <glm/gtx/matrix_transform_2d.hpp>
+ #include <SDL_render.h>
+ 
+diff -ru a/src/graphics/sdlrenderer/SDLShader.cpp b/src/graphics/sdlrenderer/SDLShader.cpp
+--- a/src/graphics/sdlrenderer/SDLShader.cpp	2024-02-26 11:40:16.013675928 +0000
++++ b/src/graphics/sdlrenderer/SDLShader.cpp	2024-02-26 12:08:33.665682038 +0000
+@@ -28,6 +28,8 @@
+ #include "solarus/graphics/VertexArray.h"
+ #include "solarus/graphics/DefaultShaders.h"
+ 
++#define GLM_ENABLE_EXPERIMENTAL
++
+ #include <glm/gtc/type_ptr.hpp>
+ #include <glm/gtx/transform.hpp>
+ #include <glm/gtx/matrix_transform_2d.hpp>
+diff -ru a/src/graphics/Shader.cpp b/src/graphics/Shader.cpp
+--- a/src/graphics/Shader.cpp	2024-02-26 11:40:16.011675868 +0000
++++ b/src/graphics/Shader.cpp	2024-02-26 12:18:42.152705526 +0000
+@@ -26,6 +26,8 @@
+ #include "solarus/graphics/VertexArray.h"
+ #include "solarus/graphics/DefaultShaders.h"
+ 
++#define GLM_ENABLE_EXPERIMENTAL
++
+ #include <glm/gtc/type_ptr.hpp>
+ #include <glm/gtx/transform.hpp>
+ #include <glm/gtx/matrix_transform_2d.hpp>
