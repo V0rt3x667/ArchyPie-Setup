@@ -6,7 +6,7 @@
 
 rp_module_id="raze"
 rp_module_desc="Raze: Build Engine Port"
-rp_module_help="ROM Extensions: .grp\n\nCopy Game Files To:\n${romdir}/ports/duke3d/blood\n${romdir}/ports/duke3d/duke\n${romdir}/ports/duke3d/exhumed\n${romdir}/ports/duke3d/nam\n${romdir}/ports/duke3d/redneck\n${romdir}/ports/duke3d/shadow\n${romdir}/ports/duke3d/ww2gi"
+rp_module_help="ROM Extensions: .grp\n\nCopy Game Files To:\n${romdir}/ports/buildengine/blood\n${romdir}/ports/buildengine/duke3d\n${romdir}/ports/buildengine/exhumed\n${romdir}/ports/buildengine/nam\n${romdir}/ports/buildengine/redneck\n${romdir}/ports/buildengine/redneck2\n${romdir}/ports/buildengine/shadow\n${romdir}/ports/buildengine/ww2gi"
 rp_module_licence="NONCOM: https://raw.githubusercontent.com/coelckers/Raze/master/build-doc/buildlic.txt"
 rp_module_repo="git https://github.com/coelckers/raze :_get_branch_raze"
 rp_module_section="opt"
@@ -19,45 +19,54 @@ function _get_branch_raze() {
 function depends_raze() {
     local depends=(
         'alsa-lib'
+        'bzip2'
+        'clang'
         'cmake'
         'fluidsynth'
         'gtk3'
         'libjpeg-turbo'
+        'libsndfile'
+        'libvpx'
+        'libwebp'
+        'lld'
+        'mpg123'
         'ninja'
-        'perl-rename'
         'openal'
+        'openmp'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
 
 function sources_raze() {
     gitPullOrClone
-    _sources_zmusic
+
+    _sources_zmusic_gzdoom
 
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
-
-    # Fix Building On GCC 13.1
-    sed -i "6i#include <stdexcept>" "${md_build}/libraries/ZVulkan/src/vulkanswapchain.cpp"
-    sed -i "8i#include <stdexcept>" "${md_build}/libraries/ZVulkan/src/vulkanbuilders.cpp"
-    sed -i "1i#include <cstdio>" "${md_build}/libraries/ZVulkan/include/zvulkan/vk_mem_alloc/vk_mem_alloc.h"
 }
 
 function build_raze() {
-    _build_zmusic
+    _build_zmusic_gzdoom
+
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
-        -DDYN_GTK="OFF" \
-        -DDYN_OPENAL="OFF" \
-        -DINSTALL_PK3_PATH="${md_inst}" \
         -DZMUSIC_INCLUDE_DIR="${md_build}/zmusic/include" \
         -DZMUSIC_LIBRARIES="${md_build}/zmusic/source/libzmusic.so" \
+        -DINSTALL_PK3_PATH="${md_inst}" \
+        -DPK3_QUIET_ZIPDIR="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -72,99 +81,85 @@ function install_raze() {
         'package/common/buildlic.txt'
         'package/common/gamecontrollerdb.txt'
     )
+
+    # Install ZMusic Library
     mkdir "${md_inst}/lib"
     cp -Pv "${md_build}"/zmusic/source/*.so* "${md_inst}/lib"
 }
 
-function _add_games_raze() {
-    local cmd="${1}"
-    local dir
-    local game
-    local portname
-    declare -A games=(
-        ['blood/blood.rff']="Blood"
-        ['blood/cryptic.ini']="Blood: Cryptic Passage"
-        ['duke/duke3d.grp']="Duke Nukem 3D"
-        ['duke/dukedc.grp']="Duke Nukem 3D: Duke It Out in D.C."
-        ['duke/nwinter.grp']="Duke Nukem 3D: Duke: Nuclear Winter"
-        ['duke/vacation.grp']="Duke Nukem 3D: Duke Caribbean: Life's a Beach"
-        ['duke/worldtour.grp']="Duke Nukem 3D: Twentieth Anniversary World Tour"
-        ['exhumed/stuff.dat']="Exhumed (AKA PowerSlave)"
-        ['nam/nam.grp']="NAM (AKA Napalm)"
-        ['nam/napalm.grp']="Napalm (AKA NAM)"
-        ['redneck/game66.con']="Redneck Rampage: Suckin' Grits on Route 66"
-        ['redneck/redneck.grp']="Redneck Rampage"
-        ['redneck/rides.grp']="Redneck Rampage II: Redneck Rampage Rides Again"
-        ['shadow/sw.grp']="Shadow Warrior"
-        ['shadow/td.grp']="Shadow Warrior: Twin Dragon"
-        ['shadow/wt.grp']="Shadow Warrior: Wanton Destruction"
-        ['ww2gi/platoonl.dat']="World War II GI: Platoon Leader"
-        ['ww2gi/ww2gi.grp']="World War II GI"
-    )
-
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
-    for game in "${!games[@]}"; do
-        if [[ "${game%/*}" == "duke" ]] || [[ "${game%/*}" == "nam" ]] || [[ "${game%/*}" == "ww2gi" ]]; then
-            portname="duke3d"
-        else
-            portname="raze"
-        fi
-        dir="${romdir}/ports/${portname}/${game%/*}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game##*/}" ]]; then
-            if [[ "${game##*/}" == "cryptic.ini" ]]; then
-                # Add Blood: Cryptic Passage
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-cryptic"
-            elif [[ "${game##*/}" == "game66.con" ]]; then
-                # Add Redneck Rampage: Suckin' Grits on Route 66
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-route66"
-            elif [[ "${game##*/}" != "cryptic.ini" ]] && [[ "${game##*/}" != "game66.con" ]]; then
-                # Add Games Which Do Not Require Additional Parameters
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${md_inst}/${md_id}.sh %ROM%" "-iwad ${game##*/}"
-                # Use addEmulator 0 to Prevent Addon Option From Becoming the Default
-                addEmulator 0 "${md_id}-addon" "${portname}" "${md_inst}/${md_id}.sh %ROM% -file ${romdir}/ports/${portname}/addons/misc/*" "-iwad ${game##*/}"
-            fi  
-        fi
-    done
-
-    if [[ "${md_mode}" == "install" ]]; then
-        # Create a Launcher Script to Strip Quotes from runcommand's Generated Arguments
-        cat > "${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
-${cmd} \$*
-_EOF_
-        chmod +x "${md_inst}/${md_id}.sh"
-    fi
-}
-
 function configure_raze() {
+    local portname
+    portname="buildengine"
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
-            'duke3d/addons'
-            'duke3d/addons/misc'
-            'duke3d/duke'
-            'duke3d/nam'
-            'duke3d/ww2gi'
-            'raze/addons'
-            'raze/addons/misc'
-            'raze/blood'
-            'raze/exhumed'
-            'raze/redneck'
-            'raze/shadow'
+            'addons'
+            'addons/misc'
+            'blood'
+            'duke3d'
+            'exhumed'
+            'nam'
+            'redneck'
+            'redneck2'
+            'shadow'
+            'ww2gi'
         )
-        mkRomDir "ports/duke3d"
-        mkRomDir "ports/raze"
+        mkRomDir "ports/${portname}"
         for dir in "${dirs[@]}"; do
-            mkRomDir "ports/${dir}"
+            mkRomDir "ports/${portname}/${dir}"
         done
+
+        # Create Default Config File
+        cat > "${md_conf_root}/${portname}/${md_id}/raze.ini" << _INI_
+[GameSearch.Directories]
+Path=${romdir}/ports/buildengine
+Path=${romdir}/ports/buildengine/*
+
+[FileSearch.Directories]
+Path=${romdir}/ports/buildengine
+Path=${romdir}/ports/buildengine/*
+
+[SoundfontSearch.Directories]
+Path=\$PROGDIR/soundfonts
+Path=/usr/share/soundfonts
+_INI_
+        chown "${user}:${user}" "${md_conf_root}/${portname}/${md_id}/raze.ini"
+
+        # Create A Launcher Script To Strip Quotes From 'runcommand.sh' Generated Arguments
+        local params=("-fullscreen")
+
+        # FluidSynth Is Too Memory/CPU Intensive, Use OPL Emulation For MIDI
+        if isPlatform "arm"; then
+            params+=("+set snd_mididevice -3")
+        fi
+
+        if isPlatform "kms"; then
+            params+=("-width %XRES%" "-height %YRES%")
+        fi
+
+        cat > "${md_inst}/${md_id}.sh" << _EOF_
+#!/bin/bash
+grp="\${1}"
+file="\${2}"
+
+if [[ "\${grp}" =~ "cryptic.ini" ]]; then
+    switch="-cryptic"
+elif [[ "\${grp}" =~ "game66.con" ]]; then
+    switch="-route66"
+elif [[ "\${file}" =~ "addons" ]]; then
+    switch="-iwad \${grp##*/} -file \${file}"
+else
+    switch="-iwad \${grp##*/}"
+fi
+
+${md_inst}/${md_id} \${switch} ${params[*]}
+_EOF_
+        chmod +x "${md_inst}/${md_id}.sh"
+
         _game_data_eduke32
     fi
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
-
-    _add_games_raze "${md_inst}/${md_id} +vid_renderer 1 +vid_fullscreen 1"
+    _add_games_eduke32 "${md_inst}/${md_id}.sh %ROM%"
 }
