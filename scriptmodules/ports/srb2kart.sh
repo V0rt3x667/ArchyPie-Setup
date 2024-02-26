@@ -16,14 +16,17 @@ function _get_branch_srb2kart() {
 
 function depends_srb2kart() {
     local depends=(
+        'clang'
         'cmake'
         'libgme'
         'libpng'
+        'lld'
         'ninja'
         'sdl2_mixer'
         'sdl2'
+        'zlib'
     )
-    isPlatform "x86" && depends+=('yasm')
+
     getDepends "${depends[@]}"
 }
 
@@ -32,6 +35,8 @@ function sources_srb2kart() {
     ver="$(_get_branch_srb2kart)"
 
     gitPullOrClone
+
+    # Download Assets
     downloadAndExtract "https://github.com/STJr/Kart-Public/releases/download/${ver}/AssetsLinuxOnly.zip" "${md_build}/assets/installer"
 
     # Set Default Config Path(s)
@@ -45,6 +50,10 @@ function build_srb2kart() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -56,7 +65,17 @@ function install_srb2kart() {
 }
 
 function configure_srb2kart() {
+    local portname
+    portname="srb2kart"
+
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
-    addPort "${md_id}" "${md_id}" "Sonic Robo Blast 2 Kart" "${md_inst}/${md_id} -home ${md_conf_root}"
+    local launcher_prefix="SRB2WADDIR=${md_inst}"
+    local params=()
+
+    if isPlatform "x11"; then
+        params+=("-opengl")
+    fi
+
+    addPort "${md_id}" "${portname}" "Sonic Robo Blast 2 Kart" "${launcher_prefix} ${md_inst}/${md_id} -home ${md_conf_root} ${params[*]}"
 }
