@@ -12,8 +12,7 @@ rp_module_section="opt"
 
 function depends_sdlpop() {
     depends=(
-        'cmake'
-        'ninja'
+        'libpng'
         'sdl2_image'
         'sdl2_mixer'
         'sdl2'
@@ -23,19 +22,14 @@ function depends_sdlpop() {
 
 function sources_sdlpop() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
 function build_sdlpop() {
-    cmake . \
-        -B"build" \
-        -G"Ninja" \
-        -S"src" \
-        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
-        -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -Wno-dev
-    ninja -C build clean
-    ninja -C build
+    make -C src clean
+    make -C src
     md_ret_require="${md_build}/prince"
 }
 
@@ -46,20 +40,22 @@ function install_sdlpop() {
         'doc'
         'prince'
     )
-    cp -v "SDLPoP.ini" "${md_inst}/SDLPoP.ini.def"
+
+    cp -v SDLPoP.ini "${md_inst}/SDLPoP.ini.def"
     sed -e "s|use_correct_aspect_ratio = false|use_correct_aspect_ratio = true|g" -i "${md_inst}/SDLPoP.ini.def"
 }
 
 function configure_sdlpop() {
-    copyDefaultConfig "${md_inst}/SDLPoP.ini.def" "${md_conf_root}/${md_id}/SDLPoP.ini"
+    local portname
+    portname="sdlpop"
 
-    moveConfigFile "${md_inst}/SDLPoP.ini" "${md_conf_root}/${md_id}/SDLPoP.ini"
-    moveConfigFile "${md_inst}/PRINCE.SAV" "${md_conf_root}/${md_id}/PRINCE.SAV"
-    moveConfigFile "${md_inst}/QUICKSAVE.SAV" "${md_conf_root}/${md_id}/QUICKSAVE.SAV"
-    moveConfigFile "${md_inst}/SDLPoP.cfg" "${md_conf_root}/${md_id}/SDLPoP.cfg"
-    chown -R "${user}:${user}" "${md_conf_root}/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
+    if [[ "${md_mode}" == "install" ]]; then
+        copyDefaultConfig "${md_inst}/SDLPoP.ini.def" "${md_conf_root}/${md_id}/SDLPoP.ini"
 
-    addPort "${md_id}" "${md_id}" "Prince of Persia" "pushd ${md_inst}; ${md_inst}/prince full; pushd"
+        chown -R "${user}:${user}" "${md_conf_root}/${md_id}"
+    fi
+
+    addPort "${md_id}" "${portname}" "Prince of Persia" "pushd ${md_inst}; ${md_inst}/prince full; pushd"
 }

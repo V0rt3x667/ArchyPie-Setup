@@ -1,0 +1,24 @@
+diff -ru a/src/seg000.c b/src/seg000.c
+--- a/src/seg000.c	2024-02-26 04:36:04.684451045 +0000
++++ b/src/seg000.c	2024-02-26 05:07:03.294653059 +0000
+@@ -2399,7 +2399,7 @@
+ 	if (custom_save_path != NULL && custom_save_path[0] != '\0')
+ 		snprintf_check(save_path, max_len, "%s", custom_save_path);
+ 	else if (home_path != NULL && home_path[0] != '\0')
+-		snprintf_check(save_path, max_len, "%s/.%s", home_path, POP_DIR_NAME);
++		snprintf_check(save_path, max_len, "%s/%s", home_path, "ArchyPie/configs/sdlpop");
+ #endif
+ 
+ 	if (save_path != NULL && save_path[0] != '\0') {
+diff -ru a/src/seg009.c b/src/seg009.c
+--- a/src/seg009.c	2024-02-26 04:36:04.686451083 +0000
++++ b/src/seg009.c	2024-02-26 05:10:41.711744099 +0000
+@@ -81,7 +81,7 @@
+ void find_home_dir(void) {
+ 	if (found_home_dir) return;
+ 	const char* home_path = getenv("HOME");
+-	snprintf_check(home_dir, POP_MAX_PATH - 1, "%s/.%s", home_path, POP_DIR_NAME);
++	snprintf_check(home_dir, POP_MAX_PATH - 1, "%s/%s", home_path, "ArchyPie/configs/sdlpop");
+ 	if(file_exists(home_dir))
+ 		found_home_dir = true;
+ }
