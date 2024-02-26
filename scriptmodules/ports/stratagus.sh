@@ -18,11 +18,18 @@ function _get_branch_stratagus() {
 
 function depends_stratagus() {
     local depends=(
+        'bzip2'
+        'clang'
         'cmake'
         'glu'
         'libmng'
+        'libogg'
         'libtheora'
+        'libvorbis'
+        'lld'
+        'lua51'
         'ninja'
+        'openmp'
         'sdl2_image'
         'sdl2_mixer'
         'sdl2'
@@ -47,8 +54,10 @@ function build_stratagus() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DENABLE_STRIP="ON" \
-        -DENABLE_USEGAMEDIR="OFF" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DGAMEDIR="${md_inst}/bin" \
         -DLUA_INCLUDE_DIR="/usr/include/lua5.1" \
         -DWITH_STACKTRACE="OFF" \
@@ -60,15 +69,14 @@ function build_stratagus() {
 
 function install_stratagus() {
     ninja -C build install/strip
-    md_ret_require="${md_inst}/bin/${md_id}"
 }
 
 function configure_stratagus() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
-
-    mkRomDir "${md_id}"
-
     setConfigRoot ""
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+
+    [[ "${md_mode}" == "install" ]] && mkRomDir "${md_id}"
 
     addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/"${md_id}" -F -d %ROM%"
 
