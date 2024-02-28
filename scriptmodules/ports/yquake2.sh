@@ -30,50 +30,53 @@ function depends_yquake2() {
 }
 
 function sources_yquake2() {
-    local url="https://github.com/yquake2"
+    gitPullOrClone 
+
+    # Clone Addon Repos
     local repos=(
         'ctf'
         'rogue'
         'xatrix'
-        'yquake2'
     )
     for repo in "${repos[@]}"; do
-        if [[ "${repo}" == "yquake2" ]]; then
-            gitPullOrClone "${md_build}/${repo}"
-        else
-            gitPullOrClone "${md_build}/${repo}" "${url}/${repo}"
-        fi
+        gitPullOrClone "${md_build}/${repo}" "${md_repo_url%/*}/${repo}"
     done
 
     # Set Default Config Path(s)
-    sed -e "s|#define CFGDIR \".yq2\"|#define CFGDIR \"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/${md_id}/src/common/header/common.h"
+    sed -e "s|#define CFGDIR \".yq2\"|#define CFGDIR \"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/src/common/header/common.h"
 }
 
 function build_yquake2() {
+    # Build yquake2
+    make clean
+    make
+
+    # Build Addons
     local dirs=(
         'ctf'
         'rogue'
         'xatrix'
-        'yquake2'
     )
     for dir in "${dirs[@]}"; do
         make -C "${md_build}/${dir}" clean
         make -C "${md_build}/${dir}"
     done
-    md_ret_require="${md_build}/${md_id}/release/quake2"
+    md_ret_require="${md_build}/release/quake2"
 }
 
 function install_yquake2() {
     md_ret_files=(
-        'yquake2/LICENSE'
-        'yquake2/README.md'
-        'yquake2/release/baseq2'
-        'yquake2/release/q2ded'
-        'yquake2/release/quake2'
-        'yquake2/release/ref_gl1.so'
-        'yquake2/release/ref_gl3.so'
-        'yquake2/release/ref_soft.so'
+        'LICENSE'
+        'README.md'
+        'release/baseq2'
+        'release/q2ded'
+        'release/quake2'
+        'release/ref_gl1.so'
+        'release/ref_gl3.so'
+        'release/ref_soft.so'
     )
+
+    # Install Addons
     local dirs=(
         'ctf'
         'rogue'
@@ -101,10 +104,12 @@ function _game_data_yquake2() {
 }
 
 function _add_games_yquake2() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
+    local wad
+
     declare -A games=(
         ['baseq2/pak0.pak']="Quake II"
         ['ctf/pak0.pak']="Quake II: Third Wave Capture The Flag"
@@ -112,17 +117,15 @@ function _add_games_yquake2() {
         ['xatrix/pak0.pak']="Quake II: Mission Pack 1: The Reckoning"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="quake2"
-        dir="${romdir}/ports/${portname}/${game%/*}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game##*/}" ]]; then
-            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
+        dir="${romdir}/ports/${portname}/${game%%/*}"
+        wad="${romdir}/ports/${portname}/${game}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${wad}" ]]; then
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${wad}"
         fi
     done
 }
@@ -130,6 +133,8 @@ function _add_games_yquake2() {
 function configure_yquake2() {
     local portname
     portname="quake2"
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
@@ -142,22 +147,32 @@ function configure_yquake2() {
         for dir in "${dirs[@]}"; do
             mkRomDir "ports/${portname}/${dir}"
         done
+
+        # Create A Launcher Script
+        local params=("-datadir ${romdir}/ports/${portname}")
+
+        if isPlatform "gl" || isPlatform "gles3"; then
+            params+=("+set vid_renderer gl3")
+        elif isPlatform "mesa"; then
+            params+=("+set vid_renderer gl1")
+        elif isPlatform "kms"; then
+            params+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_vsync 1")
+        else
+            params+=("+set vid_renderer soft")
+        fi
+
+        cat > "${md_inst}/${md_id}.sh" << _EOF_
+#!/bin/bash -xv
+pak="\${1}"
+game="\${pak##*/quake2/}"
+game="\${game%%/*}"
+
+${md_inst}/quake2 ${params[*]} +set game \${game}
+_EOF_
+        chmod +x "${md_inst}/${md_id}.sh"
+
         _game_data_yquake2
     fi
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
-
-    local params=("-datadir ${romdir}/ports/${portname}" "+set game %ROM%")
-
-    if isPlatform "gles3"; then
-        params+=("+set vid_renderer gl3")
-    elif isPlatform "gl" || isPlatform "mesa"; then
-        params+=("+set vid_renderer gl1")
-    elif isPlatform "kms"; then
-        params+=("+set r_mode -1" "+set r_customwidth %XRES%" "+set r_customheight %YRES%" "+set r_vsync 1")
-    else
-        params+=("+set vid_renderer soft")
-    fi
-
-    _add_games_yquake2 "${md_inst}/${portname} ${params[*]}"
+    _add_games_yquake2 "${md_inst}/${md_id}.sh %ROM%"
 }
