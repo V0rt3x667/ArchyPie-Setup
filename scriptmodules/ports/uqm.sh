@@ -25,20 +25,30 @@ function depends_uqm() {
 
 function sources_uqm() {
     downloadAndExtract "${md_repo_url}" "${md_build}" --strip-components 1
+
+    # Download Assets
     local ver="0.8.0"
-    local url="https://sourceforge.net/projects/sc2/files/UQM/0.8"
+    local url="https://sourceforge.net/projects/sc2/files/UQM/${ver/.0/}"
     local files=(
         "uqm-${ver}-content.uqm"
         "uqm-${ver}-voice.uqm"
         "uqm-${ver}-3domusic.uqm"
+        "uqm-remix-disc1.uqm"
+        "uqm-remix-disc2.uqm"
+        "uqm-remix-disc3.uqm"
+        "uqm-remix-disc4-1.uqm"
     )
+
     for file in "${files[@]}"; do
         if [[ "${file}" == "uqm-${ver}-content.uqm" ]]; then
             curl --create-dirs -sSL "${url}/${file}" --output "${md_build}/content/packages/${file}"
+        elif [[ "${file}" =~ "remix" ]]; then
+            curl --create-dirs -sSL "${__arpie_url}/UQM/${file}" --output "${md_build}/content/addons/${file}"
         else
             curl --create-dirs -sSL "${url}/${file}" --output "${md_build}/content/addons/${file}"
         fi
     done
+
     chmod -R 755 "${md_build}/content"
 
     # Set Default Config Path(s)
@@ -77,7 +87,10 @@ function install_uqm() {
 }
 
 function configure_uqm() {
+    local portname
+    portname="uqm"
+
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
 
-    addPort "${md_id}" "${md_id}" "The Ur-Quan Masters" "${md_inst}/bin/${md_id} -f"
+    addPort "${md_id}" "${portname}" "The Ur-Quan Masters" "${md_inst}/bin/${md_id} -f"
 }
