@@ -7,7 +7,7 @@
 rp_module_id="uhexen2"
 rp_module_desc="Hammer of Thyrion (uHexen2): Hexen II Source Port"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/sezero/uhexen2/master/docs/COPYING"
-rp_module_help="Copy pak0.pak & strings.txt To: ${romdir}/ports/hexen2/data1/ & pak1.pak To: ${romdir}/ports/hexen2/portals/"
+rp_module_help="Copy Hexen II Files To: ${romdir}/ports/hexen2/data1\nFor Portal of Praevus Copy Files To: ${romdir}/ports/hexen2/portals"
 rp_module_repo="git https://github.com/sezero/uhexen2 master"
 rp_module_section="opt"
 rp_module_flags=""
@@ -15,12 +15,10 @@ rp_module_flags=""
 function depends_uhexen2() {
     local depends=(
         'alsa-lib'
-        'flac'
         'libglvnd'
         'libmad'
         'libogg'
         'libvorbis'
-        'sdl12-compat'
         'sdl2'
     )
     isPlatform "x86" && isPlatform "32bit" && depends+=('yasm')
@@ -29,6 +27,9 @@ function depends_uhexen2() {
 
 function sources_uhexen2() {
     gitPullOrClone
+
+    # Apply SDL2 Patch
+    applyPatch "${md_build}/patches/sdl2.patch"
 
     # Set Default Config Path(s)
     sed -e "s|#define[[:blank:]]*SYS_USERDIR_UNIX[[:blank:]]*\".hexen2\"|#define SYS_USERDIR_UNIX \"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/engine/h2shared/userdir.h"
@@ -42,14 +43,17 @@ function build_uhexen2() {
     # Build Hexen Game Engine
     cd "${md_build}/engine/${portname}" || return
     ./build_all.sh
+
     # Build HexenWorld
     cd "${md_build}/engine/hexenworld" || return
     ./build.sh
+
     # Build Hexen Utilities
     cd "${md_build}" || return
     make -C hw_utils/hwmaster
     make -C h2patch
     make -C utils/hcc
+
     # Build Game Code Files
     cd "${md_build}/gamecode" || return
     "${md_build}/utils/hcc/hcc" -src hc/h2 -os
@@ -63,7 +67,7 @@ function build_uhexen2() {
 
 function install_uhexen2() {
     md_ret_files=(
-        'docs/'
+        'docs'
         'engine/hexen2/server/h2ded'
         'engine/hexenworld/client/glhwcl'
         'engine/hexenworld/client/hwcl'
@@ -76,7 +80,7 @@ function install_uhexen2() {
         'gamecode/mapfixes/portals'
         'gamecode/patch111/patchdat'
         'h2patch/h2patch'
-        'scripts/'
+        'scripts'
     )
     if isPlatform "gl" || isPlatform "mesa"; then
         md_ret_files+=('engine/hexen2/glhexen2')
@@ -96,29 +100,30 @@ function _game_data_uhexen2() {
 }
 
 function _add_games_uhexen2() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
+    local wad
+
     declare -A games=(
         ['data1/pak0.pak']="Hexen II"
         ['portals/pak3.pak']="Hexen II: Portal of Praevus"
     )
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="hexen2"
-        dir="${romdir}/ports/${portname}/${game%/*}"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game##*/}" ]]; then
+        dir="${romdir}/ports/${portname}/${game%%/*}"
+        wad="${romdir}/ports/${portname}/${game}"
+         # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${wad}" ]]; then
             if [[ "${game##*/}" == "pak3.pak" ]]; then
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd} -portals" "${game%%/*}"
+                wad="-portals"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${wad}"
             elif [[ "${game##*/}" == "pak0.pak" ]]; then
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game%%/*}"
+                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${wad}"
             fi
         fi
     done
@@ -127,6 +132,8 @@ function _add_games_uhexen2() {
 function configure_uhexen2() {
     local portname
     portname="hexen2"
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
@@ -137,10 +144,9 @@ function configure_uhexen2() {
         for dir in "${dirs[@]}"; do
             mkRomDir "ports/${portname}/${dir}"
         done
+
         _game_data_uhexen2
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     local binary
     local params=("-basedir ${romdir}/ports/${portname}" '-f' '-vsync')
@@ -151,5 +157,5 @@ function configure_uhexen2() {
         binary="${md_inst}/hexen2"
     fi
 
-    _add_games_uhexen2 "${binary} ${params[*]}"
+    _add_games_uhexen2 "${binary} ${params[*]} %ROM%"
 }
