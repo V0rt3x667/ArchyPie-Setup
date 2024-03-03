@@ -617,17 +617,17 @@ function packages_gui_setup() {
 function uninstall_setup()
 {
     dialog --defaultno --yesno "Are you sure you want to uninstall ArchyPie?" 22 76 2>&1 >/dev/tty || return 0
-    dialog --defaultno --yesno "Are you REALLY sure you want to uninstall ArchyPie?\n\n$rootdir will be removed, this includes configuration files for all ArchyPie components." 22 76 2>&1 >/dev/tty || return 0
+    dialog --defaultno --colors --yesno "Are you \ZbREALLY\Zn sure you want to uninstall ArchyPie?\n\nThe \Z4\Zb${rootdir}\Zn folder will be removed - this includes configuration files for all ArchyPie components. If you wish to keep any config files of the emulators/ports that ArchyPie used, then choose \ZrNo\Zn now and save it first." 22 76 2>&1 >/dev/tty || return 0
     clear
     printHeading "Uninstalling ArchyPie"
     for id in "${__mod_id[@]}"; do
         rp_isInstalled "${id}" && rp_callModule "${id}" remove
     done
-    rm -rfv "$rootdir"
-    dialog --defaultno --yesno "Do you want to remove all the files from $datadir? This includes all your installed ROMs, BIOS files and custom splashscreens." 22 76 2>&1 >/dev/tty && rm -rfv "$datadir"
+    rm -rfv "${rootdir}"
+    dialog --defaultno --yesno "Do you want to remove all the files from ${datadir}? This includes all your installed ROMs, BIOS files and custom splashscreens." 22 76 2>&1 >/dev/tty && rm -rfv "${datadir}"
     if dialog --defaultno --yesno "Do you want to remove all system packages that ArchyPie depends on? \n\nWARNING: This will remove packages like SDL2 even if they were installed before you installed ArchyPie, it will also remove any package configurations, such as those in /etc/samba for Samba.\n\nIf unsure choose No (selected by default)." 22 76 2>&1 >/dev/tty; then
         clear
-        # Remove all dependencies.
+        # Remove All Dependencies
         for id in "${__mod_id[@]}"; do
             rp_isInstalled "${id}" && rp_callModule "${id}" depends remove
         done
