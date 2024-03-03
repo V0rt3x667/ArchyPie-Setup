@@ -21,11 +21,10 @@ function sources_lr-mess() {
 }
 
 function build_lr-mess() {
-    # More Memory Is Required For 64bit Platforms
     if isPlatform "64bit"; then
-        rpSwap on 8192
+        rpSwap on 10240
     else
-        rpSwap on 4096
+        rpSwap on 6144
     fi
 
     local params=($(_get_params_lr-mame) 'SUBTARGET=mess')
