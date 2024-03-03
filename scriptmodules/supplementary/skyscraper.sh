@@ -79,6 +79,7 @@ function _config_files_skyscraper() {
         'peas.json'
         'platforms_idmap.csv'
         'resources'
+        'supplementary/bash-completion/Skyscraper.bash'
         'screenscraper_platforms.json'
         'tgdb_developers.json'
         'tgdb_genres.json'
@@ -88,7 +89,29 @@ function _config_files_skyscraper() {
     echo "${config_files[@]}"
 }
 
-# Get The Location Of The Cached Resources Folder
+function remove_skyscraper() {
+    local ret
+    local msg
+
+    # Prompt For Cache Clearing
+    msg="\nRemove also Skyscraper's cache data for all platforms:"
+    msg+="\nvideos, screenshots, descriptions, ... ?"
+    msg+="\n\nThis will only remove files in ~/.skyscraper/cache/."
+    msg+="\n\nIf unsure select 'No'."
+    dialog --clear --colors --defaultno --title "Remove Skyscraper" --yesno "${msg}" 12 60 2>&1 >/dev/tty
+    ret=${?}
+
+    [[ ${ret} -eq 0 ]] && _purge_skyscraper
+
+    # Remove Possible Per-User Deployment Introduced With v3.9.3
+    rm -f "${home}/.bash_completion.d/Skyscraper.bash"
+
+    rm -f "/etc/bash_completion.d/Skyscraper.bash"
+    rm -f "/usr/bin/Skyscraper"
+}
+
+# Get The Location Of The Cached Resources Folder, In v3+, This Changed To 'cache'
+# Note: The Cache Folder Might Be Unavailable During First Time Installations
 function _cache_folder_skyscraper() {
     if [[ -d "${configdir}/all/skyscraper/dbs" ]]; then
         echo "dbs"
@@ -188,11 +211,6 @@ function _list_systems_skyscraper() {
     find -L "${romdir}/" -mindepth 1 -maxdepth 1 -type d -not -empty | sort -u
 }
 
-function remove_skyscraper() {
-    # On Removal Of The Package Purge The Cache
-    _purge_skyscraper
-}
-
 function configure_skyscraper() {
     if [[ "${md_mode}" == "remove" ]]; then
         return
@@ -243,7 +261,7 @@ function _init_config_skyscraper() {
     # Assume New(er) Install
     mkdir -p .pristine_cfgs
     for cf in "${config_files[@]}"; do
-        bn=${cf#*/} # Cut Off cache/
+        bn=${cf##*/} # Cut Off All Folders
         if [[ -e "${md_inst}/${bn}" ]]; then
             cp -rf "${md_inst}/${bn}" ".pristine_cfgs/"
             rm -rf "${md_inst}/${bn}"
@@ -281,6 +299,7 @@ function _init_config_skyscraper() {
         'tgdb_platforms.json'
         'tgdb_publishers.json'
     )
+    local resource_file
     for resource_file in "${resource_files[@]}"; do
         cp -f "${md_inst}/.pristine_cfgs/${resource_file}" "${scraper_conf_dir}"
     done
@@ -305,6 +324,13 @@ function _init_config_skyscraper() {
     # Create The 'cache' Folder & Add The Sample 'priorities.xml' File To It
     mkUserDir "${scraper_conf_dir}/cache"
     cp -f "${md_inst}/.pristine_cfgs/priorities.xml.example" "${scraper_conf_dir}/cache"
+    # Deploy Programmable Completion Script
+    cp -f "${md_inst}/.pristine_cfgs/Skyscraper.bash" "/etc/bash_completion.d/"
+    # Ease Of Use But Also Needed For Proper Completion
+    ln -sf "${md_inst}/Skyscraper" "/usr/bin/Skyscraper"
+
+    # Remove Possible Per-User Deployment Introduced With v3.9.3
+    rm -f "${home}/.bash_completion.d/Skyscraper.bash"
 }
 
 # Scrape One System, Passed As A Parameter
