@@ -21,6 +21,7 @@ function depends_darkplaces-quake() {
         'libtheora'
         'libvorbis'
         'sdl2'
+        'zlib'
     )
     isPlatform "mesa" && depends+=('mesa')
     getDepends "${depends[@]}"

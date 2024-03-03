@@ -49,6 +49,8 @@ function configure_tyrquake() {
     local portname
     portname="quake"
 
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
             'dopa'
@@ -62,8 +64,6 @@ function configure_tyrquake() {
         done
         _game_data_lr-tyrquake
     fi
-
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
 
     local params=("-basedir ${romdir}/ports/${portname}" '-game %QUAKEDIR%' '-fullscreen')
     local binary="${md_inst}/bin/tyr-quake"

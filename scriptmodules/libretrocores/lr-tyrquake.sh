@@ -11,11 +11,6 @@ rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/tyrquake/mast
 rp_module_repo="git https://github.com/libretro/tyrquake master"
 rp_module_section="opt"
 
-function depends_lr-tyrquake() {
-    local depends=('perl-rename')
-    getDepends "${depends[@]}"
-}
-
 function sources_lr-tyrquake() {
     gitPullOrClone
 }
@@ -55,31 +50,26 @@ function _add_games_lr-tyrquake() {
     local cmd="${1}"
     local dir
     local game
-    local pak
     local portname
+    local wad
 
     declare -A games=(
-        ['id1']="Quake"
-        ['hipnotic']="Quake: Mission Pack 1: Scourge of Armagon"
-        ['rogue']="Quake: Mission Pack 2: Dissolution of Eternity"
-        ['dopa']="Quake: Episode 5: Dimensions of the Past"
-        ['quoth']="Quake: Quoth"
+        ['id1/pak0.pak']="Quake"
+        ['hipnotic/pak0.pak']="Quake: Mission Pack 1: Scourge of Armagon"
+        ['rogue/pak0.pak']="Quake: Mission Pack 2: Dissolution of Eternity"
+        ['dopa/pak0.pak']="Quake: Episode 5: Dimensions of the Past"
+        ['quoth/pak0.pak']="Quake: Quoth"
     )
 
-    # Create .sh Files For Each Game Found, Uppercase Filenames Will Be Converted To Lowercase
     for game in "${!games[@]}"; do
         portname="quake"
-        dir="${romdir}/ports/${portname}/${game}"
-        pak="${dir}/pak0.pak"
-
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-
-        if [[ -f "${pak}" ]]; then
-            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${pak}"
+        dir="${romdir}/ports/${portname}/${game%%/*}"
+        wad="${romdir}/ports/${portname}/${game}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${wad}" ]]; then
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${wad}"
         fi
     done
 }
