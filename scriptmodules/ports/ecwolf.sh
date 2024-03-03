@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags=""
 
 function depends_ecwolf() {
-    depends=(
+    local depends=(
         'bzip2'
         'clang'
         'cmake'

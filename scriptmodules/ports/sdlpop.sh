@@ -11,7 +11,7 @@ rp_module_repo="git https://github.com/NagyD/SDLPoP master"
 rp_module_section="opt"
 
 function depends_sdlpop() {
-    depends=(
+    local depends=(
         'libpng'
         'sdl2_image'
         'sdl2_mixer'
