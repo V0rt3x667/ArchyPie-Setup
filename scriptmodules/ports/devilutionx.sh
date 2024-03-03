@@ -26,7 +26,6 @@ function depends_devilutionx() {
         'libsodium'
         'lld'
         'ninja'
-        'perl-rename'
         'sdl2_mixer'
         'sdl2_ttf'
         'sdl2'

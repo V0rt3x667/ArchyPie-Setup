@@ -25,7 +25,6 @@ function depends_dhewm3() {
         'lld'
         'ninja'
         'openal'
-        'perl-rename'
         'sdl2'
         'zlib'
     )

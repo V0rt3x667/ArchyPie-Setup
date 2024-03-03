@@ -21,7 +21,6 @@ function depends_cgenius() {
         'curl'
         'lld'
         'ninja'
-        'perl-rename'
         'sdl2_image'
         'sdl2_mixer'
         'sdl2_ttf'

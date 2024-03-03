@@ -23,7 +23,6 @@ function depends_forceengine() {
         'lld'
         'mesa'
         'ninja'
-        'perl-rename'
         'rtaudio'
         'rtmidi'
         'sdl2_image'

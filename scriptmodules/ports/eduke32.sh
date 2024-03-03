@@ -18,7 +18,6 @@ function depends_eduke32() {
         'libpng'
         'libvorbis'
         'libvpx'
-        'perl-rename'
         'sdl2_mixer'
         'sdl2'
     )
