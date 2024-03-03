@@ -44,10 +44,11 @@ function depends_gzdoom() {
 function sources_gzdoom() {
     gitPullOrClone
 
-    _sources_zmusic_gzdoom
-
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
+
+    # Get ZMusic Sources, Required For GZDoom & Raze
+    _sources_zmusic_gzdoom
 }
 
 function _sources_zmusic_gzdoom() {
@@ -187,27 +188,28 @@ Path=/usr/share/soundfonts
 _INI_
         chown "${user}:${user}" "${md_conf_root}/${portname}/${md_id}/gzdoom.ini"
 
-        _game_data_lr-prboom
-    fi
+        # Create A Launcher Script
+        local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}"
+        local params=("-fullscreen")
 
-    # Create A Launcher Script To Strip Quotes From 'runcommand.sh' Generated Arguments
-    local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}"
-    local params=("-fullscreen")
+        # FluidSynth Is Too Memory/CPU Intensive, Use OPL Emulation For MIDI
+        if isPlatform "arm"; then
+            params+=("+set snd_mididevice -3")
+        fi
 
-    # FluidSynth Is Too Memory/CPU Intensive, Use OPL Emulation For MIDI
-    if isPlatform "arm"; then
-        params+=("+set snd_mididevice -3")
-    fi
+        if isPlatform "kms"; then
+            params+=("-width %XRES%" "-height %YRES%")
+        fi
 
-    if isPlatform "kms"; then
-        params+=("-width %XRES%" "-height %YRES%")
-    fi
-
-    cat > "${md_inst}/${md_id}.sh" << _EOF_
+        cat > "${md_inst}/${md_id}.sh" << _EOF_
 #!/bin/bash
 ${launcher_prefix} ${md_inst}/${md_id} -iwad \${*} ${params[*]}
 _EOF_
-    chmod +x "${md_inst}/${md_id}.sh"
+        chmod +x "${md_inst}/${md_id}.sh"
+
+        # Get Shareware Data If Required
+        _game_data_lr-prboom
+    fi
 
     _add_games_lr-prboom "${md_inst}/${md_id}.sh %ROM%"
 }
