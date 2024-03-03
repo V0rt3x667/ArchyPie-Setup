@@ -6,7 +6,7 @@
 
 rp_module_id="tyrquake"
 rp_module_desc="TyrQuake: Quake Port"
-rp_module_licence="GPL2 https://disenchant.net/git/tyrquake/plain/gnu.txt"
+rp_module_licence="GPL2 https://disenchant.net/git/tyrquake.git/plain/gnu.txt"
 rp_module_repo="git git://disenchant.net/tyrquake master"
 rp_module_section="opt"
 
@@ -22,17 +22,22 @@ function sources_tyrquake() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|(va(\"%s/.tyrquake\", home),|(va(\"%s/ArchyPie/configs/${md_id}\", home),|g" -i "${md_build}/common/common.c"
+    sed -e "s|\"%s/.tyrquake\"|\"%s/ArchyPie/configs/${md_id}\"|g" -i "${md_build}/common/sys_unix.c"
 }
 
 function build_tyrquake() {
+    local binary
     local params=('USE_SDL=Y' 'USE_XF86DGA=N')
+
+    if isPlatform "gl" || isPlatform "mesa"; then
+        binary="bin/tyr-glquake"
+    else
+        binary="bin/tyr-quake'"
+    fi
+
     make clean
-    make "${params[@]}" bin/tyr-quake bin/tyr-glquake
-    md_ret_require=(
-        "${md_build}/bin/tyr-glquake"
-        "${md_build}/bin/tyr-quake"
-    )
+    make "${params[@]}" "${binary}"
+    md_ret_require=("${md_build}/${binary}")
 }
 
 function install_tyrquake() {
@@ -62,15 +67,20 @@ function configure_tyrquake() {
         for dir in "${dirs[@]}"; do
             mkRomDir "ports/${portname}/${dir}"
         done
+
+        # Get Shareware Data If Required
         _game_data_lr-tyrquake
     fi
 
+    local binary
     local params=("-basedir ${romdir}/ports/${portname}" '-game %QUAKEDIR%' '-fullscreen')
-    local binary="${md_inst}/bin/tyr-quake"
 
     isPlatform "kms" && params+=('-width %XRES%' '-height %YRES%' '+set vid_vsync 2')
+
     if isPlatform "gl" || isPlatform "mesa"; then
         binary="${md_inst}/bin/tyr-glquake"
+    else
+        binary="${md_inst}/bin/tyr-quake'"
     fi
 
     _add_games_lr-tyrquake "${binary} ${params[*]}"
