@@ -6,7 +6,7 @@
 
 rp_module_id="splitwolf"
 rp_module_desc="SplitWolf: 2-4 Player Split-Screen Wolfenstein 3D & Spear of Destiny Port"
-rp_module_help="Game File Extension: .wl1, .wl6, .sdm, .sod, .sd2, .sd3\n\nCopy Wolfenstein 3D & Spear of Destiny Game Files to: ${romdir}/ports/wolf3d/"
+rp_module_help="Copy Wolfenstein 3D & Spear of Destiny Game Files To: ${romdir}/ports/wolf3d"
 rp_module_licence="NONCOM https://bitbucket.org/linuxwolf6/splitwolf/raw/scrubbed/license-mame.txt"
 rp_module_repo="git https://bitbucket.org/linuxwolf6/splitwolf scrubbed"
 rp_module_section="exp"
@@ -43,7 +43,7 @@ function build_splitwolf() {
 }
 
 function install_splitwolf() {
-    md_ret_files=('bin/')
+    md_ret_files=('bin')
     install -Dm644 "${md_build}/gamecontrollerdb.txt" -t "${md_build}/bin"
 }
 
@@ -58,20 +58,23 @@ function configure_splitwolf() {
     local portname
     portname="wolf3d"
 
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${portname}"
-        _game_data_splitwolf && _game_data_wolf4sdl
+
+        # Create A Launcher Script
         cat > "${md_inst}/bin/${md_id}.sh" << _EOF_
 #!/bin/bash
 
 function get_md5sum() {
-    local file="\$1"
+    local file="\${1}"
 
     [[ -n "\${file}" ]] && md5sum "\${file}" 2>/dev/null | cut -d" " -f1
 }
 
 function launch_splitwolf() {
-    local wad_file="\$1"
+    local wad_file="\${1}"
     declare -A game_checksums=(
         ['6efa079414b817c97db779cecfb081c9']="splitwolf-wolf3d"
         ['a6d901dfb455dfac96db5e4705837cdb']="splitwolf-wolf3d_apogee"
@@ -90,12 +93,16 @@ function launch_splitwolf() {
     fi
 }
 
-launch_splitwolf "\$1"
+launch_splitwolf "\${1}"
 _EOF_
         chmod +x "${md_inst}/bin/${md_id}.sh"
+
+        # Add Assets
+        _game_data_splitwolf
+
+        # Add Shareware Files
+        _game_data_wolf4sdl
     fi
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
-
-    _add_games_wolf4sdl "${md_inst}/bin/${md_id}.sh ${romdir}/ports/${portname}/%ROM%"
+    _add_games_wolf4sdl "${md_inst}/bin/${md_id}.sh %ROM%"
 }

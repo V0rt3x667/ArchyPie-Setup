@@ -6,6 +6,7 @@
 
 rp_module_id="wolf4sdl"
 rp_module_desc="Wolf4SDL: Port of Wolfenstein 3D & Spear of Destiny"
+rp_module_help="Copy Wolfenstein 3D & Spear of Destiny Game Files To: ${romdir}/ports/wolf3d"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/fabiangreffrath/wolf4sdl/master/license-gpl.txt"
 rp_module_repo="git https://github.com/fabiangreffrath/wolf4sdl master"
 rp_module_section="opt"
@@ -13,7 +14,6 @@ rp_module_flags=""
 
 function depends_wolf4sdl() {
      local depends=(
-        'perl-rename'
         'sdl2_mixer'
         'sdl2'
     )
@@ -46,7 +46,7 @@ function build_wolf4sdl() {
 }
 
 function install_wolf4sdl() {
-    md_ret_files=('bin/')
+    md_ret_files=('bin')
 }
 
 function _game_data_wolf4sdl() {
@@ -69,40 +69,36 @@ function _game_data_wolf4sdl() {
 }
 
 function _add_games_wolf4sdl() {
-    local cmd="$1"
+    local cmd="${1}"
     local dir
     local game
     local portname
+    local wad
+
     declare -A games=(
         ['vswap.sd1']="Wolfenstein 3D: Spear of Destiny"
         ['vswap.sd2']="Wolfenstein 3D: Spear of Destiny: Mission Pack 2: Return to Danger"
         ['vswap.sd3']="Wolfenstein 3D: Spear of Destiny: Mission Pack 3: Ultimate Challenge"
         ['vswap.sdm']="Wolfenstein 3D: Spear of Destiny (Shareware)"
         ['vswap.sod']="Wolfenstein 3D: Spear of Destiny"
-        ['vswap.wl1']="Wolfenstein 3D: Wolfenstein 3D (Shareware)"
-        ['vswap.wl6']="Wolfenstein 3D: Wolfenstein 3D"
+        ['vswap.wl1']="Wolfenstein 3D (Shareware)"
+        ['vswap.wl6']="Wolfenstein 3D"
     )
+
+    # Add Games That Currently Only Work On ECWolf
     if [[ "${md_id}" == "ecwolf" ]]; then
         games+=(['vswap.n3d']="Super Noah's Ark 3D")
     fi
 
-    # Create .sh Files For Each Game Found. Uppercase Filenames Will Be Converted to Lowercase
     for game in "${!games[@]}"; do
         portname="wolf3d"
-        dir="${romdir}/ports/${portname}/"
-        if [[ "${md_mode}" == "install" ]]; then
-            pushd "${dir}" || return
-            perl-rename 'y/A-Z/a-z/' [^.-]{*,*/*}
-            popd || return
-        fi
-        if [[ -f "${dir}/${game}" ]]; then
-            if [[ "${md_id}" == "ecwolf" ]]; then
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game##*.}"
-            elif [[ "${md_id}" == "splitwolf" ]]; then
-                addPort "${md_id}" "splitwolf" "SplitWolf: ${games[${game}]/Wolfenstein 3D:/}" "${cmd}" "${game}"
-            else
-                addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${game}"
-            fi
+        dir="${romdir}/ports/${portname}"
+        wad="${romdir}/ports/${portname}/${game}"
+        # Convert Uppercase Filenames To Lowercase
+        [[ "${md_mode}" == "install" ]] && changeFileCase "${dir}"
+        # Create Launch Scripts For Each Game Found
+        if [[ -f "${wad}" ]]; then
+            addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${wad}"
         fi
     done
 }
@@ -111,21 +107,23 @@ function configure_wolf4sdl() {
     local portname
     portname="wolf3d"
 
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${portname}"
-        _game_data_wolf4sdl
 
+        # Create A Launcher Script
         cat > "${md_inst}/bin/${md_id}.sh" << _EOF_
 #!/bin/bash
 
 function get_md5sum() {
-    local file="\$1"
+    local file="\${1}"
 
     [[ -n "\${file}" ]] && md5sum "\${file}" 2>/dev/null | cut -d" " -f1
 }
 
 function launch_wolf4sdl() {
-    local wad_file="\$1"
+    local wad_file="\${1}"
     declare -A game_checksums=(
         ['6efa079414b817c97db779cecfb081c9']="wolf4sdl-sw-v14"
         ['a6d901dfb455dfac96db5e4705837cdb']="wolf4sdl-3dr-v14"
@@ -145,12 +143,13 @@ function launch_wolf4sdl() {
     fi
 }
 
-launch_wolf4sdl "\$1"
+launch_wolf4sdl "\${1}"
 _EOF_
         chmod +x "${md_inst}/bin/${md_id}.sh"
+
+        # Add Shareware Files
+        _game_data_wolf4sdl
     fi
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
-
-    _add_games_wolf4sdl "${md_inst}/bin/${md_id}.sh ${romdir}/ports/${portname}/%ROM%"
+    _add_games_wolf4sdl "${md_inst}/bin/${md_id}.sh %ROM%"
 }

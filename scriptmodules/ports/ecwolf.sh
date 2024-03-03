@@ -7,7 +7,7 @@
 rp_module_id="ecwolf"
 rp_module_desc="ECWolf: Advanced Source Port For Wolfenstein 3D, Spear of Destiny & Super 3D Noah's Ark"
 rp_module_licence="GPL2 https://bitbucket.org/ecwolf/ecwolf/raw/854becdaa0f59291f619621003cfed67dd6f5c96/docs/license-gpl.txt"
-rp_module_help="Copy Wolfenstein 3D, Spear of Destiny & Super 3D Noah's Ark Game Files To: ${romdir}/ports/wolf3d/"
+rp_module_help="Copy Wolfenstein 3D, Spear of Destiny & Super 3D Noah's Ark Game Files To: ${romdir}/ports/wolf3d"
 rp_module_repo="git https://bitbucket.org/ecwolf/ecwolf master"
 rp_module_section="opt"
 rp_module_flags=""
@@ -25,7 +25,6 @@ function depends_ecwolf() {
         'lld'
         'ninja'
         'opusfile'
-        'perl-rename'
         'sdl2_mixer'
         'sdl2_net'
         'sdl2'
@@ -83,8 +82,8 @@ function configure_ecwolf() {
 
         # Set Default Settings
         local config
-
         config="$(mktemp)"
+
         iniConfig ' = ' '' "${config}"
         iniSet "BaseDataPaths" "\"${romdir}/ports/${portname}\";"
         iniSet "Vid_FullScreen" "1;"
@@ -92,7 +91,16 @@ function configure_ecwolf() {
 
         copyDefaultConfig "${config}" "${md_conf_root}/${portname}/${md_id}/ecwolf.cfg"
         rm "${config}"
+
+        # Create A Launcher Script
+        cat > "${md_inst}/${md_id}.sh" << _EOF_
+#!/bin/bash -xv
+wad="\${1}"
+wad="\${wad##*.}"
+"${md_inst}/bin/${md_id}" --data "\${wad}"
+_EOF_
+        chmod +x "${md_inst}/${md_id}.sh"
     fi
 
-    _add_games_wolf4sdl "${md_inst}/bin/${md_id} --data %ROM%"
+    _add_games_wolf4sdl "${md_inst}/${md_id}.sh %ROM%"
 }
