@@ -17,15 +17,19 @@ function depends_dolphin() {
         'alsa-lib'
         'bluez-libs'
         'bzip2'
+        'clang'
         'cmake'
         'curl'
         'ffmpeg'
         'fmt'
         'hidapi'
+        'libffi'
         'libspng'
+        'libusb'
         'libx11'
         'libxkbcommon'
         'libxml2'
+        'lld'
         'lzo'
         'mbedtls2'
         'miniupnpc'
@@ -47,6 +51,7 @@ function depends_dolphin() {
 function sources_dolphin() {
     gitPullOrClone
 
+    # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 
     # Fix MiniZip Name
@@ -71,6 +76,7 @@ function build_dolphin() {
         -DENABLE_QT="ON" \
         -DENABLE_SDL="ON" \
         -DENABLE_TESTS="OFF" \
+        -DUSE_DISCORD_PRESENCE="OFF" \
         -DUSE_SYSTEM_LIBS="ON" \
         -DUSE_SYSTEM_ENET="OFF" \
         -DUSE_SYSTEM_LIBMGBA="OFF" \
@@ -112,33 +118,40 @@ function configure_dolphin() {
         ln -snf "${biosdir}/gc" "${md_conf_root}/gc/${md_id}/GC"
 
         # Create Default Configuration File
-        mkUserDir "${arpdir}/${md_id}/Config"
+        if [[ ! -f "${md_conf_root}/gc/${md_id}/Config/Dolphin.ini" ]]; then
+            mkUserDir "${md_conf_root}/gc/${md_id}/Config"
 
-        local config
-        config="$(mktemp)"
+            cat >"${md_conf_root}/gc/${md_id}/Config/Dolphin.ini" <<_EOF_
+[Display]
+FullscreenDisplayRes = Auto
+Fullscreen = True
+RenderToMain = True
+KeepWindowOnTop = True
+[Interface]
+ConfirmStop = False
+[General]
+ISOPath0 = "${romdir}/gc"
+ISOPath1 = "${romdir}/wii"
+ISOPaths = 2
+[GBA]
+BIOS = "${biosdir}/gba/gba_bios.bin"
+_EOF_
+        fi
 
-        iniConfig " = " "" "${config}"
+        # Use GLES3 On Platforms Where It's Available
+        if [[ ! -f "${md_conf_root}/gc/${md_id}/Config/GFX.ini" ]] && isPlatform "gles3"; then
+            cat >"${md_conf_root}/gc/${md_id}/Config/GFX.ini" <<_EOF2_
+[Settings]
+PreferGLES = True
+_EOF2_
+        fi
 
-        # Set Fullscreen By Default
-        echo "[Display]" > "${config}"
-        iniSet "FullscreenResolution" "Auto"
-        iniSet "Fullscreen" "True"
-        # Set ROM Paths For GUI
-        echo "[General]" >> "${config}"
-        iniSet "ISOPath0" "${romdir}/gc"
-        iniSet "ISOPath1" "${romdir}/wii"
-        iniSet "ISOPaths" "2"
-        # Set BIOS File For GameCube/GBA Emulated System Link
-        echo "[GBA]" >> "${config}"
-        iniSet "BIOS" "${biosdir}/gba/gba_bios.bin"
-
-        copyDefaultConfig "${config}" "${arpdir}/${md_id}/Config/Dolphin.ini"
-        rm "${config}"
+        chown -R "${user}:${user}" "${md_conf_root}/gc/${md_id}/Config"
     fi
 
     for system in "${systems[@]}"; do
-        addEmulator 1 "${md_id}" "${system}" "${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
-        addEmulator 0 "${md_id}-gui" "${system}" "${md_inst}/bin/${md_id}-emu -b -e %ROM%"
+        addEmulator 0 "${md_id}" "${system}" "${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
+        addEmulator 1 "${md_id}-gui" "${system}" "${md_inst}/bin/${md_id}-emu -b -e %ROM%"
         addSystem "${system}"
     done
 }
