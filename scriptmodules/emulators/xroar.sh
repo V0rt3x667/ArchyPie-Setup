@@ -66,7 +66,7 @@ function configure_xroar() {
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
             mkRomDir "${system}"
-            mkUserDir "${biosdir}/${system32}"
+            mkUserDir "${biosdir}/${system}"
         done
     fi
 
