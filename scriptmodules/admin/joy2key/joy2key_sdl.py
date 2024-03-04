@@ -14,8 +14,7 @@ SDL2 event handling is based on EmulationStation's event handling, see
 https://github.com/RetroPie/EmulationStation/blob/62fd08c26d2f757259b7d890c98c0d7e212f6f84/es-core/src/InputManager.cpp#L205
 EmulationStation is authored by Alec "Aloshi" Lofquist (http://www.aloshi.com,http://www.emulationstation.org)
 
-This script uses the PySDL2 python module from https://github.com/marcusva/py-sdl2.
-Install it before running the script with: pip install -U git+https://github.com/marcusva/py-sdl2.git
+This script uses the PySDL2 python module from https://github.com/marcusva/py-sdl2
 """
 
 import logging
@@ -191,9 +190,9 @@ def get_all_ra_config(def_buttons: list) -> list:
     # Add a generic mapping at index 0, to be used for un-configured joysticks
     generic_dev = InputDev("*", "*")
     generic_dev.add_mappings(
-        {},  # No axis
-        {0: [(1, 'up'), (8, 'left'), (4, 'down'), (2, 'right')]},  # D-Pad as 'hat0'
-        {0: 'b', 1: 'a', 3: 'y', 4: 'x'}  # 4 buttons
+        {},  # no axis
+        {0: 'b', 1: 'a', 3: 'y', 4: 'x'},  # 4 buttons
+        {0: [(1, 'up'), (8, 'left'), (4, 'down'), (2, 'right')]}  # 1 D-Pad as 'hat0'
     )
     ra_config_list.append(generic_dev)
     js_cfg_dir = CONFIG_DIR + '/all/retroarch-joypads/'
