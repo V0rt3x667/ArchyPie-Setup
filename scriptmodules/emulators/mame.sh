@@ -19,22 +19,29 @@ function _get_branch_mame() {
 function depends_mame() {
     local depends=(
         'asio'
+        'bzip2'
+        'clang'
+        'expat'
         'flac'
         'glm'
+        'harfbuzz'
+        'libjpeg-turbo'
+        'libpng'
         'libpulse'
         'libutf8proc'
+        'lld'
         'lua'
         'nasm'
         'portaudio'
         'portmidi'
         'pugixml'
         'python'
-        'qt5-base'
         'rapidjson'
         'sdl2_ttf'
         'sdl2'
         'sqlite'
         'zlib'
+        'zstd'
     )
     isPlatform "x11" && params+=(
         'libx11'
@@ -58,25 +65,27 @@ function sources_mame() {
 }
 
 function build_mame() {
-    # More Memory Is Required For 64bit Platforms
     if isPlatform "64bit"; then
-        rpSwap on 8192
+        rpSwap on 10240
     else
-        rpSwap on 4096
+        rpSwap on 8192
     fi
 
     local params=(
         'LTO=0'
         'NOWERROR=1'
+        'OVERRIDE_CC=clang'
+        'OVERRIDE_CXX=clang++'
         'PYTHON_EXECUTABLE=python'
         'STRIP_SYMBOLS=1'
+        'SYMBOLS=0'
+        'USE_QTDEBUG=0'
     )
     isPlatform "kms" && params+=('NO_X11=1')
     isPlatform "x11" && params+=('USE_WAYLAND=1')
 
-
     make clean
-    make "${params[@]}"
+    LDFLAGS+=" -fuse-ld=lld" make "${params[@]}"
 
     rpSwap off
 
@@ -156,9 +165,7 @@ function configure_mame() {
         iniSet "samplerate" "44100"
 
         # Raspberry Pis Show Improved Performance Using Accelerated Mode Which Enables 'SDL_RENDERER_TARGETTEXTURE'
-        if isPlatform "rpi"; then
-            iniSet "video" "accel"
-        fi
+        iniSet "video" "accel"
 
         copyDefaultConfig "${config}" "${md_conf_root}/${md_id}/mame.ini"
         rm "${config}"
