@@ -8,13 +8,14 @@ rp_module_id="xroar"
 rp_module_desc="XRoar: Dragon Data Dragon 32, 64 & Tandy Colour Computer (CoCo) 1, 2, 3 Emulator"
 rp_module_help="ROM Extensions: .asc .bas .cas .ccc .dmk .dsk .jvc .os9 .rom .sna .vdk .wav\n\nCopy Dragon Games To: ${romdir}/dragon32\nCopy CoCo Games To: ${romdir}/coco\n\nCopy Dragon BIOS File (d32.rom) To: ${biosdir}/dragon32\n\nCopy CoCo BIOS Files (bas13.rom, coco3.rom, coco3p.rom) To: ${biosdir}/coco"
 rp_module_licence="GPL3 http://www.6809.org.uk/xroar"
-rp_module_repo="git http://www.6809.org.uk/git/xroar.git 1.3.1"
+rp_module_repo="git http://www.6809.org.uk/git/xroar.git 1.5.3"
 rp_module_section="opt"
 rp_module_flags=""
 
 function depends_xroar() {
     local depends=(
         'alsa-lib'
+        'libsndfile'
         'sdl2'
         'texinfo'
         'zlib'
@@ -55,21 +56,31 @@ function install_xroar() {
 }
 
 function configure_xroar() {
-    mkRomDir "dragon32"
-    mkRomDir "coco"
+    local systems=(
+        'coco'
+        'dragon32'
+    )
 
-    mkUserDir "${biosdir}/dragon32"
-    mkUserDir "${biosdir}/coco"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/dragon32/${md_id}/"
+
+    if [[ "${md_mode}" == "install" ]]; then
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+            mkUserDir "${biosdir}/${system32}"
+        done
+    fi
 
     local params=()
     ! isPlatform "x11" && params+=('-vo sdl' '-ccr simple')
     ! isPlatform "rpi" && params+=('-fs')
+
     addEmulator 1 "${md_id}-dragon32" "dragon32" "${md_inst}/bin/${md_id} ${params[*]} -machine dragon32 -rompath ${biosdir}/dragon32 -run %ROM%"
     addEmulator 1 "${md_id}-cocous" "coco" "${md_inst}/bin/${md_id} ${params[*]} -machine cocous -rompath ${biosdir}/coco -run %ROM%"
     addEmulator 0 "${md_id}-coco" "coco" "${md_inst}/bin/${md_id} ${params[*]} -machine coco -rompath ${biosdir}/coco -run %ROM%"
     addEmulator 0 "${md_id}-coco3us" "coco" "${md_inst}/bin/${md_id} ${params[*]} -machine coco3 -rompath ${biosdir}/coco -run %ROM%"
     addEmulator 0 "${md_id}-coco3" "coco" "${md_inst}/bin/${md_id} ${params[*]} -machine coco3p -rompath ${biosdir}/coco  -run %ROM%"
 
-    addSystem "dragon32"
-    addSystem "coco"
+    for system in "${systems[@]}"; do
+        addSystem "${system}"
+    done
 }
