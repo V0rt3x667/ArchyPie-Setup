@@ -1494,3 +1494,24 @@ function changeFileCase() {
     find . -depth -name "*" -execdir perl-rename 'y/A-Z/a-z/' '[^.-]' '{}' \;
     popd || return
 }
+
+## @fn pacmanAURInstall()
+## @param package(s) to build and install
+## @brief build packages from the Arch Linux AUR
+function pacmanAURInstall() {
+    local packages="${1}"
+
+    # Create The Build Directory
+    local builddir="${__tmpdir}/pkgs"
+    mkdir -p "${builddir}/${pkg}"
+
+    for pkg in "${packages[@]}"; do
+        gitPullOrClone "${builddir}/${pkg}" "https://aur.archlinux.org/${pkg}"
+        # Add Write Permission For Non-root User, 'makepkg' Can Only Run As A Non-root User
+        chmod -R o+w "${builddir}/${pkg}"
+        su "${user}" -c 'cd '"${builddir}/${pkg}"' && makepkg -cs --needed --noconfirm'
+        # Remove Write Permission For Non-root User
+        chmod -R o-w "${builddir}/${pkg}"
+        pacman -U "${builddir}/${pkg}/${pkg}"*.pkg.tar.zst --needed --noconfirm
+    done
+}
