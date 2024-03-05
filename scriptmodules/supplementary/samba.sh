@@ -10,28 +10,31 @@ rp_module_section="config"
 
 function depends_samba() {
     getDepends samba
+
+    # Add `wsdd` So That ArchyPie Is Easily Discovered By Windows Clients
+    pacmanAURInstall wsdd
 }
 
 function remove_share_samba() {
-    local name="$1"
+    local name="${1}"
     [[ -z "${name}" || ! -f /etc/samba/smb.conf ]] && return
     sed -i "/^\[${name}\]/,/^force user/d" /etc/samba/smb.conf
 }
 
 function add_share_samba() {
-    local name="$1"
-    local path="$2"
+    local name="${1}"
+    local path="${2}"
     [[ -z "${name}" || -z "${path}" ]] && return
     remove_share_samba "${name}"
     cat >>/etc/samba/smb.conf <<_EOF_
-[$1]
-comment = ${name}
+[${1}]
+comment = "${name}"
 path = "${path}"
 writeable = yes
 guest ok = yes
 create mask = 0644
 directory mask = 0755
-force user = ${user}
+force user = "${user}"
 _EOF_
 }
 
