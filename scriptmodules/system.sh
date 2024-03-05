@@ -203,31 +203,36 @@ function get_rpi_video() {
     fi
 }
 
+function get_rpi_model() {
+    # Calculated Based On Information From: "https://github.com/AndrewFromMelbourne/raspberry_pi_revision"
+    # See Also https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
+    local rev="0x$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
+    # If Bit 23 Is Set Get The CPU From Bits 12-15
+    local cpu=$(((rev >> 12) & 15))
+        case ${cpu} in
+            1)
+                __platform="rpi2"
+                ;;
+            2)
+                __platform="rpi3"
+                ;;
+            3)
+                __platform="rpi4"
+                ;;
+            4)
+                __platform="rpi5"
+                ;;
+        esac
+}
+
 function get_platform() {
     local architecture
-    architecture="$(uname -m)"
-    if [[ -z "${__platform}" ]]; then
+    architecture="$(uname --machine)"
+    if [[ -z "$__platform" ]]; then
         case "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" in
             BCM*)
-                # Calculated Based On Information From: "https://github.com/AndrewFromMelbourne/raspberry_pi_revision"
-                local rev
-                rev="0x$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
-                # If Bit 23 Is Set Get The CPU From Bits 12-15
-                local cpu=$(((rev >> 12) & 15))
-                case ${cpu} in
-                    1)
-                        __platform="rpi2"
-                        ;;
-                    2)
-                        __platform="rpi3"
-                        ;;
-                    3)
-                        __platform="rpi4"
-                        ;;
-                    4)
-                        __platform="rpi5"
-                        ;;
-                esac
+                # RPI Kernels Before 2023-11-24 Print A 'Hardware: BCM2835' Line
+                get_rpi_model
                 ;;
             *ODROIDC)
                 __platform="odroid-c1"
@@ -247,6 +252,9 @@ function get_platform() {
             *)
                 if [[ -e "/proc/device-tree/compatible" ]]; then
                     case "$(tr -d '\0' < /proc/device-tree/compatible)" in
+                        *raspberrypi*)
+                            get_rpi_model
+                            ;;
                         *rockpro64*)
                             __platform="rockpro64"
                             ;;
