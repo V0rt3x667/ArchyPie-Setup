@@ -17,7 +17,7 @@ function depends_controlblock() {
         'cmake'
         'doxygen'
         'libgpiod'
-        'raspberrypi-firmware'
+        'firmware-raspberrypi'
     )
     getDepends "${depends[@]}"
 }

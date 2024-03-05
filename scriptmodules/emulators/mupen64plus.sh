@@ -24,7 +24,7 @@ function depends_mupen64plus() {
 )
     isPlatform "gl" && depends+=('glew' 'glu')
     isPlatform "mesa" && depends+=('libglvnd')
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     isPlatform "x86" && depends+=('nasm')
 
     getDepends "${depends[@]}"

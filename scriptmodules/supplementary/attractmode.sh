@@ -134,7 +134,7 @@ function depends_attractmode() {
         'libxinerama'
         'sfml'
     )
-    isPlatform "rpi" && depends+=('libraspberrypi-firmware')
+    isPlatform "rpi" && depends+=('libfirmware-raspberrypi')
     isPlatform "kms" && depends+=(
         'mesa'
         'libglvnd'

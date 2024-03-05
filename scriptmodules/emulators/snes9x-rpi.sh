@@ -16,7 +16,7 @@ function depends_snes9x-rpi() {
     local depends=(
         'ffmpeg'
         'libjpeg-turbo'
-        'raspberrypi-firmware'
+        'firmware-raspberrypi'
         'sdl12-compat'
         'sdl2'
     )

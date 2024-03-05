@@ -67,7 +67,7 @@ function depends_moonlight() {
         'openssl'
         'opusfile'
     )
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     getDepends "${depends[@]}"
 }
 

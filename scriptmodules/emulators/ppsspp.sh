@@ -31,7 +31,7 @@ function depends_ppsspp() {
         'snappy'
         'zlib'
     )
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     isPlatform "mesa" && depends+=('libglvnd')
     isPlatform "x11" && depends+=('spirv-tools')
     getDepends "${depends[@]}"

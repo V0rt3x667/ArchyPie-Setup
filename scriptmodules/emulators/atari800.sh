@@ -22,7 +22,7 @@ function depends_atari800() {
         'sdl2'
         'zlib'
     )
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     getDepends "${depends[@]}"
 }
 

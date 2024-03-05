@@ -15,7 +15,7 @@ rp_module_flags=""
 function depends_advmame() {
     local depends=('sdl2')
     if isPlatform "rpi"; then
-        depends+=('raspberrypi-firmware')
+        depends+=('firmware-raspberrypi')
     fi
     getDepends "${depends[@]}"
 }

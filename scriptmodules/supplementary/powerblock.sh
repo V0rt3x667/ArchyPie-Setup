@@ -15,7 +15,7 @@ function depends_powerblock() {
     local depends=(
         'cmake'
         'doxygen'
-        'raspberrypi-firmware'
+        'firmware-raspberrypi'
     )
     getDepends "${depends[@]}"
 }

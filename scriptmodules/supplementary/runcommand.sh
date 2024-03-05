@@ -25,7 +25,7 @@ function depends_runcommand() {
     else
         depends=('fbida')
     fi
-    isPlatform "rpi" && depends+=('raspberrypi-firmware')
+    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     getDepends "${depends[@]}"
 }
 
