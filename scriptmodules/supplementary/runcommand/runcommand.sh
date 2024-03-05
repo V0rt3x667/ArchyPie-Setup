@@ -123,12 +123,12 @@ function get_config() {
         [[ -z "$IMAGE_DELAY" ]] && IMAGE_DELAY=2
     fi
 
-    if [[ -n "$DISPLAY" ]] && $XRANDR &>/dev/null; then
+    if [[ -n "${DISPLAY}" ]] && ${XRANDR} &>/dev/null; then
         HAS_MODESET="x11"
-    # copy kms tool output to global variable to avoid multiple invocations
-    elif KMS_BUFFER="$($KMSTOOL -r 2>/dev/null)"; then
+    # Copy KMS Tool Output To Global Variable To Avoid Multiple Invocations
+    elif [[ -c /dev/dri/card0 ]] && KMS_BUFFER="$(${KMSTOOL} -r 2>/dev/null)"; then
         HAS_MODESET="kms"
-    elif [[ -f "$TVSERVICE" ]]; then
+    elif [[ -f "${TVSERVICE}" ]]; then
         HAS_MODESET="tvs"
     fi
 }
