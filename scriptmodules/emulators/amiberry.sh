@@ -40,6 +40,7 @@ function depends_amiberry() {
         'libserialport'
         'libxml2'
         'mpg123'
+        'portmidi'
         'sdl2_image'
         'sdl2_ttf'
         'sdl2'
@@ -53,15 +54,25 @@ function sources_amiberry() {
     gitPullOrClone
 
     applyPatch "${md_data}/01_preserve_env.patch"
+
+    # Use Default Optimisation Level
+    sed -i "/CFLAGS += -O3/d" "${md_build}/Makefile"
 }
 
 function build_amiberry() {
     local platform
     platform="$(_get_platform_amiberry)"
 
+    cd external/capsimg || return
+    ./bootstrap
+    ./configure
     make clean
-    make capsimg
+    make
+
+    cd "${md_build}" || return
+    make clean
     make PLATFORM="${platform}" CPUFLAGS="${__cpu_flags}"
+
     md_ret_require="${md_build}/${md_id}"
 }
 
@@ -114,7 +125,7 @@ function configure_amiberry() {
         moveConfigDir "${md_inst}/controllers" "${configdir}/all/retroarch/autoconfig"
         moveConfigFile "${md_inst}/conf/retroarch.cfg" "${configdir}/all/retroarch.cfg"
 
-        # Fix Permissions on BIOS & WHDLoad Directories
+        # Fix Permissions On BIOS & WHDLoad Directories
         chown -R "${user}:${user}" "${biosdir}/amiga"
         chown -R "${user}:${user}" "${md_conf_root}/amiga/${md_id}/whdboot"
 
