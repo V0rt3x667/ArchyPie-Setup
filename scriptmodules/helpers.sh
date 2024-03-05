@@ -1499,13 +1499,13 @@ function changeFileCase() {
 ## @param package(s) to build and install
 ## @brief build packages from the Arch Linux AUR
 function pacmanAURInstall() {
-    local packages="${1}"
+    local builddir="${__tmpdir}/pkgs"
+    local pkg
 
     # Create The Build Directory
-    local builddir="${__tmpdir}/pkgs"
     mkdir -p "${builddir}/${pkg}"
 
-    for pkg in "${packages[@]}"; do
+    for pkg in "${@}"; do
         gitPullOrClone "${builddir}/${pkg}" "https://aur.archlinux.org/${pkg}"
         # Add Write Permission For Non-root User, 'makepkg' Can Only Run As A Non-root User
         chmod -R o+w "${builddir}/${pkg}"
