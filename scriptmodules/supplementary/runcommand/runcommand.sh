@@ -1200,20 +1200,29 @@ function get_sys_command() {
     local quake_dir="${ROM##*/quake/}"
     # remove filename
     quake_dir="${quake_dir%/*}"
-    COMMAND="${COMMAND//\%QUAKEDIR\%/\"$quake_dir\"}"
+    COMMAND="${COMMAND//\%QUAKEDIR\%/\"${quake_dir}\"}"
 
-    # if it starts with CON: it is a console application (so we don't redirect stdout later)
-    if [[ "$COMMAND" == CON:* ]]; then
-        # remove CON:
-        COMMAND="${COMMAND:4}"
-        CONSOLE_OUT=1
-    fi
-
-    # if it starts with XINIT: it is an X11 application (so we need to launch via xinit)
-    if [[ "$COMMAND" == XINIT:* ]]; then
-        # remove XINIT:
-        COMMAND="${COMMAND:6}"
-        XINIT=1
+   # Check If COMMAND Starts With A Launch OPTION:
+    if [[ "${COMMAND}" =~ ^([A-Z\-]+?):(.*)$ ]]; then
+        # extract the command
+        COMMAND="${BASH_REMATCH[2]}"
+        case "${BASH_REMATCH[1]}" in
+            # If It Starts With CON: It Is A Console Application (So We Don't Redirect stdout Later)
+            CON)
+                CONSOLE_OUT=1
+                ;;
+            # If It Starts With XINIT It Is An X11 Application (So We Need To Launch Via xinit)
+            XINIT*)
+                XINIT=1
+                ;;&
+            # If It Starts With XINIT-WM Or XINIT-WMC (With Cursor) It Is An X11 Application Needing A Window Manager
+            XINIT-WM)
+                XINIT_WM=1
+                ;;
+            XINIT-WMC)
+                XINIT_WM=2
+                ;;
+        esac
     fi
 }
 
