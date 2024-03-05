@@ -14,14 +14,9 @@ function _update_hook_joy2key() {
 }
 
 function depends_joy2key() {
-    # Build & Install PySDL2 From The AUR
-    local builddir="${__tmpdir}/pkgs"
-    mkdir "${builddir}"
-    chmod o+w "${builddir}"
-    gitPullOrClone "${builddir}" "https://aur.archlinux.org/python-pysdl2"
-    su "${user}" -c 'cd '"${builddir}"' && makepkg -cfs --needed --noconfirm'
-    pacman -U "${builddir}"/python-pysdl2*.pkg.tar.zst --needed --noconfirm
-    rm -rf "${builddir}"
+    local aurdepends=('python-pysdl2' 'start-stop-daemon')
+
+    pacmanAURInstall "${aurdepends[@]}"
 }
 
 function install_bin_joy2key() {
@@ -63,8 +58,9 @@ case "\${mode}" in
         "${md_inst}/\${script}" "\${device}" "\${params[@]}" || exit 1
         ;;
     stop)
-        pkill -f "\${script}"
-        sleep 1
+        if pid=\$(pgrep -f "\${script}"); then
+            start-stop-daemon --stop --oknodo --pid \${pid} --retry 1
+        fi
         ;;
 esac
 exit 0
@@ -77,5 +73,5 @@ _EOF_
 function remove_joy2key() {
     joy2keyStop
 
-    pacmanRemove python-pysdl2
+    pacmanRemove python-pysdl2 start-stop-daemon
 }
