@@ -6,7 +6,7 @@
 
 rp_module_id="px68k"
 rp_module_desc="px68k: SHARP X68000 Emulator"
-rp_module_help="ROM Extensions: .2hd .88d .cmd .d88 .dim .dup .hdf .hdm .img .m3u .xdf .zip\n\nCopy X68000 Games To: ${romdir}/x68000\n\nCopy BIOS Files: cgrom.dat, iplrom30.dat, iplromco.dat, iplromco.dat & iplromxv.dat To: ${biosdir}/x68000"
+rp_module_help="ROM Extensions: .2hd .88d .cmd .d88 .dim .dup .hdf .hdm .img .m3u .xdf\n\nCopy X68000 Games To: ${romdir}/x68000\n\nCopy BIOS Files: cgrom.dat, iplrom.dat, iplrom30.dat, iplromco.dat & iplromxv.dat To: ${biosdir}/x68000"
 rp_module_repo="git https://github.com/TurtleBazooka/px68k.git master"
 rp_module_section="exp"
 rp_module_flags=""
@@ -14,6 +14,7 @@ rp_module_flags=""
 function depends_px68k() {
     local depends=(
         'fluidsynth'
+        'freepats-general-midi'
         'sdl2_ttf'
         'sdl2'
     )
@@ -22,6 +23,9 @@ function depends_px68k() {
 
 function sources_px68k() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|\".keropi\"|\"ArchyPie/configs/${md_id}\"|g" -i "${md_build}/SDL/prop.c"
 }
 
 function build_px68k() {
@@ -56,7 +60,7 @@ function configure_px68k() {
             'iplromxv.dat'
         )
         for file in "${files[@]}"; do
-            ln -sf "${biosdir}/x86000/${file}" "${md_conf_root}/x68000/${md_id}/${file}"
+            ln -sf "${biosdir}/x68000/${file}" "${md_conf_root}/x68000/${md_id}/${file}"
         done
 
         # Create A Default Config File
@@ -67,6 +71,7 @@ function configure_px68k() {
 [WinX68k]
 StartDir="${romdir}/x68000"
 MenuLanguage=1
+SoundFontFile=/usr/share/soundfonts/freepats-general-midi.sf2
 _EOF_
         fi
         chown -R "${user}:${user}" "${conf}"
