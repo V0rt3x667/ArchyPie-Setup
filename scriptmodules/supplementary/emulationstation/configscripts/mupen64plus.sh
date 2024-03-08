@@ -112,7 +112,6 @@ function map_mupen64plus_joystick() {
 
     local key
     local value
-    iniConfig " = " "" "/tmp/mp64keys.cfg"
     for key in "${keys[@]}"; do
         # Read Key Value Axis Takes Two Key/Axis Values
         iniGet "${key}"
