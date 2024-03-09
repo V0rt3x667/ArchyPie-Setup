@@ -6,7 +6,7 @@
 
 rp_module_id="mame"
 rp_module_desc="MAME: Arcade Machine & Computer Emulator (Latest Version)"
-rp_module_help="ROM Extensions: .7z .zip\n\nCopy MAME ROMs To Either: ${romdir}/mame\n\n${romdir}/arcade"
+rp_module_help="ROM Extensions: .7z .zip\n\nCopy MAME ROMs to one of the following directories:\n\n${romdir}/arcade\n${romdir}/mame"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/mamedev/mame/master/COPYING"
 rp_module_repo="git https://github.com/mamedev/mame :_get_branch_mame"
 rp_module_section="main"
