@@ -6,7 +6,7 @@
 
 rp_module_id="advmame"
 rp_module_desc="AdvanceMAME: Arcade Machine Emulator (MAME 0.106)"
-rp_module_help="ROM Extension: .zip\n\nCopy AdvanceMAME ROMs To: ${romdir}/mame-advmame\nOr\n${romdir}/arcade/advmame"
+rp_module_help="ROM Extension: .zip\n\nCopy AdvanceMAME ROMs to one of the following directories:\n\n${romdir}/arcade/advmame\n${romdir}/mame-advmame"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/amadvance/advancemame/master/COPYING"
 rp_module_repo="git https://github.com/amadvance/advancemame master"
 rp_module_section="opt"
@@ -47,7 +47,7 @@ function install_advmame() {
 }
 
 function configure_advmame() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/mame-${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/mame-${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
@@ -94,8 +94,6 @@ function configure_advmame() {
         iniSet "display_magnify" "1"
 
         iniSet "misc_quiet" "yes"
-        # Disable Threading To Prevent "crash-on-exit"
-        iniSet "misc_smp" "no"
 
         iniSet "sound_samplerate" "44100"
 
