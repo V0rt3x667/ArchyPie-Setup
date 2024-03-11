@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch: Libretro Frontend (Required By All lr-* Cores)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/Libretro/RetroArch v1.16.0.3"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.17.0"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -25,13 +25,10 @@ function depends_retroarch() {
         'miniupnpc'
         'openal'
         'sdl2'
-        'systemd-libs'
         'zlib'
     )
-    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     isPlatform "vulkan" && depends+=('vulkan-icd-loader')
     isPlatform "x11" && depends+=(
-        #'glslang'
         'libpulse'
         'libx11'
         'libxcb'
@@ -40,7 +37,6 @@ function depends_retroarch() {
         'libxrandr'
         'libxv'
         'libxxf86vm'
-        'spirv-tools'
         'wayland-protocols'
         'wayland'
     )
@@ -49,19 +45,15 @@ function depends_retroarch() {
 
 function sources_retroarch() {
     gitPullOrClone
-    local patchs=(
-        '01_add_video_shader_parameter.patch'
-    )
-    for patch in "${patchs[@]}"; do
-        applyPatch "${md_data}/${patch}"
-    done
+
+    # Adds Default RetroPie Behaviour For Shaders, Saves & Controller Enhancements
+    applyPatch "${md_data}/01_retropie_fixes.patch"
 }
 
 function build_retroarch() {
     local params=(
         --disable-builtinbearssl \
         --disable-builtinflac \
-        #--disable-builtinglslang \
         --disable-builtinmbedtls \
         --disable-builtinzlib \
         --disable-cg \
@@ -74,7 +66,6 @@ function build_retroarch() {
         --disable-roar \
         --disable-update_assets \
         --disable-update_cores \
-        --enable-dbus \
         --enable-sdl2
     )
     isPlatform "arm" && params+=('--enable-floathard')
@@ -93,9 +84,6 @@ function build_retroarch() {
         params+=('--disable-vulkan')
     fi
 
-    export CFLAGS+=" -I/usr/include/mbedtls2"
-    export LDFLAGS+=" -L/usr/lib/mbedtls2"
-
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
     make
@@ -104,12 +92,11 @@ function build_retroarch() {
 
 function install_retroarch() {
     make install
-    md_ret_files=('retroarch.cfg')
 }
 
 function update_shaders-retropie_retroarch() {
     local dir="${configdir}/all/${md_id}/shaders"
-    # Remove If Not A Git Repository And Do A Fresh Checkout
+    # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/retropie/.git" ]] && rm -rf "${dir}/retropie"
     gitPullOrClone "${dir}/retropie" "https://github.com/RetroPie/common-shaders.git"
     chown -R "${user}:${user}" "${dir}"
@@ -117,7 +104,7 @@ function update_shaders-retropie_retroarch() {
 
 function update_shaders-glsl_retroarch() {
     local dir="${configdir}/all/${md_id}/shaders"
-    # Remove If Not A Git Repository And Do A Fresh Checkout
+    # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/glsl/.git" ]] && rm -rf "${dir}/glsl"
     gitPullOrClone "${dir}/glsl" "https://github.com/libretro/glsl-shaders.git"
     chown -R "${user}:${user}" "${dir}"
@@ -125,7 +112,7 @@ function update_shaders-glsl_retroarch() {
 
 function update_shaders-slang_retroarch() {
     local dir="${configdir}/all/${md_id}/shaders"
-    # Remove If Not A Git Repository And Do A Fresh Checkout
+    # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/slang/.git" ]] && rm -rf "${dir}/slang"
     gitPullOrClone "${dir}/slang" "https://github.com/libretro/slang-shaders.git"
     chown -R "${user}:${user}" "${dir}"
@@ -133,7 +120,7 @@ function update_shaders-slang_retroarch() {
 
 function update_overlays_retroarch() {
     local dir="${configdir}/all/${md_id}/overlay"
-    # Remove If Not A Git Repository And Do A Fresh Checkout
+    # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/.git" ]] && rm -rf "${dir}"
     gitPullOrClone "${dir}" "https://github.com/libretro/common-overlays.git"
     chown -R "${user}:${user}" "${dir}"
@@ -146,7 +133,7 @@ function update_joypad_autoconfigs_retroarch() {
 
 function update_assets_retroarch() {
     local dir="${configdir}/all/${md_id}/assets"
-    # Remove If Not A Git Repository And Do A Fresh Checkout
+    # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/.git" ]] && rm -rf "${dir}"
     gitPullOrClone "${dir}" "https://github.com/libretro/${md_id}-assets.git"
     chown -R "${user}:${user}" "${dir}"
@@ -169,13 +156,13 @@ function configure_retroarch() {
 
     addUdevInputRules
 
-    # Move And Symlink The RetroArch Configuration
+    # Move & Symlink The RetroArch Configuration
     moveConfigDir "${home}/.config/${md_id}" "${configdir}/all/${md_id}"
 
-    # Move And Symlink "${md_id}-joypads" Folder
+    # Move & Symlink "retroarch-joypads" Folder
     moveConfigDir "${configdir}/all/${md_id}-joypads" "${configdir}/all/${md_id}/autoconfig"
 
-    # Move And Symlink Old Assets, Overlays And Shader Folders
+    # Move & Symlink Old Assets, Overlays & Shader Folders
     moveConfigDir "${md_inst}/assets" "${configdir}/all/${md_id}/assets"
     moveConfigDir "${md_inst}/overlays" "${configdir}/all/${md_id}/overlay"
     moveConfigDir "${md_inst}/shader" "${configdir}/all/${md_id}/shaders"
@@ -191,7 +178,6 @@ function configure_retroarch() {
 
     local config
     config="$(mktemp)"
-    cp "${md_inst}/${md_id}.cfg" "${config}"
 
     # Query ES A/B Keyswap Configuration
     local es_swap="false"
@@ -274,7 +260,7 @@ function configure_retroarch() {
     iniSet "quick_menu_show_start_streaming" "false"
     iniSet "menu_show_overlays" "false"
 
-    # Disable The Load Notification Message With Core And Game Info
+    # Disable The Load Notification Message With Core & Game Info
     iniSet "menu_show_load_content_animation" "false"
     # Disable Core Cache File
     iniSet "core_info_cache_enable" "false"
@@ -299,8 +285,11 @@ function configure_retroarch() {
     # Disable "press twice to quit"
     iniSet "quit_press_twice" "false"
 
-    # Enable Video Shaders
+    # Enable Video Shaders By Default
     iniSet "video_shader_enable" "true"
+
+    # Enable Overlays By Default
+    iniSet "input_overlay_enable" "true"
 
     copyDefaultConfig "${config}" "${configdir}/all/${md_id}.cfg"
     rm "${config}"
@@ -333,13 +322,16 @@ function configure_retroarch() {
     # Don't Save Input Remaps By Default
     _set_config_option_retroarch "remap_save_on_exit" "false"
 
+    # Enable Overlays By Default On Upgrades
+    _set_config_option_retroarch "input_overlay_enable" "true"
+
     # Remapping Hack For Old 8bitdo Firmware
     addAutoConf "8bitdo_hack" 0
 }
 
 function keyboard_retroarch() {
     if [[ ! -f "${configdir}/all/${md_id}.cfg" ]]; then
-        printMsgs "dialog" "No RetroArch Configuration File Found At ${configdir}/all/${md_id}.cfg"
+        printMsgs "dialog" "No RetroArch Configuration File Found At: ${configdir}/all/${md_id}.cfg"
         return
     fi
     local input
@@ -359,10 +351,10 @@ function keyboard_retroarch() {
         local value
         local values
         readarray -t values <<<"${choice}"
-        iniConfig " = " "" "${configdir}/all/${md_id}.cfg"
+        iniConfig " = " '"' "${configdir}/all/${md_id}.cfg"
         i=0
         for value in "${values[@]}"; do
-            iniSet "${key[$i]}" "${value}" >/dev/null
+            iniSet "${key[${i}]}" "${value}" >/dev/null
             ((i++))
         done
     fi
@@ -462,9 +454,9 @@ function gui_retroarch() {
 
 # Adds A RetroArch Global Config Option In "${configdir}/all/${md_id}.cfg", If Not Already Set
 function _set_config_option_retroarch() {
-    local option="$1"
-    local value="$2"
-    iniConfig " = " "\"" "${configdir}/all/${md_id}.cfg"
+    local option="${1}"
+    local value="${2}"
+    iniConfig " = " '"' "${configdir}/all/${md_id}.cfg"
     iniGet "${option}"
     if [[ -z "${ini_value}" ]]; then
         iniSet "${option}" "${value}"

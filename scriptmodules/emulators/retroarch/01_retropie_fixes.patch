@@ -1,0 +1,1153 @@
+diff -ru a/configuration.c b/configuration.c
+--- a/configuration.c	2024-03-10 18:24:10.282060967 +0000
++++ b/configuration.c	2024-03-10 18:22:25.070282537 +0000
+@@ -1580,6 +1580,7 @@
+    SETTING_PATH("audio_filter_dir",              settings->paths.directory_audio_filter, true, NULL, true);
+    SETTING_PATH("resampler_directory",           settings->paths.directory_resampler, false, NULL, true);
+    SETTING_PATH("video_shader_dir",              settings->paths.directory_video_shader, true, NULL, true);
++   SETTING_PATH("video_shader",                  settings->paths.path_shader, false, NULL, true);
+    SETTING_PATH("video_filter_dir",              settings->paths.directory_video_filter, true, NULL, true);
+    SETTING_PATH("video_filter",                  settings->paths.path_softfilter_plugin, false, NULL, true);
+    SETTING_PATH("video_font_path",               settings->paths.path_font, false, NULL, true);
+@@ -2922,6 +2923,7 @@
+    *settings->paths.directory_menu_config = '\0';
+ #endif
+    *settings->paths.directory_video_shader = '\0';
++   *settings->paths.path_shader            = '\0';
+    *settings->paths.directory_video_filter = '\0';
+    *settings->paths.directory_audio_filter = '\0';
+ 
+@@ -5086,6 +5088,10 @@
+    {
+       for (i = 0; i < (unsigned)path_settings_size; i++)
+       {
++         /* blacklist the 'video_shader' configuration path, better handled by shader presets */
++         if (string_is_equal(path_settings[i].ident, "video_shader"))
++             continue;
++
+          const char *value = path_settings[i].ptr;
+ 
+          if (path_settings[i].def_enable && string_is_empty(path_settings[i].ptr))
+diff -ru a/configuration.h b/configuration.h
+--- a/configuration.h	2024-03-10 18:24:10.282060967 +0000
++++ b/configuration.h	2024-03-10 18:22:25.071282554 +0000
+@@ -533,6 +533,7 @@
+       char path_cheat_settings[PATH_MAX_LENGTH];
+       char path_font[PATH_MAX_LENGTH];
+       char path_rgui_theme_preset[PATH_MAX_LENGTH];
++      char path_shader[PATH_MAX_LENGTH];
+ 
+       char directory_audio_filter[PATH_MAX_LENGTH];
+       char directory_autoconfig[PATH_MAX_LENGTH];
+diff -ru a/frontend/drivers/platform_unix.c b/frontend/drivers/platform_unix.c
+--- a/frontend/drivers/platform_unix.c	2024-03-10 18:24:10.779069382 +0000
++++ b/frontend/drivers/platform_unix.c	2024-03-10 18:22:25.657292442 +0000
+@@ -1889,12 +1889,6 @@
+          "thumbnails", sizeof(g_defaults.dirs[DEFAULT_DIR_THUMBNAILS]));
+    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_LOGS], base_path,
+          "logs", sizeof(g_defaults.dirs[DEFAULT_DIR_LOGS]));
+-   fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_SRAM], base_path,
+-         "saves", sizeof(g_defaults.dirs[DEFAULT_DIR_SRAM]));
+-   fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_SAVESTATE], base_path,
+-         "states", sizeof(g_defaults.dirs[DEFAULT_DIR_SAVESTATE]));
+-   fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_SYSTEM], base_path,
+-         "system", sizeof(g_defaults.dirs[DEFAULT_DIR_SYSTEM]));
+ #endif
+ 
+ #ifndef IS_SALAMANDER
+diff -ru a/gfx/video_shader_parse.c b/gfx/video_shader_parse.c
+--- a/gfx/video_shader_parse.c	2024-03-10 18:24:10.950072277 +0000
++++ b/gfx/video_shader_parse.c	2024-03-10 18:22:25.825295277 +0000
+@@ -2782,9 +2782,10 @@
+       {
+          if (string_is_empty(special_name))
+             break;
+-
+-         fill_pathname_join(s, shader_directory, special_name, len);
+-         strlcat(s, video_shader_get_preset_extension(types[i]), len);
++         if (strcmp(special_name, "config")!=0) {
++            fill_pathname_join(s, shader_directory, special_name, len);
++            strlcat(s, video_shader_get_preset_extension(types[i]), len);
++         }
+       }
+ 
+       if (path_is_valid(s))
+@@ -2890,6 +2891,17 @@
+                "global"))
+          goto success;
+    }
++   /* Configuration file shader found ? */
++   strlcpy(shader_path, settings->paths.path_shader, PATH_MAX_LENGTH);
++   if (!string_is_empty(shader_path)) {
++      RARCH_LOG("[Shaders/ArchyPie]: Configuration file shader path found.\n");
++      if(video_shader_load_shader_preset_internal(
++            shader_path,
++            sizeof(shader_path),
++            NULL, NULL,
++            "config"))
++         goto success;
++   }
+    return false;
+ 
+ success:
+diff -ru a/input/drivers/android_input.c b/input/drivers/android_input.c
+--- a/input/drivers/android_input.c	2024-03-10 18:24:10.981072801 +0000
++++ b/input/drivers/android_input.c	2024-03-10 18:22:25.829295345 +0000
+@@ -1510,6 +1510,9 @@
+             {
+                int keycode = AKeyEvent_getKeyCode(event);
+ 
++               if (!keycode)
++                  break;
++
+                if (android_is_keyboard_id(id))
+                {
+                   android_input_poll_event_type_keyboard(
+@@ -1572,6 +1575,9 @@
+                {
+                   int keycode = AKeyEvent_getKeyCode(event);
+ 
++                  if (!keycode)
++                     break;
++
+                   if (android_is_keyboard_id(id))
+                   {
+                      if (!predispatched)
+@@ -1736,27 +1742,37 @@
+          {
+             unsigned i;
+             int16_t ret = 0;
+-            for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
++
++            if (!keyboard_mapping_blocked)
+             {
+-               if (binds[port][i].valid)
++               for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+                {
+-                  if (ANDROID_KEYBOARD_PORT_INPUT_PRESSED(binds[port], i))
+-                     ret |= (1 << i);
++                  if (binds[port][i].valid)
++                  {
++                     if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                           && ANDROID_KEYBOARD_PORT_INPUT_PRESSED(binds[port], i))
++                        ret |= (1 << i);
++                  }
+                }
+             }
++
+             return ret;
+          }
+ 
+-         if (binds[port][id].valid)
+-            if (ANDROID_KEYBOARD_PORT_INPUT_PRESSED(binds[port], id))
+-               return 1;
++         if (id < RARCH_BIND_LIST_END)
++         {
++            if (binds[port][id].valid)
++            {
++               if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
++                     && ANDROID_KEYBOARD_PORT_INPUT_PRESSED(binds[port], id))
++                  return 1;
++            }
++         }
+          break;
+       case RETRO_DEVICE_ANALOG:
+          break;
+       case RETRO_DEVICE_KEYBOARD:
+-         return (id < RETROK_LAST) 
+-            && BIT_GET(android_key_state[ANDROID_KEYBOARD_PORT],
+-                  rarch_keysym_lut[id]);
++         return (id && id < RETROK_LAST) && BIT_GET(android_key_state[ANDROID_KEYBOARD_PORT], rarch_keysym_lut[id]);
+       case RETRO_DEVICE_MOUSE:
+          {
+             int val = 0;
+diff -ru a/input/drivers/cocoa_input.m b/input/drivers/cocoa_input.m
+--- a/input/drivers/cocoa_input.m	2024-03-10 18:24:10.981072801 +0000
++++ b/input/drivers/cocoa_input.m	2024-03-10 18:22:25.829295345 +0000
+@@ -82,6 +82,10 @@
+       unsigned code, uint32_t character, uint32_t mod, unsigned device)
+ {
+     int apple_key              = rarch_keysym_lut[code];
++
++    if (!apple_key)
++       return;
++
+     apple_key_state[apple_key] = down;
+     input_keyboard_event(down,
+           code,
+@@ -435,7 +439,7 @@
+             {
+                for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+                {
+-                  if ((binds[port][i].key < RETROK_LAST) 
++                  if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
+                         && apple_key_state[rarch_keysym_lut[binds[port][i].key]])
+                      ret |= (1 << i);
+                }
+@@ -446,10 +450,13 @@
+          if (binds[port][id].valid)
+          {
+             if (id < RARCH_BIND_LIST_END)
+-               if (!keyboard_mapping_blocked || (id == RARCH_GAME_FOCUS_TOGGLE))
+-                  if (apple_key_state[rarch_keysym_lut[binds[port][id].key]])
+-                     return 1;
+-
++            {
++               if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
++                     && apple_key_state[rarch_keysym_lut[binds[port][id].key]]
++                     && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++                  )
++                  return 1;
++            }
+          }
+          break;
+       case RETRO_DEVICE_ANALOG:
+@@ -469,12 +476,12 @@
+             id_minus_key          = binds[port][id_minus].key;
+             id_plus_key           = binds[port][id_plus].key;
+ 
+-            if (id_plus_valid && id_plus_key < RETROK_LAST)
++            if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+             {
+                if (apple_key_state[rarch_keysym_lut[(enum retro_key)id_plus_key]])
+                   ret = 0x7fff;
+             }
+-            if (id_minus_valid && id_minus_key < RETROK_LAST)
++            if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+             {
+                if (apple_key_state[rarch_keysym_lut[(enum retro_key)id_minus_key]])
+                   ret += -0x7fff;
+@@ -484,7 +491,7 @@
+          break;
+ 
+       case RETRO_DEVICE_KEYBOARD:
+-         return (id < RETROK_LAST) && apple_key_state[rarch_keysym_lut[(enum retro_key)id]];
++         return (id && id < RETROK_LAST) && apple_key_state[rarch_keysym_lut[(enum retro_key)id]];
+       case RETRO_DEVICE_MOUSE:
+       case RARCH_DEVICE_MOUSE_SCREEN:
+          {
+diff -ru a/input/drivers/dinput.c b/input/drivers/dinput.c
+--- a/input/drivers/dinput.c	2024-03-10 18:24:10.981072801 +0000
++++ b/input/drivers/dinput.c	2024-03-10 18:22:25.830295362 +0000
+@@ -583,9 +583,7 @@
+                      {
+                         if (binds[port][i].valid)
+                         {
+-                           if (dinput_mouse_button_pressed(
+-                                    di, port, binds[port][i].mbutton)
+-                              )
++                           if (dinput_mouse_button_pressed(di, port, binds[port][i].mbutton))
+                               ret |= (1 << i);
+                         }
+                      }
+@@ -597,13 +595,13 @@
+                      {
+                         if (binds[port][i].valid)
+                         {
+-                           if ((binds[port][i].key < RETROK_LAST) &&
+-                                 di->state[rarch_keysym_lut
+-                                 [(enum retro_key)binds[port][i].key]] & 0x80)
++                           if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                                 && di->state[rarch_keysym_lut[(enum retro_key)binds[port][i].key]] & 0x80)
+                               ret |= (1 << i);
+                         }
+                      }
+                   }
++
+                   return ret;
+                }
+ 
+@@ -611,26 +609,22 @@
+                {
+                   if (binds[port][id].valid)
+                   {
+-                     if  (binds[port][id].key < RETROK_LAST
+-                           && (di->state[rarch_keysym_lut
+-                              [(enum retro_key)binds[port][id].key]] & 0x80)
+-                           && (   (id == RARCH_GAME_FOCUS_TOGGLE)
+-                              || !keyboard_mapping_blocked)
+-                         )
+-                        return 1;
+-                     else if (
+-                           settings->uints.input_mouse_index[port] == 0
+-                           && dinput_mouse_button_pressed(
+-                              di, port, binds[port][id].mbutton)
+-                           )
++                     if (     binds[port][id].key && binds[port][id].key < RETROK_LAST
++                           && (di->state[rarch_keysym_lut[(enum retro_key)binds[port][id].key]] & 0x80)
++                           && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++                        )
+                         return 1;
++                     else if (settings->uints.input_mouse_index[port] == 0)
++                     {
++                        if (dinput_mouse_button_pressed(di, port, binds[port][id].mbutton))
++                           return 1;
++                     }
+                   }
+                }
+             }
+             break;
+          case RETRO_DEVICE_KEYBOARD:
+-            return (id < RETROK_LAST) &&
+-               di->state[rarch_keysym_lut[(enum retro_key)id]] & 0x80;
++            return (id && id < RETROK_LAST) && di->state[rarch_keysym_lut[(enum retro_key)id]] & 0x80;
+          case RETRO_DEVICE_ANALOG:
+             {
+                int16_t ret           = 0;
+@@ -648,13 +642,13 @@
+                id_minus_key          = binds[port][id_minus].key;
+                id_plus_key           = binds[port][id_plus].key;
+ 
+-               if (id_plus_valid && id_plus_key < RETROK_LAST)
++               if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+                {
+                   unsigned sym = rarch_keysym_lut[(enum retro_key)id_plus_key];
+                   if (di->state[sym] & 0x80)
+                      ret = 0x7fff;
+                }
+-               if (id_minus_valid && id_minus_key < RETROK_LAST)
++               if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+                {
+                   unsigned sym = rarch_keysym_lut[(enum retro_key)id_minus_key];
+                   if (di->state[sym] & 0x80)
+@@ -832,6 +826,7 @@
+                         ? bind_joykey  : autobind_joykey;
+                      const uint32_t joyaxis         = (bind_joyaxis != AXIS_NONE)
+                         ? bind_joyaxis : autobind_joyaxis;
++
+                      if (binds[port][new_id].valid)
+                      {
+                         if ((uint16_t)joykey != NO_BTN && joypad->button(
+@@ -841,22 +836,18 @@
+                               ((float)abs(joypad->axis(joyport, joyaxis))
+                                / 0x8000) > axis_threshold)
+                            return 1;
+-                        else if (
+-                              binds[port][new_id].key < RETROK_LAST
++                        else if ((binds[port][new_id].key && binds[port][new_id].key < RETROK_LAST)
+                               && !keyboard_mapping_blocked
+-                              && di->state[rarch_keysym_lut
+-                              [(enum retro_key)binds[port][new_id].key]] & 0x80
+-                              )
++                              && di->state[rarch_keysym_lut[(enum retro_key)binds[port][new_id].key]] & 0x80)
+                            return 1;
+                         else
+                         {
+                            settings = config_get_ptr();
+-                           if (
+-                                 settings->uints.input_mouse_index[port] == 0
+-                                 && dinput_mouse_button_pressed(
+-                                    di, port, binds[port][new_id].mbutton)
+-                              )
+-                              return 1;
++                           if (settings->uints.input_mouse_index[port] == 0)
++                           {
++                              if (dinput_mouse_button_pressed(di, port, binds[port][new_id].mbutton))
++                                 return 1;
++                           }
+                         }
+                      }
+                   }
+diff -ru a/input/drivers/linuxraw_input.c b/input/drivers/linuxraw_input.c
+--- a/input/drivers/linuxraw_input.c	2024-03-10 18:24:10.982072818 +0000
++++ b/input/drivers/linuxraw_input.c	2024-03-10 18:22:25.830295362 +0000
+@@ -32,9 +32,6 @@
+ #include "../input_keymaps.h"
+ #include "../input_driver.h"
+ 
+-/* TODO/FIXME -
+- * fix game focus toggle */
+-
+ typedef struct linuxraw_input
+ {
+    bool state[0x80];
+@@ -93,15 +90,16 @@
+             unsigned i;
+             int16_t ret = 0;
+ 
+-            for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
++            if (!keyboard_mapping_blocked)
+             {
+-               if (binds[port][i].valid)
++               for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+                {
+-                  if (
+-                        linuxraw->state[rarch_keysym_lut[
+-                        (enum retro_key)binds[port][i].key]]
+-                        )
+-                     ret |= (1 << i);
++                  if (binds[port][i].valid)
++                  {
++                     if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                           && linuxraw->state[rarch_keysym_lut[(enum retro_key)binds[port][i].key]])
++                        ret |= (1 << i);
++                  }
+                }
+             }
+ 
+@@ -112,9 +110,10 @@
+          {
+             if (binds[port][id].valid)
+             {
+-               if ((linuxraw->state[rarch_keysym_lut
+-                        [(enum retro_key)binds[port][id].key]]
+-                   ))
++               if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
++                     && linuxraw->state[rarch_keysym_lut[(enum retro_key)binds[port][id].key]]
++                     && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++                  )
+                   return 1;
+             }
+          }
+@@ -137,13 +136,13 @@
+             id_minus_key          = binds[port][id_minus].key;
+             id_plus_key           = binds[port][id_plus].key;
+ 
+-            if (id_plus_valid && id_plus_key < RETROK_LAST)
++            if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+             {
+                unsigned sym = rarch_keysym_lut[(enum retro_key)id_plus_key];
+                if (linuxraw->state[sym] & 0x80)
+                   ret = 0x7fff;
+             }
+-            if (id_minus_valid && id_minus_key < RETROK_LAST)
++            if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+             {
+                unsigned sym = rarch_keysym_lut[(enum retro_key)id_minus_key];
+                if (linuxraw->state[sym] & 0x80)
+diff -ru a/input/drivers/rwebinput_input.c b/input/drivers/rwebinput_input.c
+--- a/input/drivers/rwebinput_input.c	2024-03-10 18:24:10.983072835 +0000
++++ b/input/drivers/rwebinput_input.c	2024-03-10 18:22:25.830295362 +0000
+@@ -405,11 +405,12 @@
+    const struct retro_keybind *bind = &binds[id];
+    int key                          = bind->key;
+ 
+-   if ((key < RETROK_LAST) && rwebinput_key_pressed(rwebinput, key))
+-      if ((id == RARCH_GAME_FOCUS_TOGGLE) || !keyboard_mapping_blocked)
+-         return 1;
+-   if (port == 0 && !!rwebinput_mouse_state(&rwebinput->mouse,
+-            bind->mbutton, false))
++   if (     (key && key < RETROK_LAST)
++         && rwebinput_key_pressed(rwebinput, key)
++         && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++      )
++      return 1;
++   if (port == 0 && !!rwebinput_mouse_state(&rwebinput->mouse, bind->mbutton, false))
+       return 1;
+    return 0;
+ }
+@@ -479,14 +480,14 @@
+             id_minus_key          = binds[port][id_minus].key;
+             id_plus_key           = binds[port][id_plus].key;
+ 
+-            if (id_plus_valid && id_plus_key < RETROK_LAST)
++            if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+             {
+                if (rwebinput_is_pressed(rwebinput,
+                         binds[port], idx, id_plus,
+                         keyboard_mapping_blocked))
+                   ret = 0x7fff;
+             }
+-            if (id_minus_valid && id_minus_key < RETROK_LAST)
++            if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+             {
+                if (rwebinput_is_pressed(rwebinput, 
+                         binds[port], idx, id_minus,
+@@ -498,11 +499,10 @@
+          }
+          break;
+       case RETRO_DEVICE_KEYBOARD:
+-         return ((id < RETROK_LAST) && rwebinput->keys[id]);
++         return (id && id < RETROK_LAST) && rwebinput->keys[id];
+       case RETRO_DEVICE_MOUSE:
+       case RARCH_DEVICE_MOUSE_SCREEN:
+-         return rwebinput_mouse_state(&rwebinput->mouse, id,
+-               device == RARCH_DEVICE_MOUSE_SCREEN);
++         return rwebinput_mouse_state(&rwebinput->mouse, id, device == RARCH_DEVICE_MOUSE_SCREEN);
+       case RETRO_DEVICE_POINTER:
+       case RARCH_DEVICE_POINTER_SCREEN:
+          if (idx == 0)
+diff -ru a/input/drivers/sdl_input.c b/input/drivers/sdl_input.c
+--- a/input/drivers/sdl_input.c	2024-03-10 18:24:10.983072835 +0000
++++ b/input/drivers/sdl_input.c	2024-03-10 18:22:25.831295379 +0000
+@@ -39,9 +39,6 @@
+ #include <dlfcn.h>
+ #endif
+ 
+-/* TODO/FIXME -
+- * fix game focus toggle */
+-
+ typedef struct sdl_input
+ {
+    int mouse_x;
+@@ -91,6 +88,9 @@
+    unsigned sym          = rarch_keysym_lut[(enum retro_key)key];
+ #endif
+ 
++   if (!key)
++      return false;
++
+ #ifdef WEBOS
+    if (   (key == RETROK_BACKSPACE )
+        && sdl_webos_special_keymap[sdl_webos_spkey_back])
+@@ -139,11 +139,17 @@
+          {
+             unsigned i;
+ 
+-            for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
++            if (!keyboard_mapping_blocked)
+             {
+-               if (binds[port][i].valid)
+-                  if (sdl_key_pressed(binds[port][i].key))
+-                     ret |= (1 << i);
++               for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
++               {
++                  if (binds[port][i].valid)
++                  {
++                     if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                           && sdl_key_pressed(binds[port][i].key))
++                        ret |= (1 << i);
++                  }
++               }
+             }
+ 
+             return ret;
+@@ -152,8 +158,13 @@
+          if (id < RARCH_BIND_LIST_END)
+          {
+             if (binds[port][id].valid)
+-               if (sdl_key_pressed(binds[port][id].key))
++            {
++               if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
++                     && sdl_key_pressed(binds[port][id].key)
++                     && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++                  )
+                   return 1;
++            }
+          }
+          break;
+       case RETRO_DEVICE_ANALOG:
+@@ -172,18 +183,18 @@
+             id_minus_key          = binds[port][id_minus].key;
+             id_plus_key           = binds[port][id_plus].key;
+ 
+-            if (id_plus_valid && id_plus_key < RETROK_LAST)
++            if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+             {
+                if (sdl_key_pressed(id_plus_key))
+                   ret = 0x7fff;
+             }
+-            if (id_minus_valid && id_minus_key < RETROK_LAST)
++            if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+             {
+                if (sdl_key_pressed(id_minus_key))
+                   ret += -0x7fff;
+             }
+          }
+-	 return ret;
++         return ret;
+       case RETRO_DEVICE_MOUSE:
+       case RARCH_DEVICE_MOUSE_SCREEN:
+          if (config_get_ptr()->uints.input_mouse_index[ port ] == 0)
+@@ -284,7 +295,7 @@
+          }
+          break;
+       case RETRO_DEVICE_KEYBOARD:
+-         return (id < RETROK_LAST) && sdl_key_pressed(id);
++         return (id && id < RETROK_LAST) && sdl_key_pressed(id);
+       case RETRO_DEVICE_LIGHTGUN:
+          switch (id)
+          {
+diff -ru a/input/drivers/switch_input.c b/input/drivers/switch_input.c
+--- a/input/drivers/switch_input.c	2024-03-10 18:24:10.983072835 +0000
++++ b/input/drivers/switch_input.c	2024-03-10 18:22:25.831295379 +0000
+@@ -222,12 +222,12 @@
+       key_sym     = rarch_key_map_switch[i].sym;
+       key_code    = input_keymaps_translate_keysym_to_rk(key_sym);
+       key_pressed = hidKeyboardStateGetKey(&kbd_state, key_sym);
+-      if (key_pressed && !(sw->keyboard_state[key_sym]))
++      if (key_sym && key_pressed && !(sw->keyboard_state[key_sym]))
+       {
+          sw->keyboard_state[key_sym] = true;
+          input_keyboard_event(true, key_code, 0, mod, RETRO_DEVICE_KEYBOARD);
+       }
+-      else if (!key_pressed && sw->keyboard_state[key_sym])
++      else if (key_sym && !key_pressed && sw->keyboard_state[key_sym])
+       {
+          sw->keyboard_state[key_sym] = false;
+          input_keyboard_event(false, key_code, 0, mod, RETRO_DEVICE_KEYBOARD);
+@@ -317,8 +317,7 @@
+          break;
+ #ifdef HAVE_LIBNX
+       case RETRO_DEVICE_KEYBOARD:
+-         return ((id < RETROK_LAST) && 
+-               sw->keyboard_state[rarch_keysym_lut[(enum retro_key)id]]);
++         return (id && id < RETROK_LAST) && sw->keyboard_state[rarch_keysym_lut[(enum retro_key)id]];
+       case RETRO_DEVICE_MOUSE:
+       case RARCH_DEVICE_MOUSE_SCREEN:
+          {
+diff -ru a/input/drivers/udev_input.c b/input/drivers/udev_input.c
+--- a/input/drivers/udev_input.c	2024-03-10 18:24:10.983072835 +0000
++++ b/input/drivers/udev_input.c	2024-03-10 18:22:25.831295379 +0000
+@@ -3692,7 +3692,7 @@
+ static bool udev_keyboard_pressed(udev_input_t *udev, unsigned key)
+ {
+    int bit = rarch_keysym_lut[key];
+-   return BIT_GET(udev->state, bit);
++   return (key) ? BIT_GET(udev->state, bit) : false;
+ }
+ 
+ static bool udev_mouse_button_pressed(
+@@ -3820,14 +3820,15 @@
+                      ret |= (1 << i);
+                }
+             }
++
+             if (!keyboard_mapping_blocked)
+             {
+                for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+                {
+                   if (binds[port][i].valid)
+                   {
+-                     if ((binds[port][i].key < RETROK_LAST) &&
+-                           udev_keyboard_pressed(udev, binds[port][i].key))
++                     if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                           && udev_keyboard_pressed(udev, binds[port][i].key))
+                         ret |= (1 << i);
+                   }
+                }
+@@ -3840,21 +3841,12 @@
+          {
+             if (binds[port][id].valid)
+             {
+-               if (
+-                     (binds[port][id].key < RETROK_LAST) &&
+-                     udev_keyboard_pressed(udev, binds[port][id].key)
+-                     && ((    id != RARCH_GAME_FOCUS_TOGGLE)
+-                        && !keyboard_mapping_blocked)
+-                     )
+-                  return 1;
+-               else if (
+-                     (binds[port][id].key < RETROK_LAST) &&
+-                     udev_keyboard_pressed(udev, binds[port][id].key)
+-                     && (    id == RARCH_GAME_FOCUS_TOGGLE)
+-                     )
++               if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
++                     && udev_keyboard_pressed(udev, binds[port][id].key)
++                     && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++                  )
+                   return 1;
+-               else if (udev_mouse_button_pressed(udev, port,
+-                        binds[port][id].mbutton))
++               else if (udev_mouse_button_pressed(udev, port, binds[port][id].mbutton))
+                   return 1;
+             }
+          }
+@@ -3877,13 +3869,13 @@
+             id_minus_key          = binds[port][id_minus].key;
+             id_plus_key           = binds[port][id_plus].key;
+ 
+-            if (id_plus_valid && id_plus_key < RETROK_LAST)
++            if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+             {
+                unsigned sym = rarch_keysym_lut[(enum retro_key)id_plus_key];
+                if BIT_GET(udev->state, sym)
+                   ret = 0x7fff;
+             }
+-            if (id_minus_valid && id_minus_key < RETROK_LAST)
++            if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+             {
+                unsigned sym = rarch_keysym_lut[(enum retro_key)id_minus_key];
+                if (BIT_GET(udev->state, sym))
+@@ -3894,8 +3886,7 @@
+          }
+          break;
+       case RETRO_DEVICE_KEYBOARD:
+-         return (id < RETROK_LAST) && udev_keyboard_pressed(udev, id);
+-
++         return (id && id < RETROK_LAST) && udev_keyboard_pressed(udev, id);
+       case RETRO_DEVICE_MOUSE:
+       case RARCH_DEVICE_MOUSE_SCREEN:
+ #ifdef UDEV_TOUCH_SUPPORT
+@@ -3951,17 +3942,13 @@
+                   const uint64_t bind_joyaxis    = input_config_binds[port][new_id].joyaxis;
+                   const uint64_t autobind_joykey = input_autoconf_binds[port][new_id].joykey;
+                   const uint64_t autobind_joyaxis= input_autoconf_binds[port][new_id].joyaxis;
+-                  uint16_t joyport                  = joypad_info->joy_idx;
++                  uint16_t joyport               = joypad_info->joy_idx;
+                   float axis_threshold           = joypad_info->axis_threshold;
+                   const uint64_t joykey          = (bind_joykey != NO_BTN)
+                      ? bind_joykey  : autobind_joykey;
+                   const uint32_t joyaxis         = (bind_joyaxis != AXIS_NONE)
+                      ? bind_joyaxis : autobind_joyaxis;
+-                  if (!keyboard_mapping_blocked)
+-                     if ((binds[port][new_id].key < RETROK_LAST)
+-                           && udev_keyboard_pressed(udev, binds[port]
+-                              [new_id].key))
+-                        return 1;
++
+                   if (binds[port][new_id].valid)
+                   {
+                      if ((uint16_t)joykey != NO_BTN && joypad->button(
+@@ -3971,8 +3958,12 @@
+                            ((float)abs(joypad->axis(joyport, joyaxis))
+                             / 0x8000) > axis_threshold)
+                         return 1;
+-                     if (udev_mouse_button_pressed(udev, port,
+-                              binds[port][new_id].mbutton))
++                     else if ((binds[port][new_id].key && binds[port][new_id].key < RETROK_LAST)
++                           && !keyboard_mapping_blocked
++                           && udev_keyboard_pressed(udev, binds[port][new_id].key)
++                        )
++                        return 1;
++                     else if (udev_mouse_button_pressed(udev, port, binds[port][new_id].mbutton))
+                         return 1;
+                   }
+                }
+diff -ru a/input/drivers/uwp_input.c b/input/drivers/uwp_input.c
+--- a/input/drivers/uwp_input.c	2024-03-10 18:24:10.983072835 +0000
++++ b/input/drivers/uwp_input.c	2024-03-10 18:22:25.832295395 +0000
+@@ -67,31 +67,28 @@
+             unsigned i;
+             int16_t ret = 0;
+ 
++            for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
++            {
++               if (binds[port][i].valid)
++               {
++                  if (uwp_mouse_state(port, binds[port][i].mbutton, false))
++                     ret |= (1 << i);
++               }
++            }
++
+             if (!keyboard_mapping_blocked)
+             {
+                for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+                {
+                   if (binds[port][i].valid)
+                   {
+-                     if (     
+-                           ((binds[port][i].key < RETROK_LAST) 
+-                            && uwp_keyboard_pressed(binds[port][i].key))
+-                        )
++                     if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                           && uwp_keyboard_pressed(binds[port][i].key))
+                         ret |= (1 << i);
+                   }
+                }
+             }
+ 
+-            for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+-            {
+-               if (binds[port][i].valid)
+-               {
+-                  if (uwp_mouse_state(port,
+-                           binds[port][i].mbutton, false))
+-                     ret |= (1 << i);
+-               }
+-            }
+-
+             return ret;
+          }
+ 
+@@ -99,14 +96,12 @@
+          {
+             if (binds[port][id].valid)
+             {
+-               if ((binds[port][id].key < RETROK_LAST) 
++               if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
+                      && uwp_keyboard_pressed(binds[port][id].key)
+-                     && ((id == RARCH_GAME_FOCUS_TOGGLE)
+-                     || !keyboard_mapping_blocked)
+-                     )
++                     && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++                  )
+                   return 1;
+-               else if (uwp_mouse_state(port,
+-                        binds[port][id].mbutton, false))
++               else if (uwp_mouse_state(port, binds[port][id].mbutton, false))
+                   return 1;
+             }
+          }
+@@ -129,12 +124,12 @@
+             id_minus_key          = binds[port][id_minus].key;
+             id_plus_key           = binds[port][id_plus].key;
+ 
+-            if (id_plus_valid && id_plus_key < RETROK_LAST)
++            if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+             {
+                if (uwp_keyboard_pressed(id_plus_key))
+                   ret = 0x7fff;
+             }
+-            if (id_minus_valid && id_minus_key < RETROK_LAST)
++            if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+             {
+                if (uwp_keyboard_pressed(id_minus_key))
+                   ret += -0x7fff;
+@@ -144,12 +139,10 @@
+          }
+          break;
+       case RETRO_DEVICE_KEYBOARD:
+-         return (id < RETROK_LAST) && uwp_keyboard_pressed(id);
+-
++         return (id && id < RETROK_LAST) && uwp_keyboard_pressed(id);
+       case RETRO_DEVICE_MOUSE:
+       case RARCH_DEVICE_MOUSE_SCREEN:
+          return uwp_mouse_state(port, id, device == RARCH_DEVICE_MOUSE_SCREEN);
+-
+       case RETRO_DEVICE_POINTER:
+       case RARCH_DEVICE_POINTER_SCREEN:
+          return uwp_pointer_state(index, id, device == RARCH_DEVICE_POINTER_SCREEN);
+diff -ru a/input/drivers/wayland_input.c b/input/drivers/wayland_input.c
+--- a/input/drivers/wayland_input.c	2024-03-10 18:24:10.983072835 +0000
++++ b/input/drivers/wayland_input.c	2024-03-10 18:22:25.832295395 +0000
+@@ -191,8 +191,8 @@
+                {
+                   if (binds[port][i].valid)
+                   {
+-                     if (BIT_GET(wl->key_state,
+-                              rarch_keysym_lut[binds[port][i].key]) )
++                     if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                           && BIT_GET(wl->key_state, rarch_keysym_lut[binds[port][i].key]))
+                         ret |= (1 << i);
+                   }
+                }
+@@ -203,18 +203,13 @@
+ 
+          if (id < RARCH_BIND_LIST_END)
+          {
+-            if (binds[port][id].valid && binds[port][id].key < RETROK_LAST)
++            if (binds[port][id].valid)
+             {
+-               if (id != RARCH_GAME_FOCUS_TOGGLE && !keyboard_mapping_blocked)
+-               {
+-                  if (BIT_GET(wl->key_state, rarch_keysym_lut[binds[port][id].key]))
+-                     return 1;
+-               }
+-               else if (id == RARCH_GAME_FOCUS_TOGGLE)
+-               {
+-                  if (BIT_GET(wl->key_state, rarch_keysym_lut[binds[port][id].key]))
+-                     return 1;
+-               }
++               if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
++                     && BIT_GET(wl->key_state, rarch_keysym_lut[binds[port][id].key])
++                     && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
++                  )
++                  return 1;
+ 
+                /* TODO: support default mouse-to-retropad bindings */
+                /* else if (wl_mouse_button_pressed(udev, port, binds[port][i].mbutton))
+@@ -241,13 +236,13 @@
+             id_minus_key          = binds[port][id_minus].key;
+             id_plus_key           = binds[port][id_plus].key;
+ 
+-            if (id_plus_valid && id_plus_key < RETROK_LAST)
++            if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+             {
+                unsigned sym = rarch_keysym_lut[(enum retro_key)id_plus_key];
+                if (BIT_GET(wl->key_state, sym))
+                   ret = 0x7fff;
+             }
+-            if (id_minus_valid && id_minus_key < RETROK_LAST)
++            if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+             {
+                unsigned sym = rarch_keysym_lut[(enum retro_key)id_minus_key];
+                if (BIT_GET(wl->key_state, sym))
+@@ -258,8 +253,7 @@
+          }
+          break;
+       case RETRO_DEVICE_KEYBOARD:
+-         return id < RETROK_LAST &&
+-            BIT_GET(wl->key_state, rarch_keysym_lut[(enum retro_key)id]);
++         return (id && id < RETROK_LAST) && BIT_GET(wl->key_state, rarch_keysym_lut[(enum retro_key)id]);
+       case RETRO_DEVICE_MOUSE:
+       case RARCH_DEVICE_MOUSE_SCREEN:
+          if (port == 0) /* TODO/FIXME: support mouse on additional ports */
+diff -ru a/input/drivers/wiiu_input.c b/input/drivers/wiiu_input.c
+--- a/input/drivers/wiiu_input.c	2024-03-10 18:24:10.983072835 +0000
++++ b/input/drivers/wiiu_input.c	2024-03-10 18:22:25.832295395 +0000
+@@ -60,7 +60,7 @@
+ 
+    code                    = input_keymaps_translate_keysym_to_rk(
+          key->scancode);
+-   if (code < RETROK_LAST)
++   if (code && code < RETROK_LAST)
+       keyboard_state[code] = pressed;
+ 
+    if (key->modifier & KBD_WIIU_SHIFT)
+@@ -106,7 +106,7 @@
+       case RETRO_DEVICE_ANALOG:
+          break;
+       case RETRO_DEVICE_KEYBOARD:
+-         if (id < RETROK_LAST && keyboard_state[id] && (keyboard_channel > 0))
++         if (id && id < RETROK_LAST && keyboard_state[id] && (keyboard_channel > 0))
+             return 1;
+          break;
+       case RETRO_DEVICE_POINTER:
+diff -ru a/input/drivers/winraw_input.c b/input/drivers/winraw_input.c
+--- a/input/drivers/winraw_input.c	2024-03-10 18:24:10.984072852 +0000
++++ b/input/drivers/winraw_input.c	2024-03-10 18:22:25.832295395 +0000
+@@ -780,8 +780,7 @@
+                   {
+                      if (binds[port][i].valid)
+                      {
+-                        if (winraw_mouse_button_pressed(wr,
+-                                 mouse, port, binds[port][i].mbutton))
++                        if (winraw_mouse_button_pressed(wr, mouse, port, binds[port][i].mbutton))
+                            ret |= (1 << i);
+                      }
+                   }
+@@ -793,8 +792,8 @@
+                   {
+                      if (binds[port][i].valid)
+                      {
+-                        if ((binds[port][i].key < RETROK_LAST) &&
+-                              WINRAW_KEYBOARD_PRESSED(wr, binds[port][i].key))
++                        if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                              && WINRAW_KEYBOARD_PRESSED(wr, binds[port][i].key))
+                            ret |= (1 << i);
+                      }
+                   }
+@@ -807,15 +806,12 @@
+             {
+                if (binds[port][id].valid)
+                {
+-                  if (
+-                        (binds[port][id].key < RETROK_LAST)
++                  if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
+                         && WINRAW_KEYBOARD_PRESSED(wr, binds[port][id].key)
+-                        && ((    id == RARCH_GAME_FOCUS_TOGGLE)
+-                           || !keyboard_mapping_blocked)
++                        && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
+                      )
+                      return 1;
+-                  else if (mouse && winraw_mouse_button_pressed(wr,
+-                           mouse, port, binds[port][id].mbutton))
++                  else if (mouse && winraw_mouse_button_pressed(wr, mouse, port, binds[port][id].mbutton))
+                      return 1;
+                }
+             }
+@@ -836,12 +832,12 @@
+                id_minus_key          = binds[port][id_minus].key;
+                id_plus_key           = binds[port][id_plus].key;
+ 
+-               if (id_plus_valid && id_plus_key < RETROK_LAST)
++               if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+                {
+                   if (WINRAW_KEYBOARD_PRESSED(wr, id_plus_key))
+                      ret = 0x7fff;
+                }
+-               if (id_minus_valid && id_minus_key < RETROK_LAST)
++               if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+                {
+                   if (WINRAW_KEYBOARD_PRESSED(wr, id_minus_key))
+                      ret += -0x7fff;
+@@ -849,7 +845,7 @@
+             }
+             return ret;
+          case RETRO_DEVICE_KEYBOARD:
+-            return (id < RETROK_LAST) && WINRAW_KEYBOARD_PRESSED(wr, id);
++            return (id && id < RETROK_LAST) && WINRAW_KEYBOARD_PRESSED(wr, id);
+          case RETRO_DEVICE_MOUSE:
+          case RARCH_DEVICE_MOUSE_SCREEN:
+             if (mouse)
+@@ -996,6 +992,7 @@
+                         ? bind_joykey  : autobind_joykey;
+                      const uint32_t joyaxis         = (bind_joyaxis != AXIS_NONE)
+                         ? bind_joyaxis : autobind_joyaxis;
++
+                      if (binds[port][new_id].valid)
+                      {
+                         if ((uint16_t)joykey != NO_BTN && joypad->button(
+@@ -1005,19 +1002,14 @@
+                               ((float)abs(joypad->axis(joyport, joyaxis))
+                                / 0x8000) > axis_threshold)
+                            return 1;
+-                        else if (
+-                              binds[port][new_id].key < RETROK_LAST
++                        else if ((binds[port][new_id].key && binds[port][new_id].key < RETROK_LAST)
+                               && !keyboard_mapping_blocked
+-                              && WINRAW_KEYBOARD_PRESSED(wr, binds[port]
+-                                 [new_id].key)
+-                              )
++                              && WINRAW_KEYBOARD_PRESSED(wr, binds[port][new_id].key)
++                           )
+                            return 1;
+-                        else
++                        else if (mouse)
+                         {
+-                           if (
+-                                 mouse && winraw_mouse_button_pressed(wr,
+-                                    mouse, port, binds[port][new_id].mbutton)
+-                              )
++                           if (winraw_mouse_button_pressed(wr, mouse, port, binds[port][new_id].mbutton))
+                               return 1;
+                         }
+                      }
+diff -ru a/input/drivers/x11_input.c b/input/drivers/x11_input.c
+--- a/input/drivers/x11_input.c	2024-03-10 18:24:10.984072852 +0000
++++ b/input/drivers/x11_input.c	2024-03-10 18:22:25.833295412 +0000
+@@ -169,20 +169,20 @@
+                   {
+                      if (binds[port][i].valid)
+                      {
+-                        if (x_mouse_button_pressed(x11, port,
+-                                 binds[port][i].mbutton))
++                        if (x_mouse_button_pressed(x11, port, binds[port][i].mbutton))
+                            ret |= (1 << i);
+                      }
+                   }
+                }
++
+                if (!keyboard_mapping_blocked)
+                {
+                   for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+                   {
+                      if (binds[port][i].valid)
+                      {
+-                        if ((binds[port][i].key < RETROK_LAST) &&
+-                              x_keyboard_pressed(x11, binds[port][i].key))
++                        if (     (binds[port][i].key && binds[port][i].key < RETROK_LAST)
++                              && x_keyboard_pressed(x11, binds[port][i].key))
+                            ret |= (1 << i);
+                      }
+                   }
+@@ -195,17 +195,14 @@
+             {
+                if (binds[port][id].valid)
+                {
+-                  if (
+-                        ((binds[port][id].key < RETROK_LAST) && 
+-                         x_keyboard_pressed(x11, binds[port][id].key)) 
+-                        && ((    id == RARCH_GAME_FOCUS_TOGGLE) 
+-                           || !keyboard_mapping_blocked)
++                  if (     (binds[port][id].key && binds[port][id].key < RETROK_LAST)
++                        && x_keyboard_pressed(x11, binds[port][id].key)
++                        && (id == RARCH_GAME_FOCUS_TOGGLE || !keyboard_mapping_blocked)
+                      )
+                      return 1;
+                   else if (settings->uints.input_mouse_index[port] == 0)
+                   {
+-                     if (x_mouse_button_pressed(x11, port,
+-                              binds[port][id].mbutton))
++                     if (x_mouse_button_pressed(x11, port, binds[port][id].mbutton))
+                         return 1;
+                   }
+                }
+@@ -231,13 +228,13 @@
+                id_minus_key          = binds[port][id_minus].key;
+                id_plus_key           = binds[port][id_plus].key;
+ 
+-               if (id_plus_valid && id_plus_key < RETROK_LAST)
++               if (id_plus_valid && id_plus_key && id_plus_key < RETROK_LAST)
+                {
+                   unsigned sym = rarch_keysym_lut[(enum retro_key)id_plus_key];
+                   if (x11->state[sym >> 3] & (1 << (sym & 7)))
+                      ret = 0x7fff;
+                }
+-               if (id_minus_valid && id_minus_key < RETROK_LAST)
++               if (id_minus_valid && id_minus_key && id_minus_key < RETROK_LAST)
+                {
+                   unsigned sym = rarch_keysym_lut[(enum retro_key)id_minus_key];
+                   if (x11->state[sym >> 3] & (1 << (sym & 7)))
+@@ -248,7 +245,7 @@
+             }
+             break;
+          case RETRO_DEVICE_KEYBOARD:
+-            return (id < RETROK_LAST) && x_keyboard_pressed(x11, id);
++            return (id && id < RETROK_LAST) && x_keyboard_pressed(x11, id);
+          case RETRO_DEVICE_MOUSE:
+          case RARCH_DEVICE_MOUSE_SCREEN:
+             switch (id)
+@@ -395,11 +392,7 @@
+                         ? bind_joykey  : autobind_joykey;
+                      const uint32_t joyaxis         = (bind_joyaxis != AXIS_NONE)
+                         ? bind_joyaxis : autobind_joyaxis;
+-                     if (!keyboard_mapping_blocked)
+-                        if ((binds[port][new_id].key < RETROK_LAST) 
+-                              && x_keyboard_pressed(x11, binds[port]
+-                                 [new_id].key) )
+-                           return 1;
++
+                      if (binds[port][new_id].valid)
+                      {
+                         if ((uint16_t)joykey != NO_BTN && joypad->button(
+@@ -409,10 +402,14 @@
+                               ((float)abs(joypad->axis(joyport, joyaxis)) 
+                                / 0x8000) > axis_threshold)
+                            return 1;
++                        else if ((binds[port][new_id].key && binds[port][new_id].key < RETROK_LAST) 
++                              && !keyboard_mapping_blocked
++                              && x_keyboard_pressed(x11, binds[port][new_id].key)
++                           )
++                           return 1;
+                         else if (settings->uints.input_mouse_index[port] == 0)
+                         {
+-                           if (x_mouse_button_pressed(x11, port,
+-                                    binds[port][new_id].mbutton))
++                           if (x_mouse_button_pressed(x11, port, binds[port][new_id].mbutton))
+                               return 1;
+                         }
+                      }
+diff -ru a/input/input_driver.c b/input/input_driver.c
+--- a/input/input_driver.c	2024-03-10 18:24:10.990072954 +0000
++++ b/input/input_driver.c	2024-03-10 18:22:25.839295514 +0000
+@@ -780,36 +780,6 @@
+             idx,
+             id);
+ 
+-   if (device == RETRO_DEVICE_JOYPAD)
+-   {
+-      /* Drivers can overflow when sending too many keys at once.. */
+-      if (id == RETRO_DEVICE_ID_JOYPAD_MASK && ret)
+-      {
+-         /* Deal with menu toggle combo buttons that won't stay inside +32767. */
+-         if (ret == -0x8000) /* R3 */
+-            ret = 0x8000;
+-         else if (ret == -0x4000) /* LR+R3 */
+-            ret = 0x8000 + 0x4000;
+-         else if (ret < 0)
+-            ret = 0;
+-         return ret;
+-      }
+-
+-      /* No binds, no input. This is for ignoring RETROK_UNKNOWN
+-       * if the driver allows setting the key down somehow.
+-       * Otherwise all hotkeys and inputs with null bind get triggered. */
+-      if (     id != RETRO_DEVICE_ID_JOYPAD_MASK && ret
+-            && binds[_port][id].key     == RETROK_UNKNOWN
+-            && binds[_port][id].mbutton == NO_BTN
+-            && (  (  binds[_port][id].joykey  == NO_BTN
+-                  && binds[_port][id].joyaxis == AXIS_NONE)
+-               || (  joypad_info->auto_binds[id].joykey  == NO_BTN
+-                  && joypad_info->auto_binds[id].joyaxis == AXIS_NONE)
+-               )
+-         )
+-         return 0;
+-   }
+-
+    return ret;
+ }
+ 
+@@ -4866,7 +4836,7 @@
+                port, RETRO_DEVICE_JOYPAD, 0,
+                RETRO_DEVICE_ID_JOYPAD_MASK);
+ 
+-      for (i = 0; i < RARCH_FIRST_META_KEY; i++)
++      for (i = 0; i < RARCH_FIRST_CUSTOM_BIND; i++)
+       {
+          if (     (ret & (UINT64_C(1) << i))
+                || input_keys_pressed_other_sources(input_st, i, p_new_state))
+diff -ru a/menu/menu_driver.c b/menu/menu_driver.c
+--- a/menu/menu_driver.c	2024-03-10 18:24:11.132075358 +0000
++++ b/menu/menu_driver.c	2024-03-10 18:22:25.972297758 +0000
+@@ -1556,7 +1556,8 @@
+    /* Axes are a bit tricky ... */
+    for (a = 0; a < MENU_MAX_AXES; a++)
+    {
+-      if (abs(n->axes[a]) >= 20000)
++      if (     abs(n->axes[a]) >= 20000
++            && n->axes[a] != new_state->axis_state[p].rested_axes[a])
+       {
+          /* Take care of case where axis rests on +/- 0x7fff
+           * (e.g. 360 controller on Linux) */
