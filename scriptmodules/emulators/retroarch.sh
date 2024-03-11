@@ -66,6 +66,7 @@ function build_retroarch() {
         --disable-roar \
         --disable-update_assets \
         --disable-update_cores \
+        --disable-vg \
         --enable-sdl2
     )
     isPlatform "arm" && params+=('--enable-floathard')

@@ -126,12 +126,12 @@ function _joypad_index_configedit() {
                 local value
                 local joypad
                 for i in 1 2 3 4; do
-                    player="${players[$i-1]}"
+                    player="${players[${i}-1]}"
                     value="${player}"
                     joypad="${devs_name[${player}]}"
                     [[ -z "${joypad}" ]] && joypad="not connected"
                     [[ "${player}" != "unset" ]] && value+=" (${joypad})"
-                    options+=("$i" "${value}")
+                    options+=("${i}" "${value}")
                 done
                 local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --menu "Choose A Player To Adjust" 22 76 16)
                 local choice
@@ -141,7 +141,7 @@ function _joypad_index_configedit() {
                 options=(U Unset)
                 local i=0
                 for dev in "${devs_name[@]}"; do
-                    options+=("$i" "${dev}")
+                    options+=("${i}" "${dev}")
                     ((i++))
                 done
                 local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --menu "Choose A Gamepad" 22 76 16)
@@ -231,7 +231,7 @@ function advanced_configedit() {
         'input_overlay_enable true false'
         "input_overlay _file_ *.cfg ${rootdir}/emulators/retroarch/overlays"
         "audio_driver ${audio_opts}"
-        'video_driver gl gl1 glcore sdl2 vg vulkan'
+        'video_driver gl glcore sdl2 vulkan'
         'menu_driver rgui xmb ozone'
         'video_fullscreen_x _string_'
         'video_fullscreen_y _string_'
@@ -334,7 +334,7 @@ function choose_config_configedit() {
     while read -r config; do
         config=${config//${path}\//}
         configs+=("${config}")
-        options+=("$i" "${config}")
+        options+=("${i}" "${config}")
         ((i++))
     done < <(find "${path}" -type f -regex "${include}" ! -regex "${exclude}" ! -regex ".*/downloaded_images/.*" | sort)
     local choice
@@ -362,7 +362,7 @@ function basic_menu_configedit() {
             else
                 desc="Configure Additional Options For ${dir}"
             fi
-            options+=("$i" "${desc}")
+            options+=("${i}" "${desc}")
             ((i++))
         done < <(find "${configdir}" -type f -regex ".*/retroarch.cfg" | sort)
         local choice
