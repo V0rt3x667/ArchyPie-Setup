@@ -19,6 +19,20 @@ function _update_hook_bluetooth() {
     fi
 }
 
+function depends_bluetooth() {
+    local depends=(
+        'bluez-deprecated-tools'
+        'bluez-plugins'
+        'bluez-tools'
+        'bluez-utils'
+        'bluez'
+        'dbus-python'
+        'python-docutils'
+        'python-gobject'
+    )
+    getDepends "${depends[@]}"
+}
+
 function _get_connect_mode() {
     # Get Bluetooth Config
     iniConfig "=" '"' "${configdir}/all/bluetooth.cfg"
@@ -30,46 +44,8 @@ function _get_connect_mode() {
     fi
 }
 
-function depends_bluetooth() {
-    local depends=(
-        'bluez-plugins'
-        'bluez-tools'
-        'bluez-utils'
-        'bluez'
-        'dbus-python'
-        'python-docutils'
-        'python-gobject'
-    )
-    getDepends "${depends[@]}"
-
-    # The Deprecated 'hcitool' Is Required For This Script To Run
-    if [[ ! -f "${rootdir}/supplementary/${md_id}/hcitool" ]]; then
-        _build_hcitool
-    fi
-}
-
-function _build_hcitool() {
-    local url="https://www.kernel.org/pub/linux/bluetooth/bluez-5.66.tar.xz"
-
-    downloadAndExtract "${url}" "${md_build}" --strip-components 1
-
-    cd "${md_build}" || exit
-    ./configure \
-        --prefix="${md_inst}" \
-        --enable-deprecated \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --libexecdir=/usr/lib \
-        --with-dbusconfdir=/usr/share
-    make clean
-    make
-
-    mkdir -p "${rootdir}/supplementary/${md_id}"
-    cp "${md_build}/tools/hcitool" "${rootdir}/supplementary/${md_id}/"
-}
-
 function get_script_bluetooth() {
-    name="$1"
+    name="${1}"
     if ! which "${name}"; then
         [[ "${name}" == "bluez-test-input" ]] && name="bluez-test-device"
         name="${md_data}/${name}"
@@ -96,19 +72,19 @@ function bluez_cmd_bluetooth() {
     exec 3<>"${fifo}"
     local line
     while true; do
-        _slowecho_bluetooth "$1" >&3
+        _slowecho_bluetooth "${1}" >&3
         # Collect Output For Specified Amount Of Time, Then Echo It
         while read -r line; do
             printf '%s\n' "${line}"
             # (Slow) Reply To Any Optional Challenges
-            if [[ -n "$3" && "${line}" =~ $3 ]]; then
-                _slowecho_bluetooth "$4" >&3
+            if [[ -n "${3}" && "${line}" =~ ${3} ]]; then
+                _slowecho_bluetooth "${4}" >&3
             fi
         done
         _slowecho_bluetooth "quit\n" >&3
         break
     # Read From 'bluetoothctl' Buffered Line By Line
-    done < <(timeout "$2" stdbuf -oL bluetoothctl --agent=NoInputNoOutput <&3)
+    done < <(timeout "${2}" stdbuf -oL bluetoothctl --agent=NoInputNoOutput <&3)
     exec 3>&-
 }
 
@@ -137,7 +113,7 @@ function list_available_bluetooth() {
     else
         while read -r; read -r mac; read -r name; do
             found+=(["${mac}"]="${name}")
-        done < <(${hcitool} scan --flush | tail -n +2 | sed 's/\t/\n/g')
+        done < <(hcitool scan --flush | tail -n +2 | sed 's/\t/\n/g')
     fi
 
     # Display Any Found Addresses That Are Not Already Paired
@@ -161,7 +137,7 @@ function list_registered_bluetooth() {
 
 function _devices_grep_bluetooth() {
     declare -A devices=()
-    local pattern="$1"
+    local pattern="${1}"
 
     local mac
     local name
@@ -231,7 +207,7 @@ function remove_device_bluetooth() {
 
         local out
         out=$(bt-device --remove "${choice}" 2>&1)
-        if [[ "$?" -eq 0 ]] ; then
+        if [[ "${?}" -eq 0 ]] ; then
             printMsgs "dialog" "Device Removed"
         else
             printMsgs "dialog" "Error Removing Device:\n\n${out}"
@@ -244,7 +220,6 @@ function pair_bluetooth() {
     local mac
     local name
     local options=()
-    local hcitool="${rootdir}/supplementary/${md_id}/hcitool"
 
     while read -r mac; read -r name; do
         devices+=(["${mac}"]="${name}")
@@ -266,7 +241,7 @@ function pair_bluetooth() {
     if [[ "${name}" =~ "PLAYSTATION(R)3 Controller" ]]; then
         bt-device --disconnect="${mac}" >/dev/null
         bt-device --set "${mac}" Trusted 1 >/dev/null
-        if [[ "$?" -eq 0 ]]; then
+        if [[ "${?}" -eq 0 ]]; then
             printMsgs "dialog" "Successfully Authenticated ${name} (${mac}).\n\nYou Can Now Remove The USB Cable."
         else
             printMsgs "dialog" "Unable To Authenticate ${name} (${mac}).\n\nPlease Try To Pair The Device Again, Making Sure To Follow The On-Screen Steps Exactly."
@@ -337,7 +312,7 @@ function pair_bluetooth() {
     rm -f "${fifo}"
 
     if [[ "${skip_connect}" -eq 1 ]]; then
-        if ${hcitool} con | grep -q "${mac}"; then
+        if hcitool con | grep -q "${mac}"; then
             printMsgs "dialog" "Successfully Paired & Connected To ${mac}"
             return 0
         else
@@ -348,7 +323,7 @@ function pair_bluetooth() {
 
     if [[ -z "${error}" ]]; then
         error=$(bt-device --set "${mac}" Trusted 1 2>&1)
-        if [[ "$?" -eq 0 ]] ; then
+        if [[ "${?}" -eq 0 ]] ; then
             return 0
         fi
     fi
@@ -412,7 +387,7 @@ function connect_mode_gui_bluetooth() {
 }
 
 function connect_mode_set_bluetooth() {
-    local mode="$1"
+    local mode="${1}"
     [[ -z "${mode}" ]] && mode="default"
 
     local config="/etc/systemd/system/connect-bluetooth.service"
@@ -500,8 +475,6 @@ function gui_bluetooth() {
                     setAutoConf "8bitdo_hack" "${atebitdo}"
                     ;;
             esac
-        else
-            break
         fi
     done
 }
