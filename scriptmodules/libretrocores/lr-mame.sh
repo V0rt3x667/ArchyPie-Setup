@@ -16,7 +16,9 @@ function _get_params_lr-mame() {
     local params=(
         'CONFIG=libretro'
         'NO_USE_MIDI=1'
+        'NO_USE_PORTAUDIO=1'
         'NOWERROR=1'
+        'OPTIMIZE=2'
         'OS=linux'
         'OSD=retro'
         'PYTHON_EXECUTABLE=python'
