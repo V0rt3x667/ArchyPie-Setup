@@ -133,6 +133,8 @@ ConfirmStop = False
 ISOPath0 = "${romdir}/gc"
 ISOPath1 = "${romdir}/wii"
 ISOPaths = 2
+[Core]
+AutoDiscChange = True
 [GBA]
 BIOS = "${biosdir}/gba/gba_bios.bin"
 _EOF_
