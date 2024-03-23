@@ -125,11 +125,13 @@ function _add_rom_emulationstation() {
 
 function depends_emulationstation() {
     local depends=(
+        'clang'
         'cmake'
         'curl'
         'freeimage'
         'freetype2'
         'libsm'
+        'lld'
         'ninja'
         'rapidjson'
         'sdl2'
@@ -141,6 +143,9 @@ function depends_emulationstation() {
 
 function sources_emulationstation() {
     gitPullOrClone
+
+    # Set Build Directory
+    sed -e "s|set(dir \${CMAKE_CURRENT_SOURCE_DIR})|set(dir ${md_build}/build)|g" -i "${md_build}/CMakeLists.txt"
 }
 
 function build_emulationstation() {
@@ -174,23 +179,29 @@ function build_emulationstation() {
 
     rpSwap on 1000
     cmake . \
+        -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         "${params[@]}" \
         -Wno-dev
-    ninja clean
-    ninja
+    ninja -C build clean
+    ninja -C build
     rpSwap off
-    md_ret_require="${md_build}/${md_id}"
+    md_ret_require="${md_build}/build/${md_id}"
 }
 
 function install_emulationstation() {
     md_ret_files=(
+        'build/emulationstation'
         'CREDITS.md'
         'emulationstation.sh'
-        'emulationstation'
         'GAMELISTS.md'
         'README.md'
         'resources'
