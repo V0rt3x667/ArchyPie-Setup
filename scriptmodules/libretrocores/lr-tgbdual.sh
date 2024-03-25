@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-tgbdual"
-rp_module_desc="Nintendo Gameboy & Gameboy Color Libretro Core"
+rp_module_desc="Nintendo Game Boy & Game Boy Color Libretro Core"
 rp_module_help="ROM Extensions: .cgb .dmg .gb .gbc .sgb .zip\n\nCopy GameBoy ROMs To: ${romdir}/gb\n\nCopy GameBoy Color ROMs To: ${romdir}/gbc"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/tgbdual-libretro/master/docs/COPYING-2.0.txt"
 rp_module_repo="git https://github.com/libretro/tgbdual-libretro master"

@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-sameboy"
-rp_module_desc="Nintendo Game Boy & Game Boy Color Core"
+rp_module_desc="Nintendo Game Boy & Game Boy Color Libretro Core"
 rp_module_help="ROM Extensions: .gb .gbc .zip\n\nCopy Game Boy ROMs To: ${romdir}/gb\n\nCopy Game Boy Color ROMs To: ${romdir}/gbc\n\nOPTIONAL: Copy BIOS File: dmg_boot.bin To: ${biosdir}/gb\nCopy BIOS File: cgb_boot.bin To: ${biosdir}/gbc"
 rp_module_licence="MIT https://raw.githubusercontent.com/libretro/SameBoy/buildbot/LICENSE"
 rp_module_repo="git https://github.com/libretro/SameBoy buildbot"
