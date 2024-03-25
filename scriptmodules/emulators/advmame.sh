@@ -14,9 +14,6 @@ rp_module_flags=""
 
 function depends_advmame() {
     local depends=('sdl2')
-    if isPlatform "rpi"; then
-        depends+=('firmware-raspberrypi')
-    fi
     getDepends "${depends[@]}"
 }
 
@@ -35,7 +32,7 @@ function build_advmame() {
         '--enable-sdl2'
     )
 
-    ./autogen.sh
+    autoupdate && ./autogen.sh
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
     make
@@ -69,6 +66,7 @@ function configure_advmame() {
             ln -sf "${romdir}/mame-${md_id}/${dir}" "${romdir}/arcade/${md_id}"
         done
 
+        # Create Default Configuration File
         local config
         config="$(mktemp)"
         iniConfig " " "" "${config}"
@@ -85,16 +83,17 @@ function configure_advmame() {
         iniSet "dir_snap"    "${romdir}/mame-${md_id}/snap"
         iniSet "dir_sta"     "${romdir}/mame-${md_id}/nvram"
 
-        iniSet "device_keyboard"     "sdl"
-        iniSet "device_video_output" "overlay"
-        iniSet "device_video"        "sdl"
+        if isPlatform "kms" || isPlatform "mali"; then
+            iniSet "device_keyboard"     "sdl"
+            iniSet "device_video"        "sdl"
+            iniSet "display_magnify"     "1"
+        else
+            iniSet "device_video_output" "overlay"
+            iniSet "display_aspectx"     "16"
+            iniSet "display_aspecty"     "9"
+        fi
 
-        iniSet "display_aspectx" "16"
-        iniSet "display_aspecty" "9"
-        iniSet "display_magnify" "1"
-
-        iniSet "misc_quiet" "yes"
-
+        iniSet "misc_quiet"       "yes"
         iniSet "sound_samplerate" "44100"
 
         copyDefaultConfig "${config}" "${md_conf_root}/mame-${md_id}/${md_id}.rc"
