@@ -34,9 +34,6 @@ function depends_dhewm3() {
 function sources_dhewm3() {
     gitPullOrClone
 
-    # Remove 'register' Keyword, Can Be Removed When 1.5.3 Is Released
-    applyPatch "${md_data}/01_remove_register_keyword.patch"
-
     # Set Default Config Path(s)
     sed -e "s|%s/.local/share/${md_id}|%s/ArchyPie/configs/${md_id}|g" -i "${md_build}/neo/sys/linux/main.cpp"
     sed -e "s|%s/.config/${md_id}|%s/ArchyPie/configs/${md_id}|g" -i "${md_build}/neo/sys/linux/main.cpp"
@@ -111,7 +108,7 @@ function configure_dhewm3() {
     local portname
     portname="doom3"
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
