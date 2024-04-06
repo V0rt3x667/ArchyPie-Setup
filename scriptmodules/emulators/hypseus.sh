@@ -22,10 +22,14 @@ function _get_branch_hypseus() {
 
 function depends_hypseus() {
     local depends=(
+        'clang'
         'cmake'
         'libmpeg2'
         'libogg'
         'libvorbis'
+        'libzip'
+        'lld'
+        'ninja'
         'sdl2_image'
         'sdl2_ttf'
         'sdl2'
@@ -36,20 +40,30 @@ function depends_hypseus() {
 
 function sources_hypseus() {
     gitPullOrClone
+
+    # Fix MPEG2 Build Error
+    applyPatch "${md_data}/01_fix_mpeg2.patch"
 }
 
 function build_hypseus() {
-    # Cannot Build With Ninja
     rpSwap on 1024
+
     cmake . \
         -B"build" \
+        -G"Ninja" \
         -S"src" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -Wno-dev
-    make -C build clean
-    make -C build
+    ninja -C build clean
+    ninja -C build
+
     rpSwap off
 
     cp "build/${md_id}" "${md_id}.bin"
@@ -94,9 +108,10 @@ function configure_hypseus() {
         # Prevents SDL Doing An Internal Software Conversion Since 2.0.16+
         isPlatform "arm" && common_args="-texturestream ${common_args}"
 
+        # Create A Launcher Script
         cat >"${md_inst}/${md_id}.sh" <<_EOF_
 #!/bin/bash
-dir="\$1"
+dir="\${1}"
 name="\${dir##*/}"
 name="\${name%.*}"
 
@@ -105,13 +120,18 @@ if [[ -f "\${dir}/\${name}.commands" ]]; then
 fi
 
 if [[ -f "\${dir}/\${name}.singe" ]]; then
-    "${md_inst}/${md_id}.bin" singe vldp -retropath -manymouse -script "\${dir}/\${name}.singe" ${common_args}
+    singerom="\${dir}/\${name}.singe"
+elif [[ -f "\${dir}/\${name}.zip" ]]; then
+    singerom="\${dir}/\${name}.zip"
+fi
+
+if [[ -n "\${singerom}" ]]; then
+    "${md_inst}/hypseus.bin" singe vldp -retropath -manymouse -script "\${singerom}" ${common_args}
 else
     "${md_inst}/${md_id}.bin" "\${name}" vldp ${common_args}
 fi
 _EOF_
         chmod +x "${md_inst}/${md_id}.sh"
-        mkdir -p "${md_inst}/framefile"
     fi
 
     addEmulator 1 "${md_id}" "daphne" "${md_inst}/${md_id}.sh %ROM%"

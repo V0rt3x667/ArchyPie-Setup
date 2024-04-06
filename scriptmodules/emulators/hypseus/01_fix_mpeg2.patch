@@ -1,0 +1,51 @@
+diff -ru a/src/CMakeLists.txt b/src/CMakeLists.txt
+--- a/src/CMakeLists.txt	2024-04-06 23:44:53.953163460 +0100
++++ b/src/CMakeLists.txt	2024-04-06 23:50:10.826694707 +0100
+@@ -49,14 +49,12 @@
+ include(GetGitRevisionDescription)
+ include(InstallRequiredSystemLibraries)
+ include(FindPkgConfig)
+-include(ExternalProject)
+-include(BuildLibMPEG2)
+ 
+ use_cxx11( )
+ 
+ PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+ PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
+-build_libmpeg2( )
++PKG_SEARCH_MODULE(MPEG2 REQUIRED libmpeg2)
+ 
+ message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
+ 
+@@ -110,7 +108,6 @@
+ add_subdirectory(video)
+ add_subdirectory(vldp)
+ 
+-add_dependencies( vldp libmpeg2 )
+ add_dependencies( ldp-out vldp )
+ add_dependencies( game vldp )
+ add_dependencies( sound vldp )
+diff -ru a/src/vldp/vldp.h b/src/vldp/vldp.h
+--- a/src/vldp/vldp.h	2024-04-06 23:44:53.990164100 +0100
++++ b/src/vldp/vldp.h	2024-04-06 23:52:03.310678344 +0100
+@@ -35,6 +35,8 @@
+ // But CMake does the right thing here 
+ #include <SDL.h> // only used for threading
+ 
++#include <mpeg2dec/mpeg2.h>
++
+ struct yuv_buf {
+     uint8_t *Y;     // Y channel
+     uint8_t *U;     // U channel
+diff -ru a/src/vldp/vldp_internal.h b/src/vldp/vldp_internal.h
+--- a/src/vldp/vldp_internal.h	2024-04-06 23:44:53.990164100 +0100
++++ b/src/vldp/vldp_internal.h	2024-04-06 23:53:24.640117220 +0100
+@@ -27,8 +27,6 @@
+ 
+ #include "vldp.h" // for the VLDP_BOOL definition and SDL.h
+ 
+-#include <mpeg2.h>
+-
+ // this is which version of the .dat file format we are using
+ #define DAT_VERSION 3
+ 
