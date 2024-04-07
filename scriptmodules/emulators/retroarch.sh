@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch: Libretro Frontend (Required By All lr-* Cores)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/Libretro/RetroArch v1.17.0"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.18.0"
 rp_module_section="core"
 
 function depends_retroarch() {
