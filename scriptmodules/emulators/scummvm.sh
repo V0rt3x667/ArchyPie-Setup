@@ -19,19 +19,25 @@ function _get_branch_scummvm() {
 function depends_scummvm() {
     local depends=(
         'a52dec'
+        'curl'
         'faad2'
         'flac'
         'fluidsynth'
         'freetype2'
+        'fribidi'
         'libjpeg-turbo'
         'libmad'
+        'libmikmod'
         'libmpeg2'
+        'libogg'
         'libpng'
         'libspeechd'
         'libtheora'
         'libvorbis'
+        'libvpx'
         'sdl2_net'
         'sdl2'
+        'zlib'
     )
     getDepends "${depends[@]}"
 }
@@ -40,8 +46,8 @@ function sources_scummvm() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    sed -e "s|savePath = \".local/share/\";|savePath = \"ArchyPie/configs/${md_id}/\";|g" -i "${md_build}/backends/saves/posix/posix-saves.cpp"
-    sed -e "s|.config\"|ArchyPie/configs/${md_id}\"|g" -i "${md_build}/backends/platform/sdl/posix/posix.cpp"
+    sed -e "s|savePath = \".local/share/\";|savePath = \"ArchyPie/configs/\";|g" -i "${md_build}/backends/saves/posix/posix-saves.cpp"
+    sed -e "s|.config\"|ArchyPie/configs\"|g" -i "${md_build}/backends/platform/sdl/posix/posix.cpp"
 }
 
 function build_scummvm() {
@@ -54,7 +60,6 @@ function build_scummvm() {
         --enable-vkeybd
         --prefix="${md_inst}"
     )
-    isPlatform "rpi" && isPlatform "32bit" && params+=('--host=raspberrypi')
 
     ./configure "${params[@]}"
     make clean
@@ -73,26 +78,28 @@ function configure_scummvm() {
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
-        local params
-
         mkRomDir "${md_id}"
 
         # Create Launcher Script
         local name="ScummVM"
         cat > "${romdir}/${md_id}/+Start ${name}.sh" << _EOF_
 #!/bin/bash
+game="\${1}"
 pushd "${romdir}/${md_id}" >/dev/null
 if ! grep -qs extrapath "\${HOME}/ArchyPie/configs/scummvm/scummvm.ini"; then
     params="--extrapath="${md_inst}/extra""
 fi
-${md_inst}/bin/scummvm --fullscreen \${params} --joystick=0
+${md_inst}/bin/scummvm --fullscreen \${params} --fullscreen --joystick=0 "\${game}"
+while read id desc; do
+    echo "\${desc}" > "${romdir}/scummvm/\${id}.svm"
+done < <(${md_inst}/bin/scummvm --list-targets | tail -n +3)
 popd >/dev/null
 _EOF_
         chown "${user}:${user}" "${romdir}/${md_id}/+Start ${name}.sh"
         chmod u+x "${romdir}/${md_id}/+Start ${name}.sh"
     fi
 
-    addEmulator 1 "${md_id}" "${md_id}" "${md_inst}/bin/scummvm --fullscreen ${params} --joystick=0 --auto-detect -p %ROM%"
+    addEmulator 1 "${md_id}" "scummvm" "bash ${romdir}/scummvm/+Start\ ${name}.sh %BASENAME%"
 
-    addSystem "${md_id}"
+    addSystem "scummvm"
 }
