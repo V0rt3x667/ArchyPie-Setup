@@ -292,6 +292,10 @@ function configure_retroarch() {
     # Enable Overlays By Default
     iniSet "input_overlay_enable" "true"
 
+    # Disable Save Paths Under Sub-folders
+    iniSet "sort_savestates_enable" "false"
+    iniSet "sort_savefiles_enable" "false"
+
     copyDefaultConfig "${config}" "${configdir}/all/${md_id}.cfg"
     rm "${config}"
 
