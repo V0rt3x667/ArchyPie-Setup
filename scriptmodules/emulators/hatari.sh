@@ -7,7 +7,7 @@
 rp_module_id="hatari"
 rp_module_desc="Hatari: Atari ST, STE, TT & Falcon Emulator"
 rp_module_help="ROM Extensions: .ctr .img .ipf .raw .rom .st .stx .zip\n\nCopy Atari ST Games To: ${romdir}/atarist\n\nCopy Atari ST BIOS File (tos.img) To: ${biosdir}/atarist"
-rp_module_licence="GPL2 https://git.tuxfamily.org/hatari/hatari.git/plain/gpl.txt"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/hatari/hatari/master/gpl.txt"
 rp_module_repo="git https://github.com/hatari/hatari :_get_branch_hatari"
 rp_module_section="opt"
 rp_module_flags=""
@@ -18,10 +18,13 @@ function _get_branch_hatari() {
 
 function depends_hatari() {
     local depends=(
+        'clang'
         'cmake'
         'libpng'
+        'lld'
         'ninja'
         'portaudio'
+        'python'
         'readline'
         'sdl2'
         'zlib'
@@ -70,6 +73,10 @@ function build_hatari() {
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCAPSIMAGE_INCLUDE_DIR="${md_build}/src/includes" \
         -DCAPSIMAGE_LIBRARY="${md_build}/lib/libcapsimage.so.5" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
