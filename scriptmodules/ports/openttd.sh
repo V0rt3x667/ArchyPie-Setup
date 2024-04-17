@@ -17,6 +17,7 @@ function _get_branch_openttd() {
 
 function depends_openttd() {
     local depends=(
+        'clang'
         'cmake'
         'curl'
         'doxygen'
@@ -26,6 +27,7 @@ function depends_openttd() {
         'harfbuzz'
         'icu'
         'libpng'
+        'lld'
         'lzo'
         'ninja'
         'sdl2'
@@ -44,13 +46,17 @@ function sources_openttd() {
 }
 
 function build_openttd() {
-    # Cannot Build With Clang, Review After Release > 13.4
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_INSTALL_BINDIR=bin \
         -Wno-dev
     ninja -C build clean
@@ -63,7 +69,7 @@ function install_openttd() {
 }
 
 function configure_openttd() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         # Create Default Configuration File
