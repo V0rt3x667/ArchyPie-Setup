@@ -20,7 +20,6 @@ function depends_rigelengine() {
     local depends=(
         'clang'
         'cmake'
-        'entityx'
         'glad'
         'glm'
         'lld'
@@ -74,7 +73,7 @@ function configure_rigelengine() {
     local portname
     portname="duke2"
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
     [[ "${md_mode}" == "install" ]] && mkRomDir "ports/${portname}"
 
