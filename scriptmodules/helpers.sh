@@ -684,7 +684,7 @@ function iniFileEditor() {
                 title="${key}"
             fi
 
-            options+=("$i" "$title ($value)" "${ini_descs[i]}")
+            options+=("${i}" "$title ($value)" "${ini_descs[i]}")
 
             ((i++))
         done
@@ -723,9 +723,9 @@ function iniFileEditor() {
                 local path="${params[*]:2}"
                 local file
                 while read file; do
-                    [[ "${values[sel]}" == "${file}" ]] && default="$i"
+                    [[ "${values[sel]}" == "${file}" ]] && default="${i}"
                     file="${file//$path\//}"
-                    options+=("$i" "${file}")
+                    options+=("${i}" "${file}")
                     ((i++))
                 done < <(find -L "$path" -type f -name "$match" | sort)
                 ;;
@@ -733,11 +733,11 @@ function iniFileEditor() {
                 [[ "$mode" == "_id_" ]] && params=("${params[@]:1}")
                 for option in "${params[@]}"; do
                     if [[ "$mode" == "_id_" ]]; then
-                        [[ "${values[sel]}" == "$i" ]] && default="$i"
+                        [[ "${values[sel]}" == "${i}" ]] && default="${i}"
                     else
-                        [[ "${values[sel]}" == "$option" ]] && default="$i"
+                        [[ "${values[sel]}" == "$option" ]] && default="${i}"
                     fi
-                    options+=("$i" "$option")
+                    options+=("${i}" "$option")
                     ((i++))
                 done
                 ;;
@@ -1506,12 +1506,14 @@ function pacmanAURInstall() {
     mkdir -p "${builddir}/${pkg}"
 
     for pkg in "${@}"; do
+        # Remove Previously Built Packages
+        rm "${builddir}/${pkg}"/*.pkg.tar.zst
         gitPullOrClone "${builddir}/${pkg}" "https://aur.archlinux.org/${pkg}"
         # Add Write Permission For Non-root User, 'makepkg' Can Only Run As A Non-root User
         chmod -R o+w "${builddir}/${pkg}"
-        su "${user}" -c 'cd '"${builddir}/${pkg}"' && makepkg -cs --needed --noconfirm'
+        su "${user}" -c 'makepkg -D '"${builddir}/${pkg}"' -Ccs --noconfirm'
         # Remove Write Permission For Non-root User
         chmod -R o-w "${builddir}/${pkg}"
-        pacman -U "${builddir}/${pkg}/${pkg}"*.pkg.tar.zst --needed --noconfirm
+        pacman -U "${builddir}/${pkg}/${pkg}"*.pkg.tar.zst --noconfirm
     done
 }
