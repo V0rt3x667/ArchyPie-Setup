@@ -137,13 +137,13 @@ function _add_games_eduke32() {
         if [[ -f "${wad}" ]]; then
             # Add Games Which Do Not Require Additional Parameters
             addPort "${md_id}" "${portname}" "${games[${game}]}" "${cmd}" "${wad}"
-        fi
 
-        # Add Games & Options That Only Work On Raze
-        if [[ "${md_id}" == "raze" ]]; then
-            # Load Addons From The 'misc' Folder
-            local addon="${romdir}/ports/${portname}/addons/misc/*"
-            addPort "${md_id}-addon" "${portname}" "${games[${game}]}" "${cmd} ${addon}" "${wad}"
+            # Add Games & Options That Only Work On Raze
+            if [[ "${md_id}" == "raze" ]]; then
+                # Load Addons From The 'misc' Folder
+                local addon="${romdir}/ports/${portname}/addons/misc/*"
+                addPort "${md_id}-addon" "${portname}" "${games[${game}]}" "${cmd} ${addon}" "${wad}"
+            fi
         fi
     done
 }
