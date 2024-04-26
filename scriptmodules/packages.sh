@@ -90,21 +90,31 @@ _EOF_
 }
 
 function rp_callModule() {
-    local md_id="$1"
-    local mode="$2"
-    # shift the function parameters left so $@ will contain any additional parameters which we can use in modules
+    local md_id="${1}"
+    local mode="${2}"
+    # Shift The Function Parameters Left So ${@} Will Contain Any Additional Parameters Which We Can Use In Modules
     shift 2
 
-    # check if module exists
-    if ! rp_hasModule "$md_id"; then
-        printMsgs "console" "No module '$md_id' found."
+    # Check If Module Exists
+    if ! rp_hasModule "${md_id}"; then
+        printMsgs "console" "No module '${md_id}' found."
         return 2
     fi
 
-    # check if module is enabled for platform
-    if ! rp_isEnabled "$md_id"; then
-        printMsgs "console" "Module '$md_id' is not available for your system ($__platform)"
+    # Check If Module Is Enabled For Platform
+    if ! rp_isEnabled "${md_id}"; then
+        printMsgs "console" "Module '${md_id}' is not available for your system (${__platform})"
         return 3
+    fi
+
+    # Skip For Modules 'builder' & 'setup' So That 'distcc' Settings Do Not Propagate From Them
+    if [[ "${md_id}" != "builder" && "${md_id}" != "setup" ]]; then
+        # If 'distcc' Is Used & The Module Doesn't Exclude It, Add /usr/lib/distcc to PATH & MAKEFLAGS
+        if [[ -n "${DISTCC_HOSTS}" ]] && ! hasFlag "${__mod_info[${md_id}/flags]}" "nodistcc"; then
+            # Use Local Variables So They Are Available To All Child Functions Without Changing The Globals
+            local PATH="/usr/lib/distcc:${PATH}"
+            local MAKEFLAGS="${MAKEFLAGS} PATH=${PATH}"
+        fi
     fi
 
     # parameters _auto_ _binary or _source_ (_source_ is used if no parameters are given for a module)
