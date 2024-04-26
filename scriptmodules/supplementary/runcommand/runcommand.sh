@@ -87,7 +87,7 @@ BIOSDIR="${HOME}/ArchyPie/BIOS"
 
 # modesetting tools
 TVSERVICE="/opt/vc/bin/tvservice"
-KMSTOOL="$ROOTDIR/supplementary/mesa-drm/modetest"
+KMSTOOL="$ROOTDIR/supplementary/kmsxx/kmsprint-rp"
 XRANDR="xrandr"
 
 source "$ROOTDIR/lib/inifuncs.sh"
@@ -126,7 +126,7 @@ function get_config() {
     if [[ -n "${DISPLAY}" ]] && ${XRANDR} &>/dev/null; then
         HAS_MODESET="x11"
     # Copy KMS Tool Output To Global Variable To Avoid Multiple Invocations
-    elif [[ -c /dev/dri/card0 ]] && KMS_BUFFER="$(${KMSTOOL} -r 2>/dev/null)"; then
+    elif [[ -c /dev/dri/card0 ]] && KMS_BUFFER="$(${KMSTOOL} 2>/dev/null)"; then
         HAS_MODESET="kms"
     elif [[ -f "${TVSERVICE}" ]]; then
         HAS_MODESET="tvs"
@@ -238,37 +238,23 @@ function get_all_tvs_modes() {
 
 function get_all_kms_modes() {
     declare -Ag MODE
-    local default_mode="$(echo "$KMS_BUFFER" | grep -Em1 "^Mode:.*(driver|userdef).*crtc")"
-    local crtc="$(echo "$default_mode" | awk '{ print $(NF-1) }')"
-    local crtc_encoder="$(echo "$KMS_BUFFER" | grep "Encoder map:" | awk -v crtc="$crtc" '$5 == crtc { print $3 }')"
-
-    local info
-    local line
-    local mode_id
+    default_mode="$(echo "$KMS_BUFFER" | grep -Em1 "^Mode: [0-9]+ crtc")"
+    crtc="$(echo "$default_mode" | cut -d' ' -f  4)"
+    crtc_encoder="$(echo "$KMS_BUFFER" | grep "Encoder map:" | awk -v crtc="$crtc" '$5 == crtc { print $3 }')"
 
     # add default mode as fallback in case real mode cannot be mapped
-    MODE[def-def]="$(echo "$default_mode" | awk '{--NF --NF --NF; print}' | cut -c7-)"
+    MODE[def-def]="$(echo "$default_mode" | cut -d' ' -f5-)"
 
-    while read -r line; do
-        # encoder id
-        encoder_id="$(echo "${line}" | awk '{ print $(NF-1) }')"
+    # parse only the video modes connected to the current active crtc
+    while read -r mode_str mode_id con encoder_id info; do
+           # we only need 2nd column (mode index) and the 5+ columns (resolution info)
+           # populate resolution info into arrays (using mapped crtc encoder value)
+           MODE_ID+=($crtc-$mode_id)
+           MODE[$crtc-$mode_id]="$info"
 
-        # only match encoders that are linked to the currently active crtc
-        if [[ "$encoder_id" == "$crtc_encoder" ]]; then
-            # mode id
-            mode_id="$(echo "${line}" | awk '{ print $NF }')"
-
-            # make output more human-readable
-            info="$(echo "${line}" | awk '{--NF --NF --NF; print}' | cut -c7-)"
-
-            # populate resolution into arrays (using mapped crtc encoder value)
-            MODE_ID+=($crtc-$mode_id)
-            MODE[$crtc-$mode_id]="$info"
-
-            # if string matches default mode, add a special mapped entry
-            [[ "$default_mode" =~ "$info" ]] && MODE[map-map]="$crtc $mode_id"
-        fi
-    done < <(echo "$KMS_BUFFER" | grep "Mode:" | grep "connector")
+           # if string matches default mode, add a special mapped entry
+           [[ "$default_mode" =~ "$info" ]] && MODE[map-map]="$crtc $mode_id"
+    done < <(echo "$KMS_BUFFER" | grep -E "^Mode: [0-9]+ connector $crtc_encoder")
 }
 
 function get_all_x11_modes()
@@ -370,7 +356,7 @@ function get_kms_mode_info() {
         fi
     fi
 
-    # split resolution
+    # split resolution (1st column)
     status=(${MODE[${mode_id[0]}-${mode_id[1]}]/x/ })
 
     # get crtc id
@@ -381,13 +367,14 @@ function get_kms_mode_info() {
 
     # get mode resolution
     mode_info[2]="${status[0]}"
-    mode_info[3]="${status[1]}"
+    # yres may have an ending 'i'(nterlace) flag
+    mode_info[3]="${status[1]/i/}"
 
-    # get aspect ratio
+    # get aspect ratio (5th column)
     mode_info[4]="${status[5]}"
 
-    # get refresh rate
-    mode_info[5]="${status[3]}"
+    # get refresh rate (4th column, remove surrounding brackets)
+    mode_info[5]="${status[4]//[()]/}"
 
     echo "${mode_info[@]}"
 }
@@ -787,11 +774,11 @@ function choose_emulator() {
         local line=(${line/=/ })
         local id=${line[0]}
         [[ "${id}" == "default" ]] && continue
-        local apps[$i]="${id}"
+        local apps[${i}]="${id}"
         if [[ "${id}" == "$default" ]]; then
-            default_id="$i"
+            default_id="${i}"
         fi
-        options+=($i "${id}")
+        options+=("${i}" "${id}")
         ((i++))
     done < <(sort "$EMU_SYS_CONF")
     if [[ "${#options[@]}" -eq 0 ]]; then
@@ -894,7 +881,7 @@ function user_menu() {
     while read -r script; do
         script="${script##*/}"
         script="${script%.*}"
-        options+=($i "$script")
+        options+=(${i} "$script")
         ((i++))
     done < <(find "$CONFIGDIR/all/runcommand-menu" -type f -name "*.sh" | sort)
     local default
@@ -1085,7 +1072,8 @@ function retroarch_append_config() {
     touch "$conf"
     iniConfig " = " '"' "$conf"
 
-    if [[ -n "$HAS_MODESET" && "${MODE_CUR[5]}" -gt 0 ]]; then
+    # strip any suffix decimals appearing in refresh rate, just for comparison
+    if [[ -n "$HAS_MODESET" && "${MODE_CUR[5]%.*}" -gt 0 ]]; then
         # set video_refresh_rate in our config to the same as the screen refresh
         iniSet "video_refresh_rate" "${MODE_CUR[5]}"
     fi
@@ -1152,7 +1140,7 @@ function set_governor() {
 function restore_governor() {
     local i=0
     for cpu in /sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_governor; do
-        echo "${governor_old[$i]}" | sudo tee "$cpu" >/dev/null
+        echo "${governor_old[${i}]}" | sudo tee "$cpu" >/dev/null
         ((i++))
     done
 }

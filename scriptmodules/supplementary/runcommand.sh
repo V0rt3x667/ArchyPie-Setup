@@ -48,7 +48,8 @@ function install_bin_runcommand() {
         chown "${user}:${user}" "${configdir}/all/runcommand-launch-dialog.cfg"
     fi
 
-    rp_installModule "mesa-drm" "_autoupdate_"
+    # Needed For KMS Modesetting
+    rp_installModule "kmsxx" "_autoupdate_"
 
     md_ret_require="${md_inst}/runcommand.sh"
 }
