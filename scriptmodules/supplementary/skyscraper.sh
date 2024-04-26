@@ -90,7 +90,7 @@ function _config_files_skyscraper() {
 }
 
 function remove_skyscraper() {
-    md_ret_info+=("Skyscraper's cache in ~/.skyscraper/cache/ is not empty and is not removed.")
+    md_ret_info+=("Skyscraper's Cache In ${HOME}/.skyscraper/cache/ Is Not Empty & Is Not Removed")
 
     # Remove Possible Per-User Deployment Introduced With v3.9.3
     rm -f "${home}/.bash_completion.d/Skyscraper.bash"
@@ -322,17 +322,21 @@ function _init_config_skyscraper() {
     rm -f "${home}/.bash_completion.d/Skyscraper.bash"
 }
 
-# Scrape One System, Passed As A Parameter
-function _scrape_skyscraper() {
-    local system="${1}"
+# Read 'skyscraper.cfg' & Prepare The Command Line Parameters
+function _get_clioptions_skyscraper() {
+    local system=${1}
+    local scrape_module=${2}
 
-    [[ -z "${system}" ]] && return
+    local params=()
+    local flags
 
     iniConfig " = " '"' "${configdir}/all/skyscraper.cfg"
-    eval "$(_load_config_skyscraper)"
+    eval $(_load_config_skyscraper)
 
-    local -a params=(-p "${system}")
-    local flags="unattend,skipped,"
+    [[ "${system}" != "<platform>" ]] && system=\"${system}\"
+
+    params+=(-p "${system}")
+    flags="unattend,skipped,"
 
     [[ "${download_videos}" -eq 1 ]] && flags+="videos,"
 
@@ -362,7 +366,7 @@ function _scrape_skyscraper() {
 
     # If 2nd Parameter Is Unset, Use The Configured Scraping Source, Otherwise Scrape From Cache
     # Scraping From Cache Means We Can Omit '-s' From The Parameter List
-    if [[ -z "${2}" ]]; then
+    if [[ -z "${scrape_module}" ]]; then
         params+=(-s "${scrape_source}")
     fi
 
@@ -372,11 +376,24 @@ function _scrape_skyscraper() {
     flags=${flags::-1}
 
     params+=(--flags "${flags}")
+    echo "${params[@]}"
+}
 
+
+# Scrape One System, Passed As Parameter
+function _scrape_skyscraper() {
+    local system="${1}"
+    local scrape_module="${2}"
+
+    [[ -z "${system}" ]] && return
+
+    local params
+    params=$(_get_clioptions_skyscraper "${system}" "${scrape_module}")
+    declare -a "params_arr=(${params})"
     # Trap 'ctrl+c' & Return If Pressed Rather Than Exiting ArchyPie-Setup
     trap 'trap 2; return 1' INT
-        sudo -u "${user}" stdbuf -o0  "${md_inst}/Skyscraper" "${params[@]}"
-        echo -e "\nCOMMAND LINE USED:\n ${md_inst}/Skyscraper" "${params[@]}"
+        sudo -u "${user}" stdbuf -o0 "${md_inst}/Skyscraper" "${params_arr[@]}"
+        echo -e "\nCOMMAND LINE USED:\n ${md_inst}/Skyscraper" "${params}"
         sleep 2
     trap 2
 }
@@ -409,14 +426,24 @@ function _scrape_chosen_skyscraper() {
     [[ ${#choices[@]} -eq 0 || ${?} -eq 1 ]] && return 1
 
     # Confirm With The User That Scraping Can Start
-    dialog --clear --colors --yes-label "Proceed" --no-label "Abort" --yesno "This Will Start The Gathering Process, Which Can Take A Long Time If You Have A Large Game Collection.\n\nYou Can Interrupt This Process Anytime By Pressing \ZbCtrl+C\Zn.\nProceed?" 12 70 2>&1 >/dev/tty
+    local cli=("${md_inst}/Skyscraper ")
+    cli+=$(_get_clioptions_skyscraper "<platform>" "")
+
+    local sky_cmd
+    sky_cmd=$(echo "${cli[@]}" | sed 's/ -/ \\\\n -/g')
+
+    local msg="This will start the gathering process, which can take a long time if you have a large game collection.\n\n"
+    msg+="You can interrupt this process anytime by pressing \ZbCtrl+C\Zn.\n\n"
+    msg+="For each selected <platform> Skyscraper is run with these commandline options:\n\n${sky_cmd}"
+
+    dialog --clear --colors --yes-label "Proceed" --no-label "Abort" --yesno "${msg}" 20 70 2>&1 >/dev/tty
     [[ ! ${?} -eq 0 ]] && return 1
 
     local choice
 
     for choice in "${choices[@]}"; do
         choice="${options[choice*3-2]}"
-        _scrape_skyscraper "${choice}" "${@}"
+        _scrape_skyscraper "${choice}" ""
     done
 }
 
@@ -449,7 +476,7 @@ function _generate_chosen_skyscraper() {
 
     for choice in "${choices[@]}"; do
         choice="${options[choice*3-2]}"
-        _scrape_skyscraper "${choice}" "cache" "${@}"
+        _scrape_skyscraper "${choice}" "cache"
     done
 }
 
@@ -542,8 +569,10 @@ function gui_skyscraper() {
         [1]=screenscraper
         [2]=arcadedb
         [3]=thegamesdb
-        [4]=openretro
-        [5]=worldofspectrum
+        [4]=mobygames
+        [5]=openretro
+        [6]=igdb
+        [7]=worldofspectrum
     )
     s_source+=(
         [10]=esgamelist
@@ -554,8 +583,10 @@ function gui_skyscraper() {
         [1]=ScreenScraper
         [2]=ArcadeDB
         [3]=TheGamesDB
-        [4]=OpenRetro
-        [5]="World of Spectrum"
+        [4]=MobyGames
+        [5]=OpenRetro
+        [6]="Internet Game Database"
+        [7]="World of Spectrum"
     )
     s_source_names+=(
         [10]="EmulationStation Gamelist"
