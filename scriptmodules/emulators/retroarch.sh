@@ -93,6 +93,7 @@ function build_retroarch() {
 
 function install_retroarch() {
     make install
+    md_ret_files=('retroarch.cfg')
 }
 
 function update_shaders-retropie_retroarch() {
