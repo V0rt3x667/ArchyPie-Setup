@@ -1,0 +1,34 @@
+diff -ru a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2024-04-30 00:06:15.345027813 +0100
++++ b/CMakeLists.txt	2024-04-30 02:00:29.910444542 +0100
+@@ -69,7 +69,10 @@
+ find_package(SDL2 REQUIRED)
+ message("SDL2 include dir: ${SDL2_INCLUDE_DIRS}")
+ find_package(SDL2_image REQUIRED)
+-find_package(SDL2_mixer REQUIRED)
++
++add_library(SDL2_mixer STATIC IMPORTED)
++set_target_properties(SDL2_mixer PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/depends/lib/libSDL2_mixer.a)
++set_target_properties(SDL2_mixer PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/depends/include)
+ if(BUILD_EDITOR)
+ 	find_package(OpenGL REQUIRED)
+ endif()
+diff -ru a/src/cdogs/CMakeLists.txt b/src/cdogs/CMakeLists.txt
+--- a/src/cdogs/CMakeLists.txt	2024-04-30 00:06:15.853037124 +0100
++++ b/src/cdogs/CMakeLists.txt	2024-04-30 01:35:09.767766613 +0100
+@@ -247,5 +247,5 @@
+ 	yajl_s
+ 	SDL2::SDL2
+ 	SDL2_image::SDL2_image
+-	SDL2_mixer::SDL2_mixer
++	SDL2_mixer
+ 	${ENet_LIBRARIES})
+diff -ru a/src/cdogsed/CMakeLists.txt b/src/cdogsed/CMakeLists.txt
+--- a/src/cdogsed/CMakeLists.txt	2024-04-30 00:06:15.886037729 +0100
++++ b/src/cdogsed/CMakeLists.txt	2024-04-30 01:35:28.441106011 +0100
+@@ -46,4 +46,4 @@
+ 	tile_brush.h
+ 	ui_object.h)
+ add_library(cdogsedlib STATIC ${CDOGSED_SOURCES} ${CDOGSED_HEADERS})
+-target_link_libraries(cdogsedlib SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer)
++target_link_libraries(cdogsedlib SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer)

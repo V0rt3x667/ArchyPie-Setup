@@ -24,7 +24,6 @@ function depends_cdogs-sdl() {
         'lld'
         'ninja'
         'sdl2_image'
-        'sdl2_mixer'
         'sdl2'
     )
     getDepends "${depends[@]}"
@@ -38,9 +37,26 @@ function sources_cdogs-sdl() {
 
     # Set Default Config Path(s)
     sed "s|\".config/${md_id}/\"|\"ArchyPie/configs/${md_id}/\"|g" -i "${md_build}/CMakeLists.txt"
+
+    # The Arch Linux Team Have Broken 'SDL2_Mixer' Since '2.6.3-2' By Compiling It With Non-Default Options
+    applyPatch "${md_data}/01_fix_sdl2_mixer.patch"
+    _sources_sdl2_mixer
+}
+
+function _sources_sdl2_mixer() {
+    gitPullOrClone "${md_build}/sdl2_mixer" "https://github.com/libsdl-org/SDL_mixer" "main" "a37e09f"
+}
+
+function _build_sdl2_mixer() {
+    cd sdl2_mixer || exit
+    ./configure --disable-shared --prefix="${md_build}/depends"
+    make clean
+    make && make install
 }
 
 function build_cdogs-sdl() {
+     _build_sdl2_mixer && cd "${md_build}" || exit
+
     cmake . \
         -B"build" \
         -G"Ninja" \
