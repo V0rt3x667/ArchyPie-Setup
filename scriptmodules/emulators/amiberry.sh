@@ -16,29 +16,16 @@ function _get_branch_amiberry() {
     download "https://api.github.com/repos/BlitterStudio/amiberry/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
 }
 
-function _get_platform_amiberry() {
-    local platform="${__platform}-sdl2"
-    if isPlatform "aarch64" && isPlatform "rpi"; then
-        platform="${__platform}-64-sdl2"
-    elif isPlatform "armv7" && isPlatform "rpi"; then
-        platform="${__platform}-32-sdl2"
-    elif isPlatform "odroid-xu"; then
-        platform="xu4"
-    elif isPlatform "odroid-c1"; then
-        platform="c1"
-    elif isPlatform "x86" && isPlatform "64bit"; then
-        platform="x86-64"
-    fi
-    echo "${platform}"
-}
-
 function depends_amiberry() {
     local depends=(
+        'clang'
+        'cmake'
         'flac'
         'libmpeg2'
         'libpng'
         'libserialport'
         'libxml2'
+        'lld'
         'mpg123'
         'portmidi'
         'sdl2_image'
@@ -53,42 +40,54 @@ function depends_amiberry() {
 function sources_amiberry() {
     gitPullOrClone
 
-    applyPatch "${md_data}/01_preserve_env.patch"
+    # Set Fullscreen By Default
+    applyPatch "${md_data}/01_set_fullscreen.patch"
 
-    # Use Default Optimisation Level
-    sed -i "/CFLAGS += -O3/d" "${md_build}/Makefile"
+    # Set Correct CMake File When Building For 'neon' Platform
+    isPlatform "neon" && applyPatch "${md_data}/02_fix_aarch32-neon.patch"
 }
 
 function build_amiberry() {
-    local platform
-    platform="$(_get_platform_amiberry)"
-
-    cd external/capsimg || return
+    # Build CAPSImg
+    cd external/capsimg || exit
     ./bootstrap
     ./configure
     make clean
     make
 
+    # Build Amiberry
     cd "${md_build}" || return
-    make clean
-    make PLATFORM="${platform}" CPUFLAGS="${__cpu_flags}"
+    cmake . \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
 
-    md_ret_require="${md_build}/${md_id}"
+    md_ret_require="${md_build}/build/${md_id}"
 }
 
 function install_amiberry() {
     md_ret_files=(
-        'abr'
-        'amiberry'
-        'data'
+        'build/abr'
+        'build/amiberry'
+        'build/data'
+        'build/kickstarts'
         'external/capsimg/capsimg.so'
-        'kickstarts'
     )
     cp -R "${md_build}/whdboot" "${md_inst}/whdboot-dist"
 }
 
 function configure_amiberry() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amiga/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amiga/${md_id}"
 
     local systems=(
         'amiga'
