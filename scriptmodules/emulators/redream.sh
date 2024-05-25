@@ -26,6 +26,7 @@ function install_bin_redream() {
 function configure_redream() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "dreamcast"
+        mkUserDir "${biosdir}/dreamcast"
 
         local dest="${md_conf_root}/dreamcast/${md_id}"
         mkUserDir "${dest}"
@@ -40,16 +41,15 @@ function configure_redream() {
         # Symlink Memory Cards
         local i
         for i in 0 1 2 3; do
-            moveConfigFile "${md_inst}/vmu$i.bin" "${dest}/vmu$i.bin"
+            moveConfigFile "${md_inst}/vmu${i}.bin" "${dest}/vmu${i}.bin"
         done
 
         # Symlink BIOS Files
-        mkUserDir "${biosdir}/dreamcast"
         ln -sf "${biosdir}/dreamcast/dc_boot.bin" "${md_inst}/boot.bin"
         ln -sf "${biosdir}/dreamcast/dc_flash.bin" "${md_inst}/flash.bin"
     fi
 
-    addEmulator 1 "${md_id}" "dreamcast" "${md_inst}/${md_id} %ROM%"
+    addEmulator 1 "${md_id}" "dreamcast" "${md_inst}/${md_id} --mode='borderless fullscreen' %ROM%"
 
     addSystem "dreamcast"
 }
