@@ -6,7 +6,7 @@
 
 rp_module_id="lr-beetle-pcfx"
 rp_module_desc="NEC PC-FX Libretro Core"
-rp_module_help="ROM Extensions: .ccd .chd .cue .toc\n\nCopy NEC PC-FX ROMs To: ${romdir}/pcfx\n\nCopy BIOS File: pcfx.rom To: ${biosdir}/pcfx"
+rp_module_help="ROM Extensions: .ccd .chd .cue .img .iso .toc\n\nCopy NEC PC-FX ROMs To: ${romdir}/pcfx\n\nCopy BIOS File: pcfx.rom To: ${biosdir}/pcfx"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/beetle-pcfx-libretro/master/COPYING"
 rp_module_repo="git https://github.com/libretro/beetle-pcfx-libretro master"
 rp_module_section="exp"

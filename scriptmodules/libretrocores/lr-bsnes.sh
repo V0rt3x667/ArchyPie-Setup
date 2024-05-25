@@ -17,7 +17,7 @@ function sources_lr-bsnes() {
 }
 
 function build_lr-bsnes() {
-    local params=('target="libretro"' 'build="release"' 'binary="library"')
+    local params=(target="libretro" build="release" binary="library")
     make -C bsnes clean "${params[@]}"
     make -C bsnes "${params[@]}"
     md_ret_require="${md_build}/bsnes/out/bsnes_libretro.so"

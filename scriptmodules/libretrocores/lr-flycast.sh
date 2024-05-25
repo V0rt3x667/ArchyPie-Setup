@@ -33,11 +33,11 @@ function build_lr-flycast() {
     local params=()
 
     if isPlatform "gles3"; then
-        params+=('-DUSE_GLES="ON"')
+            params+=("-DUSE_GLES=ON")
     elif isPlatform "gles2"; then
-        params+=('-DUSE_GLES2="ON"')
+            params+=("-DUSE_GLES2=ON")
     fi
-    isPlatform "vulkan" && params+=('-DUSE_VULKAN="ON"') || params+=('-DUSE_VULKAN="OFF"')
+    isPlatform "vulkan" && params+=("-DUSE_VULKAN=ON") || params+=("-DUSE_VULKAN=OFF")
 
     cmake . \
         -B"build" \

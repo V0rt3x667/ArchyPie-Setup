@@ -17,7 +17,7 @@ function sources_lr-snes9x() {
 
 function build_lr-snes9x() {
     local params=()
-    isPlatform "arm" && params+=('platform="armv"')
+    isPlatform "arm" && params+=(platform="armv")
 
     make -C libretro "${params[@]}" clean
     make -C libretro "${params[@]}"
