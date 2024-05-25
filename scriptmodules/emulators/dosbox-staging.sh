@@ -29,10 +29,10 @@ function depends_dosbox-staging() {
         'ncurses'
         'ninja'
         'opusfile'
-        'sdl2_image'
         'sdl2_net'
         'sdl2'
         'speexdsp'
+        'zlib-ng'
     )
     getDepends "${depends[@]}"
 }
@@ -48,7 +48,7 @@ function build_dosbox-staging() {
     local params=(
         -Dbuildtype="release"
         -Ddatadir="resources"
-        -Dtry_static_libs="mt32emu"
+        -Dtry_static_libs="iir,mt32emu"
     )
 
     meson setup -Dprefix="${md_inst}" "${params[@]}" build
