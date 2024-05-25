@@ -5,7 +5,7 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="autostart"
-rp_module_desc="Autostart EmulationStation or Kodi on Boot"
+rp_module_desc="Auto-start EmulationStation / Pegasus / Kodi On Boot"
 rp_module_section="config"
 
 function _update_hook_autostart() {
@@ -15,7 +15,8 @@ function _update_hook_autostart() {
 }
 
 function _autostart_script_autostart() {
-    local mode="$1"
+    local mode="${1}"
+
     # Delete Old Startup Script
     rm -f "/etc/profile.d/10-emulationstation.sh"
 
@@ -27,14 +28,17 @@ if [ "\`tty\`" = "/dev/tty1" ] && [ -z "\${DISPLAY}" ] && [ "\${USER}" = "${user
     bash "${script}"
 fi
 _EOF_
-
     touch "${script}"
+
     # Delete Any Previous Entries For EmulationStation & kodi In "autostart.sh"
     sed -i '/#auto/d' "${script}"
     sed -i '$a'\' "${script}"
     case "${mode}" in
         kodi)
             echo -e "kodi-standalone #auto\nemulationstation #auto" >>"${script}"
+            ;;
+        pegasus)
+            echo "pegasus-fe #auto" >> "${script}"
             ;;
         es|*)
             echo "emulationstation #auto" >>"${script}"
@@ -44,7 +48,7 @@ _EOF_
 }
 
 function enable_autostart() {
-    local mode="$1"
+    local mode="${1}"
 
     if isPlatform "x11"; then
         mkUserDir "${home}/.config/autostart"
@@ -58,13 +62,14 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin ${user} --noclear %I \$TERM
 _EOF_
         fi
+
         _autostart_script_autostart "${mode}"
     fi
 }
 
 function disable_autostart() {
-    local login_type="$1"
-    [[ -z "${login_type}" ]] && login_type="B2"
+    #local login_type="${1}"
+    #[[ -z "${login_type}" ]] && login_type="B2"
     if isPlatform "x11"; then
         rm "${home}/.config/autostart/archypie.desktop"
     else
@@ -75,7 +80,7 @@ function disable_autostart() {
         if [[ "$(cat /proc/1/comm)" == "systemd" ]]; then
             rm -f "/etc/systemd/system/getty@tty1.service.d/autologin.conf"
             systemctl set-default graphical.target
-            systemctl enable lightdm.service
+            #systemctl enable lightdm.service
         fi
         rm -f /etc/profile.d/10-emulationstation.sh
         rm -f /etc/profile.d/10-archypie.sh
@@ -88,6 +93,12 @@ function remove_autostart() {
 
 function gui_autostart() {
     cmd=(dialog --backtitle "${__backtitle}" --menu "Choose The Desired Boot Behaviour" 22 76 16)
+    local has_pegasus=0
+    local has_kodi=0
+
+    command -v pegasus-fe >/dev/null && has_pegasus=1
+    command -v kodi-standalone >/dev/null && has_kodi=1
+
     while true; do
         if isPlatform "x11"; then
             local x11_autostart
@@ -101,7 +112,10 @@ function gui_autostart() {
         else
             options=(
                 1 "Start EmulationStation At Boot"
-                2 "Start Kodi At Boot (Exit for EmulationStation)"
+            )
+            [[ "${has_kodi}" -eq 1 ]] && options+=(2 "Start Kodi At Boot (Exit Starts EmulationStation)")
+            [[ "${has_pegasus}" -eq 1 ]] && options+=(3 "Start Pegasus At Boot")
+            options+=(
                 E "Manually Edit ${configdir}/all/autostart.sh"
             )
             options+=(DL "Boot To Desktop (Require Login)")
@@ -127,6 +141,10 @@ function gui_autostart() {
                 2)
                     enable_autostart kodi
                     printMsgs "dialog" "Kodi Is Set To Launch At Boot"
+                    ;;
+                3)
+                    enable_autostart pegasus
+                    printMsgs "dialog" "Pegasus Is Set To Launch At Boot"
                     ;;
                 E)
                     editFile "${configdir}/all/autostart.sh"
