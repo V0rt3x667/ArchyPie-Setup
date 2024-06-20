@@ -7,7 +7,7 @@
 rp_module_id="retroarch"
 rp_module_desc="RetroArch: Libretro Frontend (Required By All lr-* Cores)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/Libretro/RetroArch v1.18.0"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.19.1"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -46,7 +46,7 @@ function depends_retroarch() {
 function sources_retroarch() {
     gitPullOrClone
 
-    # Adds Default RetroPie Behaviour For Shaders, Saves & Controller Enhancements
+    # Adds Default RetroPie Behaviour For Shaders & Saves
     applyPatch "${md_data}/01_retropie_fixes.patch"
 }
 
@@ -79,6 +79,7 @@ function build_retroarch() {
     isPlatform "neon" && params+=('--enable-neon')
     isPlatform "rpi" && params+=('--disable-videocore')
     isPlatform "x11" && params+=('--enable-wayland' '--enable-x11')
+
     if isPlatform "vulkan"; then
         params+=('--enable-vulkan')
     else
