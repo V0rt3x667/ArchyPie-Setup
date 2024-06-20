@@ -1,7 +1,7 @@
 diff -ru a/src/utils.c b/src/utils.c
---- a/src/utils.c	2023-09-28 00:30:12.800167716 +0100
-+++ b/src/utils.c	2023-09-28 00:35:37.230694025 +0100
-@@ -3348,12 +3348,9 @@
+--- a/src/utils.c	2024-06-15 20:36:23.117574051 +0100
++++ b/src/utils.c	2024-06-20 15:14:40.005194618 +0100
+@@ -3371,14 +3371,17 @@
    }
  
    #ifndef MINGW
@@ -11,16 +11,32 @@ diff -ru a/src/utils.c b/src/utils.c
 -                  //printf("Unable to find $HOME environment variable to open configuration file\n");
 -  		return 0;
 -  	}
-+  	char *envpath = getenv("HOME");
-+  	const char *cpath = ("/ArchyPie/configs/zesarux/");
-+  	const char *directorio_home = strcat(envpath, cpath);
++        char *chome;
++        char *cpath;
++        chome = getenv("HOME");
++        cpath = ("ArchyPie/configs/zesarux");
++
++        if (chome==NULL) {
++                //printf("Unable to find $HOME environment variable to open configuration file\n");
++                return 0;
++        }
  
-   	sprintf(configfile,"%s/%s",directorio_home,DEFAULT_ZESARUX_CONFIG_FILE);
+-  	sprintf(configfile,"%s/%s",directorio_home,DEFAULT_ZESARUX_CONFIG_FILE);
++        sprintf(configfile,"%s/%s/%s",chome,cpath,DEFAULT_ZESARUX_CONFIG_FILE);
  
+   #else
+   	char *homedrive;
+@@ -22648,4 +22651,4 @@
+     }
+ 
+     return 1;
+-}
+\ No newline at end of file
++}
 diff -ru a/src/utils.h b/src/utils.h
---- a/src/utils.h	2023-09-28 00:30:12.801167737 +0100
-+++ b/src/utils.h	2023-09-28 00:36:27.354684259 +0100
-@@ -636,7 +636,7 @@
+--- a/src/utils.h	2024-06-15 20:36:23.117574051 +0100
++++ b/src/utils.h	2024-06-15 20:47:03.687149454 +0100
+@@ -644,7 +644,7 @@
  
  extern int util_tape_tap_get_info(z80_byte *tape,char *texto,int origin_tap);
  

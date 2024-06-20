@@ -20,11 +20,13 @@ function depends_zesarux() {
     local depends=(
         'aalib'
         'alsa-lib'
+        'libcaca'
         'openssl'
         'sdl2'
     )
-    isPlatform "x11" && depends+=('libxxf86vm')
-    isPlatform "x11" && depends+=('libpulse')
+
+    isPlatform "x11" && depends+=('libpulse' 'libxxf86vm')
+
     getDepends "${depends[@]}"
 }
 
@@ -37,18 +39,19 @@ function sources_zesarux() {
 
 function build_zesarux() {
     local params=()
-    isPlatform "rpi" && params+=('--enable-raspberry')
-    isPlatform "kms" && params+=('--disable-xwindows' '--disable-xext' '--disable-xvidmode')
+
+    isPlatform "kms" && params+=(
+        '--disable-xext'
+        '--disable-xvidmode'
+        '--disable-xwindows'
+    )
+    ! isPlatform "x11" && params+=(--disable-pulse)
 
     cd src || exit
     ./configure \
         --prefix "${md_inst}" \
-        --disable-caca \
-        --enable-cpustats \
-        --enable-memptr \
         --enable-sdl2 \
         --enable-ssl \
-        --enable-visualmem \
         --disable-fbdev \
         "${params[@]}"
     make clean
@@ -63,17 +66,23 @@ function install_zesarux() {
 }
 
 function configure_zesarux() {
+    local systems=(
+        'amstradcpc'
+        'samcoupe'
+        'zxspectrum'
+    )
+
     moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/zxspectrum/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
-        mkRomDir "amstradcpc"
-        mkRomDir "samcoupe"
-        mkRomDir "zxspectrum"
+        for system in "${systems[@]}"; do
+            mkRomDir "${system}"
+        done
 
         # Create Launcher Script
         cat > "${romdir}/zxspectrum/+Start ZEsarUX.sh" << _EOF_
 #!/bin/bash
-"${md_inst}/bin/${md_id}" "\$@"
+"${md_inst}/bin/${md_id}" "\${@}"
 _EOF_
         chmod +x "${romdir}/zxspectrum/+Start ZEsarUX.sh"
         chown "${user}:${user}" "${romdir}/zxspectrum/+Start ZEsarUX.sh"
@@ -93,7 +102,7 @@ _EOF_
 --disableborder
 --disablefooter
 --vo sdl
---ao "${ao}"
+--ao ${ao}
 --hidemousepointer
 --fullscreen
 
@@ -110,11 +119,11 @@ _EOF_
         rm "${config}"
     fi
 
-    addEmulator 0 "${md_id}" "amstradcpc" "bash ${romdir}/zxspectrum/+Start\ ZEsarUX.sh --machine CPC464 %ROM%"
-    addEmulator 0 "${md_id}" "samcoupe" "bash ${romdir}/zxspectrum/+Start\ ZEsarUX.sh --machine sam %ROM%"
     addEmulator 1 "${md_id}" "zxspectrum" "bash ${romdir}/zxspectrum/+Start\ ZEsarUX.sh %ROM%"
+    addEmulator 1 "${md_id}" "samcoupe"   "bash ${romdir}/zxspectrum/+Start\ ZEsarUX.sh --machine Sam %ROM%"
+    addEmulator 1 "${md_id}" "amstradcpc" "bash ${romdir}/zxspectrum/+Start\ ZEsarUX.sh --machine CPC464 %ROM%"
 
-    addSystem "amstradcpc"
-    addSystem "samcoupe"
-    addSystem "zxspectrum"
+    for system in "${systems[@]}"; do
+        addSystem "${system}"
+    done
 }
