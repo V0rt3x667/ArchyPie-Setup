@@ -42,9 +42,6 @@ function sources_amiberry() {
 
     # Set Fullscreen By Default
     applyPatch "${md_data}/01_set_fullscreen.patch"
-
-    # Set Correct CMake File When Building For 'neon' Platform
-    isPlatform "neon" && applyPatch "${md_data}/02_fix_aarch32-neon.patch"
 }
 
 function build_amiberry() {
@@ -56,7 +53,7 @@ function build_amiberry() {
     make
 
     # Build Amiberry
-    cd "${md_build}" || return
+    cd "${md_build}" || exit
     cmake . \
         -B"build" \
         -G"Ninja" \
@@ -81,19 +78,24 @@ function install_amiberry() {
         'build/amiberry'
         'build/data'
         'build/kickstarts'
-        'external/capsimg/capsimg.so'
     )
+
+    # Install CapsImg Library
+    mkdir "${md_inst}/plugins"
+    cp -Pv "${md_build}"/external/capsimg/capsimg.so "${md_inst}/plugins"
+
+    # Install WHDBoot
     cp -R "${md_build}/whdboot" "${md_inst}/whdboot-dist"
 }
 
 function configure_amiberry() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amiga/${md_id}"
-
     local systems=(
         'amiga'
         'amigacd32'
         'amigacdtv'
     )
+
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/amiga/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         for system in "${systems[@]}"; do
@@ -136,7 +138,7 @@ function configure_amiberry() {
         local launcher="+Start ${md_id}.sh"
         cat > "${romdir}/amiga/${launcher}" << _EOF_
 #!/bin/bash
-"${md_inst}/${md_id}.sh"
+"pushd ${md_inst}; ${md_inst}/${md_id}.sh; popd"
 _EOF_
         chmod a+x "${romdir}/amiga/${launcher}"
         chown "${user}:${user}" "${romdir}/amiga/${launcher}"
