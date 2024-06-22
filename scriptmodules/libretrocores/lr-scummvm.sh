@@ -7,23 +7,30 @@
 rp_module_id="lr-scummvm"
 rp_module_desc="ScummVM Libretro Core"
 rp_module_help="Copy ScummVM Games To: ${romdir}/scummvm\n\nGame Directories Must Be Suffixed With '.svm' For Direct Launch In EmulationStation"
-rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/scummvm/master/COPYING"
-rp_module_repo="git https://github.com/libretro/scummvm master"
+rp_module_licence="GPL3 https://raw.githubusercontent.com/scummvm/scummvm/master/COPYING"
+rp_module_repo="git https://github.com/scummvm/scummvm :_get_branch_lr-scummvm"
 rp_module_section="exp"
 
+function _get_branch_lr-scummvm() {
+    _get_branch_scummvm
+}
+
 function depends_lr-scummvm() {
-    local depends=('zip')
-    getDepends "${depends[@]}"
+    depends_scummvm
 }
 
 function sources_lr-scummvm() {
-    gitPullOrClone
+    sources_scummvm
 }
 
 function build_lr-scummvm() {
+    local gl_platform=OPENGL
+    isPlatform "gles" && gl_platform=OPENGLES2
+
     make -C backends/platform/libretro clean
-    make -C backends/platform/libretro USE_MT32EMU=1
+    make -C backends/platform/libretro USE_MT32EMU=1 FORCE_${gl_platform}=1
     make -C backends/platform/libretro datafiles
+
     md_ret_require="${md_build}/backends/platform/libretro/scummvm_libretro.so"
 }
 
@@ -64,9 +71,24 @@ function configure_lr-scummvm() {
 
         # Enable Speed Hack Core Option For ARM Platform
         isPlatform "arm" && setRetroArchCoreOption "scummvm_speed_hack" "enabled"
+
+        # Create A RetroArch Launcher For 'lr-scummvm' With Support For ROM Directories
+        # Containing .svm Files Inside (For Direct Game Directory Launching In ES)
+        cat > "${md_inst}/romdir-launcher.sh" << _EOF_
+#!/usr/bin/env bash
+ROM=\${1}; shift
+SVM_FILES=()
+[[ -d \${ROM} ]] && mapfile -t SVM_FILES < <(compgen -G "\${ROM}/*.svm")
+[[ \${#SVM_FILES[@]} -eq 1 ]] && ROM=\${SVM_FILES[0]}
+${emudir}/retroarch/bin/retroarch \\
+    -L "${md_inst}/scummvm_libretro.so" \\
+    --config "${md_conf_root}/scummvm/retroarch.cfg" \\
+    "\${ROM}" "\${@}"
+_EOF_
+        chmod +x "${md_inst}/romdir-launcher.sh"
     fi
 
-    addEmulator 0 "${md_id}" "scummvm" "${md_inst}/scummvm_libretro.so"
+    addEmulator 0 "${md_id}" "scummvm" "${md_inst}/romdir-launcher.sh %ROM%"
 
     addSystem "scummvm"
 }
