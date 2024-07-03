@@ -17,7 +17,7 @@ function depends_audiosettings() {
 
 function gui_audiosettings() {
     # Check If The Internal Audio Is Enabled
-    if [[ `aplay -ql | grep -e bcm2835 -e vc4hdmi | wc -l` < 1 ]]; then
+    if [[ "$(aplay -ql | grep -e bcm2835 -e vc4hdmi | wc -l)" -le 1 ]]; then
         printMsgs "dialog" "On-board Audio Disabled Or Not Present"
         return
     fi
@@ -39,7 +39,7 @@ function _reset_alsa_audiosettings() {
     alsactl restore
     alsactl store
     rm -f "${home}/.asoundrc" "/etc/alsa/conf.d/99-archypie.conf"
-    printMsgs "dialog" "Audio Settings Reset to Defaults"
+    printMsgs "dialog" "Audio Settings Reset To Defaults"
 }
 
 function _move_old_config_audiosettings() {
@@ -159,7 +159,7 @@ function _bcm2835_alsa_internal_audiosettings() {
                 ;;
             P)
                 _toggle_${sound_server,,}_audiosettings "on"
-                printMsgs "dialog" "$sound_server Enabled"
+                printMsgs "dialog" "${sound_server} Enabled"
                 ;;
         esac
     fi
@@ -175,12 +175,12 @@ function _asoundrc_save_audiosettings() {
     tmpfile="$(mktemp)"
 
     if isPlatform "kms" && [[ ${card_type} == "HDMI"* ]]; then
-        # when the 'vc4hdmi' driver is used instead of 'bcm2835_audio' for HDMI,
-        # the 'hdmi:vchdmi[-idx]' PCM should be used for converting to the native IEC958 codec
-        # adds a volume control since the default configured mixer doesn't work
-        # (default configuration is at /usr/share/alsa/cards/vc4-hdmi.conf)
+        # When The 'vc4hdmi' Driver Is Used Instead Of 'bcm2835_audio' For HDMI,
+        # The 'hdmi:vchdmi[-idx]' PCM Should Be Used For Converting To The Native IEC958 Codec
+        # Adds A Volume Control Since The Default Configured Mixer Doesn't Work
+        # (Default Configuration Is At /usr/share/alsa/cards/vc4-hdmi.conf)
         local card_name
-        card_name="$(cat /proc/asound/card${card_index}/id)"
+        card_name="$(cat /proc/asound/card"${card_index}"/id)"
         cat << EOF > "${tmpfile}"
 pcm.hdmi${card_index} {
   type asym
@@ -191,20 +191,20 @@ pcm.hdmi${card_index} {
 }
 ctl.!default {
   type hw
-  card ${card_index}
+  card "${card_index}"
 }
 pcm.softvolume {
-    type           softvol
-    slave.pcm      "hdmi${card_index}"
-    control.name  "HDMI Playback Volume"
-    control.card  ${card_index}
+    type softvol
+    slave.pcm "hdmi${card_index}"
+    control.name "HDMI Playback Volume"
+    control.card "${card_index}"
 }
 
 pcm.softmute {
     type softvol
     slave.pcm "softvolume"
     control.name "HDMI Playback Switch"
-    control.card ${card_index}
+    control.card "${card_index}"
     resolution 2
 }
 
@@ -224,11 +224,11 @@ pcm.!default {
 }
 pcm.output {
   type hw
-  card ${card_index}
+  card "${card_index}"
 }
 ctl.!default {
   type hw
-  card ${card_index}
+  card "${card_index}"
 }
 EOF
     fi
@@ -242,42 +242,48 @@ function _pulseaudio_audiosettings() {
     local options=()
     local sink_index
     local sink_label
+    local sinks=()
     local sound_server="PulseAudio"
 
     # Check If PulseAudio Is Running Otherwise 'pacmd' Will Not Work
     if ! _pa_cmd_audiosettings pactl info >/dev/null; then
-        printMsgs "dialog" "PulseAudio Is Enabled But Not Running\nAudio Settings Cannot Be Set Right Now"
+        printMsgs "dialog" "PulseAudio Is Present But Not Running\nAudio Settings Cannot Be Set Right Now"
         return
     fi
-    while read -r sink_index sink_label; do
+    while read -r sink_index sink_label sink_id; do
         options+=("${sink_index}" "${sink_label}")
+        sinks[${sink_index}]=${sink_id}
     done < <(_pa_cmd_audiosettings pactl list sinks | \
-            awk -F [:=] 'BEGIN {idx=0}; /Name:/ {
-                         do {getline} while(${0} !~ "alsa.name" && ${0} !~ "Formats");
-                         if ( $2 != "" ) {
-                            gsub(/"|bcm2835[^a-zA-Z]+/, "", $2);
-                            print idx,$2;
-                            idx++
-                         }
+            awk -F [:=#] 'BEGIN {idx=0} /Sink/ {
+                             ctl_index=$2
+                             do {getline} while($0 !~ /card.name/ && $0 !~ /Formats/);
+                             if ( $2 != "" ) {
+                                gsub(/"|bcm2835[^a-zA-Z]+/, "", $2); # strip bcm2835 suffix on analog output
+                                gsub(/vc4[-]?/ , "", $2); # strip the vc4 suffix on HDMI output(s)
+                                if ( $2 ~ /hdmi/ ) $2=toupper($2)
+                                print idx,$2,ctl_index
+                                idx++
+                             }
                          }'
             )
     _pa_cmd_audiosettings pactl info | grep -i pipewire >/dev/null && sound_server="PipeWire"
-    local cmd=(dialog --backtitle "${__backtitle}" --menu "Set Audio Output ($sound_server)" 22 86 16)
+    local cmd=(dialog --backtitle "${__backtitle}" --menu "Set Audio Output (${sound_server})" 22 86 16)
     options+=(
         M "Mixer: Adjust Output Volume"
         R "Reset To Default"
-        P "Disable PulseAudio"
+        P "Disable ${sound_server}"
     )
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     if [[ -n "${choice}" ]]; then
         case "${choice}" in
-            [0-9])
-                _pa_cmd_audiosettings pactl set-default-sink "${choice}"
+            [0-9]*)
+                _pa_cmd_audiosettings pactl set-default-sink "${sinks[$choice]}"
                 rm -f "/etc/alsa/conf.d/99-archypie.conf"
+
                 printMsgs "dialog" "Set Audio Output To: ${options[$((choice*2+1))]}"
                 ;;
             M)
-                alsamixer >/dev/tty </dev/tty
+                _pa_cmd_audiosettings alsamixer >/dev/tty </dev/tty
                 alsactl store
                 ;;
             R)
@@ -309,7 +315,7 @@ function _toggle_pulseaudio_audiosettings() {
 }
 
 function _toggle_pipewire_audiosettings() {
-    local state=$1
+    local state=${1}
 
     if [[ "${state}" == "on" ]]; then
         _pa_cmd_audiosettings systemctl --user unmask pipewire-pulse.socket pipewire.socket
