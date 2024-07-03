@@ -130,6 +130,15 @@ function configure_amiberry() {
         chown -R "${user}:${user}" "${biosdir}/amiga"
         chown -R "${user}:${user}" "${md_conf_root}/amiga/${md_id}/whdboot"
 
+        # Set Various Media Paths To The 'amiga' ROM Folder
+        if [ -f "${md_inst}/conf/amiberry.conf" ]; then
+            iniConfig "=" "" "${md_inst}/conf/amiberry.conf"
+            iniSet "floppy_path"    "${romdir}/amiga"
+            iniSet "harddrive_path" "${romdir}/amiga"
+            iniSet "cdrom_path"     "${romdir}/amiga"
+            iniSet "lha_path"       "${romdir}/amiga"
+        fi
+
         # Use Shared UAE4ARM/Amiberry Launcher Script While '${md_id}=1'
         sed -e "s|is_${md_id}=0|is_${md_id}=1|g" "${md_data}/../uae4arm/uae4arm.sh" >"${md_inst}/amiberry.sh"
         chmod a+x "${md_inst}/${md_id}.sh"
