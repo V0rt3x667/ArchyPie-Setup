@@ -9,10 +9,11 @@ rp_module_desc="Configure Samba ROM Shares"
 rp_module_section="config"
 
 function depends_samba() {
-    getDepends samba
-
-    # Add `wsdd` So That ArchyPie Is Easily Discovered By Windows Clients
-    pacmanAURInstall wsdd
+    local depends=(
+        'samba'
+        'wsdd'
+    )
+    getDepends "${depends[@]}"
 }
 
 function remove_share_samba() {
