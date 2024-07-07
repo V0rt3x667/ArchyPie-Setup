@@ -14,8 +14,20 @@ function _update_hook_joy2key() {
 }
 
 function depends_joy2key() {
-    local aurdepends=('python-pysdl2' 'start-stop-daemon')
+    local depends=(
+        'libmd'
+        'perl'
+        'python-numpy'
+        'python-setuptools'
+        'python-urwid'
+        'sdl2'
+    )
+    getDepends "${depends[@]}"
 
+    local aurdepends=(
+        'python-pysdl2'
+        'start-stop-daemon'
+    )
     pacmanAURInstall "${aurdepends[@]}"
 }
 
