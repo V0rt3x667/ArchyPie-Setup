@@ -184,8 +184,8 @@ function get_archypie_depends() {
 function get_rpi_video() {
     if [[ -z "${__has_kms}" ]]; then
         if [[ "${__chroot}" -eq 1 ]]; then
-                # Force KMS When Running In A Chroot
-                __has_kms=1
+            # Force KMS When Running In A Chroot
+            __has_kms=1
         else
             # Detect KMS Driver Via Platform Driver Setup
             [[ -d "/sys/module/vc4" ]] && __has_kms=1
