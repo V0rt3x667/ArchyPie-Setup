@@ -10,7 +10,7 @@ rp_module_help="ROM Extensions: .bin .bz2 .chd .cso .dump .gz .ima .img .iso .md
 rp_module_licence="GPL3 https://raw.githubusercontent.com/PCSX2/pcsx2/master/COPYING.GPLv3"
 rp_module_repo="git https://github.com/PCSX2/pcsx2 master"
 rp_module_section="main"
-rp_module_flags="!all x86_64"
+rp_module_flags="!all x86_64 !kms"
 
 function depends_pcsx2() {
     local depends=(
@@ -18,37 +18,42 @@ function depends_pcsx2() {
         'cmake'
         'curl'
         'doxygen'
+        'extra-cmake-modules'
         'ffmpeg'
         'fmt'
+        'glslang'
         'libaio'
         'libglvnd'
         'libpcap'
         'libpng'
         'libwebp'
+        'libx11'
+        'libxext'
         'libzip'
         'lld'
+        'llvm'
         'lz4'
         'ninja'
         'p7zip'
         'png++'
         'portaudio'
+        'python'
         'qt6-base'
         'qt6-svg'
         'qt6-tools'
+        'qt6-wayland'
         'rapidyaml'
         'sdl2'
         'sndio'
         'soundtouch'
+        'spirv-headers'
+        'spirv-tools'
+        'vulkan-icd-loader'
+        'wayland-protocols'
+        'wayland'
         'xz'
         'zlib'
         'zstd'
-    )
-    isPlatform "x11" && depends+=(
-        'libx11'
-        'libxext'
-        'qt6-wayland'
-        'wayland-protocols'
-        'wayland'
     )
     getDepends "${depends[@]}"
 }
@@ -59,6 +64,14 @@ function sources_pcsx2() {
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 
+    # Get 'libbacktrace'
+    gitPullOrClone "${md_build}/backtrace" "https://github.com/ianlancetaylor/libbacktrace"
+
+    # Get 'shaderc' PCSX2 Requires A Custom Build, Ref: https://github.com/PCSX2/pcsx2/wiki/10-Building-on-Linux
+    gitPullOrClone "${md_build}/shaderc" "https://github.com/google/shaderc" "main"
+    applyPatch "${md_data}/02_custom_shaderc.patch"
+
+
     # Get Patches & Compress Them
     gitPullOrClone "${md_build}/patches" "https://github.com/PCSX2/pcsx2_patches" "main"
     7z a -r "${md_build}/patches/patches.zip" "${md_build}/patches/patches/."
@@ -68,27 +81,58 @@ function sources_pcsx2() {
 }
 
 function build_pcsx2() {
-    local params=()
-    isPlatform "kms" && params+=(-DWAYLAND_API="OFF" -DX11_API="OFF")
-    ! isPlatform "vulkan" && params+=(-DUSE_VULKAN="OFF")
-    isPlatform "x11" && params+=(-DWAYLAND_API="ON" -DX11_API="ON")
+    # Build 'libbacktrace'
+    echo "## Building libbacktrace ##"
+    cd "${md_build}/backtrace" || exit
+    export CC="clang" CXX="clang++" LDFLAGS="${LDFLAGS} -fuse-ld=lld"
+    ./configure --prefix="${md_build}/deps"
+    make clean
+    make
+    make install
 
+    # Build 'shaderc'
+    echo "## Building shaderc ##"
+    cd "${md_build}/shaderc" || exit
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_INSTALL_PREFIX="${md_build}/deps" \
         -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DDISABLE_BUILD_DATE="ON" \
+        -Dglslang_SOURCE_DIR="/usr/include/glslang" \
+        -DSHADERC_SKIP_COPYRIGHT_CHECK="ON" \
+        -DSHADERC_SKIP_EXAMPLES="ON" \
+        -DSHADERC_SKIP_TESTS="ON" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build install
+
+    # Build 'pcsx2'
+    echo "## Building PCSX2 ##"
+    cd "${md_build}" || exit
+    cmake . \
+        -B"build" \
+        -G"Ninja" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_PREFIX_PATH="${md_build}/deps" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DENABLE_TESTS="OFF" \
         -DLTO_PCSX2_CORE="ON" \
         -DUSE_SYSTEM_LIBS="ON" \
-        "${params[@]}" \
+        -DWAYLAND_API="ON" \
+        -DX11_API="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -103,8 +147,12 @@ function install_pcsx2() {
         "gamecontrollerdb.txt"
     )
 
+    # Install 'shaderc' Library
+    mkdir "${md_inst}/lib"
+    cp -Pv "${md_build}/deps/lib/libshaderc_shared.so" "${md_inst}/lib"
+
     # Install Patch Files
-    install -Dm644 "${md_build}/patches/patches.zip" -t "${md_inst}/resources/"
+    install -Dm644 "${md_build}/patches/patches.zip" -t "${md_inst}/resources"
 }
 
 function configure_pcsx2() {
@@ -135,7 +183,7 @@ function configure_pcsx2() {
         rm "${config}"
     fi
 
-    addEmulator 1 "${md_id}" "ps2" "${md_inst}/pcsx2-qt -nogui -fullscreen %ROM%"
+    addEmulator 1 "${md_id}"     "ps2" "${md_inst}/pcsx2-qt -nogui -fullscreen %ROM%"
     addEmulator 0 "${md_id}-gui" "ps2" "${md_inst}/pcsx2-qt -fullscreen"
 
     addSystem "ps2"

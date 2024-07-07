@@ -1,33 +1,33 @@
 diff -ru a/pcsx2/Pcsx2Config.cpp b/pcsx2/Pcsx2Config.cpp
---- a/pcsx2/Pcsx2Config.cpp	2024-01-04 04:03:45.506631125 +0000
-+++ b/pcsx2/Pcsx2Config.cpp	2024-01-04 04:15:45.086473192 +0000
-@@ -1931,26 +1931,9 @@
- 		CoTaskMemFree(documents_directory);
- 	}
+--- a/pcsx2/Pcsx2Config.cpp	2024-07-06 23:11:12.765232781 +0100
++++ b/pcsx2/Pcsx2Config.cpp	2024-07-06 23:20:36.000961983 +0100
+@@ -1896,26 +1896,9 @@
+ 			CoTaskMemFree(documents_directory);
+ 		}
  #elif defined(__linux__) || defined(__FreeBSD__)
--	// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
--	const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
--	if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
--	{
--		DataRoot = Path::RealPath(Path::Combine(xdg_config_home, "PCSX2"));
--	}
--	else
--	{
--		// Use ~/PCSX2 for non-XDG, and ~/.config/PCSX2 for XDG.
--		const char* home_dir = getenv("HOME");
--		if (home_dir)
+-		// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
+-		const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
+-		if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
 -		{
--			// ~/.config should exist, but just in case it doesn't and this is a fresh profile..
--			const std::string config_dir(Path::Combine(home_dir, ".config"));
--			if (!FileSystem::DirectoryExists(config_dir.c_str()))
--				FileSystem::CreateDirectoryPath(config_dir.c_str(), false);
--
--			DataRoot = Path::RealPath(Path::Combine(config_dir, "PCSX2"));
+-			DataRoot = Path::RealPath(Path::Combine(xdg_config_home, "PCSX2"));
 -		}
--	}
-+	const char* home_dir = getenv("HOME");
-+	if (home_dir)
-+		DataRoot = Path::Combine(home_dir, "ArchyPie/configs/pcsx2");
+-		else
+-		{
+-			// Use ~/PCSX2 for non-XDG, and ~/.config/PCSX2 for XDG.
+-			const char* home_dir = getenv("HOME");
+-			if (home_dir)
+-			{
+-				// ~/.config should exist, but just in case it doesn't and this is a fresh profile..
+-				const std::string config_dir(Path::Combine(home_dir, ".config"));
+-				if (!FileSystem::DirectoryExists(config_dir.c_str()))
+-					FileSystem::CreateDirectoryPath(config_dir.c_str(), false);
+-
+-				DataRoot = Path::RealPath(Path::Combine(config_dir, "PCSX2"));
+-			}
+-		}
++		const char* home_dir = getenv("HOME");
++		if (home_dir)
++			DataRoot = Path::Combine(home_dir, "ArchyPie/configs/pcsx2");
  #elif defined(__APPLE__)
- 	static constexpr char MAC_DATA_DIR[] = "Library/Application Support/PCSX2";
- 	const char* home_dir = getenv("HOME");
+ 		static constexpr char MAC_DATA_DIR[] = "Library/Application Support/PCSX2";
+ 		const char* home_dir = getenv("HOME");
