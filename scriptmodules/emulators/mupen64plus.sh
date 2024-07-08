@@ -10,21 +10,23 @@ rp_module_help="ROM Extensions: .n64 .v64 .z64\n\nCopy N64 ROMs To: ${romdir}/n6
 rp_module_licence="GPL2 https://raw.githubusercontent.com/mupen64plus/mupen64plus-core/master/LICENSES"
 rp_module_repo=":_pkg_info_mupen64plus"
 rp_module_section="main"
-rp_module_flags=""
 
 function depends_mupen64plus() {
     local depends=(
         'boost'
+        'clang'
         'cmake'
         'freetype2'
+        'libpng'
         'libsamplerate'
+        'lld'
         'minizip'
+        'ninja'
         'sdl2'
         'speexdsp'
-)
+    )
     isPlatform "gl" && depends+=('glew' 'glu')
     isPlatform "mesa" && depends+=('libglvnd')
-    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     isPlatform "x86" && depends+=('nasm')
 
     getDepends "${depends[@]}"
@@ -32,33 +34,33 @@ function depends_mupen64plus() {
 
 function _get_repos_mupen64plus() {
     local repos=(
-        'mupen64plus mupen64plus-audio-sdl master'
-        'mupen64plus mupen64plus-core master'
-        'mupen64plus mupen64plus-input-sdl master'
-        'mupen64plus mupen64plus-rsp-hle master'
+        'mupen64plus mupen64plus-audio-sdl  master'
+        'mupen64plus mupen64plus-core       master'
+        'mupen64plus mupen64plus-input-sdl  master'
+        'mupen64plus mupen64plus-rsp-hle    master'
         'mupen64plus mupen64plus-ui-console master'
     )
-
-    if isPlatform "rpi" && isPlatform "32bit"; then
-        repos+=('gizmo98 mupen64plus-audio-omx master')
-    fi
 
     if isPlatform "gles"; then
         ! isPlatform "rpi" && repos+=('mupen64plus mupen64plus-video-glide64mk2 master')
         if isPlatform "32bit"; then
             repos+=('ricrpi mupen64plus-video-gles2rice pandora-backport')
-            repos+=('ricrpi mupen64plus-video-gles2n64 master')
+            repos+=('ricrpi mupen64plus-video-gles2n64  master')
         fi
     fi
 
     if isPlatform "gl"; then
         repos+=(
-            'gonetz GLideN64 master'
-            'mupen64plus mupen64plus-rsp-cxd4 master'
-            'mupen64plus mupen64plus-rsp-z64 master'
+            'mupen64plus mupen64plus-rsp-cxd4         master'
+            'mupen64plus mupen64plus-rsp-z64          master'
             'mupen64plus mupen64plus-video-glide64mk2 master'
         )
     fi
+
+    local commit=""
+    # Avoid A GLideN64 Regression Introduced In 1a0621d
+    isPlatform "gles" && commit="5bbf55df"
+    repos+=("gonetz GLideN64 master ${commit}")
 
     local repo
     for repo in "${repos[@]}"; do
@@ -67,7 +69,7 @@ function _get_repos_mupen64plus() {
 }
 
 function _pkg_info_mupen64plus() {
-    local mode="$1"
+    local mode="${1}"
     local repo
     case "${mode}" in
         get)
@@ -76,7 +78,8 @@ function _pkg_info_mupen64plus() {
             local date
             local newest_date
             while read -r repo; do
-                repo=(${repo}) # Do Not Quote
+                # shellcheck disable=SC2206
+                repo=(${repo})
                 date=$(git -C "${md_build}/${repo[1]}" log -1 --format=%aI)
                 hash="$(git -C "${md_build}/${repo[1]}" log -1 --format=%H)"
                 hashes+=("${hash}")
@@ -94,7 +97,8 @@ function _pkg_info_mupen64plus() {
             local hashes=()
             local hash
             while read -r repo; do
-                repo=(${repo}) # Do Not Quote
+                # shellcheck disable=SC2206
+                repo=(${repo})
                 # If Repos Set To A Specific Git Hash (eg GLideN64) Use That Otherwise Check
                 if [[ -n "${repo[3]}" ]]; then
                     hash="${repo[3]}"
@@ -117,9 +121,10 @@ function _pkg_info_mupen64plus() {
         check)
             local ret=0
             while read -r repo; do
-                repo=($repo) # Do Not Quote
+                # shellcheck disable=SC2206
+                repo=($repo)
                 out=$(rp_getRemoteRepoHash git https://github.com/${repo[0]}/${repo[1]} ${repo[2]})
-                if [[ -z "$out" ]]; then
+                if [[ -z "${out}" ]]; then
                     printMsgs "console" "${id} Repository Failed: https://github.com/${repo[0]}/${repo[1]} ${repo[2]}"
                     ret=1
                 fi
@@ -132,7 +137,8 @@ function _pkg_info_mupen64plus() {
 function sources_mupen64plus() {
     local repo
     while read -r repo; do
-        repo=($repo) # Do not quote
+        # shellcheck disable=SC2206
+        repo=(${repo})
         gitPullOrClone "${md_build}/${repo[1]}" https://github.com/${repo[0]}/${repo[1]} ${repo[2]} ${repo[3]}
     done < <(_get_repos_mupen64plus)
 
@@ -147,48 +153,52 @@ function sources_mupen64plus() {
 function build_mupen64plus() {
     rpSwap on 750
 
+    # Build 'mupen64plus' & Plugins
+    echo "***Building MUPEN64Plus & Plugins***"
     local dir
     local params=()
     for dir in *; do
         if [[ -f "${dir}/projects/unix/Makefile" ]]; then
-            params=()
-            isPlatform "rpi" || [[ "${dir}" == "mupen64plus-audio-omx" ]] && params+=("VC=1")
-            if isPlatform "mesa" || isPlatform "mali"; then
-                params+=("USE_GLES=1")
-            fi
+            isPlatform "aarch64" && params+=("HOST_CPU=aarch64")
+            isPlatform "armv7" && params+=("HOST_CPU=armv7")
+            isPlatform "armv8" && params+=("HOST_CPU=armv8")
+            isPlatform "mesa" || isPlatform "mali" && params+=("USE_GLES=1")
             isPlatform "neon" && params+=("NEON=1")
             isPlatform "x11" && params+=("OSD=1" "PIE=1")
             isPlatform "x86" && params+=("SSE=SSE2")
-            isPlatform "armv7" && params+=("HOST_CPU=armv7")
-            isPlatform "aarch64" && params+=("HOST_CPU=aarch64")
 
             [[ "${dir}" == "mupen64plus-ui-console" ]] && params+=("COREDIR=${md_inst}/lib/" "PLUGINDIR=${md_inst}/lib/mupen64plus/")
+            export CC="clang" CXX="clang++"
             make -C "${dir}/projects/unix" "${params[@]}" clean
-            make -C "${dir}/projects/unix" all "${params[@]}" OPTFLAGS="${CFLAGS} -fno-lto"
+            make -C "${dir}/projects/unix" all "${params[@]}"
         fi
     done
 
     # Build GLideN64
-    "${md_build}/GLideN64/src/getRevision.sh"
+    echo "***Building GLideN64***"
 
-    params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On" "-DUSE_SYSTEM_LIBS=On")
-    isPlatform "neon" && params+=("-DNEON_OPT=On")
-    isPlatform "mesa" && params+=("-DMESA=On" "-DEGL=On")
-    isPlatform "armv8" && params+=("-DCRC_ARMV8=On")
-    isPlatform "mali" && params+=("-DCRC_OPT=On" "-DEGL=On")
-    isPlatform "x86" && params+=("-DCRC_OPT=On")
+    params=("-DMUPENPLUSAPI=ON" "-DVEC4_OPT=ON" "-DUSE_SYSTEM_LIBS=ON")
+    isPlatform "armv8" && params+=("-DCRC_ARMV8=ON")
+    isPlatform "mali" && params+=("-DCRC_OPT=ON" "-DEGL=ON")
+    isPlatform "mesa" && params+=("-DMESA=ON" "-DEGL=ON")
+    isPlatform "neon" && params+=("-DNEON_OPT=ON")
+    isPlatform "x86" && params+=("-DCRC_OPT=ON")
 
     cmake . \
-        -S"${md_build}/GLideN64/src" \
-        -B"${md_build}/GLideN64/build" \
+        -B"GLideN64/build" \
         -G"Ninja" \
+        -S"GLideN64/src" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         "${params[@]}" \
         -Wno-dev
-    ninja -C "${md_build}/GLideN64/build" clean
-    ninja -C "${md_build}/GLideN64/build"
+    ninja -C GLideN64/build clean
+    ninja -C GLideN64/build
 
     rpSwap off
 
@@ -200,10 +210,6 @@ function build_mupen64plus() {
         'mupen64plus-rsp-hle/projects/unix/mupen64plus-rsp-hle.so'
         'mupen64plus-ui-console/projects/unix/mupen64plus'
     )
-
-    if isPlatform "rpi" && ! isPlatform " 64bit"; then
-        md_ret_require+=('mupen64plus-audio-omx/projects/unix/mupen64plus-audio-omx.so')
-    fi
 
     if isPlatform "gles"; then
         ! isPlatform "rpi" && md_ret_require+=('mupen64plus-video-glide64mk2/projects/unix/mupen64plus-video-glide64mk2.so')
@@ -231,24 +237,12 @@ function build_mupen64plus() {
 function install_mupen64plus() {
     for source in *; do
         if [[ -f "${source}/projects/unix/Makefile" ]]; then
-            local params=()
-            isPlatform "rpi" || [[ "${dir}" == "mupen64plus-audio-omx" ]] && params+=("VC=1")
-            if isPlatform "mesa" || isPlatform "mali"; then
-                params+=("USE_GLES=1")
-            fi
-            isPlatform "neon" && params+=("NEON=1")
-            isPlatform "x11" && params+=("OSD=1" "PIE=1")
-            isPlatform "x86" && params+=("SSE=SSE2")
-            isPlatform "armv7" && params+=("HOST_CPU=armv7")
-            isPlatform "aarch64" && params+=("HOST_CPU=aarch64")
-            isPlatform "x86" && params+=("SSE=SSE2")
-
             make -C "${source}/projects/unix" PREFIX="${md_inst}" "${params[@]}" install
         fi
     done
-    cp "${md_build}/GLideN64/ini/GLideN64.custom.ini" "${md_inst}/share/mupen64plus/"
-    cp "${md_build}/GLideN64/build/plugin/Release/mupen64plus-video-GLideN64.so" "${md_inst}/lib/mupen64plus/"
-    cp "${md_build}/GLideN64_config_version.ini" "${md_inst}/share/mupen64plus/"
+    cp "${md_build}/GLideN64/ini/GLideN64.custom.ini" "${md_inst}/share/mupen64plus"
+    cp "${md_build}/GLideN64/build/plugin/Release/mupen64plus-video-GLideN64.so" "${md_inst}/lib/mupen64plus"
+    cp "${md_build}/GLideN64_config_version.ini" "${md_inst}/share/mupen64plus"
     # Remove Default 'InputAutoCfg.ini', 'inputconfigscript' Writes A Clean File
     rm -f "${md_inst}/share/mupen64plus/InputAutoCfg.ini"
 }
@@ -260,7 +254,7 @@ function configure_mupen64plus() {
         mkRomDir "n64"
 
         # Copy Hotkey Remapping Start Script
-        cp "${md_data}/mupen64plus.sh" "${md_inst}/bin/"
+        cp "${md_data}/mupen64plus.sh" "${md_inst}/bin"
         chmod +x "${md_inst}/bin/mupen64plus.sh"
 
         # Copy Config Files
@@ -287,13 +281,13 @@ function configure_mupen64plus() {
         # RPI GLideN64 Settings
         if isPlatform "rpi"; then
             iniConfig " = " "" "${config}"
-            # VSync is mandatory for good performance on KMS
-            # if isPlatform "kms"; then
-            #     if ! grep -q "\[Video-General\]" "${config}"; then
-            #         echo "[Video-General]" >> "${config}"
-            #     fi
-            #     iniSet "VerticalSync" "True"
-            # fi
+            # VSync Is Mandatory For Good Performance On KMS
+            if isPlatform "kms"; then
+                if ! grep -q "\[Video-General\]" "${config}"; then
+                    echo "[Video-General]" >> "${config}"
+                fi
+                iniSet "VerticalSync" "True"
+            fi
             # Create GlideN64 Section In .cfg
             if ! grep -q "\[Video-GLideN64\]" "${config}"; then
                 echo "[Video-GLideN64]" >> "${config}"
@@ -314,15 +308,19 @@ function configure_mupen64plus() {
             # Disable Hybrid Upscaling Filter (Requires Better GPU)
             iniSet "EnableHybridFilter" "False"
             # Use fast but less accurate shaders. Can help with low-end GPUs.
-            #iniSet "EnableInaccurateTextureCoordinates" "True"
+            iniSet "EnableInaccurateTextureCoordinates" "True"
 
-            if isPlatform "rpi"; then
-                iniConfig "=" "" "${md_conf_root}/n64/${md_id}/gles2n64.conf"
-                setAutoConf mupen64plus_audio 1
-                setAutoConf mupen64plus_compatibility_check 1
+            if isPlatform "mesa"; then
+                # Create Video-Rice Section in .cfg
+                if ! grep -q "\[Video-Rice\]" "${config}"; then
+                    echo "[Video-Rice]" >> "${config}"
+                fi
+                # Fix Flickering & Black Screen Issues With Rice Video Plugin
+                iniSet "ScreenUpdateSetting" "7"
+
+                setAutoConf mupen64plus_compatibility_check 0
             fi
         else
-            addAutoConf mupen64plus_audio 0
             addAutoConf mupen64plus_compatibility_check 0
         fi
 
@@ -338,9 +336,9 @@ function configure_mupen64plus() {
 
     if isPlatform "rpi"; then
         if isPlatform "mesa"; then
-            addEmulator 0 "${md_id}-GLideN64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM% ${res} 0 --set Video-GLideN64[UseNativeResolutionFactor]\=1"
+            addEmulator 0 "${md_id}-GLideN64"         "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM% ${res} 0 --set Video-GLideN64[UseNativeResolutionFactor]\=1"
             addEmulator 0 "${md_id}-GLideN64-highres" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM% ${res} 0 --set Video-GLideN64[UseNativeResolutionFactor]\=2"
-            addEmulator 0 "${md_id}-gles2n64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-n64 %ROM%"
+            addEmulator 0 "${md_id}-gles2n64"         "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-n64 %ROM%"
             if isPlatform "32bit"; then
                 addEmulator 0 "${md_id}-gles2rice" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-rice %ROM% ${res}"
             fi
@@ -352,21 +350,21 @@ function configure_mupen64plus() {
                     name="-highres"
                     nativeResFactor=2
                 fi
-                addEmulator 0 "${md_id}-GLideN64${name}" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM% ${res} 0 --set Video-GLideN64[UseNativeResolutionFactor]\=$nativeResFactor"
+                addEmulator 0 "${md_id}-GLideN64${name}"  "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM% ${res} 0 --set Video-GLideN64[UseNativeResolutionFactor]\=${nativeResFactor}"
                 addEmulator 0 "${md_id}-gles2rice${name}" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-rice %ROM% ${res}"
             done
             addEmulator 1 "${md_id}-auto" "n64" "${md_inst}/bin/mupen64plus.sh AUTO %ROM%"
         fi
         addEmulator 0 "${md_id}-gles2n64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-n64 %ROM%"
     elif isPlatform "mali"; then
-        addEmulator 1 "${md_id}-gles2n64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-n64 %ROM%"
-        addEmulator 0 "${md_id}-GLideN64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM%"
-        addEmulator 0 "${md_id}-glide64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-glide64mk2 %ROM%"
+        addEmulator 1 "${md_id}-gles2n64"  "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-n64 %ROM%"
+        addEmulator 0 "${md_id}-GLideN64"  "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM%"
+        addEmulator 0 "${md_id}-glide64"   "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-glide64mk2 %ROM%"
         addEmulator 0 "${md_id}-gles2rice" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-rice %ROM%"
-        addEmulator 0 "${md_id}-auto" "n64" "${md_inst}/bin/mupen64plus.sh AUTO %ROM%"
+        addEmulator 0 "${md_id}-auto"      "n64" "${md_inst}/bin/mupen64plus.sh AUTO %ROM%"
     else
         addEmulator 0 "${md_id}-GLideN64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM% ${res}"
-        addEmulator 1 "${md_id}-glide64" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-glide64mk2 %ROM% ${res}"
+        addEmulator 1 "${md_id}-glide64"  "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-glide64mk2 %ROM% ${res}"
         if isPlatform "x86"; then
             ! isPlatform "kms" && res="640x480"
             addEmulator 0 "${md_id}-GLideN64-LLE" "n64" "${md_inst}/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM% ${res} mupen64plus-rsp-cxd4-sse2"

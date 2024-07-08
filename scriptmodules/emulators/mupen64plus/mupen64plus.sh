@@ -5,19 +5,19 @@
 # Please see the LICENSE file at the top-level directory of this distribution.
 
 AUDIO_PLUGIN="mupen64plus-audio-sdl"
-VIDEO_PLUGIN="$1"
-ROM="$2"
-[[ "$3" != 0 ]] && RES="$3"
-[[ "$4" -ne 0 ]] && RSP_PLUGIN="$4"
+VIDEO_PLUGIN="${1}"
+ROM="${2}"
+[[ "${3}" != 0 ]] && RES="${3}"
+[[ "${4}" -ne 0 ]] && RSP_PLUGIN="${4}"
 PARAMS="${@:5}"
 [[ -n "${RES}" ]] && RES="--resolution ${RES}"
 [[ -z "${RSP_PLUGIN}" ]] && RSP_PLUGIN="mupen64plus-rsp-hle"
 WINDOW_MODE="--fullscreen ${RES}"
 
 rootdir="/opt/archypie"
-configdir="${rootdir}/configs/n64/mupen64plus"
-config="${configdir}/mupen64plus.cfg"
-inputconfig="${configdir}/InputAutoCfg.ini"
+configdir="${rootdir}/configs"
+config="${configdir}/n64/mupen64plus/mupen64plus.cfg"
+inputconfig="${configdir}/n64/mupen64plus/InputAutoCfg.ini"
 datadir="${HOME}/ArchyPie"
 romdir="${datadir}/roms"
 
@@ -25,9 +25,9 @@ source "${rootdir}/lib/inifuncs.sh"
 
 # Arg 1: Hotkey Name, Arg 2: Device Number, Arg 3: Retroarch Auto Config File
 function getBind() {
-    local key="$1"
-    local m64p_hotkey="J$2"
-    local file="$3"
+    local key="${1}"
+    local m64p_hotkey="J${2}"
+    local file="${3}"
 
     iniConfig " = " "" "${file}"
 
@@ -44,7 +44,7 @@ function getBind() {
                 case "${input_type}" in
                     _axis)
                         m64p_hotkey+="A${ini_value:1}${ini_value:0:1}"
-                    ;;
+                        ;;
                     _btn)
                         # If 'ini_value' Contains 'h' It Should Be A Hat Device
                         if [[ "${ini_value}" == *h* ]]; then
@@ -69,11 +69,11 @@ function getBind() {
                             [[ "${atebitdo_hack}" -eq 1 && "${ini_value}" -ge 11 ]] && ((ini_value-=11))
                             m64p_hotkey+="B${ini_value}"
                         fi
-                    ;;
+                        ;;
                 esac
             fi
         done
-        [[ "$i" -eq 0 ]] && m64p_hotkey+="/"
+        [[ "${i}" -eq 0 ]] && m64p_hotkey+="/"
         ((i++))
     done
     echo "${m64p_hotkey}"
@@ -94,8 +94,8 @@ function remap() {
     # Read Retroarch Auto Config File And Use Config For 'mupen64plus.cfg'
     local file
     local bind
-    local hotkeys_rp=( "input_exit_emulator" "input_load_state" "input_save_state" )
-    local hotkeys_m64p=( "Joy Mapping Stop" "Joy Mapping Load State" "Joy Mapping Save State" )
+    local hotkeys_rp=("input_exit_emulator" "input_load_state" "input_save_state")
+    local hotkeys_m64p=("Joy Mapping Stop" "Joy Mapping Load State" "Joy Mapping Save State")
     local i
     local j
 
@@ -110,122 +110,78 @@ function remap() {
         bind=""
         for device_num in "${!devices[@]}"; do
             # Get Name Of Retroarch Auto Config File
-            file=$(grep -lF "\"${devices[$device_num]}\"" "${configdir}/all/retroarch-joypads/"*.cfg)
+            file=$(grep -lF "\"${devices[${device_num}]}\"" "${configdir}/all/retroarch-joypads/"*.cfg)
             atebitdo_hack=0
             [[ "${file}" == *8Bitdo* ]] && getAutoConf "8bitdo_hack" && atebitdo_hack=1
             if [[ -f "${file}" ]]; then
                 if [[ -n "${bind}" && "${bind}" != *, ]]; then
                     bind+=","
                 fi
-                bind+=$(getBind "${hotkeys_rp[$i]}" "${device_num}" "${file}")
+                bind+=$(getBind "${hotkeys_rp[${i}]}" "${device_num}" "${file}")
             fi
         done
         # Write Hotkey To 'mupen64plus.cfg'
         iniConfig " = " "\"" "${config}"
-        iniSet "${hotkeys_m64p[$i]}" "${bind}"
+        iniSet "${hotkeys_m64p[${i}]}" "${bind}"
     done
 }
 
-function setAudio() {
-    if [[ "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" == *BCM* ]]; then
-        # If A Raspberry Pi Is Used Try To Set The Right Output And Use Audio OMX If Possible
-        local audio_device
-        audio_device=$(amixer)
-        if [[ "${audio_device}" == *PCM* ]]; then
-            AUDIO_PLUGIN="mupen64plus-audio-omx"
-            iniConfig " = " "\"" "${config}"
-            if ! grep -q "\[Audio-OMX\]" "${config}"; then
-                echo "[Audio-OMX]" >> "${config}"
-                echo "Version = 1" >> "${config}"
-            fi
-            # Read Output Configuration
-            local audio_port
-            audio_port=$(amixer cget numid=3)
-            # Set Output Port
-            if [[ "${audio_port}" == *": values=0"* ]]; then
-                # Echo Auto Configuration
-                local video_device
-                video_device=$(tvservice -s)
-                if [[ "${video_device}" == *HDMI* ]]; then
-                    iniSet "OUTPUT_PORT" "1"
-                else
-                    iniSet "OUTPUT_PORT" "0"
-                fi
-            elif [[ "${audio_port}" == *": values=1"* ]]; then
-                # Echo 'audio jack'
-                iniSet "OUTPUT_PORT" "0"
-            else
-                # Echo 'hdmi'
-                iniSet "OUTPUT_PORT" "1"
-            fi
-        fi
-    fi
-}
-
 function testCompatibility() {
+    # Fallback For glesn64 & rice Plugins
+    # Some Roms Lead To A Black Screen Of Death
     local game
 
+    # These Games Need RSP-LLE
     local blacklist=(
-        body
-        naboo
+        'body'
+        'naboo'
     )
 
+    # These Games Do Not Run With gles2n64
     local glesn64_blacklist=(
-        beetle
-        gauntlet
-        instinct
-        kazooie
-        paper
-        rogue
-        squadron
-        tooie
-        zelda
+        'beetle'
+        'gauntlet'
+        'instinct'
+        'kazooie'
+        'paper'
+        'rogue'
+        'squadron'
+        'tooie'
+        'zelda'
     )
 
+    # These Games Do Not Run With rice
     local glesn64rice_blacklist=(
-        gauntlet
-        infernal
-        rogue
-        squadron
-        yoshi
+        'gauntlet'
+        'infernal'
+        'rogue'
+        'squadron'
+        'yoshi'
     )
 
+    # These Games Have Massive Glitches If Legacy Blending Is Enabled
     local GLideN64LegacyBlending_blacklist=(
-        beetle
-        bomberman
-        donkey
-        empire
-        infernal
-        zelda
+        'beetle'
+        'bomberman'
+        'donkey'
+        'empire'
+        'infernal'
+        'zelda'
     )
 
     local GLideN64NativeResolution_blacklist=(
-        majora
+        'majora'
     )
 
+    # These Games Have Major Problems With GLideN64
     local gliden64_blacklist=(
-        conker
-        zelda
-    )
-
-    local AudioOMX_blacklist=(
-        infernal
-        pokemon
-        resident
-        rogue
-        squadron
-        starcraft
+        'conker'
+        'zelda'
     )
 
     for game in "${blacklist[@]}"; do
         if [[ "${ROM,,}" == *"${game}"* ]]; then
             exit
-        fi
-    done
-
-    for game in "${AudioOMX_blacklist[@]}"; do
-        if [[ "${ROM,,}" == *"${game}"* ]]; then
-            AUDIO_PLUGIN="mupen64plus-audio-sdl"
         fi
     done
 
@@ -237,8 +193,8 @@ function testCompatibility() {
             iniConfig " = " "" "${config}"
             # Settings Version, Don't Touch It
             local config_version="20"
-            if [[ -f "${configdir}/GLideN64_config_version.ini" ]]; then
-                config_version=$(<"${configdir}/GLideN64_config_version.ini")
+            if [[ -f "${configdir}/n64/mupen64plus/GLideN64_config_version.ini" ]]; then
+                config_version=$(<"${configdir}/n64/mupen64plus/GLideN64_config_version.ini")
             fi
             iniSet "configVersion" "${config_version}"
             # Set Native Resolution Factor Of 1
@@ -295,8 +251,8 @@ function useTexturePacks() {
     iniConfig " = " "" "${config}"
     # Settings Version, Don't Touch It
     local config_version="17"
-    if [[ -f "${configdir}/GLideN64_config_version.ini" ]]; then
-        config_version=$(<"${configdir}/GLideN64_config_version.ini")
+    if [[ -f "${configdir}/n64/mupen64plus/GLideN64_config_version.ini" ]]; then
+        config_version=$(<"${configdir}/n64/mupen64plus/GLideN64_config_version.ini")
     fi
     iniSet "configVersion" "${config_version}"
     iniSet "txHiresEnable" "True"
@@ -316,17 +272,17 @@ function autoset() {
     local game
     # These Games Run Fine And Look Better With 640x480
     local highres=(
-        1080
-        bomberman
-        dark
-        diddy
-        harvest
-        party
-        pokemon
-        starcraft
-        wipeout
-        worms
-        yoshi
+        '1080'
+        'bomberman'
+        'dark'
+        'diddy'
+        'harvest'
+        'party'
+        'pokemon'
+        'starcraft'
+        'wipeout'
+        'worms'
+        'yoshi'
     )
 
     for game in "${highres[@]}"; do
@@ -337,10 +293,10 @@ function autoset() {
         fi
     done
 
-    # These Games Have No Glitches And Run Faster With gles2n64
+    # These Games Have No Glitches & Run Faster With gles2n64
     local gles2n64=(
-        kart
-        wave
+        'kart'
+        'wave'
     )
 
     for game in "${gles2n64[@]}"; do
@@ -352,11 +308,11 @@ function autoset() {
 
     # These Games Have No Glitches Or Run Faster With Rice
     local gles2rice=(
-        1080
-        conker
-        darkness
-        diddy
-        tooie
+        '1080'
+        'conker'
+        'darkness'
+        'diddy'
+        'tooie'
     )
 
     for game in "${gles2rice[@]}"; do
@@ -375,11 +331,11 @@ iniConfig " = " "\"" "${config}"
 
 function setPath() {
     iniSet "ScreenshotPath" "${romdir}/n64"
-    iniSet "SaveStatePath" "${romdir}/n64"
-    iniSet "SaveSRAMPath" "${romdir}/n64"
+    iniSet "SaveStatePath"  "${romdir}/n64"
+    iniSet "SaveSRAMPath"   "${romdir}/n64"
 }
 
-    # Add Default Keyboard Configuration If 'InputAutoCfg.ini' Is Missing
+# Add Default Keyboard Configuration If 'InputAutoCfg.ini' Is Missing
 if [[ ! -f "${inputconfig}" ]]; then
     cat > "${inputconfig}" << _EOF_
 ; InputAutoCfg.ini for Mupen64Plus SDL Input plugin
@@ -408,18 +364,23 @@ Rumblepak switch = key(46)
 X Axis = key(276,275)
 Y Axis = key(273,274)
 ; Keyboard_END
+
 _EOF_
 fi
 
 getAutoConf mupen64plus_savepath && setPath
 getAutoConf mupen64plus_hotkeys && remap
-getAutoConf mupen64plus_audio && setAudio
 [[ "${VIDEO_PLUGIN}" == "AUTO" ]] && autoset
 getAutoConf mupen64plus_compatibility_check && testCompatibility
 getAutoConf mupen64plus_texture_packs && useTexturePacks
 
-if [[ "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" == BCM* ]]; then
-    SDL_AUDIODRIVER=sdl
+
+# If A Raspberry Pi (<5) Device Is Used Lower Resolution To 320x240 & Enable SDL Scaling Mode 1
+if [[ -f /proc/device-tree/compatible ]]; then
+    if tr -d '\0' < /proc/device-tree/compatible | grep -Eq raspberrypi,[1-4]; then
+        WINDOW_MODE="--windowed ${RES}"
+        SDL_VIDEO_RPI_SCALE_MODE=1
+    fi
 fi
 
-SDL_AUDIODRIVER=${SDL_AUDIODRIVER} SDL_VIDEO_RPI_SCALE_MODE=${SDL_VIDEO_RPI_SCALE_MODE} "${rootdir}/emulators/mupen64plus/bin/mupen64plus" --noosd ${PARAMS} ${WINDOW_MODE} --rsp ${RSP_PLUGIN}.so --gfx ${VIDEO_PLUGIN}.so --audio ${AUDIO_PLUGIN}.so --configdir "${configdir}" --datadir "${configdir}" "${ROM}"
+SDL_AUDIODRIVER=${SDL_AUDIODRIVER} SDL_VIDEO_RPI_SCALE_MODE=${SDL_VIDEO_RPI_SCALE_MODE} "${rootdir}/emulators/mupen64plus/bin/mupen64plus" --noosd ${PARAMS} ${WINDOW_MODE} --rsp ${RSP_PLUGIN}.so --gfx ${VIDEO_PLUGIN}.so --audio ${AUDIO_PLUGIN}.so --configdir "${configdir}/n64/mupen64plus" --datadir "${configdir}/n64/mupen64plus" "${ROM}"

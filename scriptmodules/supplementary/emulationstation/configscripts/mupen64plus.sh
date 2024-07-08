@@ -19,10 +19,10 @@ function onstart_mupen64plus_joystick() {
 }
 
 function map_mupen64plus_joystick() {
-    local input_name="$1"
-    local input_type="$2"
-    local input_id="$3"
-    local input_value="$4"
+    local input_name="${1}"
+    local input_type="${2}"
+    local input_id="${3}"
+    local input_value="${4}"
 
     local keys
     local dir
@@ -199,7 +199,7 @@ function onend_mupen64plus_joystick() {
             ini_value=${ini_value//hat(/}
             ini_value=${ini_value//button(/}
             bind="${bind}${ini_value}"
-            iniSet "$axis" "${bind}"
+            iniSet "${axis}" "${bind}"
             iniDel "${axis_neg}"
             iniDel "${axis_pos}"
         fi
