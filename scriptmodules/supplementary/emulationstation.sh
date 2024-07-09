@@ -7,7 +7,7 @@
 rp_module_id="emulationstation"
 rp_module_desc="EmulationStation: Frontend For Launching Emulators"
 rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
-rp_module_repo="git https://github.com/RetroPie/EmulationStation.git stable"
+rp_module_repo="git https://github.com/RetroPie/EmulationStation stable"
 rp_module_section="core"
 rp_module_flags="frontend"
 
@@ -133,6 +133,7 @@ function depends_emulationstation() {
         'libsm'
         'lld'
         'ninja'
+        'pugixml'
         'rapidjson'
         'sdl2'
         'vlc'
@@ -194,7 +195,7 @@ function build_emulationstation() {
     ninja -C build clean
     ninja -C build
     rpSwap off
-    md_ret_require="${md_build}/build/${md_id}"
+    md_ret_require="${md_build}/build/emulationstation"
 }
 
 function install_emulationstation() {
@@ -251,7 +252,9 @@ if [[ \$(id -u) -eq 0 ]]; then
 fi
 
 # Use SDL2 Wayland Video Driver If Wayland Session Is Detected
-[[ "${XDG_SESSION_TYPE}" == "wayland" ]] && export SDL_VIDEODRIVER=wayland
+if [[ "${XDG_SESSION_TYPE}" == "wayland" ]]; then
+    export SDL_VIDEODRIVER=wayland
+fi
 
 # Save Current TTY/VT Number For Use With X So It Can Be Launched On The Correct TTY
 TTY=\$(tty)
@@ -275,12 +278,13 @@ _EOF_
 Type=Application
 Exec=gnome-terminal --full-screen --hide-menubar -e emulationstation
 Hidden=false
+Terminal=true
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
 Name[de_DE]=ArchyPie
 Name=ArchyPie
 Comment[de_DE]=ArchyPie
-Comment=archypie
+Comment=Retrogaming System
 Icon=/usr/share/icons/retropie.svg
 Categories=Game
 _EOF_
@@ -303,6 +307,16 @@ function configure_emulationstation() {
     moveConfigDir "${home}/.emulationstation" "${configdir}/all/emulationstation"
 
     if [[ "${md_mode}" == "install" ]]; then
+        # Remove Other Emulation Station If It's Installed, So We Don't End Up With
+        # Both Packages Interfering - But Leave Configs Alone So Switching Is Easy
+        if [[ "${md_id}" == "emulationstation-dev" ]]; then
+            rmDirExists "${rootdir}/${md_type}/emulationstation" || rmDirExists "${rootdir}/${md_type}/emulationstation-batocera" 
+        elif [[ "${md_id}" == "emulationstation-batocera" ]]; then
+            rmDirExists "${rootdir}/${md_type}/emulationstation" || rmDirExists "${rootdir}/${md_type}/emulationstation-dev"
+        else
+            rmDirExists "${rootdir}/${md_type}/emulationstation-dev" || rmDirExists "${rootdir}/${md_type}/emulationstation-batocera"
+        fi
+
         init_input_emulationstation
 
         copy_inputscripts_emulationstation
@@ -311,6 +325,7 @@ function configure_emulationstation() {
 
         mkdir -p "/etc/emulationstation"
 
+        # Install Default Theme
         rp_callModule esthemes install_theme
 
         addAutoConf "es_swap_a_b" 0
