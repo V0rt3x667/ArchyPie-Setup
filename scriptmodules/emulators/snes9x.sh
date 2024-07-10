@@ -8,9 +8,9 @@ rp_module_id="snes9x"
 rp_module_desc="SNES9X: Nintendo SNES Emulator"
 rp_module_help="ROM Extensions: .bin .fig .mgd .sfc .smc .swc .zip\n\nCopy SNES ROMs To: ${romdir}/snes"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/snes9xgit/snes9x/master/LICENSE"
-rp_module_repo="git https://github.com/snes9xgit/snes9x master" #:_get_branch_snes9x Not able To Build From Release Tag 1.62.3
+rp_module_repo="git https://github.com/snes9xgit/snes9x :_get_branch_snes9x"
 rp_module_section="main"
-rp_module_flags=""
+rp_module_flags="!kms"
 
 function _get_branch_snes9x() {
     download "https://api.github.com/repos/snes9xgit/snes9x/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
@@ -22,12 +22,13 @@ function depends_snes9x() {
         'cairo'
         'clang'
         'cmake'
-        'glslang'
+        'doxygen'
         'gtkmm3'
         'libepoxy'
         'libpng'
         'libpulse'
         'libx11'
+        'libxkbcommon'
         'libxv'
         'lld'
         'minizip'
@@ -35,9 +36,10 @@ function depends_snes9x() {
         'portaudio'
         'python'
         'sdl2'
+        'vulkan-headers'
+        'wayland'
         'zlib'
     )
-    isPlatform "x11" && depends+=('libxrandr')
     getDepends "${depends[@]}"
 }
 
@@ -55,10 +57,10 @@ function build_snes9x() {
         -S"gtk" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DUSE_OSS="OFF" \
@@ -100,8 +102,8 @@ function configure_snes9x() {
         echo "[Files]" >> "${config}"
         iniSet "CheatDirectory"     "${md_conf_root}/snes/${md_id}/cheats"
         iniSet "PatchDirectory"     "${md_conf_root}/snes/${md_id}/patchs"
-        iniSet "SRAMDirectory"      "${md_conf_root}/snes/${md_id}/SRAM"
         iniSet "SaveStateDirectory" "${md_conf_root}/snes/${md_id}/saves"
+        iniSet "SRAMDirectory"      "${md_conf_root}/snes/${md_id}/SRAM"
 
         copyDefaultConfig "${config}" "${md_conf_root}/snes/${md_id}/snes9x.conf"
         rm "${config}"
