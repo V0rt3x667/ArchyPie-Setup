@@ -17,6 +17,7 @@ function depends_mupen64plus() {
         'clang'
         'cmake'
         'freetype2'
+        'libglvnd'
         'libpng'
         'libsamplerate'
         'lld'
@@ -24,6 +25,7 @@ function depends_mupen64plus() {
         'ninja'
         'sdl2'
         'speexdsp'
+        'zlib'
     )
     isPlatform "gl" && depends+=('glew' 'glu')
     isPlatform "mesa" && depends+=('libglvnd')
@@ -147,7 +149,7 @@ function sources_mupen64plus() {
     echo "${config_version}" > "${md_build}/GLideN64_config_version.ini"
 
     # Set Default Config Path(s)
-    sed -e "s|get_xdg_dir(retpath, \"HOME\", \".local/share/mupen64plus/\")|get_xdg_dir(retpath, \"HOME\", \"ArchyPie/configs/${md_id}/\")|g" -i "${md_build}/mupen64plus-core/src/osal/files_unix.c"
+    applyPatch "${md_data}/01_set_default_config_path.patch"
 }
 
 function build_mupen64plus() {
