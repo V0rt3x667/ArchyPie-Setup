@@ -18,7 +18,6 @@ function sources_lr-vecx() {
 function build_lr-vecx() {
     local params=()
     isPlatform "gles" && params+=('HAS_GLES=1')
-    isPlatform "rpi" && params+=('platform=rpi')
 
     make -f Makefile.libretro clean
     make -f Makefile.libretro "${params[@]}"

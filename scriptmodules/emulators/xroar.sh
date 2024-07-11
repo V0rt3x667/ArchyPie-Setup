@@ -70,9 +70,8 @@ function configure_xroar() {
         done
     fi
 
-    local params=()
+    local params=('-fs')
     ! isPlatform "x11" && params+=('-vo sdl' '-ccr simple')
-    ! isPlatform "rpi" && params+=('-fs')
 
     addEmulator 1 "${md_id}-dragon32" "dragon32" "${md_inst}/bin/${md_id} ${params[*]} -machine dragon32 -rompath ${biosdir}/dragon32 -run %ROM%"
     addEmulator 1 "${md_id}-cocous" "coco" "${md_inst}/bin/${md_id} ${params[*]} -machine cocous -rompath ${biosdir}/coco -run %ROM%"

@@ -22,7 +22,6 @@ function depends_atari800() {
         'sdl2'
         'zlib'
     )
-    isPlatform "rpi" && depends+=('firmware-raspberrypi')
     getDepends "${depends[@]}"
 }
 
@@ -33,7 +32,6 @@ function sources_atari800() {
 function build_atari800() {
     local params=()
     ./autogen.sh
-    isPlatform "rpi" && params+=('--target=rpi')
     ./configure --prefix="${md_inst}" "${params[@]}"
     make clean
     make

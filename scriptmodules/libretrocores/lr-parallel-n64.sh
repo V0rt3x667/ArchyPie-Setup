@@ -23,7 +23,7 @@ function sources_lr-parallel-n64() {
 function build_lr-parallel-n64() {
     rpSwap on 1000
     local params=()
-    if isPlatform "rpi" || isPlatform "odroid-c1"; then
+    if isPlatform "odroid-c1"; then
         params+=(platform="${__platform}")
     else
         isPlatform "gles" && params+=(GLES=1 GL_LIB:=-lGLESv2)

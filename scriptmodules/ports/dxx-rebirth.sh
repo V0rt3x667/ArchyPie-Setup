@@ -38,7 +38,7 @@ function sources_dxx-rebirth() {
 function build_dxx-rebirth() {
     local params=()
     isPlatform "arm" && params+=('words_need_alignment=1')
-    if isPlatform "rpi"; then
+    if isPlatform "mesa"; then
         params+=(
             'opengl=1'
             'opengles=no'
