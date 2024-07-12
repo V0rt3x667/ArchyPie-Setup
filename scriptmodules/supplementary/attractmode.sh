@@ -17,8 +17,16 @@ function _get_configdir_attractmode() {
 
 function _add_system_attractmode() {
     local attract_dir
+    local binary
+
+    if [[ "${md_id}" == "attractmodeplus" ]]; then
+        binary="attractplus"
+    else
+        binary="attract"
+    fi
+
     attract_dir="$(_get_configdir_attractmode)"
-    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attract" ]] && return 0
+    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/${binary}" ]] && return 0
 
     local fullname="${1}"
     local name="${2}"
@@ -34,32 +42,32 @@ function _add_system_attractmode() {
     local config="${attract_dir}/emulators/${fullname}.cfg"
     iniConfig " " "" "${config}"
     # Replace %ROM% With "[romfilename]" & Convert To An Array
-    command=(${command//%ROM%/\"[romfilename]\"}) # Do Not Quote
+    # shellcheck disable=SC2206
+    command=(${command//%ROM%/\"[romfilename]\"})
     iniSet "executable" "${command[0]}"
     iniSet "args" "${command[*]:1}"
 
     iniSet "rompath" "${path}"
     iniSet "system" "${fullname}"
 
-    # Extensions Separated By Semicolons. Clean Misplaced Semicolons From The Final Output.
+    # Extensions Separated By Semicolons
     extensions="${extensions// /;}"
-    extensions="${extensions//;;/;}"
 
-    iniSet "romext" "${extensions#;}"
+    iniSet "romext" "${extensions}"
 
     # Snap Path
     local snap="snap"
     [[ "${name}" == "archypie" ]] && snap="icons"
-    iniSet "artwork flyer" "${path}/flyer"
+    iniSet "artwork flyer"   "${path}/flyer"
     iniSet "artwork marquee" "${path}/marquee"
-    iniSet "artwork snap" "${path}/${snap}"
-    iniSet "artwork wheel" "${path}/wheel"
+    iniSet "artwork snap"    "${path}/${snap}"
+    iniSet "artwork wheel"   "${path}/wheel"
 
     chown "${user}:${user}" "${config}"
 
     # If No Gameslist, Generate One
     if [[ ! -f "${attract_dir}/romlists/${fullname}.txt" ]]; then
-        sudo -u "${user}" attract --build-romlist "${fullname}" -o "${fullname}"
+        sudo -u "${user}" ${binary} --build-romlist "${fullname}" -o "${fullname}"
     fi
 
     local config="${attract_dir}/attract.cfg"
@@ -71,7 +79,7 @@ display${tab}${fullname}
 ${tab}layout               Basic
 ${tab}romlist              ${fullname}
 _EOF_
-        chown "${user}:${user}" "${config}"
+        chown "${user}:${user}" "${config}"*
     fi
 }
 
@@ -128,44 +136,55 @@ function _add_rom_attractmode() {
 
 function depends_attractmode() {
     local depends=(
-        'cmake'
+        'curl'
         'ffmpeg'
+        'fontconfig'
+        'gnu-free-fonts'
         'libarchive'
-        'libxinerama'
+        'p7zip'
         'sfml'
     )
-    isPlatform "rpi" && depends+=('libfirmware-raspberrypi')
     isPlatform "kms" && depends+=(
-        'mesa'
-        'libglvnd'
         'glu'
         'libdrm'
+        'libglvnd'
+        'mesa'
     )
+    isPlatform "x11" && depends+=('libxinerama')
     getDepends "${depends[@]}"
 }
 
 function sources_attractmode() {
     gitPullOrClone
+
+    # Set Default Config Path(s)
+    sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
 }
 
 function build_attractmode() {
-    make clean
-    local params=(prefix="${md_inst}")
+    local binary
+
+    if [[ "${md_id}" == "attractmodeplus" ]]; then
+        binary="attractplus"
+    else
+        binary="attract"
+    fi
+
+    local params=('USE_SYSTEM_SFML=1')
     isPlatform "kms" && params+=('USE_DRM=1')
-    isPlatform "rpi" && params+=('USE_MMAL=1' 'USE_GLES=1')
     isPlatform "x11" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
-    make
+
+    make clean
+    make prefix="${md_inst}" "${params[@]}"
 
     # Remove Example Configs
     rm -rf "${md_build}/config/emulators/"*
 
-    md_ret_require="${md_build}/attract"
+    md_ret_require="${md_build}/${binary}"
 }
 
 function install_attractmode() {
-    mkdir -p "${md_inst}"/{bin,share,share/attract}
-    cp -v "${md_build}/attract" "${md_inst}/bin/"
-    cp -Rv "${md_build}/config/"* "${md_inst}/share/attract"
+    make prefix="${md_inst}" install
 }
 
 function remove_attractmode() {
@@ -173,27 +192,40 @@ function remove_attractmode() {
 }
 
 function configure_attractmode() {
-    moveConfigDir "${home}/.attract" "${md_conf_root}/all/attractmode"
+    local binary
 
-    [[ "${md_mode}" == "remove" ]] && return
-
-    local config="${md_conf_root}/all/attractmode/attract.cfg"
-    if [[ ! -f "${config}" ]]; then
-        echo "general" >"${config}"
-        echo -e "\twindow_mode          fullscreen" >>"${config}"
+    if [[ "${md_id}" == "attractmodeplus" ]]; then
+        binary="attractplus"
+    else
+        binary="attract"
     fi
 
-    mkUserDir "${md_conf_root}/all/attractmode/emulators"
-    cat >/usr/bin/attract <<_EOF_
-#!/bin/bash
-"${md_inst}/bin/attract" "\${@}"
-_EOF_
-    chmod +x "/usr/bin/attract"
+    moveConfigDir "${arpdir}/${md_id}"  "${md_conf_root}/all/${md_id}"
 
-    local id
-    for id in "${__mod_id[@]}"; do
-        if rp_isInstalled "${id}" && [[ -n "${__mod_info[${id}/section]}" ]] && ! hasFlag "${__mod_info[${id}/flags]}" "frontend"; then
-            rp_callModule "${id}" configure
+    if [[ "${md_mode}" == "install" ]]; then
+        # Create Default Config File
+        local config="${md_conf_root}/all/${md_id}/attract.cfg"
+
+        if [[ ! -f "${config}" ]]; then
+            echo "general" >"${config}"
+            echo -e "\twindow_mode          fullscreen" >>"${config}"
         fi
-    done
+        chown "${user}:${user}" "${config}"
+
+        mkUserDir "${md_conf_root}/all/${md_id}/emulators"
+
+        # Create Launcher Script
+        cat > "/usr/bin/${binary}" <<_EOF_
+#!/bin/bash
+"${md_inst}/bin/${binary}" "\${@}"
+_EOF_
+        chmod +x "/usr/bin/${binary}"
+
+        local id
+        for id in "${__mod_id[@]}"; do
+            if rp_isInstalled "${id}" && [[ -n "${__mod_info[${id}/section]}" ]] && ! hasFlag "${__mod_info[${id}/flags]}" "frontend"; then
+                rp_callModule "${id}" configure
+            fi
+        done
+    fi
 }
