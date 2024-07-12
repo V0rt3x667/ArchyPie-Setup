@@ -1146,7 +1146,8 @@ function getPlatformConfig() {
 function addSystem() {
     local system="$1"
     local fullname="$2"
-    local exts=("$3")
+    # shellcheck disable=SC2206
+    local exts=($3)
 
     local platform="$system"
     local theme="$system"
