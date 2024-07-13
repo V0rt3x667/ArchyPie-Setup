@@ -17,16 +17,9 @@ function _get_configdir_attractmode() {
 
 function _add_system_attractmode() {
     local attract_dir
-    local binary
-
-    if [[ "${md_id}" == "attractmodeplus" ]]; then
-        binary="attractplus"
-    else
-        binary="attract"
-    fi
 
     attract_dir="$(_get_configdir_attractmode)"
-    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/${binary}" ]] && return 0
+    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attract" ]] && return 0
 
     local fullname="${1}"
     local name="${2}"
@@ -67,7 +60,7 @@ function _add_system_attractmode() {
 
     # If No Gameslist, Generate One
     if [[ ! -f "${attract_dir}/romlists/${fullname}.txt" ]]; then
-        sudo -u "${user}" ${binary} --build-romlist "${fullname}" -o "${fullname}"
+        sudo -u "${user}" attract --build-romlist "${fullname}" -o "${fullname}"
     fi
 
     local config="${attract_dir}/attract.cfg"
@@ -162,15 +155,8 @@ function sources_attractmode() {
 }
 
 function build_attractmode() {
-    local binary
-
-    if [[ "${md_id}" == "attractmodeplus" ]]; then
-        binary="attractplus"
-    else
-        binary="attract"
-    fi
-
     local params=('USE_SYSTEM_SFML=1')
+
     isPlatform "kms" && params+=('USE_DRM=1')
     isPlatform "x11" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
@@ -180,7 +166,7 @@ function build_attractmode() {
     # Remove Example Configs
     rm -rf "${md_build}/config/emulators/"*
 
-    md_ret_require="${md_build}/${binary}"
+    md_ret_require="${md_build}/attract"
 }
 
 function install_attractmode() {
@@ -192,14 +178,6 @@ function remove_attractmode() {
 }
 
 function configure_attractmode() {
-    local binary
-
-    if [[ "${md_id}" == "attractmodeplus" ]]; then
-        binary="attractplus"
-    else
-        binary="attract"
-    fi
-
     moveConfigDir "${arpdir}/${md_id}"  "${md_conf_root}/all/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
@@ -215,11 +193,11 @@ function configure_attractmode() {
         mkUserDir "${md_conf_root}/all/${md_id}/emulators"
 
         # Create Launcher Script
-        cat > "/usr/bin/${binary}" <<_EOF_
+        cat > "/usr/bin/attract" <<_EOF_
 #!/bin/bash
-"${md_inst}/bin/${binary}" "\${@}"
+"${md_inst}/bin/attract" "\${@}"
 _EOF_
-        chmod +x "/usr/bin/${binary}"
+        chmod +x "/usr/bin/attract"
 
         local id
         for id in "${__mod_id[@]}"; do

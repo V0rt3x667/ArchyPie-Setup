@@ -7,9 +7,13 @@
 rp_module_id="attractmodeplus"
 rp_module_desc="Attract-Mode Plus: Emulator Frontend"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/oomek/attractplus/master/License.txt"
-rp_module_repo="git https://github.com/oomek/attractplus master"
+rp_module_repo="git https://github.com/oomek/attractplus :_get_branch_attractmodeplus"
 rp_module_section="exp"
 rp_module_flags="frontend"
+
+function _get_branch_attractmodeplus() {
+    download "https://api.github.com/repos/oomek/attractplus/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+}
 
 function _get_configdir_attractmodeplus() {
     echo "${configdir}/all/attractmodeplus"
@@ -17,8 +21,9 @@ function _get_configdir_attractmodeplus() {
 
 function _add_system_attractmodeplus() {
     local attract_dir
+
     attract_dir="$(_get_configdir_attractmodeplus)"
-    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attractplus" ]] && return 0
+    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attract" ]] && return 0
 
     local fullname="${1}"
     local name="${2}"
@@ -34,18 +39,18 @@ function _add_system_attractmodeplus() {
     local config="${attract_dir}/emulators/${fullname}.cfg"
     iniConfig " " "" "${config}"
     # Replace %ROM% With "[romfilename]" & Convert To An Array
-    command=(${command//%ROM%/\"[romfilename]\"}) # Do Not Quote
+    # shellcheck disable=SC2206
+    command=(${command//%ROM%/\"[romfilename]\"})
     iniSet "executable" "${command[0]}"
     iniSet "args" "${command[*]:1}"
 
     iniSet "rompath" "${path}"
     iniSet "system" "${fullname}"
 
-    # Extensions Separated By Semicolons. Clean Misplaced Semicolons From The Final Output.
+    # Extensions Separated By Semicolons
     extensions="${extensions// /;}"
-    extensions="${extensions//;;/;}"
 
-    iniSet "romext" "${extensions#;}"
+    iniSet "romext" "${extensions}"
 
     # Snap Path
     local snap="snap"
@@ -59,7 +64,7 @@ function _add_system_attractmodeplus() {
 
     # If No Gameslist, Generate One
     if [[ ! -f "${attract_dir}/romlists/${fullname}.txt" ]]; then
-        sudo -u "${user}" attractplus -b "${fullname}" -o "${fullname}"
+        sudo -u "${user}" attractplus --build-romlist "${fullname}" -o "${fullname}"
     fi
 
     local config="${attract_dir}/attract.cfg"
@@ -71,7 +76,7 @@ display${tab}${fullname}
 ${tab}layout               Basic
 ${tab}romlist              ${fullname}
 _EOF_
-        chown "${user}:${user}" "${config}"
+        chown "${user}:${user}" "${config}"*
     fi
 }
 
@@ -129,18 +134,21 @@ function _add_rom_attractmodeplus() {
 function depends_attractmodeplus() {
     local depends=(
         'cmake'
+        'curl'
         'ffmpeg'
+        'fontconfig'
+        'gnu-free-fonts'
         'libarchive'
-        'libxinerama'
+        'p7zip'
         'sfml'
     )
-    isPlatform "rpi" && depends+=('libfirmware-raspberrypi')
     isPlatform "kms" && depends+=(
-        'mesa'
-        'libglvnd'
         'glu'
         'libdrm'
+        'libglvnd'
+        'mesa'
     )
+    isPlatform "x11" && depends+=('libxinerama')
     getDepends "${depends[@]}"
 }
 
@@ -149,15 +157,19 @@ function sources_attractmodeplus() {
 
     # Set Default Config Path(s)
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
+
+    # Fix FFMPEG
+    applyPatch "${md_data}/01_fix_ffmpeg.patch"
 }
 
 function build_attractmodeplus() {
-    make clean
-    local params=(prefix="${md_inst}")
+    local params=('STATIC=0')
+
     isPlatform "kms" && params+=('USE_DRM=1')
-    isPlatform "rpi" && params+=('USE_MMAL=1' 'USE_GLES=1')
     isPlatform "x11" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
-    make "${params[@]}"
+
+    make clean
+    make prefix="${md_inst}" "${params[@]}"
 
     # Remove Example Configs
     rm -rf "${md_build}/config/emulators/"*
@@ -166,10 +178,7 @@ function build_attractmodeplus() {
 }
 
 function install_attractmodeplus() {
-    mkdir -p "${md_inst}"/{bin,share,share/attract}
-    cp -v "${md_build}/attractplus" "${md_inst}/bin/"
-    cp -Rv "${md_build}/config/"* "${md_inst}/share/attract"
-    cp -Rv "${md_build}/resources/"* "${md_inst}/share/attract"
+    make prefix="${md_inst}" install
 }
 
 function remove_attractmodeplus() {
@@ -177,27 +186,32 @@ function remove_attractmodeplus() {
 }
 
 function configure_attractmodeplus() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/all/${md_id}"
+    moveConfigDir "${arpdir}/${md_id}"  "${md_conf_root}/all/${md_id}"
 
-    [[ "${md_mode}" == "remove" ]] && return
+    if [[ "${md_mode}" == "install" ]]; then
+        # Create Default Config File
+        local config="${md_conf_root}/all/${md_id}/attract.cfg"
 
-    local config="${md_conf_root}/all/attractmodeplus/attract.cfg"
-    if [[ ! -f "${config}" ]]; then
-        echo "general" >"${config}"
-        echo -e "\twindow_mode          fullscreen" >>"${config}"
-    fi
+        if [[ ! -f "${config}" ]]; then
+            echo "general" >"${config}"
+            echo -e "\twindow_mode          fullscreen" >>"${config}"
+        fi
+        chown "${user}:${user}" "${config}"
 
-    mkUserDir "${md_conf_root}/all/attractmodeplus/emulators"
-    cat >/usr/bin/attractplus <<_EOF_
+        mkUserDir "${md_conf_root}/all/${md_id}/emulators"
+
+        # Create Launcher Script
+        cat > "/usr/bin/attract" <<_EOF_
 #!/bin/bash
 "${md_inst}/bin/attractplus" "\${@}"
 _EOF_
     chmod +x "/usr/bin/attractplus"
 
-    local id
-    for id in "${__mod_id[@]}"; do
-        if rp_isInstalled "${id}" && [[ -n "${__mod_info[${id}/section]}" ]] && ! hasFlag "${__mod_info[${id}/flags]}" "frontend"; then
-            rp_callModule "${id}" configure
-        fi
-    done
+        local id
+        for id in "${__mod_id[@]}"; do
+            if rp_isInstalled "${id}" && [[ -n "${__mod_info[${id}/section]}" ]] && ! hasFlag "${__mod_info[${id}/flags]}" "frontend"; then
+                rp_callModule "${id}" configure
+            fi
+        done
+    fi
 }
