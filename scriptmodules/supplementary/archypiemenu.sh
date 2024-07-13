@@ -29,10 +29,10 @@ function install_bin_archypiemenu() {
 
 function configure_archypiemenu() {
     if [[ "${md_mode}" == "install" ]]; then
-        local dir="${home}/ArchyPie/${md_id}"
-        mkdir -p "${dir}"
-        cp -Rv "${md_data}/icons" "${dir}/"
-        chown -R "${user}:${user}" "${dir}"
+        local rpdir="${home}/ArchyPie/archypiemenu"
+        mkdir -p "${rpdir}"
+        cp -Rv "${md_data}/icons" "${rpdir}/"
+        chown -R "${user}:${user}" "${rpdir}"
 
         # Add Games List & Icons
         local files=(
@@ -64,20 +64,20 @@ function configure_archypiemenu() {
         )
 
         local descs=(
-            'Configure audio settings.'
+            'Configure audio settings. Choose default of auto, 3.5mm jack, or HDMI. Mixer controls, and apply default settings.'
             'Register and connect to Bluetooth devices. Unregister and remove devices, and display registered and connected devices.'
-            'Change and edit RetroArch and other options.'
-            'Install, uninstall or update EmulationStation themes.'
-            'ASCII file manager for Linux.'
+            'Change common RetroArch options, and manually edit RetroArch configs, global configs, and non-RetroArch configs.'
+            'Install, uninstall, or update EmulationStation themes. Most themes can be previewed at https://retropie.org.uk/docs/Themes/.'
+            'Basic ASCII file manager for Linux allowing you to browse, copy, delete, and move files.'
             'Launches the RetroArch GUI so you can change RetroArch options. Note: Changes will not be saved unless you have enabled the "Save Configuration On Exit" option.'
-            'Configure RetroArch Netplay options.'
-            'Install ArchyPie Packages, Edit Samba Shares And Other ArchyPie Configurations.'
-            'Configure Runcommand, enable or disable the menu, enable or disable box art and change CPU configuration.'
-            'Displays your current IP address and other information provided by the command "ip addr show".'
+            'Set up RetroArch Netplay options, choose host or client, port, host IP, delay frames, and your nickname.'
+            'Install ArchyPie from binary or source, install experimental packages, additional drivers, edit Samba shares, custom scraper, as well as other ArchyPie-related configurations.'
+            'Change what appears on the runcommand screen. Enable or disable the menu, enable or disable box art, and change CPU configuration.'
+            'Displays your current IP address, as well as other information provided by the command "ip addr show."'
             'Connect to or disconnect from a Wi-Fi network and configure Wi-Fi settings.'
         )
 
-        setESSystem "ArchyPie" "archypie" "${dir}" ".rp .sh" "sudo ${scriptdir}/archypie_packages.sh ${md_id} launch %ROM% </dev/tty >/dev/tty" "" "${md_id}"
+        setESSystem "ArchyPie" "archypie" "${rpdir}" ".rp .sh" "sudo ${scriptdir}/archypie_packages.sh archypiemenu launch %ROM%" "" "archypie"
 
         local file
         local name
@@ -94,9 +94,9 @@ function configure_archypiemenu() {
             file="${files[i]}"
             name="${names[i]}"
             desc="${descs[i]}"
-            image="${home}/ArchyPie/${md_id}/icons/${files[i]}.png"
+            image="${home}/ArchyPie/archypiemenu/icons/${files[i]}.png"
 
-            touch "${dir}/${file}.rp"
+            touch "${rpdir}/${file}.rp"
 
             local function
             for function in $(compgen -A function _add_rom_); do
@@ -107,14 +107,14 @@ function configure_archypiemenu() {
 }
 
 function remove_archypiemenu() {
-    rm -rf "${home}/ArchyPie/${md_id}"
+    rm -rf "${home}/ArchyPie/archypiemenu"
     rm -rf "${home}/.emulationstation/gamelists/archypie"
     delSystem archypie
 }
 
 function launch_archypiemenu() {
     clear
-    local command="$1"
+    local command="${1}"
     local basename="${command##*/}"
     local no_ext="${basename%.rp}"
     joy2keyStart
@@ -136,7 +136,7 @@ function launch_archypiemenu() {
         showip.rp)
             local ip
             ip="$(getIPAddress)"
-            printMsgs "dialog" "Your IP Is: ${ip:-(unknown)}\n\nOutput Of 'ip addr show':\n\n$(ip addr show)"
+            printMsgs "dialog" "Your IP address is: ${ip:-(unknown)}\n\nOutput of 'ip addr show':\n\n$(ip addr show)"
             ;;
         *.rp)
             rp_callModule "${no_ext}" depends
@@ -147,7 +147,7 @@ function launch_archypiemenu() {
             fi
             ;;
         *.sh)
-            cd "${home}/ArchyPie/${md_id}" || exit
+            cd "${home}/ArchyPie/archypie" || exit
             sudo -u "${user}" bash "${command}"
             ;;
     esac
