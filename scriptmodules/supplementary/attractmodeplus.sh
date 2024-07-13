@@ -23,7 +23,7 @@ function _add_system_attractmodeplus() {
     local attract_dir
 
     attract_dir="$(_get_configdir_attractmodeplus)"
-    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attract" ]] && return 0
+    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attractplus" ]] && return 0
 
     local fullname="${1}"
     local name="${2}"
@@ -201,7 +201,7 @@ function configure_attractmodeplus() {
         mkUserDir "${md_conf_root}/all/${md_id}/emulators"
 
         # Create Launcher Script
-        cat > "/usr/bin/attract" <<_EOF_
+        cat > "/usr/bin/attractplus" <<_EOF_
 #!/bin/bash
 "${md_inst}/bin/attractplus" "\${@}"
 _EOF_
