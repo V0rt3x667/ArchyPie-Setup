@@ -170,7 +170,6 @@ function build_mupen64plus() {
             isPlatform "x86" && params+=("SSE=SSE2")
 
             [[ "${dir}" == "mupen64plus-ui-console" ]] && params+=("COREDIR=${md_inst}/lib/" "PLUGINDIR=${md_inst}/lib/mupen64plus/")
-            export CC="clang" CXX="clang++"
             make -C "${dir}/projects/unix" "${params[@]}" clean
             make -C "${dir}/projects/unix" all "${params[@]}"
         fi
