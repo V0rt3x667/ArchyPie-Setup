@@ -63,8 +63,10 @@ function _add_system_attractmodeplus() {
     chown "${user}:${user}" "${config}"
 
     # If No Gameslist, Generate One
-    if [[ ! -f "${attractplus_dir}/romlists/${fullname}.txt" ]]; then
+    if [[ ! -f "${attractplus_dir}/romlists/${fullname}.txt" ]] && [[ -f "/usr/bin/attractplus" ]]; then
         sudo -u "${user}" attractplus --build-romlist "${fullname}" -o "${fullname}"
+    else
+        return
     fi
 
     local config="${attractplus_dir}/attract.cfg"
