@@ -9,7 +9,6 @@ rp_module_desc="Aleph One: Marathon Game Engine"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/Aleph-One-Marathon/alephone/master/COPYING"
 rp_module_repo="git https://github.com/Aleph-One-Marathon/alephone :_get_branch_alephone"
 rp_module_section="opt"
-rp_module_flags=""
 
 function _get_branch_alephone() {
     download "https://api.github.com/repos/Aleph-One-Marathon/alephone/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
@@ -20,9 +19,12 @@ function depends_alephone() {
         'autoconf-archive'
         'boost-libs'
         'boost'
-        'ffmpeg'
+        'curl'
+        'ffmpeg4.4'
         'glu'
         'libmad'
+        'libpng'
+        'libsndfile'
         'libvorbis'
         'miniupnpc'
         'sdl2_image'
@@ -40,11 +42,14 @@ function sources_alephone() {
 
     # Set Default Config Path(s)
     sed -e "s|/.alephone|/ArchyPie/configs/${md_id}|g" -i "${md_build}/Source_Files/CSeries/cspaths_sdl.cpp"
+
+    # Fix Building With 'miniupnpc' Review When v1.10 Is Released
+    applyPatch "${md_data}/01_fix_miniupnpc.patch"
 }
 
 function build_alephone() {
     autoreconf -iv
-    ./configure --prefix="${md_inst}"
+    PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig" ./configure --prefix="${md_inst}"
     make clean
     make
     md_ret_require="${md_build}/Source_Files/${md_id}"
@@ -77,7 +82,7 @@ function _game_data_alephone() {
 }
 
 function configure_alephone() {
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "ports/${md_id}"
