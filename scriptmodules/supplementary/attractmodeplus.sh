@@ -20,10 +20,10 @@ function _get_configdir_attractmodeplus() {
 }
 
 function _add_system_attractmodeplus() {
-    local attract_dir
+    local attractplus_dir
 
-    attract_dir="$(_get_configdir_attractmodeplus)"
-    [[ ! -d "${attract_dir}" || ! -f "/usr/bin/attractplus" ]] && return 0
+    attractplus_dir="$(_get_configdir_attractmodeplus)"
+    [[ ! -d "${attractplus_dir}" || ! -f "/usr/bin/attractplus" ]] && return 0
 
     local fullname="${1}"
     local name="${2}"
@@ -36,7 +36,7 @@ function _add_system_attractmodeplus() {
     # Replace Any '/' Characters In Fullname
     fullname="${fullname//\/}"
 
-    local config="${attract_dir}/emulators/${fullname}.cfg"
+    local config="${attractplus_dir}/emulators/${fullname}.cfg"
     iniConfig " " "" "${config}"
     # Replace %ROM% With "[romfilename]" & Convert To An Array
     # shellcheck disable=SC2206
@@ -63,11 +63,11 @@ function _add_system_attractmodeplus() {
     chown "${user}:${user}" "${config}"
 
     # If No Gameslist, Generate One
-    if [[ ! -f "${attract_dir}/romlists/${fullname}.txt" ]]; then
+    if [[ ! -f "${attractplus_dir}/romlists/${fullname}.txt" ]]; then
         sudo -u "${user}" attractplus --build-romlist "${fullname}" -o "${fullname}"
     fi
 
-    local config="${attract_dir}/attract.cfg"
+    local config="${attractplus_dir}/attract.cfg"
     local tab=$'\t'
     if [[ -f "${config}" ]] && ! grep -q "display${tab}${fullname}" "${config}"; then
         cp "${config}" "${config}.bak"
@@ -81,9 +81,9 @@ _EOF_
 }
 
 function _del_system_attractmodeplus() {
-    local attract_dir
-    attract_dir="$(_get_configdir_attractmodeplus)"
-    [[ ! -d "${attract_dir}" ]] && return 0
+    local attractplus_dir
+    attractplus_dir="$(_get_configdir_attractmodeplus)"
+    [[ ! -d "${attractplus_dir}" ]] && return 0
 
     local fullname="${1}"
     local name="${2}"
@@ -94,17 +94,17 @@ function _del_system_attractmodeplus() {
     # Replace Any '/' Characters In Fullname
     fullname="${fullname//\/}"
 
-    rm -rf "${attract_dir}/romlists/${fullname}.txt"
+    rm -rf "${attractplus_dir}/romlists/${fullname}.txt"
 
     local tab=$'\t'
     # Remove Display Block From "^display${tab}${fullname}" To Next "^display" Or Empty Line Keeping The Next Display Line
-    sed -i "/^display${tab}${fullname}/,/^display\|^$/{/^display${tab}${fullname}/d;/^display\$/!d}" "${attract_dir}/attract.cfg"
+    sed -i "/^display${tab}${fullname}/,/^display\|^$/{/^display${tab}${fullname}/d;/^display\$/!d}" "${attractplus_dir}/attract.cfg"
 }
 
 function _add_rom_attractmodeplus() {
-    local attract_dir
-    attract_dir="$(_get_configdir_attractmodeplus)"
-    [[ ! -d "${attract_dir}" ]] && return 0
+    local attractplus_dir
+    attractplus_dir="$(_get_configdir_attractmodeplus)"
+    [[ ! -d "${attractplus_dir}" ]] && return 0
 
     local system_name="${1}"
     local system_fullname="${2}"
@@ -113,7 +113,7 @@ function _add_rom_attractmodeplus() {
     local desc="${5}"
     local image="${6}"
 
-    local config="${attract_dir}/romlists/${system_fullname}.txt"
+    local config="${attractplus_dir}/romlists/${system_fullname}.txt"
 
     # Remove Extension
     path="${path/%.*}"
