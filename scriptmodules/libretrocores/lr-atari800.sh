@@ -15,7 +15,10 @@ function sources_lr-atari800() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    applyPatch "${md_data}/01_set_default_config_path.patch"
+    #applyPatch "${md_data}/01_set_default_config_path.patch"
+
+    # Fix Audio Volume
+    #applyPatch "${md_data}/02_fix_audio_volume.patch"
 }
 
 function build_lr-atari800() {
