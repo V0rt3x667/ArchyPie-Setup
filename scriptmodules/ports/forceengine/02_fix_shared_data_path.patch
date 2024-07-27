@@ -1,0 +1,12 @@
+diff -ru a/TheForceEngine/TFE_FileSystem/paths-posix.cpp b/TheForceEngine/TFE_FileSystem/paths-posix.cpp
+--- a/TheForceEngine/TFE_FileSystem/paths-posix.cpp	2024-07-27 18:45:35.305631231 +0100
++++ b/TheForceEngine/TFE_FileSystem/paths-posix.cpp	2024-07-27 18:54:45.799559590 +0100
+@@ -93,7 +93,7 @@
+ 		s_systemPaths.push_back(getPath(PATH_PROGRAM));
+ 		s = std::string("/usr/local/share/") + append + "/";
+ 		s_systemPaths.push_back(s);
+-		s = std::string("/usr/share/") + append + "/";
++		s = std::string("/opt/archypie/ports/forceengine/share/") + append + "/";
+ 		s_systemPaths.push_back(s);
+ 		setTFEPath(append, PATH_PROGRAM_DATA);
+ 		s_systemPaths.push_back(getPath(PATH_PROGRAM_DATA));

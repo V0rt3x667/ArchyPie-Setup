@@ -1,0 +1,52 @@
+--- a/TheForceEngine/main.cpp	2024-07-27 18:45:35.392299566 +0100
++++ b/TheForceEngine/main.cpp	2024-07-27 18:49:03.132965547 +0100
+@@ -61,7 +61,6 @@
+ #define INSTALL_CRASH_HANDLER 0
+ #endif
+ 
+-#pragma comment(lib, "SDL2main.lib")
+ using namespace TFE_Input;
+ using namespace TFE_A11Y;
+ 
+
+--- a/TheForceEngine/TFE_Settings/gameSourceData.h	2024-07-27 18:45:35.342298603 +0100
++++ b/TheForceEngine/TFE_Settings/gameSourceData.h	2024-07-27 19:25:17.341945484 +0100
+@@ -71,7 +71,7 @@
+ 		"OUTLAWS.LAB",			// Game_Outlaws
+ 	};
+ 
+-	static const char* c_darkForcesLocations[] =
++	static const char* const c_darkForcesLocations[] =
+ 	{
+ 		// C drive
+ 		"C:/Program Files (x86)/Steam/steamapps/common/dark forces/Game/",
+@@ -88,7 +88,7 @@
+ 		"D:/Program Files (x86)/GOG.com/Star Wars - Dark Forces/",
+ 		"D:/GOG Games/Star Wars - Dark Forces/",
+ 	};
+-	static const char* c_outlawsLocations[] =
++	static const char* const c_outlawsLocations[] =
+ 	{
+ 		// C drive
+ 		"C:/Program Files (x86)/Steam/steamapps/common/outlaws/",
+@@ -103,7 +103,7 @@
+ 	};
+ 	static const u32 c_hardcodedPathCount = TFE_ARRAYSIZE(c_darkForcesLocations);
+ 
+-	static const char** c_gameLocations[] =
++	static const char* const * c_gameLocations[] =
+ 	{
+ 		c_darkForcesLocations,
+ 		c_outlawsLocations
+
+--- a/TheForceEngine/TFE_Settings/settings.cpp	2024-07-27 18:45:35.342298603 +0100
++++ b/TheForceEngine/TFE_Settings/settings.cpp	2024-07-27 19:27:10.230795806 +0100
+@@ -226,7 +226,7 @@
+ 			if (!pathValid)
+ 			{
+ 				// Try various possible locations.
+-				const char** locations = c_gameLocations[gameId];
++				const char* const * locations = c_gameLocations[gameId];
+ 				for (u32 i = 0; i < c_hardcodedPathCount; i++)
+ 				{
+ 					if (FileUtil::directoryExits(locations[i]))

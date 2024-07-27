@@ -7,9 +7,9 @@
 rp_module_id="forceengine"
 rp_module_desc="The Force Engine: Dark Forces & Outlaws Port"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/luciusDXL/TheForceEngine/master/LICENSE"
-rp_module_repo="git https://github.com/luciusDXL/TheForceEngine :_get_branch_forceengine"
+rp_module_repo="git https://github.com/luciusDXL/TheForceEngine v1.10.000" # Keep On This Release For Now
 rp_module_section="exp"
-rp_module_flags=""
+rp_module_flags="!all x86 aarch64"
 
 function _get_branch_forceengine() {
     download "https://api.github.com/repos/luciusDXL/TheForceEngine/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
@@ -35,8 +35,11 @@ function depends_forceengine() {
 function sources_forceengine() {
     gitPullOrClone
 
-    # Fix 'sdl2' Linking Error
-    sed "s|#pragma comment(lib, \"SDL2main.lib\")|//#pragma comment(lib, \"SDL2main.lib\")|g" -i "${md_build}/TheForceEngine/main.cpp"
+    # Fix Linking Issues With 'lld'
+    applyPatch "${md_data}/01_fix_clang-lld_build_issues.patch"
+
+    # Fix 'theforceengine' Binary Not Finding Its Data Directory
+    applyPatch "${md_data}/02_fix_shared_data_path.patch"
 }
 
 function build_forceengine() {
@@ -45,12 +48,10 @@ function build_forceengine() {
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_LINKER_TYPE="LLD" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -58,16 +59,7 @@ function build_forceengine() {
 }
 
 function install_forceengine() {
-    md_ret_files=(
-        'build/theforceengine'
-        'TheForceEngine/Documentation'
-        'TheForceEngine/Fonts'
-        'TheForceEngine/Mods'
-        'TheForceEngine/Shaders'
-        'TheForceEngine/SoundFonts'
-        'TheForceEngine/UI_Images'
-        'TheForceEngine/UI_Text'
-    )
+    ninja -C build install/strip
 }
 
 function _add_games_forceengine() {
@@ -126,5 +118,5 @@ _INI_
     fi
 
     local config_dir="TFE_DATA_HOME=${md_conf_root}/${md_id}"
-    _add_games_forceengine "pushd ${md_inst}; ${config_dir} ${md_inst}/theforceengine; popd"
+    _add_games_forceengine "${config_dir} ${md_inst}/bin/theforceengine"
 }
