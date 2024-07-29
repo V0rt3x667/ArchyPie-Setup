@@ -8,7 +8,7 @@ rp_module_id="dolphin"
 rp_module_desc="Dolphin: Nintendo Gamecube & Wii Emulator"
 rp_module_help="ROM Extensions: .gcm .iso .wbfs .ciso .gcz .rvz .wad .wbfs\n\nCopy Gamecube ROMs To: ${romdir}/gc\n\nCopy Wii ROMs To: ${romdir}/wii\n\nOPTIONAL: Copy BIOS File: IPL.bin To: ${biosdir}/gc/EUR, ${biosdir}/gc/JAP & ${biosdir}/gc/USA"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/dolphin-emu/dolphin/master/COPYING"
-rp_module_repo="git https://github.com/dolphin-emu/dolphin master"
+rp_module_repo="git https://github.com/dolphin-emu/dolphin 2407"
 rp_module_section="exp"
 rp_module_flags="!all x11 64bit"
 
@@ -20,6 +20,7 @@ function depends_dolphin() {
         'clang'
         'cmake'
         'curl'
+        'enet'
         'ffmpeg'
         'fmt'
         'hidapi'
@@ -27,9 +28,10 @@ function depends_dolphin() {
         'libspng'
         'libusb'
         'libx11'
+        'libxi'
         'libxkbcommon'
         'libxml2'
-        'lld'
+        'lz4'
         'lzo'
         'mbedtls2'
         'miniupnpc'
@@ -43,6 +45,8 @@ function depends_dolphin() {
         'soundtouch'
         'speexdsp'
         'xxhash'
+        'xz'
+        'zlib-ng'
         'zstd'
     )
     getDepends "${depends[@]}"
@@ -55,21 +59,20 @@ function sources_dolphin() {
     applyPatch "${md_data}/01_set_default_config_path.patch"
 
     # Fix MiniZip Name
-    sed -e "s|MINIZIP minizip>=3.0.0|MINIZIP minizip-ng>=3.0.0|g" -i "${md_build}/CMakeLists.txt"
+    sed -e "s|\"minizip>=4.0.4\"|\"minizip-ng>=4.0.4\"|g" -i "${md_build}/CMakeLists.txt"
 }
 
 function build_dolphin() {
+    # Dolphin Will Not Link With 'lld' Or 'mold'
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,--copy-dt-needed-entries" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DENABLE_ANALYTICS="OFF" \
         -DENABLE_AUTOUPDATE="OFF" \
         -DENABLE_LTO="ON" \
@@ -77,10 +80,8 @@ function build_dolphin() {
         -DENABLE_SDL="ON" \
         -DENABLE_TESTS="OFF" \
         -DUSE_DISCORD_PRESENCE="OFF" \
-        -DUSE_SYSTEM_LIBS="ON" \
-        -DUSE_SYSTEM_ENET="OFF" \
         -DUSE_SYSTEM_LIBMGBA="OFF" \
-        -DUSE_SYSTEM_ZLIB="OFF" \
+        -DUSE_SYSTEM_LIBS="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
