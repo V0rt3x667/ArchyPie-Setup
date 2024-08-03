@@ -64,34 +64,18 @@ function sources_pcsx2() {
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
 
-    # Get 'libbacktrace'
-    gitPullOrClone "${md_build}/backtrace" "https://github.com/ianlancetaylor/libbacktrace"
-
     # Get 'shaderc' PCSX2 Requires A Custom Build, Ref: https://github.com/PCSX2/pcsx2/wiki/10-Building-on-Linux
     gitPullOrClone "${md_build}/shaderc" "https://github.com/google/shaderc" "main"
     applyPatch "${md_data}/02_custom_shaderc.patch"
 
-
     # Get Patches & Compress Them
     gitPullOrClone "${md_build}/patches" "https://github.com/PCSX2/pcsx2_patches" "main"
     7z a -r "${md_build}/patches/patches.zip" "${md_build}/patches/patches/."
-
-    # Get Latest "gamecontrollerdb.txt" File
-    curl -sSL "https://github.com/gabomdq/SDL_GameControllerDB/archive/refs/heads/master.zip" | bsdtar xvf - --strip-components=1 -C "${md_build}"
 }
 
 function build_pcsx2() {
-    # Build 'libbacktrace'
-    echo "## Building libbacktrace ##"
-    cd "${md_build}/backtrace" || exit
-    export CC="clang" CXX="clang++" LDFLAGS="${LDFLAGS} -fuse-ld=lld"
-    ./configure --prefix="${md_build}/deps"
-    make clean
-    make
-    make install
-
     # Build 'shaderc'
-    echo "## Building shaderc ##"
+    echo "*** Building shaderc ***"
     cd "${md_build}/shaderc" || exit
     cmake . \
         -B"build" \
@@ -100,10 +84,8 @@ function build_pcsx2() {
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_INSTALL_PREFIX="${md_build}/deps" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_LINKER_TYPE="LLD" \
         -Dglslang_SOURCE_DIR="/usr/include/glslang" \
         -DSHADERC_SKIP_COPYRIGHT_CHECK="ON" \
         -DSHADERC_SKIP_EXAMPLES="ON" \
@@ -113,7 +95,7 @@ function build_pcsx2() {
     ninja -C build install
 
     # Build 'pcsx2'
-    echo "## Building PCSX2 ##"
+    echo "*** Building PCSX2 ***"
     cd "${md_build}" || exit
     cmake . \
         -B"build" \
@@ -122,14 +104,13 @@ function build_pcsx2() {
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_LINKER_TYPE="LLD" \
         -DCMAKE_PREFIX_PATH="${md_build}/deps" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
         -DENABLE_TESTS="OFF" \
         -DLTO_PCSX2_CORE="ON" \
+        -DUSE_BACKTRACE="OFF" \
         -DUSE_SYSTEM_LIBS="ON" \
         -DWAYLAND_API="ON" \
         -DX11_API="ON" \
@@ -144,7 +125,6 @@ function install_pcsx2() {
         "build/bin/pcsx2-qt"
         "build/bin/resources"
         "build/bin/translations"
-        "gamecontrollerdb.txt"
     )
 
     # Install 'shaderc' Library
