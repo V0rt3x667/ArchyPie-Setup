@@ -50,10 +50,12 @@ function build_supermodel-sinden() {
 
 function install_supermodel-sinden() {
     md_ret_files=(
-        'Assets'
         'bin/supermodel'
         'Config'
+        'Docs/LICENSE.txt'
+        'Docs/README.txt'
     )
+    isPlatform "x86" && md_ret_files+=("Assets")
 }
 
 function configure_supermodel-sinden() {
@@ -72,11 +74,11 @@ function configure_supermodel-sinden() {
         local conf_dir
         local dir
         local dirs=(
-            'Assets'
             'NVRAM'
             'Saves'
             'Config'
         )
+        isPlatform "x86" && dirs+=('Assets')
 
         conf_dir="${md_conf_root}/model3/${md_id}"
         for dir in "${dirs[@]}"; do
@@ -86,10 +88,8 @@ function configure_supermodel-sinden() {
         # On Upgrades Keep The Local Config, But Overwrite The Game Configs
         copyDefaultConfig "${md_inst}/Config/Supermodel.ini" "${conf_dir}/Config/Supermodel.ini"
         cp -f "${md_inst}/Config/Games.xml" "${conf_dir}/Config"
+        isPlatform "x86" && cp -fr "${md_inst}/Assets" "${conf_dir}"
         chown -R "${user}:${user}" "${conf_dir}"
-
-        # Copy Assets
-        cp -R "${md_inst}"/Assets/* "${md_conf_root}/model3/${md_id}/Assets/"
 
         # Create Launcher Script
         cat >"${md_inst}/supermodel.sh" <<_EOF_
