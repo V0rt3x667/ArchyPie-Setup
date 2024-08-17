@@ -1,0 +1,64 @@
+diff -ru a/src/common/common_paths.h b/src/common/common_paths.h
+--- a/src/common/common_paths.h	2024-08-17 02:26:41.711922526 +0100
++++ b/src/common/common_paths.h	2024-08-17 22:55:51.641407625 +0100
+@@ -25,11 +25,11 @@
+ #define APPLE_EMU_DATA_DIR "Library" DIR_SEP "Application Support" DIR_SEP "Lime3DS"
+ #define LEGACY_APPLE_EMU_DATA_DIR "Library" DIR_SEP "Application Support" DIR_SEP "Citra"
+ // For compatibility with XDG paths.
+-#define EMU_DATA_DIR "lime3ds-emu"
+-#define LEGACY_EMU_DATA_DIR "citra-emu"
++#define EMU_DATA_DIR "lime3ds"
++#define LEGACY_EMU_DATA_DIR "citra"
+ #else
+-#define EMU_DATA_DIR "lime3ds-emu"
+-#define LEGACY_EMU_DATA_DIR "citra-emu"
++#define EMU_DATA_DIR "lime3ds"
++#define LEGACY_EMU_DATA_DIR "citra"
+ #endif
+ #endif
+ 
+diff -ru a/src/common/file_util.cpp b/src/common/file_util.cpp
+--- a/src/common/file_util.cpp	2024-08-17 02:26:41.712922550 +0100
++++ b/src/common/file_util.cpp	2024-08-17 22:52:38.067249826 +0100
+@@ -736,20 +736,14 @@
+     const char* directory = getenv(envvar.c_str());
+ 
+     std::string user_dir;
+-    if (directory) {
+-        user_dir = directory;
+-    } else {
+-        std::string subdirectory;
+-        if (envvar == "XDG_DATA_HOME")
+-            subdirectory = DIR_SEP ".local" DIR_SEP "share";
+-        else if (envvar == "XDG_CONFIG_HOME")
+-            subdirectory = DIR_SEP ".config";
+-        else if (envvar == "XDG_CACHE_HOME")
+-            subdirectory = DIR_SEP ".cache";
+-        else
+-            ASSERT_MSG(false, "Unknown XDG variable {}.", envvar);
+-        user_dir = GetHomeDirectory() + subdirectory;
+-    }
++    std::string subdirectory;
++    if (envvar == "XDG_DATA_HOME")
++        subdirectory = DIR_SEP "ArchyPie" DIR_SEP "configs";
++    else if (envvar == "XDG_CACHE_HOME")
++        subdirectory = DIR_SEP ".cache";
++    else
++    ASSERT_MSG(false, "Unknown XDG variable {}.", envvar);
++    user_dir = GetHomeDirectory() + subdirectory;
+ 
+     ASSERT_MSG(!user_dir.empty(), "User directory {} musn’t be empty.", envvar);
+     ASSERT_MSG(user_dir[0] == '/', "User directory {} must be absolute.", envvar);
+@@ -802,10 +796,10 @@
+             std::string legacy_data_dir =
+                 GetUserDirectory("XDG_DATA_HOME") + DIR_SEP LEGACY_EMU_DATA_DIR DIR_SEP;
+             std::string config_dir =
+-                GetUserDirectory("XDG_CONFIG_HOME") + DIR_SEP EMU_DATA_DIR DIR_SEP;
++                GetUserDirectory("XDG_DATA_HOME") + DIR_SEP EMU_DATA_DIR DIR_SEP;
+             std::string cache_dir =
+                 GetUserDirectory("XDG_CACHE_HOME") + DIR_SEP EMU_DATA_DIR DIR_SEP;
+-            g_paths.emplace(UserPath::LegacyConfigDir, GetUserDirectory("XDG_CONFIG_HOME") +
++            g_paths.emplace(UserPath::LegacyConfigDir, GetUserDirectory("XDG_DATA_HOME") +
+                                                            DIR_SEP LEGACY_EMU_DATA_DIR DIR_SEP);
+             g_paths.emplace(UserPath::LegacyCacheDir, GetUserDirectory("XDG_CACHE_HOME") +
+                                                           DIR_SEP LEGACY_EMU_DATA_DIR DIR_SEP);
