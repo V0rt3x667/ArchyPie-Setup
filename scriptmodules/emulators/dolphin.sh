@@ -153,8 +153,10 @@ _EOF2_
     fi
 
     for system in "${systems[@]}"; do
-        addEmulator 0 "${md_id}" "${system}" "${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
-        addEmulator 1 "${md_id}-gui" "${system}" "${md_inst}/bin/${md_id}-emu -b -e %ROM%"
+        addEmulator 0 "${md_id}"             "${system}" "${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
+        addEmulator 1 "${md_id}-gui"         "${system}" "${md_inst}/bin/${md_id}-emu -b -e %ROM%"
+        addEmulator 0 "${md_id}-wayland"     "${system}" "QT_QPA_PLATFORM=xcb ${md_inst}/bin/${md_id}-emu-nogui -e %ROM%"
+        addEmulator 0 "${md_id}-gui-wayland" "${system}" "QT_QPA_PLATFORM=xcb ${md_inst}/bin/${md_id}-emu -b -e %ROM%"
         addSystem "${system}"
     done
 }
