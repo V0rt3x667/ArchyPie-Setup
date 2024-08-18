@@ -7,10 +7,10 @@
 rp_module_id="citra"
 rp_module_desc="Citra: Nintendo 3DS Emulator"
 rp_module_help="ROM Extensions: .3ds .3dsx .app .axf .cci .cia .cxi .elf\n\nCopy Nintendo 3DS ROMs To: ${romdir}/3ds\n\nNOTE: .cia ROMs Will Only Work If An 'aes_keys.txt' File Exists In The '${arpdir}/citra/sysdata' Folder"
-rp_module_licence="GPL2 https://raw.githubusercontent.com/citra-emu/citra/master/license.txt"
-rp_module_repo="git https://github.com/PabloMK7/citra master"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/PabloMK7/citra/master/license.txt"
+rp_module_repo="git https://github.com/PabloMK7/citra r518f723"
 rp_module_section="main"
-rp_module_flags="!all 64bit vulkan"
+rp_module_flags="!all x86_64"
 
 function depends_citra() {
     local depends=(
@@ -56,7 +56,6 @@ function sources_citra() {
 
     # Set Default Config Path(s)
     applyPatch "${md_data}/01_set_default_config_path.patch"
-
 }
 
 function build_citra() {
@@ -65,18 +64,16 @@ function build_citra() {
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_LINKER_TYPE="LLD" \
         -DCITRA_ENABLE_COMPATIBILITY_REPORTING="OFF" \
-        -DUSE_SYSTEM_LIBS="ON" \
         -DDISABLE_SYSTEM_CPP_HTTPLIB="ON" \
         -DDISABLE_SYSTEM_CPP_JWT="ON" \
         -DDISABLE_SYSTEM_CUBEB="ON" \
         -DDISABLE_SYSTEM_DYNARMIC="ON" \
+        -DDISABLE_SYSTEM_FFMPEG_HEADERS="ON" \
         -DDISABLE_SYSTEM_LODEPNG="ON" \
         -DDISABLE_SYSTEM_VMA="ON" \
         -DDISABLE_SYSTEM_XBYAK="ON" \
@@ -86,6 +83,7 @@ function build_citra() {
         -DENABLE_QT_TRANSLATION="ON" \
         -DENABLE_TESTS="OFF" \
         -DENABLE_WEB_SERVICE="OFF" \
+        -DUSE_SYSTEM_LIBS="ON" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -101,7 +99,7 @@ function configure_citra() {
 
     [[ "${md_mode}" == "install" ]] && mkRomDir "3ds"
 
-    addEmulator 1 "${md_id}" "3ds" "${md_inst}/bin/${md_id} -f %ROM%"
+    addEmulator 1 "${md_id}"     "3ds" "${md_inst}/bin/${md_id} -f %ROM%"
     addEmulator 0 "${md_id}-gui" "3ds" "${md_inst}/bin/${md_id}-qt %ROM%"
 
     addSystem "3ds"
