@@ -42,9 +42,6 @@ function sources_alephone() {
 
     # Set Default Config Path(s)
     sed -e "s|/.alephone|/ArchyPie/configs/${md_id}|g" -i "${md_build}/Source_Files/CSeries/cspaths_sdl.cpp"
-
-    # Fix Building With 'miniupnpc' Review When v1.10 Is Released
-    applyPatch "${md_data}/01_fix_miniupnpc.patch"
 }
 
 function build_alephone() {
