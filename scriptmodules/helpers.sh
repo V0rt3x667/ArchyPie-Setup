@@ -420,13 +420,15 @@ function mkUserDir() {
 
 ## @fn mkRomDir()
 ## @param dir rom directory to create
-## @brief Creates a directory under $romdir owned by the current user.
+## @brief Creates a directory under ${romdir} owned by the current user.
 function mkRomDir() {
-    mkUserDir "$romdir/$1"
-    if [[ "$1" == "megadrive" ]]; then
-        pushd "$romdir" || exit
-        ln -snf "$1" "genesis"
-        popd || exit
+    mkUserDir "${romdir}/${1}"
+    if [[ "${1}" == "megadrive" ]]; then
+        if [[ ! -e "${romdir}/genesis" ]]; then
+            pushd "${romdir}"
+            ln -snf "${1}" "genesis"
+            popd
+        fi
     fi
 }
 
