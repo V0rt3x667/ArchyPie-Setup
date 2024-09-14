@@ -24,7 +24,7 @@ function _autostart_script_autostart() {
 
     cat >/etc/profile.d/10-archypie.sh <<_EOF_
 # Launch Autostart Apps
-if [ "\`tty\`" = "/dev/tty1" ] && [ -z "\${DISPLAY}" ] && [ "\${USER}" = "${user}" ]; then
+if [ "\`tty\`" = "/dev/tty1" ] && [ -z "\${DISPLAY}" ] && [ "\${USER}" = "${__user}" ]; then
     bash "${script}"
 fi
 _EOF_
@@ -59,7 +59,7 @@ function enable_autostart() {
             cat >"/etc/systemd/system/getty@tty1.service.d/autologin.conf" <<_EOF_
 [Service]
 ExecStart=
-ExecStart=-/sbin/agetty --autologin ${user} --noclear %I \$TERM
+ExecStart=-/sbin/agetty --autologin "${__user}" --noclear %I \$TERM
 _EOF_
         fi
 

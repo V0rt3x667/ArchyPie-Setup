@@ -261,7 +261,7 @@ function set_bitrate_moonlight() {
 
 function exec_moonlight() {
     trap "trap INT; echo; return" INT
-    sudo -u "${user}" "${md_inst}/moonlight.sh" "$@"
+    sudo -u "${__user}" "${md_inst}/moonlight.sh" "$@"
     trap INT
 }
 

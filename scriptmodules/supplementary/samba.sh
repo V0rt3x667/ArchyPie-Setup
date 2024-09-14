@@ -35,7 +35,7 @@ writeable = yes
 guest ok = yes
 create mask = 0644
 directory mask = 0755
-force user = "${user}"
+force user = "${__user}"
 _EOF_
 }
 

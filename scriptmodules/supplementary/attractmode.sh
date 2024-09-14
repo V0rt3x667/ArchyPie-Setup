@@ -60,7 +60,7 @@ function _add_system_attractmode() {
 
     # If No Gameslist, Generate One
     if [[ ! -f "${attract_dir}/romlists/${fullname}.txt" ]] && [[ -f "/usr/bin/attract" ]]; then
-        sudo -u "${user}" attract --build-romlist "${fullname}" -o "${fullname}"
+        sudo -u "${__user}" attract --build-romlist "${fullname}" -o "${fullname}"
     else
         return
     fi

@@ -130,7 +130,7 @@ _EOF_
 
         if [[ "${md_id}" == "dosbox" ]]; then
             local config_path
-            config_path=$(su "${user}" -c "\"${md_inst}/bin/dosbox\" -printconf")
+            config_path=$(su "${__user}" -c "\"${md_inst}/bin/dosbox\" -printconf")
             if [[ -f "${config_path}" ]]; then
                 iniConfig " = " "" "${config_path}"
                 iniSet "usescancodes" "false"

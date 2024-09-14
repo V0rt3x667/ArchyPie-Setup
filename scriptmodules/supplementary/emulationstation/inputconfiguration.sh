@@ -204,7 +204,7 @@ function sdl1_map() {
 ###### main ######
 
 user=$(id -un)
-home="$(eval echo ~${user})"
+home="$(eval echo ~${__user})"
 
 rootdir="/opt/archypie"
 configdir="$rootdir/configs"

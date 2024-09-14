@@ -34,7 +34,7 @@ function rps_logInit() {
 
 function rps_logStart() {
     echo -e "Log Started At: $(date -d @"${time_start}")\n"
-    echo "ArchyPie-Setup Version: ${__version} ($(sudo -u "${user}" git -C "${scriptdir}" log -1 --pretty=format:%h))"
+    echo "ArchyPie-Setup Version: ${__version} ($(sudo -u "${__user}" git -C "${scriptdir}" log -1 --pretty=format:%h))"
     echo "System: ${__platform} (${__platform_arch}) - ${__os_desc} - $(uname -a)"
 }
 
@@ -73,8 +73,8 @@ function depends_setup() {
     # Required For Use With "udev"
     local group
     group="input"
-    if ! hasFlag "$(groups "${user}")" "$group"; then
-        usermod -a -G "${group}" "${user}"
+    if ! hasFlag $(groups "${__user}") "${group}"; then
+        usermod -a -G "${group}" "${__user}"
     fi
 
     # Set "__setup" To 1 Which Is Used To Adjust Package Function Behaviour If Called From The Setup GUI
@@ -95,7 +95,7 @@ function updatescript_setup() {
         return 1
     fi
     local error
-    if ! error=$(sudo -u "${user}" git pull --ff-only 2>&1 >/dev/null); then
+    if ! error=$(sudo -u "${__user}" git pull --ff-only 2>&1 >/dev/null); then
         printMsgs "dialog" "Update Failed:\n\n$error"
         popd >/dev/null || exit
         return 1
@@ -647,7 +647,7 @@ function gui_setup() {
     local default
     while true; do
         local commit
-        commit=$(sudo -u "${user}" git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
+        commit=$(sudo -u "${__user}" git -C "$scriptdir" log -1 --pretty=format:"%cr (%h)")
 
         cmd=(dialog --backtitle "$__backtitle" --title "ArchyPie-Setup Script" --cancel-label "Exit" --item-help --help-button --default-item "$default" --menu "Version: $__version - Last Commit: $commit\nSystem: $__platform ($__platform_arch) - Running On: $__os_desc" 22 76 16)
         options=(

@@ -637,7 +637,7 @@ function rp_hasNewerModule() {
                 local vendor="${__mod_info[${id}/vendor]}"
                 local repo_dir="$scriptdir"
                 [[ "$vendor" != "ArchyPie" ]] && repo_dir+="/ext/$vendor"
-                local module_date="$(sudo -u "${user}" git -C "$repo_dir" log -1 --format=%cI -- "${__mod_info[${id}/path]}")"
+                local module_date="$(sudo -u "${__user}" git -C "$repo_dir" log -1 --format=%cI -- "${__mod_info[${id}/path]}")"
                 # In Case The Module Is Not Known To Git, Get The File Last Modified Date
                 [[ -z "$module_date" ]] && module_date="$(date -Iseconds -r "${__mod_info[$id/path]}")"
                 if rp_dateIsNewer "$pkg_date" "$module_date"; then

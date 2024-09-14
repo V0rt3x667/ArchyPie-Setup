@@ -393,7 +393,7 @@ function setupDirectories() {
         fi
     done
 
-    # create template for autoconf.cfg and make sure it is owned by ${user}
+    # create template for autoconf.cfg and make sure it is owned by ${__user}
     local config="$configdir/all/autoconf.cfg"
     if [[ ! -f "$config" ]]; then
         echo "# this file can be used to enable/disable archypie autoconfiguration features" >"$config"
@@ -453,7 +453,7 @@ function moveConfigDir() {
         rm -rf "$from"
     fi
     ln -snf "$to" "$from"
-    # set ownership of the actual link to ${user}
+    # set ownership of the actual link to ${__user}
     chown -h "${__user}":"${__group}" "$from"
 }
 
@@ -476,7 +476,7 @@ function moveConfigFile() {
         mv "$from" "$to"
     fi
     ln -sf "$to" "$from"
-    # set ownership of the actual link to ${user}
+    # set ownership of the actual link to ${__user}
     chown -h "${__user}":"${__group}" "$from"
 }
 
@@ -1510,7 +1510,7 @@ function pacmanAURInstall() {
         # Add Write Permission For Non-root User, 'makepkg' Can Only Run As A Non-root User
         chmod -R o+w "${builddir}/${pkg}"
         # Build Package(s)
-        su "${user}" -c 'makepkg -D '"${builddir}/${pkg}"' -cs'
+        su "${__user}" -c 'makepkg -D '"${builddir}/${pkg}"' -cs'
         # Remove Write Permission For Non-root User
         chmod -R o-w "${builddir}/${pkg}"
         # Install Package(s)

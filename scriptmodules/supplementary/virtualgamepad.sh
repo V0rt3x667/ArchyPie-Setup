@@ -32,8 +32,8 @@ function sources_virtualgamepad() {
 function install_virtualgamepad() {
     npm install pm2 -g --unsafe-perm
     cd "${md_inst}" || exit
-    sudo -u "${user}" npm install
-    sudo -u "${user}" npm install ref
+    sudo -u "${__user}" npm install
+    sudo -u "${__user}" npm install ref
 }
 
 function configure_virtualgamepad() {

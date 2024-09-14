@@ -271,12 +271,12 @@ function configure_mupen64plus() {
         # 4) Make Changes On The 'rp-dist' File And Create A Default Config File For Reference
         if [[ -f "${config}" ]]; then
             mv "${config}" "${config}.user"
-            su "${user}" -c "${cmd}"
+            su "${__user}" -c "${cmd}"
             mv "${config}" "${config}.rp-dist"
             mv "${config}.user" "${config}"
             config+=".rp-dist"
         else
-            su "${user}" -c "${cmd}"
+            su "${__user}" -c "${cmd}"
         fi
 
         # RPI GLideN64 Settings

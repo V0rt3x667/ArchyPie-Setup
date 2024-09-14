@@ -123,7 +123,7 @@ function launch_archypiemenu() {
             joy2keyStop
             cp "${configdir}/all/retroarch.cfg" "${configdir}/all/retroarch.cfg.bak"
             chown "${__user}":"${__group}" "${configdir}/all/retroarch.cfg.bak"
-            su "${user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_UID} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\""
+            su "${__user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_UID} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\""
             iniConfig " = " '"' "${configdir}/all/retroarch.cfg"
             iniSet "config_save_on_exit" "false"
             ;;
@@ -148,7 +148,7 @@ function launch_archypiemenu() {
             ;;
         *.sh)
             cd "${home}/ArchyPie/archypie" || exit
-            sudo -u "${user}" bash "${command}"
+            sudo -u "${__user}" bash "${command}"
             ;;
     esac
     joy2keyStop
