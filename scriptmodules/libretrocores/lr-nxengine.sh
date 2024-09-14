@@ -28,7 +28,7 @@ function _add_data_lr-nxengine() {
     if [[ ! -f "${romdir}/ports/cavestory/Doukutsu.exe" ]]; then
         mkRomDir "ports/cavestory"
         curl -sSL "http://buildbot.libretro.com/assets/system/NXEngine%20%28Cave%20Story%29.zip" | bsdtar xvf - --strip-components=1 -C "${romdir}/ports/cavestory"
-        chown -R "${user}:${user}" "${romdir}/ports/cavestory/Doukutsu.exe"
+        chown -R "${__user}":"${__group}" "${romdir}/ports/cavestory/Doukutsu.exe"
     fi
 }
 

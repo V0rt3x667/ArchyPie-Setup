@@ -8,22 +8,38 @@ __version="5.0.0_beta"
 
 [[ "${__debug}" -eq 1 ]] && set -x
 
-# ArchyPie Install Location
+# ArchyPie install location
 rootdir="/opt/archypie"
 
-# Install For "__user" Else Use "SUDO_USER"
-if [[ -n "${__user}" ]]; then
-    user="${__user}"
-    if ! id -u "${__user}" &>/dev/null; then
-        echo "User ${__user} Does Not Exist!"
-        exit 1
-    fi
-else
-    user="${SUDO_USER}"
-    [[ -z "${user}" ]] && user="$(id -un)"
+# If no user is specified
+if [[ -z "${__user}" ]]; then
+    # Get the calling user from sudo env
+    __user="${SUDO_USER}"
+    # If not called from sudo get the current user
+    [[ -z "${__user}" ]] && __user="$(id -un)"
 fi
 
-home="$(eval echo ~"${user}")"
+# Check if the user exists
+if [[ -z "$(getent passwd "${__user}")" ]]; then
+    echo "User ${__user} does not exist."
+    exit 1
+fi
+
+# If no group is specified get the users primary group
+if [[ -z "${__group}" ]]; then
+    __group="$(id -gn "${__user}")"
+fi
+
+# Check if the group exists
+if [[ -z "$(getent group "${__group}")" ]]; then
+    echo "Group ${__group} does not exist!"
+    exit 1
+fi
+
+# Backwards compatibility
+user="${__user}"
+
+home="$(eval echo ~${__user})"
 datadir="${home}/ArchyPie"
 biosdir="${datadir}/BIOS"
 romdir="${datadir}/roms"
@@ -39,13 +55,13 @@ __tmpdir="${scriptdir}/tmp"
 __builddir="${__tmpdir}/build"
 __swapdir="${__tmpdir}"
 
-# Check If 'sudo' Is Used
+# Check if sudo is used
 if [[ "$(id -u)" -ne 0 ]]; then
-    echo "The ArchyPie Setup script must be run under sudo. Try 'sudo ${0}'"
+    echo "The ArchyPie setup script must be run under sudo. Try 'sudo ${0}'"
     exit 1
 fi
 
-__backtitle="ArchyPie Setup - Installation Folder: ${rootdir} User: ${user}"
+__backtitle="ArchyPie Setup - Installation Folder: ${rootdir} User: ${__user}"
 
 source "${scriptdir}/scriptmodules/system.sh"
 source "${scriptdir}/scriptmodules/helpers.sh"
@@ -66,13 +82,13 @@ else
 fi
 
 if [[ "${#__ERRMSGS[@]}" -gt 0 ]]; then
-    # Override Return Code If ERRMSGS Is Set
+    # Override return code if ERRMSGS is set
     [[ "${rp_ret}" -eq 0 ]] && rp_ret=1
-    printMsgs "console" "Errors:\n" "${__ERRMSGS[@]}"
+    printMsgs "console" "Errors:\n${__ERRMSGS[@]}"
 fi
 
 if [[ "${#__INFMSGS[@]}" -gt 0 ]]; then
-    printMsgs "console" "Info:\n" "${__INFMSGS[@]}"
+    printMsgs "console" "Info:\n${__INFMSGS[@]}"
 fi
 
 exit ${rp_ret}

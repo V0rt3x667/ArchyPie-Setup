@@ -95,7 +95,7 @@ while read id desc; do
 done < <(${md_inst}/bin/scummvm --list-targets | tail -n +3)
 popd >/dev/null
 _EOF_
-        chown "${user}:${user}" "${romdir}/${md_id}/+Start ${name}.sh"
+        chown "${__user}":"${__group}" "${romdir}/${md_id}/+Start ${name}.sh"
         chmod u+x "${romdir}/${md_id}/+Start ${name}.sh"
     fi
 

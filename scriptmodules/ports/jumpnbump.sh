@@ -53,7 +53,7 @@ function _game_data_jumpnbump() {
         uncompressed="${uncompressed%.bz2}"
         if [[ ! -f "${romdir}/ports/${md_id}/${uncompressed}" ]]; then
             bzcat "${compressed}" > "${romdir}/ports/${md_id}/${uncompressed}"
-            chown -R "${user}:${user}" "${romdir}/ports/${md_id}/${uncompressed}"
+            chown -R "${__user}":"${__group}" "${romdir}/ports/${md_id}/${uncompressed}"
         fi
     done
     rm -rf "${dest}"

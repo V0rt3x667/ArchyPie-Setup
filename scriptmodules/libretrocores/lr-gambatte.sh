@@ -41,7 +41,7 @@ function configure_lr-gambatte() {
         # Add Default Green Yellow Palette For Gameboy Classic
         mkUserDir "${biosdir}/gb/palettes"
         cp "${md_data}/default.pal" "${biosdir}/gb/palettes/"
-        chown "${user}:${user}" "${biosdir}/gb/palettes/default.pal"
+        chown "${__user}":"${__group}" "${biosdir}/gb/palettes/default.pal"
 
         setRetroArchCoreOption "gambatte_gb_colorization" "custom"
     fi

@@ -42,7 +42,7 @@ function _game_data_opentyrian2000() {
     if [[ ! -d "${romdir}/ports/${md_id}/data" ]]; then
         cd "${__tmpdir}" || exit
         downloadAndExtract "https://www.camanis.net/tyrian/tyrian2000.zip" "${romdir}/ports/${md_id}/data" -j
-        chown -R "${user}:${user}" "${romdir}/ports/${md_id}"
+        chown -R "${__user}":"${__group}" "${romdir}/ports/${md_id}"
     fi
 }
 

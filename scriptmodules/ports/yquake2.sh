@@ -100,7 +100,7 @@ function _game_data_yquake2() {
         done < <(find "${romdir}/ports/${portname}" -maxdepth 2 -name "*.*" ! -name "*.pak")
     fi
 
-    chown -R "${user}:${user}" "${romdir}/ports/${portname}"
+    chown -R "${__user}":"${__group}" "${romdir}/ports/${portname}"
 }
 
 function _add_games_yquake2() {

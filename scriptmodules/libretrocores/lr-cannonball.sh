@@ -41,7 +41,7 @@ function configure_lr-cannonball() {
         ln -snf "${md_inst}/res/" "${romdir}/ports/cannonball/res"
 
         cp -v roms.txt "${romdir}/ports/cannonball/"
-        chown -R "${user}:${user}" "${romdir}/ports/cannonball"
+        chown -R "${__user}":"${__group}" "${romdir}/ports/cannonball"
     fi
 
     addPort "${md_id}" "cannonball" "Cannonball: OutRun Engine" "${md_inst}/cannonball_libretro.so ${romdir}/ports/cannonball/"

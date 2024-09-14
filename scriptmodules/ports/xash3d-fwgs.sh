@@ -202,7 +202,7 @@ function configure_xash3d-fwgs() {
             mkRomDir "ports/${portname}/${dir}"
             cp -R "${md_inst}/${dir}"/{cl_dlls,dlls} "${romdir}/ports/${portname}/${dir}"
             cp "${md_inst}/extras.pk3" "${romdir}/ports/${portname}/${dir}"
-            chown -R "${user}:${user}" "${romdir}/ports/${portname}/${dir}"
+            chown -R "${__user}":"${__group}" "${romdir}/ports/${portname}/${dir}"
         done
     fi
 

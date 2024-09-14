@@ -54,7 +54,7 @@ function configure_sdlpop() {
     if [[ "${md_mode}" == "install" ]]; then
         copyDefaultConfig "${md_inst}/SDLPoP.ini.def" "${md_conf_root}/${md_id}/SDLPoP.ini"
 
-        chown -R "${user}:${user}" "${md_conf_root}/${md_id}"
+        chown -R "${__user}":"${__group}" "${md_conf_root}/${md_id}"
     fi
 
     addPort "${md_id}" "${portname}" "Prince of Persia" "pushd ${md_inst}; ${md_inst}/prince full; pushd"

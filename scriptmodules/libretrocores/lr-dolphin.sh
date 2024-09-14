@@ -76,7 +76,7 @@ function configure_lr-dolphin() {
         # Copy 'Sys' Directory
         mkUserDir "${biosdir}/gc/dolphin-emu"
         cp -r "${md_inst}/Sys" "${biosdir}/gc/dolphin-emu/Sys"
-        chown -R "${user}:${user}" "${biosdir}/gc/dolphin-emu/Sys"
+        chown -R "${__user}":"${__group}" "${biosdir}/gc/dolphin-emu/Sys"
 
         # Symlink 'dolphin-emu' To 'wii' BIOS Folder
         ln -snf "${biosdir}/gc/dolphin-emu" "${biosdir}/wii/dolphin-emu"

@@ -149,7 +149,7 @@ PreferGLES = True
 _EOF2_
         fi
 
-        chown -R "${user}:${user}" "${md_conf_root}/gc/${md_id}/Config"
+        chown -R "${__user}":"${__group}" "${md_conf_root}/gc/${md_id}/Config"
     fi
 
     for system in "${systems[@]}"; do

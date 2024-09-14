@@ -44,7 +44,7 @@ function configure_lr-fmsx() {
 
         # Copy CARTS.SHA To '${biosdir}/msx'
         cp "${md_inst}/CARTS.SHA" "${biosdir}/msx"
-        chown "${user}:${user}" "${biosdir}/msx/CARTS.SHA"
+        chown "${__user}":"${__group}" "${biosdir}/msx/CARTS.SHA"
 
         # Symlink 'CARTS.SHA' To 'msx2' BIOS Directory
         ln -snf "${biosdir}/msx/CARTS.SHA" "${biosdir}/msx2/CARTS.SHA"

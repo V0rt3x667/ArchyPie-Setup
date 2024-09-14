@@ -186,7 +186,7 @@ Path=\$PROGDIR/soundfonts
 Path=/usr/share/fm_banks
 Path=/usr/share/soundfonts
 _INI_
-        chown "${user}:${user}" "${md_conf_root}/${portname}/${md_id}/gzdoom.ini"
+        chown "${__user}":"${__group}" "${md_conf_root}/${portname}/${md_id}/gzdoom.ini"
 
         # Create A Launcher Script
         local launcher_prefix="DOOMWADDIR=${romdir}/ports/${portname}"

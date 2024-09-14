@@ -175,7 +175,7 @@ rom name=Mega Man 64
 framebuffer enable=1
 target FPS=25
 _EOF_
-        chown "${user}:${user}" "${biosdir}/n64/gles2n64rom.conf"
+        chown "${__user}":"${__group}" "${biosdir}/n64/gles2n64rom.conf"
     fi
 
     addEmulator 0 "${md_id}" "n64" "${md_inst}/parallel_n64_libretro.so"

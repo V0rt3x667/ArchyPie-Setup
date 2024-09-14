@@ -102,7 +102,7 @@ function update_shaders-retropie_retroarch() {
     # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/retropie/.git" ]] && rm -rf "${dir}/retropie"
     gitPullOrClone "${dir}/retropie" "https://github.com/RetroPie/common-shaders.git"
-    chown -R "${user}:${user}" "${dir}"
+    chown -R "${__user}":"${__group}" "${dir}"
 }
 
 function update_shaders-glsl_retroarch() {
@@ -110,7 +110,7 @@ function update_shaders-glsl_retroarch() {
     # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/glsl/.git" ]] && rm -rf "${dir}/glsl"
     gitPullOrClone "${dir}/glsl" "https://github.com/libretro/glsl-shaders.git"
-    chown -R "${user}:${user}" "${dir}"
+    chown -R "${__user}":"${__group}" "${dir}"
 }
 
 function update_shaders-slang_retroarch() {
@@ -118,7 +118,7 @@ function update_shaders-slang_retroarch() {
     # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/slang/.git" ]] && rm -rf "${dir}/slang"
     gitPullOrClone "${dir}/slang" "https://github.com/libretro/slang-shaders.git"
-    chown -R "${user}:${user}" "${dir}"
+    chown -R "${__user}":"${__group}" "${dir}"
 }
 
 function update_overlays_retroarch() {
@@ -126,7 +126,7 @@ function update_overlays_retroarch() {
     # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/.git" ]] && rm -rf "${dir}"
     gitPullOrClone "${dir}" "https://github.com/libretro/common-overlays.git"
-    chown -R "${user}:${user}" "${dir}"
+    chown -R "${__user}":"${__group}" "${dir}"
 }
 
 function update_joypad_autoconfigs_retroarch() {
@@ -139,7 +139,7 @@ function update_assets_retroarch() {
     # Remove If Not A Git Repository & Do A Fresh Checkout
     [[ ! -d "${dir}/.git" ]] && rm -rf "${dir}"
     gitPullOrClone "${dir}" "https://github.com/libretro/${md_id}-assets.git"
-    chown -R "${user}:${user}" "${dir}"
+    chown -R "${__user}":"${__group}" "${dir}"
 }
 
 function update_core_info_retroarch() {
@@ -151,7 +151,7 @@ function update_core_info_retroarch() {
     gitPullOrClone "${dir}" "https://github.com/libretro/libretro-core-info.git"
     # Add Info Files For Cores Not Included In The Upstream Repo
     cp --update "${md_data}"/*.info "${dir}"
-    chown -R "${user}:${user}" "${dir}"
+    chown -R "${__user}":"${__group}" "${dir}"
 }
 
 function configure_retroarch() {

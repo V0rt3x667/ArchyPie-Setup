@@ -48,7 +48,7 @@ function configure_lr-scummvm() {
 
         # Unpack Data Files To System Directory
         runCmd unzip -q -o "${md_inst}/scummvm.zip" -d "${biosdir}"
-        chown -R "${user}:${user}" "${biosdir}/scummvm"
+        chown -R "${__user}":"${__group}" "${biosdir}/scummvm"
 
         # Create Default Configuration File
         if [[ ! -f "${biosdir}/scummvm/scummvm.ini" ]]; then

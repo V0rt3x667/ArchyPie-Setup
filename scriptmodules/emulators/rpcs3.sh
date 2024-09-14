@@ -97,7 +97,7 @@ function configure_rpcs3() {
 ${md_inst}/bin/${md_id} --installfw ${biosdir}/ps3/PS3UPDAT.PUP
 _EOF_
         chmod a+x "${romdir}/ps3/${launcher}"
-        chown "${user}:${user}" "${romdir}/ps3/${launcher}"
+        chown "${__user}":"${__group}" "${romdir}/ps3/${launcher}"
     fi
 
     addEmulator 1 "${md_id}" "ps3" "${md_inst}/bin/rpcs3 --fullscreen --no-gui %ROM%"

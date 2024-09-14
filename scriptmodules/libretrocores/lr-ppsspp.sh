@@ -46,7 +46,7 @@ function configure_lr-ppsspp() {
 
         # Copy Assets
         cp -Rv "${md_inst}/assets" "${biosdir}/psp/"
-        chown -R "${user}:${user}" "${biosdir}/psp"
+        chown -R "${__user}":"${__group}" "${biosdir}/psp"
     fi
 
     addEmulator 1 "${md_id}" "psp" "${md_inst}/ppsspp_libretro.so"

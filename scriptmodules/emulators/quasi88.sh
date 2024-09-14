@@ -86,7 +86,7 @@ function configure_quasi88() {
 -diskdir "${romdir}/pc88"
 -tapedir "${romdir}/pc88"
 _EOF_
-            chown -R "${user}:${user}" "${conf}"
+            chown -R "${__user}":"${__group}" "${conf}"
         fi
     fi
 

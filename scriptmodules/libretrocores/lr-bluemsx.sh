@@ -60,7 +60,7 @@ function configure_lr-bluemsx() {
                 elif [[ "${system}" == "spectravideo" ]]; then
                     iniSet "bluemsx_msxtype" "SVI - Spectravideo SVI-328 MK2" "${config}"
                 fi
-                chown "${user}:${user}" "${config}"
+                chown "${__user}":"${__group}" "${config}"
             else
                 defaultRAConfig "${system}"
             fi
@@ -68,7 +68,7 @@ function configure_lr-bluemsx() {
 
         # Copy Data To 'msx' BIOS Directory
         cp -r "${md_inst}/"{Databases,Machines} "${biosdir}/msx"
-        chown -R "${user}:${user}" "${biosdir}/msx"
+        chown -R "${__user}":"${__group}" "${biosdir}/msx"
     fi
 
     for system in "${systems[@]}"; do

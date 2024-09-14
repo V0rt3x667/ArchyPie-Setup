@@ -89,7 +89,7 @@ function configure_supermodel-sinden() {
         copyDefaultConfig "${md_inst}/Config/Supermodel.ini" "${conf_dir}/Config/Supermodel.ini"
         cp -f "${md_inst}/Config/Games.xml" "${conf_dir}/Config"
         isPlatform "x86" && cp -fr "${md_inst}/Assets" "${conf_dir}"
-        chown -R "${user}:${user}" "${conf_dir}"
+        chown -R "${__user}":"${__group}" "${conf_dir}"
 
         # Create Launcher Script
         cat >"${md_inst}/supermodel.sh" <<_EOF_

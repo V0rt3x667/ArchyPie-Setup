@@ -61,7 +61,7 @@ function _game_data_frotz() {
             rm -rf "${temp}"
         done
         rm -rf "${temp}"
-        chown -R "${user}:${user}" "${romdir}/zmachine"
+        chown -R "${__user}":"${__group}" "${romdir}/zmachine"
     fi
 }
 

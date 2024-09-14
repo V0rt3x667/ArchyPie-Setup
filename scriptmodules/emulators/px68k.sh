@@ -74,7 +74,7 @@ MenuLanguage=1
 SoundFontFile=/usr/share/soundfonts/freepats-general-midi.sf2
 _EOF_
         fi
-        chown -R "${user}:${user}" "${conf}"
+        chown -R "${__user}":"${__group}" "${conf}"
     fi
 
     addEmulator 1 "${md_id}" "x68000" "${md_inst}/px68k.sdl2 %ROM%"

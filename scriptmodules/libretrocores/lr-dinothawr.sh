@@ -34,7 +34,7 @@ function configure_lr-dinothawr() {
         defaultRAConfig "dinothawr"
 
         cp -Rv "${md_inst}"/dinothawr/* "${romdir}/ports/dinothawr/"
-        chown "${user}:${user}" -R "${romdir}/ports/dinothawr"
+        chown "${__user}":"${__group}" -R "${romdir}/ports/dinothawr"
     fi
 
     addPort "${md_id}" "dinothawr" "Dinothawr" "${md_inst}/dinothawr_libretro.so" "${romdir}/ports/dinothawr/dinothawr.game"

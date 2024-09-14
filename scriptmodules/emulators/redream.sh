@@ -36,7 +36,7 @@ function configure_redream() {
         moveConfigDir "${md_inst}/cache" "${dest}/cache"
         moveConfigDir "${md_inst}/saves" "${dest}/saves"
         moveConfigDir "${md_inst}/states" "${dest}/states"
-        chown -R "${user}:${user}" "${md_inst}"
+        chown -R "${__user}":"${__group}" "${md_inst}"
 
         # Symlink Memory Cards
         local i

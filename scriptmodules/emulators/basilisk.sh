@@ -60,7 +60,7 @@ function configure_basilisk() {
         mkRomDir "macintosh"
         touch "${romdir}/macintosh/Start.txt"
         touch "${md_conf_root}/macintosh/${md_id}/basiliskii.cfg"
-        chown "${user}:${user}" "${md_conf_root}/macintosh/${md_id}/basiliskii.cfg"
+        chown "${__user}":"${__group}" "${md_conf_root}/macintosh/${md_id}/basiliskii.cfg"
     fi
 
     local params=(

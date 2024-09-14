@@ -65,7 +65,7 @@ function _game_data_wolf4sdl() {
         downloadAndExtract "http://maniacsvault.net/ecwolf/files/shareware/soddemo.zip" "${romdir}/ports/${portname}" -j -LL
     fi
 
-    chown -R "${user}:${user}" "${romdir}/ports/${portname}"
+    chown -R "${__user}":"${__group}" "${romdir}/ports/${portname}"
 }
 
 function _add_games_wolf4sdl() {

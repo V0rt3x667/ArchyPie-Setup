@@ -398,7 +398,7 @@ function setupDirectories() {
     if [[ ! -f "$config" ]]; then
         echo "# this file can be used to enable/disable archypie autoconfiguration features" >"$config"
     fi
-    chown "${user}:${user}" "$config"
+    chown "${__user}":"${__group}" "$config"
 }
 
 ## @fn rmDirExists()
@@ -415,7 +415,7 @@ function rmDirExists() {
 ## @brief Creates a directory owned by the current user.
 function mkUserDir() {
     mkdir -p "$1"
-    chown "${user}:${user}" "$1"
+    chown "${__user}":"${__group}" "$1"
 }
 
 ## @fn mkRomDir()
@@ -454,7 +454,7 @@ function moveConfigDir() {
     fi
     ln -snf "$to" "$from"
     # set ownership of the actual link to ${user}
-    chown -h "${user}:${user}" "$from"
+    chown -h "${__user}":"${__group}" "$from"
 }
 
 ## @fn moveConfigFile()
@@ -477,7 +477,7 @@ function moveConfigFile() {
     fi
     ln -sf "$to" "$from"
     # set ownership of the actual link to ${user}
-    chown -h "${user}:${user}" "$from"
+    chown -h "${__user}":"${__group}" "$from"
 }
 
 ## @fn diffFiles()
@@ -541,7 +541,7 @@ function copyDefaultConfig() {
         cp "${from}" "${to}"
     fi
 
-    chown "${user}:${user}" "${to}"
+    chown "${__user}":"${__group}" "${to}"
 }
 
 ## @fn renameModule()
@@ -851,7 +851,7 @@ function setRetroArchCoreOption() {
     if [[ -z "$ini_value" ]]; then
         iniSet "$option" "$value"
     fi
-    chown "${user}:${user}" "$configdir/all/retroarch-core-options.cfg"
+    chown "${__user}":"${__group}" "$configdir/all/retroarch-core-options.cfg"
 }
 
 ## @fn setConfigRoot()
@@ -1266,7 +1266,7 @@ function addPort() {
 "$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "${game}"
 _EOF_
 
-    chown "${user}:${user}" "${file}"
+    chown "${__user}":"${__group}" "${file}"
     chmod +x "${file}"
 
     [[ -n "$cmd" ]] && addEmulator 1 "${id}" "$port" "$cmd"
@@ -1323,7 +1323,7 @@ function addEmulator() {
         if [[ -z "${ini_value}" && "${default}" -eq 1 ]]; then
             iniSet "default" "${id}"
         fi
-        chown "${user}:${user}" "${md_conf_root}/${system}/emulators.cfg"
+        chown "${__user}":"${__group}" "${md_conf_root}/${system}/emulators.cfg"
     fi
 }
 

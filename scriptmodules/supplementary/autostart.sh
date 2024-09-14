@@ -44,7 +44,7 @@ _EOF_
             echo "emulationstation #auto" >>"${script}"
             ;;
     esac
-    chown "${user}:${user}" "${script}"
+    chown "${__user}":"${__group}" "${script}"
 }
 
 function enable_autostart() {

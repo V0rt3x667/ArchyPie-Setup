@@ -84,7 +84,7 @@ function configure_lr-fbneo() {
 
         # Copy 'hiscore.dat'
         cp "${md_inst}/metadata/hiscore.dat" "${biosdir}/fba/fbneo"
-        chown -R "${user}:${user}" "${biosdir}/fba/fbneo"
+        chown -R "${__user}":"${__group}" "${biosdir}/fba/fbneo"
 
         setRetroArchCoreOption "fbneo-diagnostic-input" "Hold Start"
 
@@ -92,13 +92,13 @@ function configure_lr-fbneo() {
         #local config="${md_conf_root}/neogeo/retroarch-core-options.cfg"
         #iniConfig " = " '"' "${config}"
         #iniSet "fbneo-neogeo-mode" "AES_EUR"
-        #chown "${user}:${user}" "${config}"
+        #chown "${__user}":"${__group}" "${config}"
 
         # OPTIONAL: Add AES Overide To 'retroarch.cfg', 'defaultRAConfig' Can Only Be Called Once
         #local raconfig="${md_conf_root}/neogeo/retroarch.cfg"
         #iniConfig " = " '"' "${raconfig}"
         #iniSet "core_options_path" "${config}"
-        #chown "${user}:${user}" "${raconfig}"
+        #chown "${__user}":"${__group}" "${raconfig}"
     fi
 
     addEmulator 0 "${md_id}" "arcade" "${md_inst}/fbneo_libretro.so"

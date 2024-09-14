@@ -125,7 +125,7 @@ Path=${romdir}/ports/buildengine/*
 Path=\$PROGDIR/soundfonts
 Path=/usr/share/soundfonts
 _INI_
-        chown "${user}:${user}" "${md_conf_root}/${portname}/${md_id}/raze.ini"
+        chown "${__user}":"${__group}" "${md_conf_root}/${portname}/${md_id}/raze.ini"
 
         # Create A Launcher Script To Strip Quotes From 'runcommand.sh' Generated Arguments
         local params=("-fullscreen")

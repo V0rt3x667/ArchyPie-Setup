@@ -127,8 +127,8 @@ function configure_amiberry() {
         moveConfigFile "${md_inst}/conf/retroarch.cfg" "${configdir}/all/retroarch.cfg"
 
         # Fix Permissions On BIOS & WHDLoad Directories
-        chown -R "${user}:${user}" "${biosdir}/amiga"
-        chown -R "${user}:${user}" "${md_conf_root}/amiga/${md_id}/whdboot"
+        chown -R "${__user}":"${__group}" "${biosdir}/amiga"
+        chown -R "${__user}":"${__group}" "${md_conf_root}/amiga/${md_id}/whdboot"
 
         # Set Various Media Paths To The 'amiga' ROM Folder
         if [ -f "${md_inst}/conf/amiberry.conf" ]; then
@@ -150,7 +150,7 @@ function configure_amiberry() {
 "pushd ${md_inst}; ${md_inst}/${md_id}.sh; popd"
 _EOF_
         chmod a+x "${romdir}/amiga/${launcher}"
-        chown "${user}:${user}" "${romdir}/amiga/${launcher}"
+        chown "${__user}":"${__group}" "${romdir}/amiga/${launcher}"
     fi
 
     addEmulator 0 "${md_id}-a1200"    "amiga"     "${md_inst}/${md_id}.sh %ROM% --model A1200"

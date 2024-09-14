@@ -51,7 +51,7 @@ function configure_lr-puae() {
                 defaultRAConfig  "${system}" "core_options_path" "${config}"
                 iniConfig " = " '"' "${config}"
                 iniSet "puae_model" "CDTV" "${config}"
-                chown "${user}:${user}" "${config}"
+                chown "${__user}":"${__group}" "${config}"
             else
                 defaultRAConfig "${system}"
             fi
@@ -66,7 +66,7 @@ function configure_lr-puae() {
         # Copy CAPs Image & Floppy Disk Audio Files To BIOS Directory
         install -Dm644 "${md_inst}/capsimg.so" -t "${biosdir}/amiga/"
         cp -r "${md_inst}/uae_data" -t "${biosdir}/amiga/"
-        chown -R "${user}:${user}" "${biosdir}/amiga"
+        chown -R "${__user}":"${__group}" "${biosdir}/amiga"
     fi
 
     for system in "${systems[@]}"; do

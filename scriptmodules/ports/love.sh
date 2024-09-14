@@ -78,7 +78,7 @@ function _game_data_love() {
         zip -qr "${romdir}/${md_id}/mari0.love" .
         popd || return
         rm -fr "${__tmpdir}/mari0"
-        chown "${user}:${user}" "${romdir}/${md_id}/mari0.love"
+        chown "${__user}":"${__group}" "${romdir}/${md_id}/mari0.love"
     fi
 }
 

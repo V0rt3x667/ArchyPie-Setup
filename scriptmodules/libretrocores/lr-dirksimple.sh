@@ -64,7 +64,7 @@ function configure_lr-dirksimple() {
 
         # Copy Data To BIOS Directory
         cp -rf "${md_inst}/data" "${biosdir}/daphne/DirkSimple"
-        chown -R "${user}:${user}" "${biosdir}/daphne"
+        chown -R "${__user}":"${__group}" "${biosdir}/daphne"
     fi
 
     addEmulator 0 "${md_id}" "daphne" "${md_inst}/dirksimple_libretro.so"

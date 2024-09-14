@@ -241,7 +241,7 @@ function configure_skyscraper() {
     done
 
     _init_config_skyscraper
-    chown -R "${user}:${user}" "${configdir}/all/skyscraper"
+    chown -R "${__user}":"${__group}" "${configdir}/all/skyscraper"
 }
 
 function _init_config_skyscraper() {

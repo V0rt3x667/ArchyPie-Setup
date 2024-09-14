@@ -42,7 +42,7 @@ function _game_data_lr-tyrquake() {
         cp -rf id1 "${romdir}/ports/${portname}/"
         popd || exit
         rm -rf "${temp}"
-        chown -R "${user}:${user}" "${romdir}/ports/${portname}"
+        chown -R "${__user}":"${__group}" "${romdir}/ports/${portname}"
     fi
 }
 

@@ -32,7 +32,7 @@ function configure_archypiemenu() {
         local rpdir="${home}/ArchyPie/archypiemenu"
         mkdir -p "${rpdir}"
         cp -Rv "${md_data}/icons" "${rpdir}/"
-        chown -R "${user}:${user}" "${rpdir}"
+        chown -R "${__user}":"${__group}" "${rpdir}"
 
         # Add Games List & Icons
         local files=(
@@ -122,7 +122,7 @@ function launch_archypiemenu() {
         retroarch.rp)
             joy2keyStop
             cp "${configdir}/all/retroarch.cfg" "${configdir}/all/retroarch.cfg.bak"
-            chown "${user}:${user}" "${configdir}/all/retroarch.cfg.bak"
+            chown "${__user}":"${__group}" "${configdir}/all/retroarch.cfg.bak"
             su "${user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_UID} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\""
             iniConfig " = " '"' "${configdir}/all/retroarch.cfg"
             iniSet "config_save_on_exit" "false"

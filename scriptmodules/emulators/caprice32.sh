@@ -72,7 +72,7 @@ function configure_caprice32() {
     if [[ "${md_mode}" == "install" ]]; then
         mkRomDir "amstradcpc"
         cp "${md_inst}/cap32.cfg" "${arpdir}/${md_id}"
-        chown "${user}:${user}" "${arpdir}/${md_id}/cap32.cfg"
+        chown "${__user}":"${__group}" "${arpdir}/${md_id}/cap32.cfg"
     fi
 
     addEmulator 1 "${md_id}" "amstradcpc" "${md_inst}/cap32 --cfg_file=${md_conf_root}/amstradcpc/${md_id}/cap32.cfg %ROM%"

@@ -83,7 +83,7 @@ function configure_openmsx() {
 
         # Copy Launcher Script
         cp "${md_data}/archypie-init.tcl" "${arpdir}/${md_id}/share/scripts"
-        chown -R "${user}:${user}" "${arpdir}/${md_id}/share/scripts"
+        chown -R "${__user}":"${__group}" "${arpdir}/${md_id}/share/scripts"
     fi
 
     mkRomDir "msx"

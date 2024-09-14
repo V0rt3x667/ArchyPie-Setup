@@ -217,7 +217,7 @@ CD5=${romdir}/ports/${md_id}/planescape/data/
 CachePath=${romdir}/${md_id}/ports/planescape/cache/
 _EOF_
 
-    chown -R "${user}:${user}" "${md_conf_root}/${md_id}"
+    chown -R "${__user}":"${__group}" "${md_conf_root}/${md_id}"
 
     _add_games_gemrb "${md_inst}/bin/${md_id}"
 }

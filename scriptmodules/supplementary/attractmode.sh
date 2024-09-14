@@ -56,7 +56,7 @@ function _add_system_attractmode() {
     iniSet "artwork snap"    "${path}/${snap}"
     iniSet "artwork wheel"   "${path}/wheel"
 
-    chown "${user}:${user}" "${config}"
+    chown "${__user}":"${__group}" "${config}"
 
     # If No Gameslist, Generate One
     if [[ ! -f "${attract_dir}/romlists/${fullname}.txt" ]] && [[ -f "/usr/bin/attract" ]]; then
@@ -74,7 +74,7 @@ display${tab}${fullname}
 ${tab}layout               Basic
 ${tab}romlist              ${fullname}
 _EOF_
-        chown "${user}:${user}" "${config}"*
+        chown "${__user}":"${__group}" "${config}"*
     fi
 }
 
@@ -126,7 +126,7 @@ function _add_rom_attractmode() {
     fi
 
     echo "${path};${name};${system_fullname};;;;;;;;;;;;;;" >>"${config}"
-    chown "${user}:${user}" "${config}"
+    chown "${__user}":"${__group}" "${config}"
 }
 
 function depends_attractmode() {
@@ -191,7 +191,7 @@ function configure_attractmode() {
             echo "general" >"${config}"
             echo -e "\twindow_mode          fullscreen" >>"${config}"
         fi
-        chown "${user}:${user}" "${config}"
+        chown "${__user}":"${__group}" "${config}"
 
         mkUserDir "${md_conf_root}/all/${md_id}/emulators"
 

@@ -76,7 +76,7 @@ function _game_data_dhewm3() {
         chmod +x "${romdir}/ports/${portname}/${portname}-linux-1.1.1286-demo.x86.run"
         cd "${romdir}/ports/${portname}" || return
         ./${portname}-linux-1.1.1286-demo.x86.run --tar xf demo/ && rm "${romdir}/ports/${portname}/${portname}-linux-1.1.1286-demo.x86.run"
-        chown -R "${user}:${user}" "${romdir}/ports/${portname}/demo"
+        chown -R "${__user}":"${__group}" "${romdir}/ports/${portname}/demo"
     fi
 }
 

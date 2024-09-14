@@ -17,7 +17,7 @@ __netplayhostip="${__netplayhostip}"
 __netplayhostip_cfile="${__netplayhostip_cfile}"
 __netplaynickname="'${__netplaynickname}'"
 _EOF_
-    chown "${user}:${user}" "${conf}"
+    chown "${__user}":"${__group}" "${conf}"
     printMsgs "dialog" "Configuration Has Been Saved To: ${conf}"
 }
 

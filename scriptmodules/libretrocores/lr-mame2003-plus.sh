@@ -59,7 +59,7 @@ function configure_lr-mame2003-plus() {
         mkUserDir "${biosdir}/mame-libretro/${core_name}/"{artwork,samples}
         cp -rv "${md_inst}/metadata/"{cheat.dat,hiscore.dat} "${biosdir}/mame-libretro/${core_name}/"
         cp -v "${md_inst}/metadata/artwork/"* "${biosdir}/mame-libretro/${core_name}/artwork/"
-        chown -R "${user}:${user}" "${biosdir}/mame-libretro/${core_name}"
+        chown -R "${__user}":"${__group}" "${biosdir}/mame-libretro/${core_name}"
 
         setRetroArchCoreOption "${core_name}_skip_disclaimer" "enabled"
     fi

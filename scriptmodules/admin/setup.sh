@@ -15,7 +15,7 @@ function _setup_gzip_log() {
 function rps_logInit() {
     if [[ ! -d "$__logdir" ]]; then
         if mkdir -p "$__logdir"; then
-            chown "${user}:${user}" "$__logdir"
+            chown "${__user}":"${__group}" "$__logdir"
         else
             fatalError "Couldn't make directory $__logdir"
         fi
@@ -28,7 +28,7 @@ function rps_logInit() {
     now=$(date +'%Y-%m-%d_%H%M%S')
     logfilename="${__logdir}/rps_${now}.log.gz"
     touch "${logfilename}"
-    chown "${user}:${user}" "${logfilename}"
+    chown "${__user}":"${__group}" "${logfilename}"
     time_start=$(date +"%s")
 }
 
@@ -86,7 +86,7 @@ function depends_setup() {
 
 function updatescript_setup() {
     clear
-    chown -R "${user}:${user}" "$scriptdir"
+    chown -R "${__user}":"${__group}" "$scriptdir"
     printHeading "Fetching the latest version of the ArchyPie Setup Script."
     pushd "$scriptdir" >/dev/null || exit
     if [[ ! -d ".git" ]]; then

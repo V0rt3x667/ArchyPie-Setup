@@ -47,7 +47,7 @@ function _game_data_lr-prboom() {
 
     downloadAndExtract "https://github.com/freedoom/freedoom/releases/download/${tag}/freedoom-${tag/v/}.zip" "${dest}/freedoom" -j -LL
 
-    chown -R "${user}:${user}" "${dest}"
+    chown -R "${__user}":"${__group}" "${dest}"
 }
 
 function _add_games_lr-prboom() {
@@ -202,7 +202,7 @@ function configure_lr-prboom() {
         # Copy Data File To BIOS Dir
         mkUserDir "${biosdir}/${portname}"
         cp "${md_inst}/prboom.wad" "${biosdir}/${portname}"
-        chown -R "${user}:${user}" "${biosdir}/${portname}"
+        chown -R "${__user}":"${__group}" "${biosdir}/${portname}"
 
         # Add Shareware Game Data If No Existing WAD Is Found & Add Freedoom
         _game_data_lr-prboom

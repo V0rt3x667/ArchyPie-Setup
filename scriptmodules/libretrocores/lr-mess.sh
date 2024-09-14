@@ -74,7 +74,7 @@ function configure_lr-mess() {
 
         # Copy 'hash' Directory To Shared 'mame-libretro' Directory
         cp -rv "${md_inst}/hash" "${biosdir}/mame-libretro/${dir}"
-        chown -R "${user}:${user}" "${biosdir}/mame-libretro/${dir}"
+        chown -R "${__user}":"${__group}" "${biosdir}/mame-libretro/${dir}"
 
         setRetroArchCoreOption "mame_softlists_enable" "enabled"
         setRetroArchCoreOption "mame_softlists_auto_media" "enabled"

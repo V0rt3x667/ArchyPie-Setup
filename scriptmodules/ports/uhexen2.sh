@@ -95,7 +95,7 @@ function _game_data_uhexen2() {
 
     if [[ ! -f "${romdir}/ports/${portname}/data1/pak0.pak" ]]; then
         downloadAndExtract "http://sourceforge.net/project/downloading.php?group_id=124987&filename=hexen2demo_nov1997-linux-x86_64.tgz" "${romdir}/ports/${portname}" --strip-components 1 "hexen2demo_nov1997/data1"
-        chown -R "${user}:${user}" "${romdir}/ports/${portname}/data1"
+        chown -R "${__user}":"${__group}" "${romdir}/ports/${portname}/data1"
     fi
 }
 

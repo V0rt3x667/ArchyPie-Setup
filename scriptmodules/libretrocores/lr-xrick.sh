@@ -28,7 +28,7 @@ function _add_data_lr-xrick() {
     if [[ ! -f "${biosdir}/xrick/data.zip" ]]; then
         mkUserDir "${biosdir}/xrick"
         curl -sSL "https://buildbot.libretro.com/assets/cores/Rick%20Dangerous/Rick%20Dangerous.zip" | bsdtar xvf - --strip-components=1 -C "${biosdir}/xrick"
-        chown -R "${user}:${user}" "${biosdir}/xrick/data.zip"
+        chown -R "${__user}":"${__group}" "${biosdir}/xrick/data.zip"
     fi
 }
 

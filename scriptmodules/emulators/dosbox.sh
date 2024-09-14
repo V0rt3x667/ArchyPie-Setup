@@ -126,7 +126,7 @@ fi
 midi_synth stop
 _EOF_
         chmod +x "${romdir}/pc/${launcher_name}"
-        chown "${user}:${user}" "${romdir}/pc/${launcher_name}"
+        chown "${__user}":"${__group}" "${romdir}/pc/${launcher_name}"
 
         if [[ "${md_id}" == "dosbox" ]]; then
             local config_path

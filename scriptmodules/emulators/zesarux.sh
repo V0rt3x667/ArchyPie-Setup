@@ -85,7 +85,7 @@ function configure_zesarux() {
 "${md_inst}/bin/${md_id}" "\${@}"
 _EOF_
         chmod +x "${romdir}/zxspectrum/+Start ZEsarUX.sh"
-        chown "${user}:${user}" "${romdir}/zxspectrum/+Start ZEsarUX.sh"
+        chown "${__user}":"${__group}" "${romdir}/zxspectrum/+Start ZEsarUX.sh"
 
         # Create Default Config File
         local ao="sdl"
