@@ -160,6 +160,7 @@ function build_attractmode() {
     local params=('USE_SYSTEM_SFML=1')
 
     isPlatform "kms" && params+=('USE_DRM=1')
+    isPlatform "rpi" && params+=('USE_MMAL=1')
     isPlatform "x11" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
     make clean
@@ -197,6 +198,18 @@ function configure_attractmode() {
         # Create Launcher Script
         cat > "/usr/bin/attract" <<_EOF_
 #!/bin/bash
+MODELIST=/opt/archypie/supplementary/kmsxx/kmsprint-rp
+if [[ -z "\${DISPLAY}" && -f "\${MODELIST}" && ! "\${1}" =~ build-romlist ]]; then
+    MODELIST="\$(\${MODELIST} 2>/dev/null)"
+    default_mode="\$(echo "\${MODELIST}" | grep -Em1 "^Mode: [0-9]+ crtc" | grep -oE [0-9]+x[0-9]+)"
+    default_vrefresh="\$(echo "\${MODELIST}" | grep -Em1 "^Mode: [0-9]+ crtc" | grep -oE [0-9]+Hz)"
+    # Strip Hz from the refresh rate
+    default_vrefresh="\${default_vrefresh%Hz}"
+    echo "Using default video mode: \${default_mode} @ \${default_vrefresh}"
+
+    [[ ! -z "\${default_mode}" ]] && export SFML_DRM_MODE="\${default_mode}"
+    [[ ! -z "\${default_vrefresh}" ]] && export SFML_DRM_REFRESH="\${default_vrefresh}"
+fi
 "${md_inst}/bin/attract" "\${@}"
 _EOF_
         chmod +x "/usr/bin/attract"
