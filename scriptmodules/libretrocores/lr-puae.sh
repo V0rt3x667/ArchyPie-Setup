@@ -14,7 +14,11 @@ rp_module_section="opt"
 function sources_lr-puae() {
     gitPullOrClone
 
-    _sources_capsimg_fs-uae
+    # Download the CAPSImg library used by FS-UAE
+    local url
+    url="https://fs-uae.net/files/CAPSImg/Stable/5.1.3/CAPSImg_5.1.3_Linux_x86-64.tar.xz"
+
+    downloadAndExtract "${url}" "${md_build}/capsimg" --strip-components 1
 }
 
 function build_lr-puae() {
