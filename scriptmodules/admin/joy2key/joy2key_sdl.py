@@ -73,7 +73,6 @@ JS_HAT_VALUES = {
 # ArchyPie configurations directory
 CONFIG_DIR = '/opt/archypie/configs'
 
-
 class InputDev(object):
     """
     Class representing a joystick device config.
@@ -116,7 +115,6 @@ class InputDev(object):
     def __str__(self) -> str:
         return str(f'{self.name}, hats: {self.hats}, buttons: {self.buttons}, axis: {self.axis}')
 
-
 def generic_event_map(input: str, event_map: dict) -> str:
     for k, v in event_map.items():
         if isinstance(v, list):
@@ -125,7 +123,6 @@ def generic_event_map(input: str, event_map: dict) -> str:
         elif isinstance(v, str) and input == v:
                 return k
     return input
-
 
 def ra_event_map(input_str: str) -> str:
     """
@@ -145,7 +142,6 @@ def ra_event_map(input_str: str) -> str:
 
     input_norm = input_str.replace('input_', '').replace('_axis', '').replace('_btn', '')
     return generic_event_map(input_norm, ra_event_map)
-
 
 def ra_input_parse(key: str, value: str):
     """
@@ -179,7 +175,6 @@ def ra_input_parse(key: str, value: str):
         return input_type, input_index, input_value
     except ValueError as e:
         return None, None, None
-
 
 def get_all_ra_config(def_buttons: list) -> list:
     """
@@ -237,7 +232,6 @@ def get_all_ra_config(def_buttons: list) -> list:
                 continue
 
     return ra_config_list
-
 
 def filter_active_events(event_queue: dict) -> list:
     """
@@ -326,7 +320,7 @@ def event_loop(configs, joy_map, tty_fd):
                 stick = joystick.SDL_JoystickOpen(event.jdevice.which)
                 name = joystick.SDL_JoystickName(stick).decode('utf-8')
                 guid = create_string_buffer(33)
-                _SDL_JoystickGetGUIDString(joystick.SDL_JoystickGetGUID(stick), guid, 33)
+                joystick.SDL_JoystickGetGUIDString(joystick.SDL_JoystickGetGUID(stick), guid, 33)
                 LOG.debug(f'Joystick #{joystick.SDL_JoystickInstanceID(stick)} {name} added')
                 conf_found = False
                 # Try to find a configuration for the joystick
@@ -405,7 +399,6 @@ def event_loop(configs, joy_map, tty_fd):
 
         SDL_Delay(JS_POLL_DELAY)
 
-
 def parse_arguments(args):
     parser = ArgumentParser(
         description='Translate joystick events to keyboard inputs')
@@ -423,7 +416,6 @@ def parse_arguments(args):
     args = parser.parse_args()
     return args.debug, args.hex_chars
 
-
 def ra_btn_swap_config():
     """
     Returns the state of 'menu_swap_ok_cancel_buttons' configuration for RetroArch
@@ -438,7 +430,6 @@ def ra_btn_swap_config():
 
     return menu_swap
 
-
 def get_hex_chars(key_str: str):
     try:
         if key_str.startswith('0x'):
@@ -449,24 +440,6 @@ def get_hex_chars(key_str: str):
     except Exception as e:
         LOG.debug(f'Cannot get hex chars from {key_str}, value ignored')
         return None
-
-
-def _SDL_JoystickGetGUIDString(guid, pszGUID, cbGUID):
-    """
-    Local method implementing https://github.com/marcusva/py-sdl2/pull/156
-    Prevents a segfault with older (<3.8) Python AND older Py-SDL2 (<0.9.7)
-    """
-    if sys.version_info >= (3, 8, 0, 'final'):
-         joystick.SDL_JoystickGetGUIDString(guid, pszGUID, cbGUID)
-    else:
-         s = ""
-         for g in guid.data:
-              s += "{:x}".format(g >> 4)
-              s += "{:x}".format(g & 0x0F)
-
-         s = s.encode('utf-8')
-         pszGUID.value = s[:(cbGUID * 2)]
-
 
 def main():
     # Install a signal handler so the script can stop safely
@@ -546,7 +519,6 @@ def main():
     SDL_QuitSubSystem(SDL_INIT_JOYSTICK)
     SDL_Quit()
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
