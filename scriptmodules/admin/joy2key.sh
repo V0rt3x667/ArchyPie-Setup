@@ -24,10 +24,7 @@ function depends_joy2key() {
     )
     getDepends "${depends[@]}"
 
-    local aurdepends=(
-        'python-pysdl2'
-        'start-stop-daemon'
-    )
+    local aurdepends=('python-pysdl2')
     pacmanAURInstall "${aurdepends[@]}"
 }
 
@@ -70,9 +67,8 @@ case "\${mode}" in
         "${md_inst}/\${script}" "\${device}" "\${params[@]}" || exit 1
         ;;
     stop)
-        if pid=\$(pgrep -f "\${script}"); then
-            start-stop-daemon --stop --oknodo --pid \${pid} --retry 1
-        fi
+        pkill -f "\${script}"
+        sleep 1
         ;;
 esac
 exit 0
@@ -85,5 +81,5 @@ _EOF_
 function remove_joy2key() {
     joy2keyStop
 
-    pacmanRemove python-pysdl2 start-stop-daemon
+    pacmanRemove python-pysdl2
 }
