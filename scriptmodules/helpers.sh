@@ -1498,27 +1498,20 @@ function changeFileCase() {
     popd || return
 }
 
-## @fn pacmanAURInstall()
-## @param package(s) to build and install
-## @brief build packages from the Arch Linux AUR
-function pacmanAURInstall() {
+## @fn pacmanPKGBuild()
+## @param package(s) to build & install
+## @brief build & install packages from PKGBUILD files
+function pacmanPKGBuild() {
     local builddir="${__tmpdir}/pkgs"
     local pkg
 
     for pkg in "${@}"; do
-        gitPullOrClone "${builddir}/${pkg}" "https://aur.archlinux.org/${pkg}"
-        # Add Write Permission For Non-root User, 'makepkg' Can Only Run As A Non-root User
-        chmod -R o+w "${builddir}/${pkg}"
-        # Build Package(s)
-        su "${__user}" -c 'makepkg -D '"${builddir}/${pkg}"' -cs'
-        # Remove Write Permission For Non-root User
-        chmod -R o-w "${builddir}/${pkg}"
-        # Install Package(s)
-        pacman -U "${builddir}/${pkg}/${pkg}"*.pkg.tar.zst --noconfirm
-        if [[ $(hasPackage "${pkg}") -eq 0 ]]; then
-            echo "***Installation Succeeded!***"
-        else
-            echo "***Installation Failed!***" && exit
-        fi
+        su "${__user}" --session-command 'cd '"${scriptdir}/packages/${pkg}"' && \
+            BUILDDIR='"${builddir}"' \
+            PKGDEST='"${builddir}/${pkg}"' \
+            SRCDEST='"${builddir}/${pkg}"' \
+            SRCPKGDEST='"${builddir}/${pkg}"' \
+            PACKAGER="archrgs.project <archrgs.project@gmail.com>" \
+            makepkg -csi --noconfirm'
     done
 }

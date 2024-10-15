@@ -10,10 +10,8 @@ rp_module_section="core"
 rp_module_flags="nonet"
 
 function _update_hook_runcommand() {
-    # Make Sure 'runcommand' Is Always Updated When Updating 'archypie-setup' &
-    # Install 'joy2key' When Updating If The Old 'joy2key' Is In Place
+    # Make Sure 'runcommand' Is Always Updated When Updating 'archypie-setup'
     if rp_isInstalled "${md_id}"; then
-        [[ -f "${md_inst}/joy2key.py" ]] && rp_callModule "joy2key"
         install_bin_runcommand
     fi
 }

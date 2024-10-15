@@ -70,13 +70,6 @@ function depends_setup() {
         exec "${scriptdir}/archypie_packages.sh" setup post_update gui_setup
     fi
 
-    # Required For Use With "udev"
-    local group
-    group="input"
-    if ! hasFlag $(groups "${__user}") "${group}"; then
-        usermod -a -G "${group}" "${__user}"
-    fi
-
     # Set "__setup" To 1 Which Is Used To Adjust Package Function Behaviour If Called From The Setup GUI
     __setup=1
 
