@@ -137,6 +137,7 @@ function depends_attractmode() {
         'fontconfig'
         'gnu-free-fonts'
         'libarchive'
+        'openal'
         'p7zip'
     )
     isPlatform "kms" && depends+=(
@@ -170,26 +171,23 @@ function build_attractmode() {
             -G"Ninja" \
             -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
             -DCMAKE_BUILD_TYPE="Release" \
-            -DCMAKE_C_COMPILER="clang" \
-            -DCMAKE_CXX_COMPILER="clang++" \
             -DCMAKE_INSTALL_PREFIX="${md_build}/sfml" \
-            -DCMAKE_LINKER_TYPE="LLD" \
             -DSFML_DRM="ON" \
             -Wno-dev
         ninja -C build clean
-        ninja -C build install
+        ninja -C build
     fi
 
     # Build 'attract-mode'
     echo "*** Building Attract-Mode ***"
     cd "${md_build}" || exit
     local params=()
-    isPlatform "kms" && params+=('USE_DRM=1' 'EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml-pi/include -L${md_build}/sfml-pi/lib')
+    isPlatform "kms" && params+=('USE_DRM=1' "EXTRA_CXXFLAGS=${CFLAGS} -I${md_build}/sfml-pi/include -L${md_build}/sfml-pi/lib")
     isPlatform "rpi" && params+=('USE_MMAL=1')
     isPlatform "x11" && params+=('USE_SYSTEM_SFML=1' 'FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
     make clean
-    CC="clang" CXX="clang++" LDFLAGS+=" -fuse-ld=lld" make prefix="${md_inst}" "${params[@]}"
+    make prefix="${md_inst}" "${params[@]}"
 
     # Remove Example Configs
     rm -rf "${md_build}/config/emulators/"*
