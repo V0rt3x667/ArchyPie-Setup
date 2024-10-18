@@ -131,13 +131,13 @@ function _add_rom_attractmode() {
 
 function depends_attractmode() {
     local depends=(
+        'cmake'
         'curl'
         'ffmpeg'
         'fontconfig'
         'gnu-free-fonts'
         'libarchive'
         'p7zip'
-        'sfml'
     )
     isPlatform "kms" && depends+=(
         'glu'
@@ -145,7 +145,7 @@ function depends_attractmode() {
         'libglvnd'
         'mesa'
     )
-    isPlatform "x11" && depends+=('libxinerama')
+    isPlatform "x11" && depends+=('libxinerama' 'sfml')
     getDepends "${depends[@]}"
 }
 
@@ -154,14 +154,28 @@ function sources_attractmode() {
 
     # Set Default Config Path(s)
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
+
+    isPlatform "kms" && gitPullOrClone "${md_build}/sfml-pi" "https://github.com/mickelson/sfml-pi"
 }
 
 function build_attractmode() {
-    local params=('USE_SYSTEM_SFML=1')
+    if isPlatform "kms"; then
+        local params=()
+        cd sfml-pi
+        params="-DSFML_DRM=1"
+        #isPlatform "rpi" && params+=('-DSFML_OPENGL_ES=1')
+        cmake . -DCMAKE_INSTALL_PREFIX="${md_inst}/sfml" ${params}
+        make clean
+        make
+        cd ..
+    fi
 
-    isPlatform "kms" && params+=('USE_DRM=1')
+    cd attract
+    local params=()
+
+    isPlatform "kms" && params+=('USE_DRM=1' 'EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml-pi/include -L${md_build}/sfml-pi/lib')
     isPlatform "rpi" && params+=('USE_MMAL=1')
-    isPlatform "x11" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
+    isPlatform "x11" && params+=('USE_SYSTEM_SFML=1' 'FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
     make clean
     make prefix="${md_inst}" "${params[@]}"
@@ -173,6 +187,7 @@ function build_attractmode() {
 }
 
 function install_attractmode() {
+    make -C sfml-pi install
     make prefix="${md_inst}" install
 }
 
@@ -210,7 +225,7 @@ if [[ -z "\${DISPLAY}" && -f "\${MODELIST}" && ! "\${1}" =~ build-romlist ]]; th
     [[ ! -z "\${default_mode}" ]] && export SFML_DRM_MODE="\${default_mode}"
     [[ ! -z "\${default_vrefresh}" ]] && export SFML_DRM_REFRESH="\${default_vrefresh}"
 fi
-"${md_inst}/bin/attract" "\${@}"
+LD_LIBRARY_PATH="${md_inst}/sfml/lib "${md_inst}/bin/attract" "\${@}"
 _EOF_
         chmod +x "/usr/bin/attract"
 
