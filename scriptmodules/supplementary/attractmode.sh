@@ -159,24 +159,37 @@ function sources_attractmode() {
 }
 
 function build_attractmode() {
+    # Build 'sfml-pi'
     if isPlatform "kms"; then
+        echo "*** Building SFML-Pi ***"
+        cd "${md_build}/sfml-pi" || exit
         local params=()
-        cd sfml-pi
-        params="-DSFML_DRM=1"
         #isPlatform "rpi" && params+=('-DSFML_OPENGL_ES=1')
-        cmake . -DCMAKE_INSTALL_PREFIX="${md_inst}/sfml" ${params}
-        make clean
-        make
-        cd ..
+        cmake . \
+            -B"build" \
+            -G"Ninja" \
+            -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+            -DCMAKE_BUILD_TYPE="Release" \
+            -DCMAKE_C_COMPILER="clang" \
+            -DCMAKE_CXX_COMPILER="clang++" \
+            -DCMAKE_INSTALL_PREFIX="${md_build}/sfml" \
+            -DCMAKE_LINKER_TYPE="LLD" \
+            -DSFML_DRM="ON" \
+            -Wno-dev
+        ninja -C build clean
+        ninja -C build install
     fi
 
+    # Build 'attract-mode'
+    echo "*** Building Attract-Mode ***"
+    cd "${md_build}" || exit
     local params=()
     isPlatform "kms" && params+=('USE_DRM=1' 'EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml-pi/include -L${md_build}/sfml-pi/lib')
     isPlatform "rpi" && params+=('USE_MMAL=1')
     isPlatform "x11" && params+=('USE_SYSTEM_SFML=1' 'FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
     make clean
-    make prefix="${md_inst}" "${params[@]}"
+    CC="clang" CXX="clang++" LDFLAGS+=" -fuse-ld=lld" make prefix="${md_inst}" "${params[@]}"
 
     # Remove Example Configs
     rm -rf "${md_build}/config/emulators/"*
