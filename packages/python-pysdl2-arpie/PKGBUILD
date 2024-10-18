@@ -1,0 +1,26 @@
+# Maintainer: archrgs.project <archrgs.project@gmail.com>
+
+pkgname=python-pysdl2-arpie
+pkgver=0.9.16
+pkgrel=1
+pkgdesc="Python ctypes wrapper around SDL2"
+arch=('any')
+url='https://github.com/py-sdl/py-sdl2'
+license=("custom:CC0")
+depends=('python' 'sdl2')
+makedepends=('git' 'python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+optdepends=('sdl2_gfx' 'sdl2_image' 'sdl2_mixer' 'sdl2_ttf')
+conflicts=('python-pysdl2')
+source=("git+https://github.com/py-sdl/py-sdl2.git#tag=${pkgver}")
+sha256sums=('SKIP')
+
+build() {
+    cd "${srcdir}/py-sdl2"
+    python -m build --wheel --no-isolation
+}
+
+package() {
+    cd "${srcdir}/py-sdl2"
+    python -m installer --destdir="${pkgdir}" dist/*.whl
+    install -Dm644 doc/copying.rst "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

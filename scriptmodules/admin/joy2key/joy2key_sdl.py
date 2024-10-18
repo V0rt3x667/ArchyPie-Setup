@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # This file is part of the ArchyPie project.
 #
@@ -9,27 +9,26 @@ Command line joystick to keyboard translator, using SDL2 for event handling
 Example usage:
  <script> kcub1 kcuf1 kcuu1 kcud1 0x0a 0x20 0x1b 0x00 kpp knp [--debug|-d]
 See https://pubs.opengroup.org/onlinepubs/7908799/xcurses/terminfo.html for termcap codes
+NB: not all capabilities are supported, but more can be added to the TERM_EVENTS below
 
 SDL2 event handling is based on EmulationStation's event handling, see
 https://github.com/RetroPie/EmulationStation/blob/62fd08c26d2f757259b7d890c98c0d7e212f6f84/es-core/src/InputManager.cpp#L205
 EmulationStation is authored by Alec "Aloshi" Lofquist (http://www.aloshi.com,http://www.emulationstation.org)
 
-This script uses the PySDL2 python module from https://github.com/marcusva/py-sdl2
+This script uses the PySDL2 module from https://github.com/py-sdl/py-sdl2
+This script uses the Python-uinput module from https://github.com/tuomasjjrasanen/python-uinput
 """
 
 import logging
-import fcntl
 import sys
-import curses
-import termios
 import signal
-import os.path
 import re
+import os
+import uinput
 
 from argparse import ArgumentParser
 from ctypes import create_string_buffer, byref
 from configparser import ConfigParser
-from pwd import getpwnam
 from sdl2 import joystick, events, version, \
     SDL_WasInit, SDL_Init, SDL_QuitSubSystem, SDL_GetError, \
     SDL_INIT_JOYSTICK, version_info, \
@@ -69,6 +68,43 @@ JS_HAT_VALUES = {
     "left": SDL_HAT_LEFT,
     "right": SDL_HAT_RIGHT
 }
+
+# Map termios capability codes to Linux (uinput) event ids, for backwards compatibility
+# List of possible event IDs:
+# https://github.com/tuomasjjrasanen/python-uinput/blob/master/src/ev.py
+TERM_EVENTS = {
+    "kcub1": 105, # left
+    "kcuf1": 106, # right
+    "kcud1": 108, # down
+    "kcuu1": 103, # up
+    "khome": 102, # home
+    "kbs"  : 14,  # backspace
+    "kend" : 107, # end
+    "knp"  : 109, # page-up
+    "kpp"  : 104, # page-down
+    "kent" : 28,  # enter
+    "kf1"  : 59,  # F1
+    "kf2"  : 60,  # F2
+    "kf3"  : 61,  # F3
+    "kf4"  : 62,  # F4
+    "kf5"  : 63,  # F5
+    "kf6"  : 64,  # F6
+    "kf7"  : 65,  # F7
+    "kf8"  : 66,  # F8
+    "kf9"  : 67,  # F9
+    "kf10" : 68   # F10
+}
+
+# A charmap with 'ascii_code': 'event_id', needed to translate hex valued parameters
+# Copy the one defined in 'uinput', so we can extend it since it's missing some entries
+CHAR_MAP = { ord(x):y[1] for (x,y) in uinput._CHAR_MAP.items() }
+# Add our entries to the map, so we can translate them
+CHAR_MAP[27]  = 1   # Escape 
+CHAR_MAP[61]  = 13  # Equals (=)
+CHAR_MAP[43]  = 12  # Minus (-)
+CHAR_MAP[91]  = 26  # Left bracket ([)
+CHAR_MAP[93]  = 27  # Right bracket (])
+CHAR_MAP[127] = 111 # Delete
 
 # ArchyPie configurations directory
 CONFIG_DIR = '/opt/archypie/configs'
@@ -264,7 +300,7 @@ Remove all queued events for a device
 def remove_events_for_device(event_queue: dict, dev_index: int):
     return { key:value for (key,value) in event_queue.items() if not key.startswith(f"{dev_index}_")}
 
-def event_loop(configs, joy_map, tty_fd):
+def event_loop(configs, joy_map):
     event = SDL_Event()
 
     # Keep of dict of active joystick devices as a dict of
@@ -282,6 +318,11 @@ def event_loop(configs, joy_map, tty_fd):
 
     # Keep track of axis previous values
     axis_prev_values = {}
+
+    # Instantiate a keyboard device with uinput to send the translated joypad inputs as keys
+    keyboard_events = [ (0x1,code) for code in joy_map.values() ]
+    LOG.debug(f'Creating uinput keyboard devices with events: {keyboard_events}')
+    kbd = uinput.Device(events=keyboard_events, name="Joy2Key Keyboard")
 
     def handle_new_input(e: SDL_Event, axis_norm_value: int = 0) -> bool:
         """
@@ -390,12 +431,13 @@ def event_loop(configs, joy_map, tty_fd):
         if len(event_queue):
             emitted_events = filter_active_events(event_queue)
             if len(emitted_events):
-                LOG.debug(f'Events emitted: {emitted_events}')
+                LOG.debug(f'Events to emit: {emitted_events}')
             # Send the events mapped key code(s) to the terminal
             for k in emitted_events:
                 if k in joy_map:
-                    for c in joy_map[k]:
-                        fcntl.ioctl(tty_fd, termios.TIOCSTI, c)
+                    c = joy_map[k]
+                    LOG.debug(f'Emitting input code {c}')
+                    kbd.emit_click( (0x1,c) )
 
         SDL_Delay(JS_POLL_DELAY)
 
@@ -430,24 +472,41 @@ def ra_btn_swap_config():
 
     return menu_swap
 
-def get_hex_chars(key_str: str):
+def get_uinput_event(key_str: str):
+    """
+    For a Termios control string or an ASCII hex code, return the Linux scancode (integer)
+    See https://github.com/tuomasjjrasanen/python-uinput/blob/master/src/ev.py for an enumeratin of scancodes
+
+    If 'key_str' starts with '0x', it's assumed to be a hexadecimal value of an ASCII char,
+    otherwise it's presumed to be a termios control string tied to the terminal's capabilities
+    """
     try:
+        if key_str.startswith('/'):
+            # Ignore any device name - they're not part of our assignment
+            return None
+
         if key_str.startswith('0x'):
-            out = bytes.fromhex(key_str[2:])
+            out = int(key_str,0)
+            # Hex numbers are considered ASCII codes for keyboard keys
+            # we need to translate them to Linux input scancodes
+            out = CHAR_MAP[out]
         else:
-            out = curses.tigetstr(key_str)
-        return out.decode('utf-8')
+            if (key_str in TERM_EVENTS.keys()):
+                out = TERM_EVENTS[key_str]
+            else:
+                LOG.warning(f'Unsupported termios control code "{key_str}", value ignored')
+                return 0
+        return out
     except Exception as e:
-        LOG.debug(f'Cannot get hex chars from {key_str}, value ignored')
-        return None
+        LOG.debug(f'Cannot determine input code for "{key_str}", value ignored')
+        return 0
 
 def main():
     # Install a signal handler so the script can stop safely
     def signal_handler(signum, frame):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
-        if tty_fd:
-            os.close(tty_fd)
+
         if SDL_WasInit(SDL_INIT_JOYSTICK) == SDL_INIT_JOYSTICK:
             SDL_QuitSubSystem(SDL_INIT_JOYSTICK)
         SDL_Quit()
@@ -460,19 +519,14 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    # Daemonize after signal handlers are registered
-    if os.fork():
-        os._exit(0)
+    # When running with no debugging, daemonize after signal handlers are registered
+    if not debug_flag:
+        if os.fork():
+            os._exit(0)
+    else:
+        LOG.debug(f'Debugging enabled, running in foreground')
 
-    try:
-        tty_fd = os.open('/dev/tty', os.O_WRONLY)
-    except IOError:
-        LOG.error('Unable to open /dev/tty', file=sys.stderr)
-        sys.exit(1)
-
-    curses.setupterm()
-    mapped_chars = [get_hex_chars(code) for code in hex_chars if get_hex_chars(code) is not None]
-
+    mapped_chars = [get_uinput_event(code) for code in hex_chars if get_uinput_event(code) is not None]
     def_buttons = ['left', 'right', 'up', 'down', 'a', 'b', 'x', 'y', 'pageup', 'pagedown']
     joy_map = {}
     # Add for each button the mapped keycode, based on the arguments received
@@ -480,6 +534,7 @@ def main():
         if i < len(mapped_chars):
             joy_map[btn] = mapped_chars[i]
 
+    LOG.debug(f'Joy map:\n {joy_map}')
     menu_swap = ra_btn_swap_config()
     # If button A is <enter> and menu_swap_ok_cancel_buttons is true, swap buttons A and B functions
     if menu_swap \
@@ -514,7 +569,7 @@ def main():
     if joystick.SDL_NumJoysticks() < 1:
         LOG.debug(f'No available joystick devices found on startup')
 
-    event_loop(configs, joy_map, tty_fd)
+    event_loop(configs, joy_map)
 
     SDL_QuitSubSystem(SDL_INIT_JOYSTICK)
     SDL_Quit()
