@@ -182,7 +182,7 @@ function build_attractmode() {
     echo "*** Building Attract-Mode ***"
     cd "${md_build}" || exit
     local params=()
-    isPlatform "kms" && params+=('USE_DRM=1' "EXTRA_CXXFLAGS=${CFLAGS} -I${md_build}/sfml-pi/include -L${md_build}/sfml-pi/lib")
+    isPlatform "kms" && params+=('USE_DRM=1' EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml-pi/include -L${md_build}/sfml-pi/lib")
     isPlatform "rpi" && params+=('USE_MMAL=1')
     isPlatform "x11" && params+=('USE_SYSTEM_SFML=1' 'FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
