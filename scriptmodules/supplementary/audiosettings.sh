@@ -16,16 +16,16 @@ function depends_audiosettings() {
 }
 
 function gui_audiosettings() {
-    # Check If The Internal Audio Is Enabled
+    # Check if the internal audio is enabled
     if [[ "$(aplay -ql | grep -e bcm2835 -e vc4hdmi | wc -l)" -le 1 ]]; then
         printMsgs "dialog" "On-board Audio Disabled Or Not Present"
         return
     fi
 
-    # The List Of ALSA Cards Depends On The "snd-bcm2385" Module Parameter "enable_compat_alsa"
-    # * enable_compat_alsa: true - Single Soundcard, Output Is Routed Based On The "numid" Control
-    # * enable_compat_alsa: false - One Soundcard Per Output Type (HDMI/Headphones)
-    # If PulseAudio Is Enabled Then Try To Configure It And Leave ALSA Alone
+    # The list of ALSA cards/devices depends on the 'snd-bcm2385' module parameter 'enable_compat_alsa'
+    # * enable_compat_alsa: true  - single soundcard, output is routed based on the `numid` control
+    # * enable_compat_alsa: false - one soundcard per output type (HDMI/Headphones)
+    # When PulseAudio/PipeWire is enabled, try to configure it and leave ALSA alone
     if _pa_cmd_audiosettings systemctl -q --user is-enabled {pulseaudio,pipewire-pulse}.service; then
         _pulseaudio_audiosettings
     elif aplay -l | grep -q "bcm2835 ALSA"; then
@@ -39,7 +39,7 @@ function _reset_alsa_audiosettings() {
     alsactl restore
     alsactl store
     rm -f "${home}/.asoundrc" "/etc/alsa/conf.d/99-archypie.conf"
-    printMsgs "dialog" "Audio Settings Reset To Defaults"
+    printMsgs "dialog" "Audio settings reset to defaults"
 }
 
 function _move_old_config_audiosettings() {
@@ -57,7 +57,7 @@ function _bcm2835_alsa_compat_audiosettings() {
     local cmd=(dialog --backtitle "${__backtitle}" --menu "Set Audio Output (ALSA - Compat)" 22 86 16)
     local hdmi="HDMI"
 
-    # The Raspberry Pi 4/5 Has 2 HDMI Ports
+    # The Raspberry Pi 4 & 5 have 2 HDMI ports, so number them
     (isPlatform "rpi4" || isPlatform "rpi5") && hdmi="HDMI 1"
 
     local options=(
@@ -65,18 +65,18 @@ function _bcm2835_alsa_compat_audiosettings() {
         2 "Headphones: 3.5mm Jack"
         3 "${hdmi}"
     )
-    # Add 2nd HDMI Port On The Raspberry Pi 4/5
+    # Add 2nd HDMI port on the Raspberry Pi 4 & 5
     (isPlatform "rpi4" || isPlatform "rpi5") && options+=(4 "HDMI 2")
     options+=(
         M "Mixer: Adjust Output Volume"
         R "Reset To Default"
     )
-    # If PulseAudio (PipeWire) Is Installed Add An Option To Enable It
+    # If PulseAudio (PipeWire) is installed, add an option to enable it
     local sound_server="PulseAudio"
     if hasPackage "wireplumber"; then
         options+=(P "Enable PipeWire")
     else
-    hasPackage "pulseaudio" && options+=(P "Enable PulseAudio")
+       hasPackage "pulseaudio" && options+=(P "Enable PulseAudio")
     fi
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
     if [[ -n "${choice}" ]]; then
@@ -124,7 +124,7 @@ function _bcm2835_alsa_internal_audiosettings() {
     local card_index
     local card_label
 
-    # Get The List Of Raspberry Pi Internal Cards
+    # Get the list of Raspberry Pi internal cards
     while read -r card_no card_label; do
         options+=("${card_no}" "${card_label}")
     done < <(aplay -ql | sed -En -e '/^card/ {s/^card ([0-9]+).*\[(bcm2835 |vc4-)([^]]*)\].*/\1 \3/; s/hdmi[- ]?/HDMI /i; p}')
@@ -134,13 +134,13 @@ function _bcm2835_alsa_internal_audiosettings() {
         R "Reset To Default"
     )
 
-    # If PulseAudio (PipeWire) Is Installed Add An Option To Enable It
+    # If PulseAudio (PipeWire) is installed, add an option to enable it
     local sound_server="PulseAudio"
     if hasPackage "wireplumber"; then
         options+=(P "Enable PipeWire")
         sound_server="PipeWire"
     else
-    hasPackage "pulseaudio" && options+=(P "Enable PulseAudio")
+        hasPackage "pulseaudio" && options+=(P "Enable PulseAudio")
     fi
 
     choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
@@ -165,20 +165,19 @@ function _bcm2835_alsa_internal_audiosettings() {
     fi
 }
 
-# Configure The Default ALSA Soundcard Based On Chosen Card
+# Configure the default ALSA soundcard based on chosen card index & type
 function _asoundrc_save_audiosettings() {
     [[ -z "${1}" ]] && return
-
-    local card_index=${1}
-    local card_type=${2}
+    local card_index="${1}"
+    local card_type="${2}"
     local tmpfile
     tmpfile="$(mktemp)"
 
-    if isPlatform "kms" && [[ ${card_type} == "HDMI"* ]]; then
-        # When The 'vc4hdmi' Driver Is Used Instead Of 'bcm2835_audio' For HDMI,
-        # The 'hdmi:vchdmi[-idx]' PCM Should Be Used For Converting To The Native IEC958 Codec
-        # Adds A Volume Control Since The Default Configured Mixer Doesn't Work
-        # (Default Configuration Is At /usr/share/alsa/cards/vc4-hdmi.conf)
+    if isPlatform "kms" && [[ "${card_type}" == "HDMI"* ]]; then
+        # When the 'vc4hdmi' driver is used instead of 'bcm2835_audio' for HDMI,
+        # the 'hdmi:vchdmi[-idx]' PCM should be used for converting to the native IEC958 codec
+        # adds a volume control since the default configured mixer doesn't work
+        # (default configuration is at /usr/share/alsa/cards/vc4-hdmi.conf)
         local card_name
         card_name="$(cat /proc/asound/card"${card_index}"/id)"
         cat << EOF > "${tmpfile}"
@@ -194,22 +193,22 @@ ctl.!default {
   card "${card_index}"
 }
 pcm.softvolume {
-    type softvol
-    slave.pcm "hdmi${card_index}"
+    type         softvol
+    slave.pcm    "hdmi${card_index}"
     control.name "HDMI Playback Volume"
     control.card "${card_index}"
 }
 
 pcm.softmute {
-    type softvol
-    slave.pcm "softvolume"
+    type         softvol
+    slave.pcm    "softvolume"
     control.name "HDMI Playback Switch"
     control.card "${card_index}"
-    resolution 2
+    resolution   2
 }
 
 pcm.!default {
-    type plug
+    type      plug
     slave.pcm "softmute"
 }
 EOF
@@ -218,7 +217,7 @@ EOF
 pcm.!default {
   type asym
   playback.pcm {
-    type plug
+    type      plug
     slave.pcm "output"
   }
 }
@@ -240,28 +239,28 @@ EOF
 
 function _pulseaudio_audiosettings() {
     local options=()
+    local sinks=()
     local sink_index
     local sink_label
-    local sinks=()
     local sound_server="PulseAudio"
 
-    # Check If PulseAudio Is Running Otherwise 'pacmd' Will Not Work
+    # Check if PulseAudio is running, otherwise 'pactl' will not work
     if ! _pa_cmd_audiosettings pactl info >/dev/null; then
-        printMsgs "dialog" "PulseAudio Is Present But Not Running\nAudio Settings Cannot Be Set Right Now"
+        printMsgs "dialog" "PulseAudio is present, but not running.\nAudio settings cannot be set right now."
         return
     fi
     while read -r sink_index sink_label sink_id; do
         options+=("${sink_index}" "${sink_label}")
-        sinks[${sink_index}]=${sink_id}
+        sinks["${sink_index}"]="${sink_id}"
     done < <(_pa_cmd_audiosettings pactl list sinks | \
             awk -F [:=#] 'BEGIN {idx=0} /Sink/ {
-                             ctl_index=$2
-                             do {getline} while($0 !~ /card.name/ && $0 !~ /Formats/);
-                             if ( $2 != "" ) {
-                                gsub(/"|bcm2835[^a-zA-Z]+/, "", $2); # strip bcm2835 suffix on analog output
-                                gsub(/vc4[-]?/ , "", $2); # strip the vc4 suffix on HDMI output(s)
-                                if ( $2 ~ /hdmi/ ) $2=toupper($2)
-                                print idx,$2,ctl_index
+                             ctl_index=${2}
+                             do {getline} while(${0} !~ /card.name/ && ${0} !~ /Formats/);
+                             if ( ${2} != "" ) {
+                                gsub(/"|bcm2835[^a-zA-Z]+/, "", ${2}); # Strip bcm2835 suffix on analog output
+                                gsub(/vc4[-]?/ , "", ${2}); # Strip the vc4 suffix on HDMI output(s)
+                                if ( ${2} ~ /hdmi/ ) ${2}=toupper(${2})
+                                print idx,${2},ctl_index
                                 idx++
                              }
                          }'
@@ -301,7 +300,7 @@ function _pulseaudio_audiosettings() {
 }
 
 function _toggle_pulseaudio_audiosettings() {
-    local state=${1}
+    local state="${1}"
 
     if [[ "${state}" == "on" ]]; then
         _pa_cmd_audiosettings systemctl --user unmask pulseaudio.socket
@@ -315,7 +314,7 @@ function _toggle_pulseaudio_audiosettings() {
 }
 
 function _toggle_pipewire_audiosettings() {
-    local state=${1}
+    local state="${1}"
 
     if [[ "${state}" == "on" ]]; then
         _pa_cmd_audiosettings systemctl --user unmask pipewire-pulse.socket pipewire.socket
