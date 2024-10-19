@@ -16,7 +16,12 @@ function sources_lr-dinothawr() {
 
 function build_lr-dinothawr() {
     make clean
-    make
+    # Fix compilation on the NEON platform
+    if isPlatform "neon"; then
+        CFLAGS="" make
+    else
+        make
+    fi
     md_ret_require="${md_build}/dinothawr_libretro.so"
 }
 
@@ -34,7 +39,7 @@ function configure_lr-dinothawr() {
         defaultRAConfig "dinothawr"
 
         cp -Rv "${md_inst}"/dinothawr/* "${romdir}/ports/dinothawr/"
-        chown "${__user}":"${__group}" -R "${romdir}/ports/dinothawr"
+        chown -R "${__user}":"${__group}" "${romdir}/ports/dinothawr"
     fi
 
     addPort "${md_id}" "dinothawr" "Dinothawr" "${md_inst}/dinothawr_libretro.so" "${romdir}/ports/dinothawr/dinothawr.game"
