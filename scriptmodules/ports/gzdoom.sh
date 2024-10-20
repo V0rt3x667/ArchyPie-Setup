@@ -202,7 +202,7 @@ _INI_
         fi
 
         cat > "${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 ${launcher_prefix} ${md_inst}/${md_id} -iwad \${*} ${params[*]}
 _EOF_
         chmod +x "${md_inst}/${md_id}.sh"

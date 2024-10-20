@@ -162,7 +162,7 @@ function configure_yquake2() {
         fi
 
         cat > "${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash -xv
+#!/usr/bin/env bash
 pak="\${1}"
 game="\${pak##*/quake2/}"
 game="\${game%%/*}"

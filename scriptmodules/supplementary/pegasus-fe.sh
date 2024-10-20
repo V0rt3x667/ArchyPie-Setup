@@ -57,7 +57,7 @@ function install_pegasus-fe() {
 
 function _add_launcher_pegasus-fe() {
     cat > /usr/bin/pegasus-fe << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [[ \$(id -u) -eq 0 ]]; then
     echo "Pegasus should not be run as root. If you used 'sudo pegasus-fe' please run without sudo."

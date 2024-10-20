@@ -88,7 +88,7 @@ function configure_vice() {
         exts="$(getPlatformConfig c64_exts)"
 
         cat > "${md_inst}/bin/${md_id}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 
 BIN="\${0%/*}/\$1"
 ROM="\$2"

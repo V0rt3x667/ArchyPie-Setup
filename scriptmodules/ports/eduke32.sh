@@ -171,7 +171,7 @@ function configure_eduke32() {
 
         # Create A Launcher Script To Pass EDuke32/IonFury Arguments To 'runcommand.sh'
         cat > "${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 grp="\${1}"
 
 if [[ "\${grp}" =~ "fury.grp" ]]; then

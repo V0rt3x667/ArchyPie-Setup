@@ -81,7 +81,7 @@ function configure_fuse() {
 
         local script="${romdir}/zxspectrum/+Start Fuse.sh"
     cat > "${script}" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 ${md_inst}/bin/${md_id} --machine 128 --full-screen
 _EOF_
     chown "${__user}":"${__group}" "${script}"

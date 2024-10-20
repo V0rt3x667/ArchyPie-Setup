@@ -925,7 +925,7 @@ function build_xinitrc() {
             rm -rf "$xinitrc"
             ;;
         build)
-            echo "#!/bin/bash" >"$xinitrc"
+            echo "#!/usr/bin/env bash" >"$xinitrc"
 
             # do modesetting (if supported)
             if [[ -n "$HAS_MODESET" ]]; then

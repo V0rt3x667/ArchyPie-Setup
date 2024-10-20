@@ -83,7 +83,7 @@ function configure_scummvm() {
         # Create Launcher Script
         local name="ScummVM"
         cat > "${romdir}/${md_id}/+Start ${name}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 game="\${1}"
 pushd "${romdir}/${md_id}" >/dev/null
 if ! grep -qs extrapath "\${HOME}/ArchyPie/configs/scummvm/scummvm.ini"; then

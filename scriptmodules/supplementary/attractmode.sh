@@ -197,7 +197,7 @@ function configure_attractmode() {
 
         # Create Launcher Script
         cat > "/usr/bin/attract" <<_EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 MODELIST=/opt/archypie/supplementary/kmsxx/kmsprint-rp
 if [[ -z "\${DISPLAY}" && -f "\${MODELIST}" && ! "\${1}" =~ build-romlist ]]; then
     MODELIST="\$(\${MODELIST} 2>/dev/null)"
