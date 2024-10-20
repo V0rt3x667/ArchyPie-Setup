@@ -146,7 +146,7 @@ function configure_amiberry() {
         # Create EmulationStation Launcher Script
         local launcher="+Start ${md_id}.sh"
         cat > "${romdir}/amiga/${launcher}" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 "pushd ${md_inst}; ${md_inst}/${md_id}.sh; popd"
 _EOF_
         chmod a+x "${romdir}/amiga/${launcher}"

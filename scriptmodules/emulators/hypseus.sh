@@ -110,7 +110,7 @@ function configure_hypseus() {
 
         # Create A Launcher Script
         cat >"${md_inst}/${md_id}.sh" <<_EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 dir="\${1}"
 name="\${dir##*/}"
 name="\${name%.*}"

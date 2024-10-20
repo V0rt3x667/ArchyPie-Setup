@@ -140,7 +140,7 @@ _INI_
         fi
 
         cat > "${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 grp="\${1}"
 file="\${2}"
 

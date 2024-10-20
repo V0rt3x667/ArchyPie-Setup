@@ -1262,7 +1262,7 @@ function addPort() {
     mkUserDir "$romdir/ports"
 
     cat >"${file}" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 "$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "${game}"
 _EOF_
 

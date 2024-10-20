@@ -244,7 +244,7 @@ function copy_inputscripts_emulationstation() {
 
 function install_launch_emulationstation() {
     cat > /usr/bin/emulationstation << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [[ \$(id -u) -eq 0 ]]; then
     echo "EmulationStation should not be run as root. If you used "sudo emulationstation" please run without sudo."

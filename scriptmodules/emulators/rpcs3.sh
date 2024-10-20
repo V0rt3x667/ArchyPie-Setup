@@ -93,7 +93,7 @@ function configure_rpcs3() {
         # Create EmulationStation Launcher Script
         local launcher="+Start ${md_id}.sh"
         cat > "${romdir}/ps3/${launcher}" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 ${md_inst}/bin/${md_id} --installfw ${biosdir}/ps3/PS3UPDAT.PUP
 _EOF_
         chmod a+x "${romdir}/ps3/${launcher}"

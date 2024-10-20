@@ -204,7 +204,7 @@ function configure_attractmodeplus() {
 
         # Create Launcher Script
         cat > "/usr/bin/attractplus" <<_EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 "${md_inst}/bin/attractplus" "\${@}"
 _EOF_
     chmod +x "/usr/bin/attractplus"

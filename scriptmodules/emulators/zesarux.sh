@@ -81,7 +81,7 @@ function configure_zesarux() {
 
         # Create Launcher Script
         cat > "${romdir}/zxspectrum/+Start ZEsarUX.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 "${md_inst}/bin/${md_id}" "\${@}"
 _EOF_
         chmod +x "${romdir}/zxspectrum/+Start ZEsarUX.sh"

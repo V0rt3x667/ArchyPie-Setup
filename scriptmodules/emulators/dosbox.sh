@@ -79,7 +79,7 @@ function configure_dosbox() {
         mkRomDir "pc"
 
         cat > "${romdir}/pc/${launcher_name}" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 
 [[ ! -n "\$(aconnect -o | grep -e TiMidity -e FluidSynth)" ]] && needs_synth="${needs_synth}"
 

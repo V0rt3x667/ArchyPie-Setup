@@ -105,7 +105,7 @@ function configure_dsda-doom() {
     local params=("-fullscreen" "-width %XRES%" "-height %YRES%")
 
     cat > "${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 ${launcher_prefix} ${md_inst}/bin/${md_id} -iwad \${*}
 _EOF_
     chmod +x "${md_inst}/${md_id}.sh"

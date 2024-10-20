@@ -94,7 +94,7 @@ function configure_ecwolf() {
 
         # Create A Launcher Script
         cat > "${md_inst}/${md_id}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 wad="\${1}"
 wad="\${wad##*.}"
 "${md_inst}/bin/${md_id}" --data "\${wad}"
