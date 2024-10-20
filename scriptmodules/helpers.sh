@@ -1506,8 +1506,13 @@ function pacmanPKGBuild() {
     local pkg
 
     for pkg in "${@}"; do
+        if [[ ! -d "${builddir}/${pkg}" ]]; then
+            mkdir -p "${builddir}/${pkg}"
+            # Add write permission for non-root users, 'makepkg' can only run as a non-root user
+            chmod -R o+rw "${builddir}/${pkg}"
+        fi
         su "${__user}" --session-command 'cd '"${scriptdir}/packages/${pkg}"' && \
-            BUILDDIR='"${builddir}"' \
+            BUILDDIR='"${builddir}/${pkg}"' \
             PKGDEST='"${builddir}/${pkg}"' \
             SRCDEST='"${builddir}/${pkg}"' \
             SRCPKGDEST='"${builddir}/${pkg}"' \
