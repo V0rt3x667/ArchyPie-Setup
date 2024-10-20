@@ -18,7 +18,7 @@ function build_lr-dinothawr() {
     make clean
     # Fix compilation on the NEON platform
     if isPlatform "neon"; then
-        CFLAGS="" make
+        make HAVE_NEON=1
     else
         make
     fi
