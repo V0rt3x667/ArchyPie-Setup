@@ -10,10 +10,10 @@ rp_module_help="ROM Extensions: .chd .cso .elf .iso .pbp .prx\n\nCopy PlayStatio
 rp_module_licence="GPL2 https://raw.githubusercontent.com/hrydgard/ppsspp/master/LICENSE.TXT"
 rp_module_repo="git https://github.com/hrydgard/ppsspp :_get_branch_ppsspp"
 rp_module_section="opt"
-rp_module_flags=""
+rp_module_flags="all"
 
 function _get_branch_ppsspp() {
-    download "https://api.github.com/repos/hrydgard/ppsspp/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    echo "v1.17.1"
 }
 
 function depends_ppsspp() {
@@ -21,18 +21,17 @@ function depends_ppsspp() {
         'clang'
         'cmake'
         'glew'
+        'glslang'
+        'libglvnd'
         'libpng'
         'libzip'
         'lld'
-        'miniupnpc'
         'ninja'
         'sdl2_ttf'
         'sdl2'
         'snappy'
         'zlib'
     )
-    isPlatform "mesa" && depends+=('libglvnd')
-    isPlatform "x11" && depends+=('spirv-tools')
     getDepends "${depends[@]}"
 }
 
@@ -40,7 +39,7 @@ function sources_ppsspp() {
     gitPullOrClone
 
     # Set Default Config Path(s)
-    if [[ "${md_id}" == "ppsspp" || "${md_id}" == "ppsspp-1.5.4" ]]; then
+    if [[ "${md_id}" == "ppsspp" ]]; then
         sed -e "s|\"/.config\"|\"/ArchyPie/configs\"|g" -i "${md_build}/UI/NativeApp.cpp"
     fi
 }
@@ -49,19 +48,13 @@ function build_ppsspp() {
     local binary="PPSSPPSDL"
     local params=()
 
-    if isPlatform "mesa"; then
-        params+=('-DUSING_GLES2=ON' '-DUSING_EGL=OFF')
-    elif isPlatform "mali"; then
-        params+=('-DUSING_GLES2=ON' '-DUSING_FBDEV=ON')
-    fi
-
-    isPlatform "x86" && isPlatform "32bit" && params+=('-DX86=ON' '-DX86_64=OFF')
-    isPlatform "x86" && isPlatform "64bit" && params+=('-DX86=OFF' '-DX86_64=ON')
-    isPlatform "x11" && params+=('-DUSE_WAYLAND_WSI=ON' '-DUSING_X11_VULKAN=ON')
-
-    if isPlatform "arm" && ! isPlatform "vulkan"; then
-        params+=('-DARM_NO_VULKAN=ON')
-    fi
+    isPlatform "arm"  && ! isPlatform "vulkan" && params+=('-DARM_NO_VULKAN=ON' '-DUSING_X11_VULKAN=OFF')
+    isPlatform "kms"  && params+=('-DUSE_WAYLAND_WSI=OFF')
+    isPlatform "mali" && params+=('-DUSING_GLES2=ON' '-DUSING_FBDEV=ON')
+    isPlatform "mesa" && params+=('-DUSING_GLES2=ON' '-DUSING_EGL=OFF')
+    isPlatform "x11"  && params+=('-DUSE_WAYLAND_WSI=ON' '-DUSING_X11_VULKAN=ON')
+    isPlatform "x86"  && isPlatform "32bit" && params+=('-DX86=ON' '-DX86_64=OFF')
+    isPlatform "x86"  && isPlatform "64bit" && params+=('-DX86=OFF' '-DX86_64=ON')
 
     if [[ "${md_id}" == "lr-ppsspp" ]]; then
         params+=('-DLIBRETRO=ON')
@@ -73,19 +66,19 @@ function build_ppsspp() {
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_LINKER_TYPE="LLD" \
         -DBUILD_TESTING="OFF" \
+        -DENABLE_CTEST="OFF" \
         -DHEADLESS="OFF" \
+        -DUSE_DISCORD="OFF" \
         -DUSE_FFMPEG="ON" \
         -DUSE_SYSTEM_FFMPEG="OFF" \
         -DUSE_SYSTEM_LIBPNG="ON" \
         -DUSE_SYSTEM_LIBZIP="ON" \
-        -DUSE_SYSTEM_MINIUPNPC="ON" \
+        -DUSE_SYSTEM_MINIUPNPC="OFF" \
         -DUSE_SYSTEM_SNAPPY="ON" \
         -DUSE_SYSTEM_ZSTD="ON" \
         -DUSING_QT_UI="OFF" \
@@ -97,7 +90,10 @@ function build_ppsspp() {
 }
 
 function install_ppsspp() {
-    ninja -C build install/strip
+    md_ret_files=(
+        'build/assets'
+        'build/PPSSPPSDL'
+    )
 }
 
 function configure_ppsspp() {
@@ -114,7 +110,7 @@ function configure_ppsspp() {
         params+=('--fullscreen')
     fi
 
-    addEmulator 0 "${md_id}" "psp" "pushd ${md_inst}; ${md_inst}/bin/PPSSPPSDL ${params[*]} %ROM%; popd"
+    addEmulator 0 "${md_id}" "psp" "${md_inst}/PPSSPPSDL ${params[*]} %ROM%"
 
     addSystem "psp"
 }
