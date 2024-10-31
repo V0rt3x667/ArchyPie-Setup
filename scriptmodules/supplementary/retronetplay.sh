@@ -87,7 +87,7 @@ function gui_retronetplay() {
     local ip_int
 
     ip_int=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
-    ip_ext=$(download http://ipecho.net/plain -)
+    ip_ext=$(curl -4 http://ipecho.net/plain)
 
     while true; do
         cmd=(dialog --backtitle "${__backtitle}" --menu "Configure RetroArch Netplay\nInternal IP: ${ip_int} External IP: ${ip_ext}" 22 76 16)
