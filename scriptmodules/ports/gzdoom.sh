@@ -12,7 +12,8 @@ rp_module_section="opt"
 rp_module_flags="!all 64bit"
 
 function _get_branch_gzdoom() {
-    download "https://api.github.com/repos/coelckers/gzdoom/releases" - | grep -m 1 tag_name | cut -d\" -f4
+    local gzdoom_version="g4.13.2"
+    echo "${gzdoom_version}"
 }
 
 function _get_branch_zmusic_gzdoom() {
@@ -68,12 +69,10 @@ function _build_zmusic_gzdoom() {
         -S"zmusic" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_LINKER_TYPE="LLD" \
         -Wno-dev
     ninja -C zmusic clean
     ninja -C zmusic
@@ -81,23 +80,29 @@ function _build_zmusic_gzdoom() {
 }
 
 function build_gzdoom() {
+    # Build 'zmusic'
+    echo "*** Building ZMusic ***"
     _build_zmusic_gzdoom
+
+    # Build 'gzdoom'
+    echo "*** Building GZDoom ***"
+    local params=()
+    ! hasFlag "vulkan" && params+=('-DHAVE_VULKAN=OFF')
 
     cmake . \
         -B"build" \
         -G"Ninja" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
-        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
-        -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+        -DCMAKE_INSTALL_PREFIX="${md_inst}" \
+        -DCMAKE_LINKER_TYPE="LLD" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS} -Wl,-rpath='${md_inst}/lib'" \
         -DZMUSIC_INCLUDE_DIR="${md_build}/zmusic/include" \
         -DZMUSIC_LIBRARIES="${md_build}/zmusic/source/libzmusic.so" \
         -DPK3_QUIET_ZIPDIR="ON" \
+        "${params[@]}" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
@@ -124,9 +129,9 @@ function install_gzdoom() {
 
 function configure_gzdoom() {
     local portname
-    portname=doom
+    portname="doom"
 
-    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}/"
+    moveConfigDir "${arpdir}/${md_id}" "${md_conf_root}/${portname}/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
         local dirs=(
@@ -148,6 +153,7 @@ function configure_gzdoom() {
             'freedoom'
             'hacx'
             'heretic'
+            'legacy'
             'square'
             'strife'
             'urban'
