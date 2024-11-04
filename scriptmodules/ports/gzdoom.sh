@@ -9,14 +9,10 @@ rp_module_desc="GZDoom: Enhanced Doom Port"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/coelckers/gzdoom/master/LICENSE"
 rp_module_repo="git https://github.com/coelckers/gzdoom :_get_branch_gzdoom"
 rp_module_section="opt"
-rp_module_flags="all"
+rp_module_flags="!all 64bit"
 
 function _get_branch_gzdoom() {
-    # Default GZDoom version
     local gzdoom_version="g4.13.2"
-
-    # 32bit Is No Longer Supported Since 'g4.8.1'
-    isPlatform "32bit" && gzdoom_version="g4.8.0"
     echo "${gzdoom_version}"
 }
 
@@ -54,9 +50,6 @@ function sources_gzdoom() {
 
     # Get ZMusic Sources, Required For GZDoom & Raze
     _sources_zmusic_gzdoom
-
-    # lzma assumes hardware crc support on arm which breaks when building on armv7
-    #isPlatform "armv7" && applyPatch "$md_data/lzma_armv7_crc.diff"
 }
 
 function _sources_zmusic_gzdoom() {
@@ -160,6 +153,7 @@ function configure_gzdoom() {
             'freedoom'
             'hacx'
             'heretic'
+            'legacy'
             'square'
             'strife'
             'urban'
@@ -207,11 +201,6 @@ _INI_
         # FluidSynth Is Too Memory/CPU Intensive, Use OPL Emulation For MIDI
         if isPlatform "arm"; then
             params+=("+set snd_mididevice -3")
-        fi
-
-        # When Using The 32bit Version On GLES Platforms, Pre-set The Renderer
-        if isPlatform "32bit" && hasFlag "gles"; then
-            params+=("+set vid_preferbackend 2")
         fi
 
         if isPlatform "kms"; then
