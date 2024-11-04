@@ -97,6 +97,7 @@ function _add_games_lr-prboom() {
             ['addons/brutal/brutalwolf.pk3']="Doom: Brutal Wolfenstein"
             ['chex/chex3.wad']="Chex Quest 3"
             ['heretic/hexdd.wad']="Hexen: Deathkings of the Dark Citadel"
+            ['legacy/id1.wad']="Doom: Legacy of Rust"
             ['square/square1.pk3']="The Adventures of Square"
             ['strife/strife1.wad']="Strife: Quest for the Sigil"
             ['urban/action2.wad']="Urban Brawl: Action Doom 2"
