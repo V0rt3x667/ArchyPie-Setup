@@ -13,7 +13,7 @@ rp_module_section="opt"
 rp_module_flags="all"
 
 function _get_branch_ppsspp() {
-    echo "v1.17.1"
+    echo "v1.18.1"
 }
 
 function depends_ppsspp() {
@@ -26,6 +26,7 @@ function depends_ppsspp() {
         'libpng'
         'libzip'
         'lld'
+        'miniupnpc'
         'ninja'
         'sdl2_ttf'
         'sdl2'
@@ -78,7 +79,7 @@ function build_ppsspp() {
         -DUSE_SYSTEM_FFMPEG="OFF" \
         -DUSE_SYSTEM_LIBPNG="ON" \
         -DUSE_SYSTEM_LIBZIP="ON" \
-        -DUSE_SYSTEM_MINIUPNPC="OFF" \
+        -DUSE_SYSTEM_MINIUPNPC="ON" \
         -DUSE_SYSTEM_SNAPPY="ON" \
         -DUSE_SYSTEM_ZSTD="ON" \
         -DUSING_QT_UI="OFF" \
