@@ -1502,16 +1502,14 @@ function changeFileCase() {
 ## @param package(s) to build & install
 ## @brief build & install packages from PKGBUILD files
 function pacmanPKGBuild() {
-    local builddir="${__tmpdir}/pkgs"
+    local builddir="/tmp/pkgs"
     local pkg
 
     for pkg in "${@}"; do
-        if [[ ! -d "${builddir}/${pkg}" ]]; then
-            mkdir -p "${builddir}/${pkg}"
-            # Add write permission for non-root users, 'makepkg' can only run as a non-root user
-            chmod -R o+rw "${builddir}/${pkg}"
-        fi
         su "${__user}" --session-command 'cd '"${scriptdir}/packages/${pkg}"' && \
+            if [[ ! -d '"${builddir}/${pkg}"' ]]; then
+                mkdir -p '"${builddir}/${pkg}"'
+            fi
             BUILDDIR='"${builddir}/${pkg}"' \
             PKGDEST='"${builddir}/${pkg}"' \
             SRCDEST='"${builddir}/${pkg}"' \
