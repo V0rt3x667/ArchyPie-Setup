@@ -114,7 +114,7 @@ function configure_wolf4sdl() {
 
         # Create A Launcher Script
         cat > "${md_inst}/bin/${md_id}.sh" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 
 function get_md5sum() {
     local file="\${1}"

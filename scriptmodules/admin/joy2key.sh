@@ -38,7 +38,7 @@ function install_bin_joy2key() {
 
     local wrapper="${md_inst}/joy2key"
     cat >"${wrapper}" <<_EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 mode="\${1}"
 [[ -z "\${mode}" ]] && mode="start"
 shift

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 is_amiberry=0
 
 emulator="./uae4arm"

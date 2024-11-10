@@ -1262,7 +1262,7 @@ function addPort() {
     mkUserDir "$romdir/ports"
 
     cat >"${file}" << _EOF_
-#!/bin/bash
+#!/usr/bin/env bash
 "$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "${game}"
 _EOF_
 
@@ -1502,12 +1502,15 @@ function changeFileCase() {
 ## @param package(s) to build & install
 ## @brief build & install packages from PKGBUILD files
 function pacmanPKGBuild() {
-    local builddir="${__tmpdir}/pkgs"
+    local builddir="/tmp/pkgs"
     local pkg
 
     for pkg in "${@}"; do
         su "${__user}" --session-command 'cd '"${scriptdir}/packages/${pkg}"' && \
-            BUILDDIR='"${builddir}"' \
+            if [[ ! -d '"${builddir}/${pkg}"' ]]; then
+                mkdir -p '"${builddir}/${pkg}"'
+            fi
+            BUILDDIR='"${builddir}/${pkg}"' \
             PKGDEST='"${builddir}/${pkg}"' \
             SRCDEST='"${builddir}/${pkg}"' \
             SRCPKGDEST='"${builddir}/${pkg}"' \
