@@ -129,6 +129,10 @@ function _add_rom_attractmode() {
     chown "${__user}":"${__group}" "${config}"
 }
 
+function _get_branch_sfml_attractmode() {
+    download "https://api.github.com/repos/sfml/sfml/tags" - | grep -m 1 name | cut -d\" -f4
+}
+
 function depends_attractmode() {
     local depends=(
         'cmake'
@@ -155,34 +159,47 @@ function sources_attractmode() {
 
     # Set Default Config Path(s)
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
+}
 
-    isPlatform "kms" && gitPullOrClone "${md_build}/sfml-pi" "https://github.com/mickelson/sfml-pi"
+function _sources_sfml_attractmode() {
+    local tag 
+    tag="$(_get_branch_sfml_attractmode)"
+
+    gitPullOrClone "${md_build}/sfml" "https://github.com/sfml/sfml" "${tag}"
+}
+
+function _build_sfml_attractmode() {
+    local params=()
+    #isPlatform "rpi" && params+=('-DSFML_OPENGL_ES=1')
+    cmake . \
+        -B"sfml" \
+        -G"Ninja" \
+        -S"sfml" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_INSTALL_PREFIX="${md_build}/sfml" \
+        -DCMAKE_LINKER_TYPE="LLD" \
+        -DSFML_DRM="ON" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+    #md_ret_require="${md_build}/zmusic/source/libzmusic.so"
 }
 
 function build_attractmode() {
-    # Build 'sfml-pi'
+    # Build 'sfml' for the 'kms' platform
     if isPlatform "kms"; then
-        echo "*** Building SFML-Pi ***"
-        cd "${md_build}/sfml-pi" || exit
-        local params=()
-        #isPlatform "rpi" && params+=('-DSFML_OPENGL_ES=1')
-        cmake . \
-            -B"build" \
-            -G"Ninja" \
-            -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
-            -DCMAKE_BUILD_TYPE="Release" \
-            -DCMAKE_INSTALL_PREFIX="${md_build}/sfml" \
-            -DSFML_DRM="ON" \
-            -Wno-dev
-        ninja -C build clean
-        ninja -C build
+        echo "*** Building SFML ***"
+        _build_sfml_attractmode
     fi
 
     # Build 'attract-mode'
     echo "*** Building Attract-Mode ***"
-    cd "${md_build}" || exit
+    #cd "${md_build}" || exit
     local params=()
-    isPlatform "kms" && params+=('USE_DRM=1' EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml-pi/include -L${md_build}/sfml-pi/lib")
+    isPlatform "kms" && params+=('USE_DRM=1' EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml/include -L${md_build}/sfml/lib")
     isPlatform "rpi" && params+=('USE_MMAL=1')
     isPlatform "x11" && params+=('USE_SYSTEM_SFML=1' 'FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
@@ -196,7 +213,10 @@ function build_attractmode() {
 }
 
 function install_attractmode() {
-    make -C sfml-pi install
+    echo "*** Installing SFML ***"
+    ninja -C sfml install/strip
+
+    echo "*** Installing Attract-Mode ***"
     make prefix="${md_inst}" install
 }
 
