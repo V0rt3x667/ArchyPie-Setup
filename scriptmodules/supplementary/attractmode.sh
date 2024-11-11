@@ -182,10 +182,11 @@ function _build_sfml_attractmode() {
         -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_INSTALL_PREFIX="${md_build}/sfml" \
         -DCMAKE_LINKER_TYPE="LLD" \
-        -DSFML_DRM="ON" \
+        -DSFML_USE_DRM="ON" \
+        -DSFML_USE_SYSTEM_DEPS="ON" \
         -Wno-dev
-    ninja -C build clean
-    ninja -C build
+    ninja -C sfml clean
+    ninja -C sfml
     #md_ret_require="${md_build}/zmusic/source/libzmusic.so"
 }
 
