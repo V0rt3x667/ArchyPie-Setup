@@ -159,6 +159,11 @@ function sources_attractmode() {
 
     # Set Default Config Path(s)
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
+
+    # Get 'sfml' source code for the 'kms' platform
+    if isPlatform "kms"; then
+        _sources_sfml_attractmode
+    fi
 }
 
 function _sources_sfml_attractmode() {
