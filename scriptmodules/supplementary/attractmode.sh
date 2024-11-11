@@ -129,10 +129,6 @@ function _add_rom_attractmode() {
     chown "${__user}":"${__group}" "${config}"
 }
 
-function _get_branch_sfml_attractmode() {
-    download "https://api.github.com/repos/sfml/sfml/tags" - | grep -m 1 name | cut -d\" -f4
-}
-
 function depends_attractmode() {
     local depends=(
         'cmake'
@@ -168,7 +164,7 @@ function sources_attractmode() {
 
 function _sources_sfml_attractmode() {
     local tag 
-    tag="$(_get_branch_sfml_attractmode)"
+    tag="2.6.2"
 
     gitPullOrClone "${md_build}/sfml" "https://github.com/sfml/sfml" "${tag}"
 }
