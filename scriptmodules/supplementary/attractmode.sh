@@ -258,7 +258,7 @@ if [[ -z "\${DISPLAY}" && -f "\${MODELIST}" && ! "\${1}" =~ build-romlist ]]; th
     [[ ! -z "\${default_mode}" ]] && export SFML_DRM_MODE="\${default_mode}"
     [[ ! -z "\${default_vrefresh}" ]] && export SFML_DRM_REFRESH="\${default_vrefresh}"
 fi
-LD_LIBRARY_PATH="${md_inst}/sfml/lib" "${md_inst}/bin/attract" "\${@}"
+LD_LIBRARY_PATH="${md_inst}/lib" "${md_inst}/bin/attract" "\${@}"
 _EOF_
         chmod +x "/usr/bin/attract"
 
