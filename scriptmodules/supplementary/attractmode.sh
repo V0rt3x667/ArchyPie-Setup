@@ -221,7 +221,7 @@ function install_attractmode() {
 
     echo "*** Installing SFML ***"
     mkdir "${md_inst}/lib"
-    cp -Pv "${md_build}"/sfml/build/*.so* "${md_inst}/lib"
+    cp -Pv "${md_build}"/sfml/build/lib/*.so* "${md_inst}/lib"
 }
 
 function remove_attractmode() {
