@@ -173,21 +173,20 @@ function _build_sfml_attractmode() {
     local params=()
     #isPlatform "rpi" && params+=('-DSFML_OPENGL_ES=1')
     cmake . \
-        -B"sfml" \
+        -B"sfml/build" \
         -G"Ninja" \
         -S"sfml" \
         -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
-        -DCMAKE_INSTALL_PREFIX="${md_build}/sfml" \
         -DCMAKE_LINKER_TYPE="LLD" \
         -DSFML_USE_DRM="ON" \
         -DSFML_USE_SYSTEM_DEPS="ON" \
         -Wno-dev
-    ninja -C sfml clean
-    ninja -C sfml
-    #md_ret_require="${md_build}/zmusic/source/libzmusic.so"
+    ninja -C sfml/build clean
+    ninja -C sfml/build
+    md_ret_require="${md_build}/sfml/build/lib/libsfml-system.so"
 }
 
 function build_attractmode() {
@@ -201,7 +200,7 @@ function build_attractmode() {
     echo "*** Building Attract-Mode ***"
     #cd "${md_build}" || exit
     local params=()
-    isPlatform "kms" && params+=('USE_DRM=1' EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml/include -L${md_build}/sfml/lib")
+    isPlatform "kms" && params+=('USE_DRM=1' EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml/build/include -L${md_build}/sfml/build/lib")
     isPlatform "rpi" && params+=('USE_MMAL=1')
     isPlatform "x11" && params+=('USE_SYSTEM_SFML=1' 'FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
@@ -215,11 +214,14 @@ function build_attractmode() {
 }
 
 function install_attractmode() {
-    echo "*** Installing SFML ***"
-    ninja -C sfml install/strip
+    #ninja -C sfml install/strip
 
     echo "*** Installing Attract-Mode ***"
     make prefix="${md_inst}" install
+
+    echo "*** Installing SFML ***"
+    mkdir "${md_inst}/lib"
+    cp -Pv "${md_build}"/sfml/build/*.so* "${md_inst}/lib"
 }
 
 function remove_attractmode() {
