@@ -12,7 +12,7 @@ rp_module_section="exp"
 rp_module_flags="frontend"
 
 function _get_branch_attractmodeplus() {
-    download "https://api.github.com/repos/oomek/attractplus/releases/latest" - | grep -m 1 tag_name | cut -d\" -f4
+    echo "3.0.9"
 }
 
 function _get_configdir_attractmodeplus() {
@@ -33,12 +33,12 @@ function _add_system_attractmodeplus() {
     local platform="${6}"
     local theme="${7}"
 
-    # Replace Any '/' Characters In Fullname
+    # Replace any '/' characters in fullname
     fullname="${fullname//\/}"
 
     local config="${attractplus_dir}/emulators/${fullname}.cfg"
     iniConfig " " "" "${config}"
-    # Replace %ROM% With "[romfilename]" & Convert To An Array
+    # Replace %ROM% with "[romfilename]" & convert to an array
     # shellcheck disable=SC2206
     command=(${command//%ROM%/\"[romfilename]\"})
     iniSet "executable" "${command[0]}"
@@ -47,12 +47,12 @@ function _add_system_attractmodeplus() {
     iniSet "rompath" "${path}"
     iniSet "system" "${fullname}"
 
-    # Extensions Separated By Semicolons
+    # Extensions separated by semicolons
     extensions="${extensions// /;}"
 
     iniSet "romext" "${extensions}"
 
-    # Snap Path
+    # Snap path
     local snap="snap"
     [[ "${name}" == "archypie" ]] && snap="icons"
     iniSet "artwork flyer" "${path}/flyer"
@@ -62,7 +62,7 @@ function _add_system_attractmodeplus() {
 
     chown "${__user}":"${__group}" "${config}"
 
-    # If No Gameslist, Generate One
+    # If no gameslist generate one
     if [[ ! -f "${attractplus_dir}/romlists/${fullname}.txt" ]] && [[ -f "/usr/bin/attractplus" ]]; then
         sudo -u "${__user}" attractplus --build-romlist "${fullname}" -o "${fullname}"
     else
@@ -90,16 +90,16 @@ function _del_system_attractmodeplus() {
     local fullname="${1}"
     local name="${2}"
 
-    # Don't Remove An Empty System
+    # Don't remove an empty system
     [[ -z "${fullname}" ]] && return 0
 
-    # Replace Any '/' Characters In Fullname
+    # Replace any '/' characters in fullname
     fullname="${fullname//\/}"
 
     rm -rf "${attractplus_dir}/romlists/${fullname}.txt"
 
     local tab=$'\t'
-    # Remove Display Block From "^display${tab}${fullname}" To Next "^display" Or Empty Line Keeping The Next Display Line
+    # Remove display block from "^display${tab}${fullname}" to next "^display" or empty line keeping the next display line
     sed -i "/^display${tab}${fullname}/,/^display\|^$/{/^display${tab}${fullname}/d;/^display\$/!d}" "${attractplus_dir}/attract.cfg"
 }
 
@@ -117,14 +117,14 @@ function _add_rom_attractmodeplus() {
 
     local config="${attractplus_dir}/romlists/${system_fullname}.txt"
 
-    # Remove Extension
+    # Remove extension
     path="${path/%.*}"
 
     if [[ ! -f "${config}" ]]; then
         echo "#Name;Title;Emulator;CloneOf;Year;Manufacturer;Category;Players;Rotation;Control;Status;DisplayCount;DisplayType;AltRomname;AltTitle;Extra;Buttons" >"${config}"
     fi
 
-    # If The Entry Already Exists, Remove It
+    # If the entry already exists, remove it
     if grep -q "^${path};" "${config}"; then
         sed -i "/^${path}/d" "${config}"
     fi
@@ -134,64 +134,70 @@ function _add_rom_attractmodeplus() {
 }
 
 function depends_attractmodeplus() {
-    local depends=(
-        'cmake'
-        'curl'
-        'ffmpeg'
-        'fontconfig'
-        'gnu-free-fonts'
-        'libarchive'
-        'p7zip'
-        'sfml'
-    )
-    isPlatform "kms" && depends+=(
-        'glu'
-        'libdrm'
-        'libglvnd'
-        'mesa'
-    )
-    isPlatform "x11" && depends+=('libxinerama')
-    getDepends "${depends[@]}"
+    depends_attractmode
 }
 
 function sources_attractmodeplus() {
     gitPullOrClone
 
-    # Set Default Config Path(s)
+    # Set default config path(s)
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
 
-    # Fix FFMPEG
-    applyPatch "${md_data}/01_fix_ffmpeg.patch"
+    # Do not build vendored 'sfml'
+    #if isPlatform "kms"; then
+    #    applyPatch "${md_data}/01_fix_sfml_build.patch"
+    #fi
+
+    # Get 'sfml' source code for the 'kms' platform
+    #if isPlatform "kms"; then
+    #    _sources_sfml_attractmode
+    #fi
 }
 
 function build_attractmodeplus() {
-    local params=('STATIC=0')
+    # Build 'sfml' for the 'kms' platform
+    #if isPlatform "kms"; then
+    #    _build_sfml_attractmode
+    #fi
 
-    isPlatform "kms" && params+=('USE_DRM=1')
-    isPlatform "x11" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
+    # Build 'attract-mode plus'
+    echo "*** Building Attract-Mode Plus ***"
+    # We don't want to build the bundled 'sfml' on the 'kms' platform
+    local params=()
+    isPlatform "kms" && params+=('USE_DRM=1' 'USE_SYSTEM_SFML=0')
+    isPlatform "rpi" && params+=('USE_MMAL=1')
+    isPlatform "x11" && params+=('USE_SYSTEM_SFML=1')
+    isPlatform "x86" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
     make clean
     make prefix="${md_inst}" "${params[@]}"
 
-    # Remove Example Configs
+    # Remove example configs
     rm -rf "${md_build}/config/emulators/"*
 
     md_ret_require="${md_build}/attractplus"
 }
 
 function install_attractmodeplus() {
+    # Install 'attract-mode plus'
+    echo "*** Installing Attract-Mode Plus ***"
     make prefix="${md_inst}" install
+
+    # Install 'sfml' for the 'kms' platform
+    #if isPlatform "kms"; then
+    #    _install_sfml_attractmode
+    #fi
 }
 
 function remove_attractmodeplus() {
-    rm -f /usr/bin/attractplus
+    rm -f "/usr/bin/attractplus"
 }
 
 function configure_attractmodeplus() {
     moveConfigDir "${arpdir}/${md_id}"  "${md_conf_root}/all/${md_id}"
 
     if [[ "${md_mode}" == "install" ]]; then
-        # Create Default Config File
+        # Create default config file
         local config="${md_conf_root}/all/${md_id}/attract.cfg"
 
         if [[ ! -f "${config}" ]]; then
@@ -202,9 +208,21 @@ function configure_attractmodeplus() {
 
         mkUserDir "${md_conf_root}/all/${md_id}/emulators"
 
-        # Create Launcher Script
+        # Create launcher script
         cat > "/usr/bin/attractplus" <<_EOF_
 #!/usr/bin/env bash
+MODELIST=/opt/archypie/supplementary/kmsxx/kmsprint-rp
+if [[ -z "\${DISPLAY}" && -f "\${MODELIST}" && ! "\${1}" =~ build-romlist ]]; then
+    MODELIST="\$(\${MODELIST} 2>/dev/null)"
+    default_mode="\$(echo "\${MODELIST}" | grep -Em1 "^Mode: [0-9]+ crtc" | grep -oE [0-9]+x[0-9]+)"
+    default_vrefresh="\$(echo "\${MODELIST}" | grep -Em1 "^Mode: [0-9]+ crtc" | grep -oE [0-9]+Hz)"
+    # Strip Hz from the refresh rate
+    default_vrefresh="\${default_vrefresh%Hz}"
+    echo "Using default video mode: \${default_mode} @ \${default_vrefresh}"
+
+    [[ ! -z "\${default_mode}" ]] && export SFML_DRM_MODE="\${default_mode}"
+    [[ ! -z "\${default_vrefresh}" ]] && export SFML_DRM_REFRESH="\${default_vrefresh}"
+fi
 "${md_inst}/bin/attractplus" "\${@}"
 _EOF_
     chmod +x "/usr/bin/attractplus"

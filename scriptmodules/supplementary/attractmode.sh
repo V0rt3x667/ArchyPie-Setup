@@ -151,6 +151,9 @@ function depends_attractmode() {
         'ninja'
     )
     isPlatform "x11" && depends+=('libxinerama' 'sfml')
+    if [[ "${md_id}" == "attractmodeplus" ]]; then
+        depends+=('boost')
+    fi
     getDepends "${depends[@]}"
 }
 
@@ -184,6 +187,8 @@ function _build_sfml_attractmode() {
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_LINKER_TYPE="LLD" \
+        -DSFML_BUILD_AUDIO="FALSE" \
+        -DSFML_BUILD_NETWORK="FALSE" \
         -DSFML_USE_DRM="ON" \
         -DSFML_USE_SYSTEM_DEPS="ON" \
         -Wno-dev
