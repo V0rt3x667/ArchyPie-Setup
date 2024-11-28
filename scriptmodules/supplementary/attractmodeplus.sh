@@ -12,7 +12,7 @@ rp_module_section="exp"
 rp_module_flags="frontend"
 
 function _get_branch_attractmodeplus() {
-    echo "3.0.9"
+    echo "master"
 }
 
 function _get_configdir_attractmodeplus() {
@@ -144,27 +144,27 @@ function sources_attractmodeplus() {
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
 
     # Do not build vendored 'sfml'
-    #if isPlatform "kms"; then
-    #    applyPatch "${md_data}/01_fix_sfml_build.patch"
-    #fi
+    if isPlatform "kms"; then
+        applyPatch "${md_data}/01_fix_sfml_build.patch"
+    fi
 
     # Get 'sfml' source code for the 'kms' platform
-    #if isPlatform "kms"; then
-    #    _sources_sfml_attractmode
-    #fi
+    if isPlatform "kms"; then
+        _sources_sfml_attractmode
+    fi
 }
 
 function build_attractmodeplus() {
     # Build 'sfml' for the 'kms' platform
-    #if isPlatform "kms"; then
-    #    _build_sfml_attractmode
-    #fi
+    if isPlatform "kms"; then
+        _build_sfml_attractmode
+    fi
 
     # Build 'attract-mode plus'
     echo "*** Building Attract-Mode Plus ***"
     # We don't want to build the bundled 'sfml' on the 'kms' platform
     local params=()
-    isPlatform "kms" && params+=('USE_DRM=1' 'USE_SYSTEM_SFML=0')
+    isPlatform "kms" && params+=('USE_DRM=1' 'USE_SYSTEM_SFML=1' EXTRA_CFLAGS="${CFLAGS} -I${md_build}/sfml/build/include -L${md_build}/sfml/build/lib")
     isPlatform "rpi" && params+=('USE_MMAL=1')
     isPlatform "x11" && params+=('USE_SYSTEM_SFML=1')
     isPlatform "x86" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
@@ -184,9 +184,9 @@ function install_attractmodeplus() {
     make prefix="${md_inst}" install
 
     # Install 'sfml' for the 'kms' platform
-    #if isPlatform "kms"; then
-    #    _install_sfml_attractmode
-    #fi
+    if isPlatform "kms"; then
+        _install_sfml_attractmode
+    fi
 }
 
 function remove_attractmodeplus() {
