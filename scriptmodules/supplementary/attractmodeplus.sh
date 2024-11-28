@@ -143,11 +143,6 @@ function sources_attractmodeplus() {
     # Set default config path(s)
     sed -e "s|/.attract|/ArchyPie/configs/${md_id}|g" -i "${md_build}/src/fe_settings.cpp"
 
-    # Do not build vendored 'sfml'
-    if isPlatform "kms"; then
-        applyPatch "${md_data}/01_fix_sfml_build.patch"
-    fi
-
     # Get 'sfml' source code for the 'kms' platform
     if isPlatform "kms"; then
         _sources_sfml_attractmode
