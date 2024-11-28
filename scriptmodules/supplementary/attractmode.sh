@@ -187,8 +187,10 @@ function _build_sfml_attractmode() {
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_LINKER_TYPE="LLD" \
-        -DSFML_BUILD_AUDIO="FALSE" \
-        -DSFML_BUILD_NETWORK="FALSE" \
+        -DSFML_BUILD_AUDIO="OFF" \
+        -DSFML_BUILD_DOC="OFF" \
+        -DSFML_BUILD_EXAMPLES="OFF" \
+        -DSFML_BUILD_NETWORK="OFF" \
         -DSFML_USE_DRM="ON" \
         -DSFML_USE_SYSTEM_DEPS="ON" \
         -Wno-dev
@@ -208,7 +210,6 @@ function build_attractmode() {
     local params=()
     isPlatform "kms" && params+=('USE_DRM=1' EXTRA_CXXFLAGS="${CFLAGS} -I${md_build}/sfml/build/include -L${md_build}/sfml/build/lib")
     isPlatform "rpi" && params+=('USE_MMAL=1')
-    isPlatform "x11" && params+=('USE_SYSTEM_SFML=1')
     isPlatform "x86" && params+=('FE_HWACCEL_VAAPI=1' 'FE_HWACCEL_VDPAU=1')
 
     make clean
