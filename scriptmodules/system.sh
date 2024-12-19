@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ################################################################################
 # This file is part of the ArchyPie Project                                    #
@@ -245,10 +245,6 @@ function get_platform() {
     local architecture="$(uname --machine)"
     if [[ -z "${__platform}" ]]; then
         case "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" in
-            BCM*)
-                # RPI kernels before 2023-11-24 print a 'Hardware: BCM2835' line
-                get_rpi_model
-                ;;
             *ODROIDC)
                 __platform="odroid-c1"
                 ;;
