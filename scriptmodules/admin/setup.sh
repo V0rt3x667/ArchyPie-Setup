@@ -122,7 +122,7 @@ function post_update_setup() {
     rps_logInit
     {
         rps_logStart
-        # Run _update_hook_id functions - eg to fix up modules for retropie-setup 4.x install detection
+        # Run _update_hook_id functions
         printHeading "Running post update hooks"
         rp_updateHooks
         rps_logEnd
