@@ -56,7 +56,7 @@ function _list_backends() {
         backends["default"]="SDL1 Framebuffer driver"
         isPlatform "kms" && backends["sdl12-compat"]="SDL1 Compat driver"
     elif [[ "${sdl}" == "sdl2" ]]; then
-        if isPlatform "videocore"; then
+        if isPlatform "kms"; then
             default="SDL2 KMS driver"
         fi
         backends["default"]="${default}"
