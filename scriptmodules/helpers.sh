@@ -248,7 +248,6 @@ function _mapPackage() {
                    isPlatform "rpi5" && pkg="linux-headers-rpi-2712"
                fi
              fi
-            fi
             ;;
         SDL)
             rp_isEnabled "sdl1" && pkg="RP sdl1 ${pkg}"
