@@ -3,6 +3,7 @@
 *.DS_Store
 *.DS_Store?
 *.exe
+*.geany
 *.jar
 *.log
 *.log.*
