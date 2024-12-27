@@ -945,7 +945,8 @@ _EOF_
                 [[ "${XINIT_WM}" -eq 1 ]] && params+=(-use_cursor no)
                 [[ "${XINIT_WM}" -eq 2 ]] && params+=(-use_cursor yes)
                 cat >>"${xinitrc}" <<_EOF_
-matchbox-window-manager ${params[@]} &
+#matchbox-window-manager ${params[@]} &
+blackbox ${params[@]} &
 sleep 0.5
 xset -dpms s off s noblank
 _EOF_
@@ -1044,12 +1045,12 @@ function config_backend() {
         iniConfig " = " '"' "${BACKENDS_CONF}"
         iniGet "${name}"
         case "${ini_value}" in
-            1|dispmanx)
-                if [[ "${HAS_MODESET}" == "kms" ]]; then
-                    COMMAND="SDL_DISPMANX_WIDTH=${MODE_CUR[2]} SDL_DISPMANX_HEIGHT=${MODE_CUR[3]} ${COMMAND}"
-                fi
-                COMMAND="SDL1_VIDEODRIVER=dispmanx ${COMMAND}"
-                ;;
+            #1|dispmanx)
+            #    if [[ "${HAS_MODESET}" == "kms" ]]; then
+            #        COMMAND="SDL_DISPMANX_WIDTH=${MODE_CUR[2]} SDL_DISPMANX_HEIGHT=${MODE_CUR[3]} ${COMMAND}"
+            #    fi
+            #    COMMAND="SDL1_VIDEODRIVER=dispmanx ${COMMAND}"
+            #    ;;
             sdl12-compat)
                 COMMAND="LD_PRELOAD=\"${ROOTDIR}/supplementary/sdl12-compat/libSDL-1.2.so.0\" ${COMMAND}"
                 ;;
@@ -1226,7 +1227,7 @@ function show_launch() {
     local images=()
 
     if [[ "${IS_SYS}" -eq 1 && "${USE_ART}" -eq 1 ]]; then
-        # If using art look for images in paths for es art.
+        # If using art, look for images in paths for es art
         images+=(
             "${HOME}/ArchyPie/roms/${SYSTEM}/images/${ROM_BN}-image"
             "${HOME}/.emulationstation/downloaded_images/${SYSTEM}/${ROM_BN}-image"

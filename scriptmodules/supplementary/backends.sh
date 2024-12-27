@@ -9,7 +9,8 @@
 rp_module_id="backends"
 rp_module_desc="Configure Display/Driver Backends for Emulators"
 rp_module_section="config"
-rp_module_flags="!mali !x11"
+#rp_module_flags="!x11"
+rp_module_flags="!all kms"
 
 function _list_backends() {
     local id="${1}"
@@ -53,8 +54,11 @@ function _list_backends() {
     #     backends["default"]="${default}"
     # fi
     if [[ "${sdl}" == "sdl1" ]]; then
-        backends["default"]="SDL1 Framebuffer Driver"
-        isPlatform "kms" && backends["sdl12-compat"]="SDL1 Compat Driver"
+        #backends["default"]="SDL1 Framebuffer Driver"
+        #isPlatform "kms" && backends["sdl12-compat"]="SDL1 Compat Driver"
+        if isPlatform "kms"; then
+            default="SDL1 Compat Driver"
+        fi
     elif [[ "${sdl}" == "sdl2" ]]; then
         if isPlatform "kms"; then
             default="SDL2 KMS Driver"
@@ -115,7 +119,7 @@ function gui_configure_backends() {
         for backend in $(echo "${!backends[@]}" | xargs -n1 | sort); do
             selected=""
             [[ "${current}" == "${backend}" ]] && selected="(Currently selected)"
-            options+=("${backend}" "${backends[${backend}]} $selected")
+            options+=("${backend}" "${backends[${backend}]} ${selected}")
         done
         local cmd=(dialog --default-item "${current}" --backtitle "${__backtitle}" --menu "Select backend for ${id}" 22 76 16)
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
@@ -134,9 +138,9 @@ function gui_configure_backends() {
                     continue
                 fi
             fi
-            if [[ "${choice}" == "sdl12-compat" ]] && ! rp_isInstalled "sdl12-compat"; then
-                rp_callModule "sdl12-compat" _auto_
-            fi
+            #if [[ "${choice}" == "sdl12-compat" ]] && ! rp_isInstalled "sdl12-compat"; then
+            #    rp_callModule "sdl12-compat" _auto_
+            #fi
             local func="_backend_set_${id}"
             if fnExists "${func}"; then
                 rp_callModule "${id}" _backend_set "${choice}" 1
