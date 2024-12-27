@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ################################################################################
 # This file is part of the ArchyPie Project                                    #
@@ -53,11 +53,11 @@ function _list_backends() {
     #     backends["default"]="${default}"
     # fi
     if [[ "${sdl}" == "sdl1" ]]; then
-        backends["default"]="SDL1 Framebuffer driver"
-        isPlatform "kms" && backends["sdl12-compat"]="SDL1 Compat driver"
+        backends["default"]="SDL1 Framebuffer Driver"
+        isPlatform "kms" && backends["sdl12-compat"]="SDL1 Compat Driver"
     elif [[ "${sdl}" == "sdl2" ]]; then
         if isPlatform "kms"; then
-            default="SDL2 KMS driver"
+            default="SDL2 KMS Driver"
         fi
         backends["default"]="${default}"
     fi
