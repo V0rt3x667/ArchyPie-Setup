@@ -127,9 +127,9 @@ function gui_configure_backends() {
             #         continue
             #     fi
             # fi
-            if [[ "${choice}" == "x11" ]] && ( ! hasPackage "xorg" || ! hasPackage "dwm" ); then
-                if dialog --defaultno --yesno "To use the X11/Xorg backend, some additional packages are needed (xorg / matchbox-window-manager) - do you want to continue?" 22 76 2>&1 >/dev/tty; then
-                    pacmanInstall dwm
+            if [[ "${choice}" == "x11" ]] && ( ! hasPackage "xorg-server" || ! hasPackage "blackbox" ); then
+                if dialog --defaultno --yesno "To use the X11/Xorg backend, some additional packages are needed (xorg-server / blackbox) - do you want to continue?" 22 76 2>&1 >/dev/tty; then
+                    pacmanInstall blackbox xorg-server
                 else
                     continue
                 fi
@@ -138,7 +138,7 @@ function gui_configure_backends() {
                 rp_callModule "sdl12-compat" _auto_
             fi
             local func="_backend_set_${id}"
-            if fnExists "$func"; then
+            if fnExists "${func}"; then
                 rp_callModule "${id}" _backend_set "${choice}" 1
             else
                 setBackend "${id}" "${choice}" 1
