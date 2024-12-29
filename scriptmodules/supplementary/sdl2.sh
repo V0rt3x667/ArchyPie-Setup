@@ -20,17 +20,18 @@ rp_module_flags="all"
 #    fi
 #}
 
-# function get_pkg_ver_sdl2() {
-#     local ver="$(get_ver_sdl2)"
-#     if [[ "$__os_debian_ver" -ge 11 ]]; then
-#         ver+="+1"
-#     else
-#         ver+="+5"
-#     fi
-#     isPlatform "rpi" && ver+="rpi"
-#     isPlatform "mali" && ver+="mali"
-#     echo "$ver"
-# }
+function get_pkg_ver_sdl2() {
+#    local ver="$(get_ver_sdl2)"
+#    if [[ "$__os_debian_ver" -ge 11 ]]; then
+#        ver+="+1"
+#    else
+#        ver+="+5"
+#    fi
+#    isPlatform "rpi" && ver+="rpi"
+#    isPlatform "mali" && ver+="mali"
+#    echo "$ver"
+    echo "2.30.10"
+}
 
 #function get_arch_sdl2() {
 #    echo "$(dpkg --print-architecture)"
