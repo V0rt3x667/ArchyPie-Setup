@@ -171,22 +171,21 @@ function inputBox() {
 function hasPackage() {
     local pkgs="${1}"
     local req_ver="${2}"
-    local comp="${3}"
-    [[ -z "${comp}" ]] && comp="ge"
+    local ver
+    local comp="$(compareVersions ${ver} ${req_ver})"
 
     local out
     local pkg
     local status
-    local ver
 
     for pkg in "${pkgs[@]}"; do
         out="$(pacman -Q ${pkg} 2>/dev/null)"
         if [[ "${?}" -eq 0 ]]; then
-            ver="${out##*-}"
+            ver="$(${out} | cut -d' ' -f2)"
             status="Installed"
-        else
-            ver="${out##*-}"
-            status="Not Installed"
+        #else
+        #    ver="${out##*-}"
+        #    status="Not Installed"
         fi
     done
 
@@ -202,7 +201,9 @@ function hasPackage() {
         # We still need to do the version check even if not installed due to the varied boolean operators
         [[ "${installed}" -eq 0 ]] && ver=""
 
-        compareVersions "${ver}" "${comp}" "${req_ver}" && return 0
+        if [[ "${comp}" == "1" ]] || [[ "${comp}" == "0" ]]; then
+            return 0
+        fi
     fi
     return 1
 }
@@ -249,10 +250,10 @@ function _mapPackage() {
                fi
              fi
             ;;
-        SDL)
-            rp_isEnabled "sdl1" && pkg="RP sdl1 ${pkg}"
-            ;;
-        SDL2)
+        #sdl)
+        #    rp_isEnabled "sdl1" && pkg="RP sdl1 ${pkg}"
+        #    ;;
+        sdl2)
             if rp_isEnabled "sdl2"; then
                 # Check whether to use our own sdl2 - can be disabled to resolve issues with
                 # mixing custom 64bit sdl2 & os distributed i386 version on multiarch
@@ -605,9 +606,10 @@ function diffFiles() {
 ## @retval 1 if the comparison is gt
 ## @retval -1 if the comparison is lt
 function compareVersions() {
-    local ver
-    ver=$(vercmp "${1}" "${2}")
+    #local ver
+    #ver=$(vercmp "${1}" "${2}")
     #echo "${ver}"
+    vercmp "${1}" "${2}" >/dev/null
     return ${?}
 }
 
