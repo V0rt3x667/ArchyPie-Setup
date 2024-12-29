@@ -92,19 +92,19 @@ function updatescript_setup() {
     clear
     chown -R "${__user}":"${__group}" "${scriptdir}"
     printHeading "Fetching the latest version of the ArchyPie Setup Script."
-    pushd "${scriptdir}" >/dev/null || exit
+    pushd "${scriptdir}" >/dev/null
     if [[ ! -d ".git" ]]; then
         printMsgs "dialog" "Cannot find directory '.git'. Please clone the ArchyPie setup script via 'git clone https://github.com/v0rt3x667/archypie-setup.git'"
-        popd >/dev/null || exit
+        popd >/dev/null
         return 1
     fi
     local error
     if ! error=$(sudo -u "${__user}" git pull --ff-only 2>&1 >/dev/null); then
         printMsgs "dialog" "Update failed:\n\n${error}"
-        popd >/dev/null || exit
+        popd >/dev/null
         return 1
     fi
-    popd >/dev/null || exit
+    popd >/dev/null
 
     printMsgs "dialog" "Fetched the latest version of the ArchyPie setup script."
     return 0
@@ -144,6 +144,7 @@ function package_setup() {
         return 1
     fi
 
+    # Associative array so we can pull out the messages later for the confirmation requester
     declare -A option_msgs=(
         ["U"]=""
         ["B"]="Install from Pre-compiled Binary"
@@ -655,19 +656,15 @@ function gui_setup() {
 
             U "Update" "U Updates ArchyPie-Setup & all currently installed packages. Will also allow to update OS packages. If binaries are available they will be used, otherwise packages will be built from source."
 
-            P "Manage Packages""P Install, Remove & Configure the various components of ArchyPie, including emulators, ports, & controller drivers."
+            P "Manage Packages" "P Install, Remove & Configure the various components of ArchyPie, including emulators, ports, & controller drivers."
 
-            C "Configuration & Tools"
-            "C Configuration & Tools. Any packages you have installed that have additional configuration options will also appear here."
+            C "Configuration & Tools" "C Configuration & Tools. Any packages you have installed that have additional configuration options will also appear here."
 
-            S "Update ArchyPie-Setup Script"
-            "S Update the ArchyPie-Setup script. This will update this main management script only, but will not update any software packages. To update packages use the 'Update' option from the main menu, which will also update the ArchyPie-Setup script."
+            S "Update ArchyPie-Setup Script" "S Update the ArchyPie-Setup script. This will update this main management script only, but will not update any software packages. To update packages use the 'Update' option from the main menu, which will also update the ArchyPie-Setup script."
 
-            X "Uninstall ArchyPie"
-            "X Uninstall ArchyPie completely."
+            X "Uninstall ArchyPie" "X Uninstall ArchyPie completely."
 
-            R "Perform Reboot"
-            "R Reboot your machine."
+            R "Perform Reboot" "R Reboot your machine."
         )
 
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
