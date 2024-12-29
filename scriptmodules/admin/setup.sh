@@ -649,7 +649,7 @@ function gui_setup() {
     while true; do
         local commit=$(sudo -u "${__user}" git -C "${scriptdir}" log -1 --pretty=format:"%cr (%h)")
 
-        cmd=(dialog --backtitle "${__backtitle}" --title "ArchyPie-Setup Script" --cancel-label "Exit" --item-help --help-button --default-item "${default}" --menu "Version: ${__version} - Last Commit: ${commit}\nSystem: ${__platform} ($__platform_arch) - Running On: $__os_desc" 22 76 16)
+        cmd=(dialog --backtitle "${__backtitle}" --title "ArchyPie-Setup Script" --cancel-label "Exit" --item-help --help-button --default-item "${default}" --menu "Version: ${__version} - Last Commit: ${commit}\nSystem: ${__platform} (${__platform_arch}) - Running On: ${__os_desc}" 22 76 16)
         options=(
             I "Basic Install" "I This will install all packages from Core & Main which gives a basic ArchyPie install. Further packages can then be installed later from the Optional & Experimental sections. If binaries are available they will be used, alternatively packages will be built from source which will take longer."
 

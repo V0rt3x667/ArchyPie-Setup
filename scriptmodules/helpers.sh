@@ -349,7 +349,7 @@ function getDepends() {
         if ! hasPackage "${pkg}"; then
             # workaround for installing samba in a chroot (fails due to failed smbd service restart)
             # we replace the init.d script with an empty script so the install completes
-            #if [[ "${pkg}" == "samba" && "$__chroot" -eq 1 ]]; then
+            #if [[ "${pkg}" == "samba" && "${__chroot}" -eq 1 ]]; then
             #    mv /etc/init.d/smbd /etc/init.d/smbd.old
             #    echo "#!/bin/sh" >/etc/init.d/smbd
             #    chmod u+x /etc/init.d/smbd
@@ -1525,7 +1525,6 @@ function delEmulator() {
         # If we no longer have any entries in the emulators.cfg file we can remove it
         grep -q "=" "${config}" || rm -f "${config}"
     fi
-
 }
 
 ## @fn dkmsManager()
@@ -1571,7 +1570,7 @@ function dkmsManager() {
         reload)
             dkmsManager unload "${module_name}" "${module_ver}"
             # No reason to load modules in chroot
-            if [[ "$__chroot" -eq 0 ]]; then
+            if [[ "${__chroot}" -eq 0 ]]; then
                 modprobe "${module_name}"
             fi
             ;;
