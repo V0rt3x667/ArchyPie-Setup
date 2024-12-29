@@ -85,7 +85,8 @@ EMU_CONF="${CONFIGDIR}/all/emulators.cfg"
 BACKENDS_CONF="${CONFIGDIR}/all/backends.cfg"
 RETRONETPLAY_CONF="${CONFIGDIR}/all/retronetplay.cfg"
 JOY2KEY="${ROOTDIR}/admin/joy2key/joy2key"
-BIOSDIR="${HOME}/ArchyPie/BIOS"
+#BIOSDIR="${HOME}/ArchyPie/BIOS"
+BIOSDIR="${HOME}/ArchyPie/bios"
 
 # Modesetting tools
 TVSERVICE="/opt/vc/bin/tvservice"
