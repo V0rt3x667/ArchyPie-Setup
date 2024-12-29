@@ -270,6 +270,21 @@ function _mapPackage() {
                 [[ "${own_sdl2}" -eq 1 ]] && pkg="RP sdl2 ${pkg}"
             fi
             ;;
+        sfml)
+            if rp_isEnabled "sfml"; then
+                local own_sfml=1
+                # Default to off for x11 targets
+                isPlatform "x11" && own_sfml=0
+                iniConfig " = " '"' "${configdir}/all/archypie.cfg"
+                iniGet "own_sfml"
+                if [[ "${ini_value}" == "1" ]]; then
+                    own_sfml=1
+                elif [[ "${ini_value}" == "0" ]]; then
+                    own_sfml=0
+                fi
+                [[ "${own_sfml}" -eq 1 ]] && pkg="RP sfml ${pkg}"
+            fi
+            ;;
     esac
     echo "${pkg}"
 }
@@ -296,7 +311,8 @@ function getDepends() {
                 fi
             else
                 # If installing check if our version is installed & queue for installing via the custom module
-                if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
+                #if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
+                if [[ $(hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]})) != "0" ]]; then
                     own_pkgs+=("${pkg[1]}")
                     all_pkgs+=("${pkg[2]}(custom)")
                 fi

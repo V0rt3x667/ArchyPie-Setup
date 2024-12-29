@@ -12,6 +12,10 @@ rp_module_licence="ZLIB https://raw.githubusercontent.com/SFML/SFML/refs/heads/m
 rp_module_section="depends"
 rp_module_flags="!all kms"
 
+function get_pkg_ver_sfml() {
+    echo "2.6.2"
+}
+
 function remove_old_sfml() {
     # Remove our sfml-arpie package
     hasPackage sfml-arpie && pacmanRemove sfml-arpie

@@ -10,7 +10,7 @@ rp_module_id="sdl2"
 rp_module_desc="SDL (Simple DirectMedia Layer) v2.x with RPI fixes for KMS"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/libsdl-org/SDL/main/LICENSE.txt"
 rp_module_section="depends"
-rp_module_flags="all"
+rp_module_flags="!all kms"
 
 #function get_ver_sdl2() {
 #    if [[ "$__os_debian_ver" -ge 11 ]]; then
