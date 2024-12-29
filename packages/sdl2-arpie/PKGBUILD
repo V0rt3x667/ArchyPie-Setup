@@ -40,15 +40,14 @@ makedepends=(
 provides=('sdl2')
 conflicts=('sdl2')
 source=(
-    "https://github.com/libsdl-org/SDL/releases/download/release-${pkgver}/SDL2-${pkgver}.tar.gz"{,.sig}
+    "https://github.com/libsdl-org/SDL/releases/download/release-${pkgver}/SDL2-${pkgver}.tar.gz"
     "01_rpi_kms_hints.patch"
     )
 sha512sums=(
     'bcb220749cd3b0874288d617419e622701138bcb8fe55e9b665e8843c65afda031d01afe0d11e308a9608724ed151f342e5f5670c84204b36943cb323ced41da'
     'SKIP'
-    'SKIP'
     )
-validpgpkeys=('1528635D8053A57F77D1E08630A59377A7763BE6')
+#validpgpkeys=('1528635D8053A57F77D1E08630A59377A7763BE6')
 
 prepare() {
     patch -Np1 -i ./01_rpi_kms_hints.patch
@@ -72,7 +71,6 @@ build() {
         -DSDL_RPI="OFF" \
         -DSDL_STATIC="OFF" \
         -Wno-dev
-    ninja -C build clean
     ninja -C build
 }
 
