@@ -179,9 +179,9 @@ function hasPackage() {
     local status
 
     for pkg in "${pkgs[@]}"; do
-        out="$(pacman -Q "${pkg}" 2>/dev/null)"
+        out=$(pacman -Q "${pkg}" 2>/dev/null)
         if [[ "${?}" -eq 0 ]]; then
-            ver=$("${out}" | cut -d' ' -f2)
+            ver=$(echo ${out} | cut -d' ' -f2)
             status="Installed"
         #else
         #    ver="${out##*-}"
