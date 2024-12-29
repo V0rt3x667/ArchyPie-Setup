@@ -47,6 +47,8 @@ datadir="${home}/ArchyPie"
 biosdir="${datadir}/bios"
 romdir="${datadir}/roms"
 savedir="${datadir}/saves"
+screenshotdir="${datadir}/screenshots"
+statedir="${datadir}/states"
 
 configdir="${rootdir}/configs"
 emudir="${rootdir}/emulators"

@@ -87,6 +87,9 @@ RETRONETPLAY_CONF="${CONFIGDIR}/all/retronetplay.cfg"
 JOY2KEY="${ROOTDIR}/admin/joy2key/joy2key"
 #BIOSDIR="${HOME}/ArchyPie/BIOS"
 BIOSDIR="${HOME}/ArchyPie/bios"
+SAVEDIR="${HOME}/ArchyPie/saves"
+SCREENSHOTDIR="${HOME}/ArchyPie/screenshots"
+STATEDIR="${HOME}/ArchyPie/states"
 
 # Modesetting tools
 TVSERVICE="/opt/vc/bin/tvservice"
@@ -1110,6 +1113,15 @@ function retroarch_append_config() {
 
     # Dynamically set BIOS location
     iniSet "system_directory" "${BIOSDIR}/${SYSTEM}"
+
+    # Dynamically set saves location
+    iniSet "savefile_directory" "${SAVEDIR}/${SYSTEM}"
+
+    # Dynamically set states location
+    iniSet "savestate_directory" "${STATEDIR}/${SYSTEM}"
+
+    # Dynamically set screenshots location
+    iniSet "screenshot_directory" "${SCREENSHOTDIR}/${SYSTEM}"
 
     # If verbose logging is on, set core logging to INFO
     [[ "${VERBOSE}" -eq 1 ]] && iniSet "libretro_log_level" "1"
