@@ -145,6 +145,11 @@ function install_sdl2() {
     #echo "libsdl2-dev hold" | dpkg --set-selections
 
     pacmanPKGBuild sdl2-arpie
+    if [[ "${?}" -ne 0 ]]; then
+        md_ret_errors+=("Failed to install ${md_id} !")
+        return 1
+    fi
+    return 0
 }
 
 #function __binary_url_sdl2() {
