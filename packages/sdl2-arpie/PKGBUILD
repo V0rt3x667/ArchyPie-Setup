@@ -49,10 +49,14 @@ sha512sums=(
 )
 
 prepare() {
+    cd "${srcdir}/SDL2-${pkgver}"
+
     patch -Np1 -i ../01_rpi_kms_hints.patch
 }
 
-build() { 
+build() {
+    cd "${srcdir}/SDL2-${pkgver}"
+
     CFLAGS+=" -ffat-lto-objects"
 
     cmake . \
@@ -74,6 +78,8 @@ build() {
 }
 
 package() {
+    cd "${srcdir}/SDL2-${pkgver}"
+
     DESTDIR="${pkgdir}" ninja -C build install/strip
 
     # For some reason, this isn't named correctly and we have to fix it to reflect the actual staticlib name.
