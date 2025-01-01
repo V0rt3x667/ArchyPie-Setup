@@ -147,7 +147,8 @@ function install_sdl2() {
     pacmanPKGBuild sdl2-arpie
     if [[ "${?}" -ne 0 ]]; then
         md_ret_errors+=("Failed to install ${md_id} !")
-        return 1
+        #return 1
+        exit
     fi
     return 0
 }
