@@ -312,8 +312,7 @@ function getDepends() {
             else
                 # If installing check if our version is installed & queue for installing via the custom module
                 #if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
-                #if [[ $(hasPackage "${pkg[2]}" $(get_pkg_ver_"${pkg[1]}")) != "0" ]]; then
-                if [[ $(hasPackage "${pkg[2]}") != "0" ]]; then
+                if [[ $(hasPackage "${pkg[2]}" $(get_pkg_ver_"${pkg[1]}")) != "0" ]]; then
                     own_pkgs+=("${pkg[1]}")
                     all_pkgs+=("${pkg[2]}-arpie")
                 fi
