@@ -267,7 +267,8 @@ function _mapPackage() {
                 elif [[ "${ini_value}" == "0" ]]; then
                     own_sdl2=0
                 fi
-                [[ "${own_sdl2}" -eq 1 ]] && pkg="RP sdl2 ${pkg}"
+                #[[ "${own_sdl2}" -eq 1 ]] && pkg="RP sdl2 ${pkg}"
+                [[ "${own_sdl2}" -eq 1 ]] && pkg="RP sdl2 sdl2-arpie"
             fi
             ;;
         sfml)
@@ -307,14 +308,16 @@ function getDepends() {
             if [[ "${md_mode}" == "remove" ]]; then
                 if hasPackage "${pkg[2]}"; then
                     own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(custom)")
+                    #all_pkgs+=("${pkg[2]}(custom)")
+                    all_pkgs+=("${pkg[2]}")
                 fi
             else
                 # If installing check if our version is installed & queue for installing via the custom module
                 #if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
                 if [[ $(hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]})) != "0" ]]; then
                     own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(custom)")
+                    #all_pkgs+=("${pkg[2]}(custom)")
+                    all_pkgs+=("${pkg[2]}")
                 fi
             fi
             continue

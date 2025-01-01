@@ -25,6 +25,11 @@ function install_sfml() {
     remove_old_sfml
 
     pacmanPKGBuild sfml-arpie
+    if [[ "${?}" -ne 0 ]]; then
+        md_ret_errors+=("Failed to install ${md_id} !")
+        exit
+    fi
+    return 0
 }
 
 function remove_sfml() {
