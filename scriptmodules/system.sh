@@ -155,7 +155,7 @@ function get_os_version() {
 
     local error=""
     case "${__os_id}" in
-        ArchLinux*)
+        Arch)
             __platform_flags+=('arch')
 
             # Code might be used in future
