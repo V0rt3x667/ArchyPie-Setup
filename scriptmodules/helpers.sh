@@ -172,7 +172,7 @@ function hasPackage() {
     local pkgs="${1}"
     local req_ver="${2}"
     local ver
-    local comp="$(compareVersions ${ver} ${req_ver})"
+    local comp=$(compareVersions ${ver} ${req_ver})
 
     local out
     local pkg
