@@ -345,7 +345,7 @@ function section_gui_setup() {
     local ids=()
     case "${section}" in
         all|inst)
-            name="Packages"
+            name="packages"
             local id
             for id in "${__mod_id[@]}"; do
                 # If we are showing installed packaged, skip those that are not installed
@@ -410,9 +410,9 @@ function section_gui_setup() {
         if [[ "${has_net}" -eq 1 && "${section}" != "driver" && "${section}" != "depends" ]]; then
             # Don't show "Install all packages" when we are showing only installed packages
             if [[ "${section}" != "inst" ]]; then
-                options+=(I "Install All ${name}" "This will install all ${name}. If a package is not installed & a pre-compiled binary is available it will be used. If a package is already installed, it will be updated by the method used previously.")
+                options+=(I "Install all ${name}" "This will install all ${name}. If a package is not installed & a pre-compiled binary is available it will be used. If a package is already installed, it will be updated by the method used previously.")
             fi
-            options+=(X "Remove All Installed ${name}" "X This will remove all installed ${name}.")
+            options+=(X "Remove all installed ${name}" "X This will remove all installed ${name}.")
         fi
 
         options+=("${pkgs[@]}")
