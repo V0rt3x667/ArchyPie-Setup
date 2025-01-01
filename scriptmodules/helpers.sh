@@ -1705,6 +1705,6 @@ function pacmanPKGBuild() {
             SRCDEST='"${builddir}/${pkg}"' \
             SRCPKGDEST='"${builddir}/${pkg}"' \
             PACKAGER="archrgs.project <archrgs.project@gmail.com>" \
-            makepkg -csi --noconfirm'
+            makepkg -crsi --noconfirm'
     done
 }
