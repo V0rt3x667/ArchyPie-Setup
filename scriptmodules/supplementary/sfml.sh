@@ -13,16 +13,16 @@ rp_module_section="depends"
 rp_module_flags="!all kms"
 
 function get_pkg_ver_sfml() {
-    echo "2.6.2"
+    echo "2.6.2-1"
 }
 
-function remove_old_sfml() {
+#function remove_old_sfml() {
     # Remove our sfml-arpie package
-    hasPackage sfml-arpie && pacmanRemove sfml-arpie
-}
+#    hasPackage sfml-arpie && pacmanRemove sfml-arpie
+#}
 
 function install_sfml() {
-    remove_old_sfml
+    #remove_old_sfml
 
     pacmanPKGBuild sfml-arpie
     if [[ "${?}" -ne 0 ]]; then

@@ -30,7 +30,7 @@ function get_pkg_ver_sdl2() {
 #    isPlatform "rpi" && ver+="rpi"
 #    isPlatform "mali" && ver+="mali"
 #    echo "$ver"
-    echo "2.30.10"
+    echo "2.30.10-1"
 }
 
 #function get_arch_sdl2() {
@@ -128,13 +128,13 @@ function get_pkg_ver_sdl2() {
 #     done
 # }
 
-function remove_old_sdl2() {
+#function remove_old_sdl2() {
     # remove our old libsdl2 packages
     #hasPackage libsdl2 && dpkg --remove libsdl2 libsdl2-dev
 
     # Remove our sdl2-arpie package
-    hasPackage sdl2-arpie && pacmanRemove sdl2-arpie
-}
+#    hasPackage sdl2-arpie && pacmanRemove sdl2-arpie
+#}
 
 function install_sdl2() {
     #remove_old_sdl2
