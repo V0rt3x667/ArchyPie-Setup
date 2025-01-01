@@ -307,14 +307,14 @@ function getDepends() {
             if [[ "${md_mode}" == "remove" ]]; then
                 if hasPackage "${pkg[2]}"; then
                     own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(-arpie)")
+                    all_pkgs+=("${pkg[2]}-arpie")
                 fi
             else
                 # If installing check if our version is installed & queue for installing via the custom module
                 #if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
                 if [[ $(hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]})) != "0" ]]; then
                     own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(-arpie)")
+                    all_pkgs+=("${pkg[2]}-arpie")
                 fi
             fi
             continue
