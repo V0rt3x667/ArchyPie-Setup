@@ -1696,11 +1696,14 @@ function pacmanPKGBuild() {
     local pkg
 
     for pkg in "${@}"; do
+        if hasPackage "${pkg}"; then
+            return
+        fi
         su "${__user}" --session-command 'cd '"${scriptdir}/packages/${pkg}"' && \
             if [[ ! -d '"${builddir}/${pkg}"' ]]; then
                 mkdir -p '"${builddir}/${pkg}"'
             fi
-            BUILDDIR='"${builddir}/${pkg}"' \
+            BUILDDIR='"${builddir}"' \
             PKGDEST='"${builddir}/${pkg}"' \
             SRCDEST='"${builddir}/${pkg}"' \
             SRCPKGDEST='"${builddir}/${pkg}"' \
