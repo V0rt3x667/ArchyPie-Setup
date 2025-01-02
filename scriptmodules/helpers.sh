@@ -172,7 +172,7 @@ function hasPackage() {
     local pkgs="${1}"
     local req_ver="${2}"
     local ver
-    local comp=$(compareVersions ${ver} ${req_ver})
+    #local comp=$(compareVersions ${ver} ${req_ver})
 
     local out
     local pkg
@@ -201,9 +201,11 @@ function hasPackage() {
         # We still need to do the version check even if not installed due to the varied boolean operators
         [[ "${installed}" -eq 0 ]] && ver=""
 
-        if [[ "${comp}" == "1" ]] || [[ "${comp}" == "0" ]]; then
-            return 0
-        fi
+        #if [[ "${comp}" == "1" ]] || [[ "${comp}" == "0" ]]; then
+        #    return 0
+        #fi
+        #compareVersions "${ver}" "${req_ver}" && return 0
+        compareVersions "${ver}" "${req_ver}" && return ${?}
     fi
     return 1
 }
@@ -1696,14 +1698,11 @@ function pacmanPKGBuild() {
     local pkg
 
     for pkg in "${@}"; do
-        if hasPackage "${pkg}"; then
-            return
-        fi
         su "${__user}" --session-command 'cd '"${scriptdir}/packages/${pkg}"' && \
             if [[ ! -d '"${builddir}/${pkg}"' ]]; then
                 mkdir -p '"${builddir}/${pkg}"'
             fi
-            BUILDDIR='"${builddir}"' \
+            BUILDDIR='"${builddir}/${pkg}"' \
             PKGDEST='"${builddir}/${pkg}"' \
             SRCDEST='"${builddir}/${pkg}"' \
             SRCPKGDEST='"${builddir}/${pkg}"' \
