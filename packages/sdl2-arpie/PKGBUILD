@@ -84,8 +84,5 @@ package() {
 
     DESTDIR="${pkgdir}" ninja -C build install
 
-    # For some reason, this isn't named correctly and we have to fix it to reflect the actual staticlib name.
-    sed -i "s/libSDL2\.a/libSDL2main.a/g" "${pkgdir}"/usr/lib/cmake/SDL2/SDL2Targets-noconfig.cmake
-
     install -Dm644 "LICENSE.txt" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
