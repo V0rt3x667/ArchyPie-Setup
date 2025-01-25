@@ -30,7 +30,7 @@ function get_pkg_ver_sdl2() {
 #    isPlatform "rpi" && ver+="rpi"
 #    isPlatform "mali" && ver+="mali"
 #    echo "$ver"
-    echo "2.30.10-1"
+    echo "2.30.11-1"
 }
 
 #function get_arch_sdl2() {
