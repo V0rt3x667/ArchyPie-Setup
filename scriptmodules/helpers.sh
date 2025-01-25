@@ -495,10 +495,13 @@ function gitPullOrClone() {
 # @brief Makes sure some required ArchyPie directories & files are created.
 function setupDirectories() {
     mkdir -p "${rootdir}"
+    mkUserDir "${biosdir}"
     mkUserDir "${datadir}"
     mkUserDir "${romdir}"
-    mkUserDir "${biosdir}"
     mkUserDir "${savedir}"
+    mkUserDir "${screenshotdir}"
+    mkUserDir "${statedir}"
+
     mkUserDir "${configdir}"
     mkUserDir "${configdir}/all"
 

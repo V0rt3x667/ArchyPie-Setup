@@ -44,7 +44,7 @@ fi
 home="$(eval echo ~${__user})"
 datadir="${home}/ArchyPie"
 #arpdir="${datadir}/configs"
-biosdir="${datadir}/bios"
+biosdir="${datadir}/BIOS"
 romdir="${datadir}/roms"
 savedir="${datadir}/saves"
 screenshotdir="${datadir}/screenshots"
