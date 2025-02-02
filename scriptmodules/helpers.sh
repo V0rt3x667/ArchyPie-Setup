@@ -243,31 +243,25 @@ function _mapPackage() {
             rp_isEnabled "python-pysdl2" && pkg="RP python-pysdl2 ${pkg}"
             ;;
         python-uinput)
-           rp_isEnabled "python-uinput" && pkg="RP python-uinput ${pkg}"
-           ;;
+            rp_isEnabled "python-uinput" && pkg="RP python-uinput ${pkg}"
+            ;;
         # Handle our custom package alias LINUX-HEADERS
         LINUX-HEADERS)
             if isPlatform "rpi"; then
-                # on RaspiOS bookworm and later, kernel packages are separated by arch and model
-               if isPlatform "32bit"; then
-                   isPlatform "rpi2" || isPlatform "rpi3" && pkg="linux-headers-rpi-v7"
-                   isPlatform "rpi4" && pkg="linux-headers-rpi-v7l"
-               else
-                   isPlatform "rpi3" || isPlatform "rpi4" && pkg="linux-headers-rpi-v8"
-                   isPlatform "rpi5" && pkg="linux-headers-rpi-2712"
-               fi
-             fi
+                if ! hasPackage "linux-rpi-16k"; then
+                    pkg="linux-rpi-headers"
+                else
+                    pkg="linux-rpi-16k-headers"
+                fi
+            fi
             ;;
-        #sdl)
-        #    rp_isEnabled "sdl1" && pkg="RP sdl1 ${pkg}"
-        #    ;;
         sdl2)
             if rp_isEnabled "sdl2"; then
-                # Check whether to use our own sdl2 - can be disabled to resolve issues with
-                # mixing custom 64bit sdl2 & os distributed i386 version on multiarch
+                # Check whether to use our own sdl2 - can be disabled to resolve issues/conflicts with
+                # versions of SDL distributed by Arch Linux
                 local own_sdl2=1
                 # Default to off for x11 targets
-                isPlatform "x11" && own_sdl2=0
+                #isPlatform "x11" && own_sdl2=0
                 iniConfig " = " '"' "${configdir}/all/archypie.cfg"
                 iniGet "own_sdl2"
                 if [[ "${ini_value}" == "1" ]]; then
@@ -280,6 +274,8 @@ function _mapPackage() {
             ;;
         sfml)
             if rp_isEnabled "sfml"; then
+                # Check whether to use our own sfml - can be disabled to resolve issues/conflicts with
+                # versions of SFML distributed by Arch Linux
                 local own_sfml=1
                 # Default to off for x11 targets
                 isPlatform "x11" && own_sfml=0
