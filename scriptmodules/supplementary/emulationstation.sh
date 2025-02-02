@@ -195,6 +195,7 @@ function build_emulationstation() {
         -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_LINKER_TYPE="MOLD" \
+        -DCMAKE_PREFIX_PATH="${rootdir}/supplementary/sdl2" \
         "${params[@]}" \
         -Wno-dev
     ninja -C build clean

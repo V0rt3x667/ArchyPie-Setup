@@ -239,6 +239,12 @@ function pacmanRemove() {
 function _mapPackage() {
     local pkg="${1}"
     case "${pkg}" in
+        python-pysdl2)
+            rp_isEnabled "python-pysdl2" && pkg="RP python-pysdl2 ${pkg}"
+            ;;
+        python-uinput)
+           rp_isEnabled "python-uinput" && pkg="RP python-uinput ${pkg}"
+           ;;
         # Handle our custom package alias LINUX-HEADERS
         LINUX-HEADERS)
             if isPlatform "rpi"; then

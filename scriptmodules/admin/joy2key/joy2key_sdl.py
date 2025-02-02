@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 ################################################################################
 # This file is part of the ArchyPie Project                                    #
@@ -18,11 +18,17 @@ https://github.com/RetroPie/EmulationStation/blob/62fd08c26d2f757259b7d890c98c0d
 EmulationStation is authored by Alec "Aloshi" Lofquist (http://www.aloshi.com,http://www.emulationstation.org)
 
 This script uses the PySDL2 module from https://github.com/py-sdl/py-sdl2
-This script uses the Python-uinput module from https://github.com/tuomasjjrasanen/python-uinput
+This script uses the Python-uinput module from https://github.com/pyinput/python-uinput
 """
 
 import logging
 import sys
+
+# Add sys path for python-pysdl2
+sys.path.insert(0, '${rootdir}/supplementary/python-pysdl2')
+# Add sys path for python-uinput
+sys.path.insert(1, '${rootdir}/supplementary/python-uinput')
+
 import signal
 import re
 import os

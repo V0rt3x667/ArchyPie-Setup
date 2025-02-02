@@ -75,6 +75,7 @@ function build_cdogs-sdl() {
         -DBUILD_TESTING="OFF" \
         -DCDOGS_DATA_DIR="${md_inst}/" \
         -DUSE_SHARED_ENET="ON" \
+        -DCMAKE_PREFIX_PATH="${rootdir}/supplementary/sdl2" \
         -Wno-dev
     ninja -C build clean
     ninja -C build
