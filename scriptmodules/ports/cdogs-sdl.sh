@@ -14,9 +14,7 @@ rp_module_section="exp"
 rp_module_flags="all sdl2"
 
 function _get_release_cdogs-sdl() {
-    # Current release
     local release="2.2.0"
-
     echo "${release}"
 }
 

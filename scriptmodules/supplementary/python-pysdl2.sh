@@ -10,16 +10,16 @@ rp_module_id="python-pysdl2"
 rp_module_desc="PySDL2: Python SDL2 Wrapper"
 rp_module_help="A Python wrapper for SDL2 (Required by joy2key)"
 rp_module_licence="CC0 https://raw.githubusercontent.com/py-sdl/py-sdl2/refs/heads/master/doc/copying.rst"
-rp_module_repo="git https://github.com/py-sdl/py-sdl2.git :_version_python-pysdl2"
+rp_module_repo="git https://github.com/py-sdl/py-sdl2.git :_get_release_python-pysdl2"
 rp_module_section="depends"
 rp_module_flags="all"
 
-function _version_python-pysdl2() {
-    local ver="0.9.17"
-    echo "${ver}"
+function _get_release_python-pysdl2() {
+    local release="0.9.17"
+    echo "${release}"
 }
 
-function depend_python-pysdl2() {
+function depends_python-pysdl2() {
     local depends=(
         'python-build'
         'python-installer'

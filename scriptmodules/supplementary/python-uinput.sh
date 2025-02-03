@@ -10,16 +10,16 @@ rp_module_id="python-uinput"
 rp_module_desc="Python-uinput: Python Linux uinput Kernel Module Interface"
 rp_module_help="A Python interface to the Linux uinput kernel module (Required by joy2key)"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/pyinput/python-uinput/refs/heads/master/COPYING"
-rp_module_repo="git https://github.com/pyinput/python-uinput.git :_version_python-uinput"
+rp_module_repo="git https://github.com/pyinput/python-uinput.git :_get_release_python-uinput"
 rp_module_section="depends"
 rp_module_flags="all"
 
-function _version_python-uinput() {
-    local ver="1.0.1"
-    echo "${ver}"
+function _get_release_python-uinput() {
+    local release=="1.0.1"
+    echo "${release}"
 }
 
-function depend_python-uinput() {
+function depends_python-uinput() {
     local depends=(
         'python-build'
         'python-installer'
