@@ -169,23 +169,17 @@ function inputBox() {
 ## @retval 0 if the requested package / version was installed
 ## @retval 1 if the requested package / version was not installed
 function hasPackage() {
-    local pkgs="${1}"
+    local pkg="${1}"
     local req_ver="${2}"
     local ver
-    #local comp=$(compareVersions ${ver} ${req_ver})
-
-    local out
-    local pkg
     local status
+    local package
 
-    for pkg in "${pkgs[@]}"; do
-        out=$(pacman -Q "${pkg}" 2>/dev/null)
+    for package in "${pkg[@]}"; do
+        local out=$(pacman -Q "${package}" 2>/dev/null)
         if [[ "${?}" -eq 0 ]]; then
             ver=$(echo ${out} | cut -d' ' -f2)
             status="Installed"
-        #else
-        #    ver="${out##*-}"
-        #    status="Not Installed"
         fi
     done
 
@@ -199,13 +193,12 @@ function hasPackage() {
         # If checking version & the package is not installed we need to clear "ver" as it may contain
         # the version number of a removed package & give a false positive with compareVersions.
         # We still need to do the version check even if not installed due to the varied boolean operators
-        [[ "${installed}" -eq 0 ]] && ver=""
+        #[[ "${installed}" -eq 0 ]] && ver=""
 
-        #if [[ "${comp}" == "1" ]] || [[ "${comp}" == "0" ]]; then
-        #    return 0
-        #fi
-        #compareVersions "${ver}" "${req_ver}" && return 0
-        compareVersions "${ver}" "${req_ver}" && return ${?}
+        if [[ "$(compareVersions ${ver} ${req_ver})" == "1" ]] || [[ "$(compareVersions ${ver} ${req_ver})"  == "0" ]]; then
+            return 0
+        fi
+        #compareVersions "${ver}" "${req_ver}" && return ${?}
     fi
     return 1
 }
@@ -232,6 +225,7 @@ function pacmanInstall() {
 ## @param packages package / space separated list of packages to remove
 ## @brief Calls pacman -Rsn with the packages provided.
 function pacmanRemove() {
+    pacmanUpdate
     pacman -Rsn "${@}" --noconfirm
     return ${?}
 }
@@ -240,10 +234,12 @@ function _mapPackage() {
     local pkg="${1}"
     case "${pkg}" in
         python-pysdl2)
-            rp_isEnabled "python-pysdl2" && pkg="RP python-pysdl2 ${pkg}"
+            #rp_isEnabled "python-pysdl2" && pkg="RP python-pysdl2 ${pkg}"
+            pkg="RP python-pysdl2 ${pkg}"
             ;;
         python-uinput)
-            rp_isEnabled "python-uinput" && pkg="RP python-uinput ${pkg}"
+            #rp_isEnabled "python-uinput" && pkg="RP python-uinput ${pkg}"
+            pkg="RP python-uinput ${pkg}"
             ;;
         # Handle our custom package alias LINUX-HEADERS
         LINUX-HEADERS)
@@ -261,15 +257,17 @@ function _mapPackage() {
                 # versions of SDL distributed by Arch Linux
                 local own_sdl2=1
                 # Default to off for x11 targets
-                #isPlatform "x11" && own_sdl2=0
+                isPlatform "x11" && own_sdl2=0
                 iniConfig " = " '"' "${configdir}/all/archypie.cfg"
                 iniGet "own_sdl2"
                 if [[ "${ini_value}" == "1" ]]; then
                     own_sdl2=1
                 elif [[ "${ini_value}" == "0" ]]; then
                     own_sdl2=0
+                    pkg="sdl2-compat"
                 fi
-                [[ "${own_sdl2}" -eq 1 ]] && pkg="RP sdl2 ${pkg}"
+                #[[ "${own_sdl2}" -eq 1 ]] && pkg="RP sdl2 ${pkg}"
+                [[ "${own_sdl2}" -eq 1 ]] && rp_callModule "${pkg}" _auto_
             fi
             ;;
         sfml)
@@ -285,8 +283,10 @@ function _mapPackage() {
                     own_sfml=1
                 elif [[ "${ini_value}" == "0" ]]; then
                     own_sfml=0
+                    pkg="sfml"
                 fi
-                [[ "${own_sfml}" -eq 1 ]] && pkg="RP sfml ${pkg}"
+                #[[ "${own_sfml}" -eq 1 ]] && pkg="RP sfml ${pkg}"
+                [[ "${own_sfml}" -eq 1 ]] && rp_callModule "${pkg}" _auto_
             fi
             ;;
     esac
@@ -311,14 +311,13 @@ function getDepends() {
             if [[ "${md_mode}" == "remove" ]]; then
                 if hasPackage "${pkg[2]}"; then
                     own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}-arpie")
+                    all_pkgs+=("${pkg[2]}(custom)")
                 fi
             else
                 # If installing check if our version is installed & queue for installing via the custom module
-                #if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}) "ne"; then
-                if [[ $(hasPackage "${pkg[2]}" $(get_pkg_ver_"${pkg[1]}")) != "0" ]]; then
+                if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}); then
                     own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}-arpie")
+                    all_pkgs+=("${pkg[2]}(custom)")
                 fi
             fi
             continue
@@ -342,7 +341,7 @@ function getDepends() {
     # Return if no packages required
     [[ ${#pacman_pkgs[@]} -eq 0 && ${#own_pkgs[@]} -eq 0 ]] && return
 
-    # If we are removing, then remove packages, remove unused dependencies, clean up orphans & cache & then return
+    # If we are removing, then remove packages, remove unused dependencies, clean up orphans & cache & return
     if [[ "${md_mode}" == "remove" ]]; then
         printMsgs "console" "Removing dependencies: ${all_pkgs[*]}"
         for pkg in ${own_pkgs[@]}; do

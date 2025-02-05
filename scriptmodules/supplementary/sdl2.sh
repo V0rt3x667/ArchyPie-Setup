@@ -12,7 +12,7 @@ rp_module_help="Simple DirectMedia Layer (SDL) (Required by Emulators & Ports)"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/libsdl-org/SDL/main/LICENSE.txt"
 rp_module_repo="git https://github.com/libsdl-org/SDL.git :_get_release_sdl2"
 rp_module_section="depends"
-rp_module_flags="all"
+rp_module_flags="!all kms"
 
 function _get_release_sdl2() {
     local release="2.30.11"
