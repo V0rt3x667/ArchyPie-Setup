@@ -15,7 +15,7 @@ rp_module_section="depends"
 rp_module_flags="!all kms"
 
 function _get_release_sdl2() {
-    local release="2.30.11"
+    local release="2.32.0"
     echo "${release}"
 }
 
