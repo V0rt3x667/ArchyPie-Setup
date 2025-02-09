@@ -403,7 +403,7 @@ function section_gui_setup() {
         done
 
         if [[ "${has_net}" -eq 1 && "${num_pkgs}" -gt 0 ]]; then
-            options+=(U "Update All Installed ${name}" "This will update any installed ${name}. The packages will be updated by the method used previously.")
+            options+=(U "Update all installed ${name}" "This will update any installed ${name}. The packages will be updated by the method used previously.")
         fi
 
         # Allow installing an entire section except for drivers & dependencies.
@@ -595,8 +595,8 @@ function packages_gui_setup() {
     done
 
     options+=("----" "" "")
-    options+=("inst" "Manage All Installed Packages" "Install/update/remove installed packages")
-    options+=("all" "Manage All Packages" "Install/update/remove all available packages")
+    options+=("inst" "Manage all installed packages" "Install/update/remove installed packages")
+    options+=("all" "Manage all packages" "Install/update/remove all available packages")
 
     local cmd
     while true; do
