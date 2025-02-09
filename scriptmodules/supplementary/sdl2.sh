@@ -10,12 +10,13 @@ rp_module_id="sdl2"
 rp_module_desc="SDL2: Simple DirectMedia Layer v2.x with RPI fixes for KMS"
 rp_module_help="Simple DirectMedia Layer (SDL) (Required by Emulators & Ports)"
 rp_module_licence="ZLIB https://raw.githubusercontent.com/libsdl-org/SDL/main/LICENSE.txt"
-rp_module_repo="git https://github.com/libsdl-org/SDL.git"
+rp_module_repo="git https://github.com/libsdl-org/SDL.git :_get_release_sdl2"
 rp_module_section="depends"
 rp_module_flags="!all kms"
 
 function _get_release_sdl2() {
-    local release="2.32.0"
+    local ver="2.32.0"
+    local release="release-${ver}"
     echo "${release}"
 }
 
@@ -52,10 +53,7 @@ function depends_sdl2() {
 }
 
 function sources_sdl2() {
-    local ver="$(_get_release_sdl2)"
-    local branch="release-${ver}"
-
-    gitPullOrClone "${branch}"
+    gitPullOrClone
 
     # Adds RetroPie custom KMS hints
     applyPatch "${md_data}/01_add_kms_hints.patch"
