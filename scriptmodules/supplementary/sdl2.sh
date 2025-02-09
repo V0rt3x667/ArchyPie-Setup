@@ -71,7 +71,6 @@ function build_sdl2() {
         -DCMAKE_BUILD_TYPE="Release" \
         -DCMAKE_C_COMPILER="clang" \
         -DCMAKE_C_FLAGS="${CFLAGS} -ffat-lto-objects" \
-        -DCMAKE_CXX_COMPILER="clang++" \
         -DCMAKE_INSTALL_PREFIX="${md_inst}" \
         -DCMAKE_LINKER_TYPE="MOLD" \
         -DSDL_KMSDRM_SHARED="ON" \
