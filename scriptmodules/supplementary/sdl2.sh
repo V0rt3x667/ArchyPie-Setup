@@ -52,7 +52,10 @@ function depends_sdl2() {
 }
 
 function sources_sdl2() {
-    gitPullOrClone
+    local ver="$(get_release_sdl2)"
+    local branch="release-${ver}"
+
+    gitPullOrClone "${branch}"
 
     # Adds RetroPie custom KMS hints
     applyPatch "${md_data}/01_add_kms_hints.patch"
