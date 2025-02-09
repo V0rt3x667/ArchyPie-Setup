@@ -52,7 +52,7 @@ function depends_sdl2() {
 }
 
 function sources_sdl2() {
-    local ver="$(get_release_sdl2)"
+    local ver="$(_get_release_sdl2)"
     local branch="release-${ver}"
 
     gitPullOrClone "${branch}"
