@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 ## @file inifuncs.sh
-## @brief archypie inifuncs library
+## @brief ArchyPie inifuncs library
 ## @copyright GPLv3
 
 # @fn fatalError()
@@ -43,44 +51,44 @@ function iniProcess() {
     local key="$2"
     local value="$3"
     local file="$4"
-    [[ -z "${file}" ]] && file="$__ini_cfg_file"
+    [[ -z "$file" ]] && file="$__ini_cfg_file"
     local delim="$__ini_cfg_delim"
     local quote="$__ini_cfg_quote"
 
-    [[ -z "${file}" ]] && fatalError "No file provided for ini/config change"
-    [[ -z "${key}" ]] && fatalError "No key provided for ini/config change on ${file}"
+    [[ -z "$file" ]] && fatalError "No file provided for ini/config change"
+    [[ -z "$key" ]] && fatalError "No key provided for ini/config change on $file"
 
-    # we strip the delimiter of spaces, so we can "fussy" match existing entries that have the wrong spacing
+    # We strip the delimiter of spaces, so we can "fussy" match existing entries that have the wrong spacing
     local delim_strip=${delim// /}
-    # if the stripped delimiter is empty - such as in the case of a space, just use the delimiter instead
+    # If the stripped delimiter is empty - such as in the case of a space, just use the delimiter instead
     [[ -z "$delim_strip" ]] && delim_strip="$delim"
-    local match_re="^[[:space:]#]*${key}[[:space:]]*$delim_strip.*$"
+    local match_re="^[[:space:]#]*$key[[:space:]]*$delim_strip.*$"
 
     local match
-    if [[ -f "${file}" ]]; then
-        match=$(grep -i "$match_re" "${file}" | tail -1)
+    if [[ -f "$file" ]]; then
+        match=$(grep -i "$match_re" "$file" | tail -1)
     else
-        touch "${file}"
+        touch "$file"
     fi
 
     if [[ "$cmd" == "del" ]]; then
-        [[ -n "$match" ]] && sed -i --follow-symlinks "\|$(sedQuote "$match")|d" "${file}"
+        [[ -n "$match" ]] && sed -i --follow-symlinks "\|$(sedQuote "$match")|d" "$file"
         return 0
     fi
 
-    [[ "$cmd" == "unset" ]] && key="# ${key}"
+    [[ "$cmd" == "unset" ]] && key="# $key"
 
-    local replace="${key}$delim$quote$value$quote"
+    local replace="$key$delim$quote$value$quote"
     if [[ -z "$match" ]]; then
-        # make sure there is a newline then add the key-value pair
-        sed -i --follow-symlinks '$a\' "${file}"
-        echo "$replace" >> "${file}"
+        # Make sure there is a newline then add the key-value pair
+        sed -i --follow-symlinks '$a\' "$file"
+        echo "$replace" >> "$file"
     else
-        # replace existing key-value pair
-        sed -i --follow-symlinks "s|$(sedQuote "$match")|$(sedQuote "$replace")|g" "${file}"
+        # Replace existing key-value pair
+        sed -i --follow-symlinks "s|$(sedQuote "$match")|$(sedQuote "$replace")|g" "$file"
     fi
 
-    [[ "${file}" =~ retroarch\.cfg$ ]] && retroarchIncludeToEnd "${file}"
+    [[ "$file" =~ retroarch\.cfg$ ]] && retroarchIncludeToEnd "$file"
     return 0
 }
 
@@ -126,20 +134,20 @@ function iniDel() {
 function iniGet() {
     local key="$1"
     local file="$2"
-    [[ -z "${file}" ]] && file="$__ini_cfg_file"
-    if [[ ! -f "${file}" ]]; then
+    [[ -z "$file" ]] && file="$__ini_cfg_file"
+    if [[ ! -f "$file" ]]; then
         ini_value=""
         return 1
     fi
 
     local delim="$__ini_cfg_delim"
     local quote="$__ini_cfg_quote"
-    # we strip the delimiter of spaces, so we can "fussy" match existing entries that have the wrong spacing
+    # We strip the delimiter of spaces, so we can "fussy" match existing entries that have the wrong spacing
     local delim_strip=${delim// /}
-    # if the stripped delimiter is empty - such as in the case of a space, just use the delimiter instead
+    # If the stripped delimiter is empty - such as in the case of a space, just use the delimiter instead
     [[ -z "$delim_strip" ]] && delim_strip="$delim"
 
-    # create a regexp to match the value based on whether we are looking for quotes or not
+    # Create a regexp to match the value based on whether we are looking for quotes or not
     local value_m
     if [[ -n "$quote" ]]; then
         value_m="$quote*\([^$quote|\r]*\)$quote*"
@@ -165,11 +173,11 @@ function retroarchIncludeToEnd() {
 
     local re="^#include.*retroarch\.cfg"
 
-    # extract the include line (unless it is the last line in the file)
+    # Extract the include line (unless it is the last line in the file)
     # (remove blank lines, the last line and search for an include line in remaining lines)
     local include=$(sed '/^$/d;$d' "$config" | grep "$re")
 
-    # if matched remove it and re-add it at the end
+    # If matched remove it and re-add it at the end
     if [[ -n "$include" ]]; then
         sed -i --follow-symlinks "/$re/d" "$config"
         # add newline if missing and the #include line
@@ -178,7 +186,7 @@ function retroarchIncludeToEnd() {
     fi
 }
 
-# arg 1: key, arg 2: default value (optional - is 1 if not used)
+# Arg 1: key, arg 2: default value (optional - is 1 if not used)
 function addAutoConf() {
     local key="$1"
     local default="$2"
@@ -188,38 +196,38 @@ function addAutoConf() {
        default="1"
     fi
 
-    iniConfig " = " '"' "${file}"
-    iniGet "${key}"
+    iniConfig " = " '"' "$file"
+    iniGet "$key"
     ini_value="${ini_value// /}"
     if [[ -z "$ini_value" ]]; then
-        iniSet "${key}" "$default"
-        chown "${__user}":"${__group}" "${file}"
+        iniSet "$key" "$default"
+        chown "$__user":"$__group" "$file"
     fi
 }
 
-# arg 1: key, arg 2: value
+# Arg 1: key, arg 2: value
 function setAutoConf() {
     local key="$1"
     local value="$2"
     local file="$configdir/all/autoconf.cfg"
 
-    iniConfig " = " '"' "${file}"
-    iniSet "${key}" "$value"
-    chown "${__user}":"${__group}" "${file}"
+    iniConfig " = " '"' "$file"
+    iniSet "$key" "$value"
+    chown "$__user":"$__group" "$file"
 }
 
-# arg 1: key
+# Arg 1: key
 function getAutoConf(){
     local key="$1"
 
     iniConfig " = " '"' "$configdir/all/autoconf.cfg"
-    iniGet "${key}"
+    iniGet "$key"
 
     [[ "$ini_value" == "1" ]] && return 0
     return 1
 }
 
-# escape special characters for sed
+# Escape special characters for sed
 function sedQuote() {
     local string="$1"
     string="${string//\\/\\\\}"
@@ -228,3 +236,4 @@ function sedQuote() {
     string="${string//]/\\]}"
     echo "$string"
 }
+
