@@ -3,6 +3,7 @@
 *.DS_Store
 *.DS_Store?
 *.exe
+*.geany
 *.jar
 *.log
 *.log.*
@@ -17,15 +18,12 @@
 *.zip
 *.zst
 
+.vscode/*
 bash-debugger
 ext/*
-logs/
-pkg/
-src/
-support/
-tmp/
-.vscode/
+logs/*
+src/*
+tmp/*
 
-# Exceptions
-!libagar.tar.zst
-!abuse_assets.tar.zst
+# Add exceptions by prefixing the file or folder name with !
+!ext/README.txt
