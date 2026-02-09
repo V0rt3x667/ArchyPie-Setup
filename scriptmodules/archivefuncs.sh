@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 ## @file archivefuncs.sh
-## @brief archypie archivefuncs library
+## @brief ArchyPie archivefuncs library
 ## @copyright GPLv3
 
 readonly arch_dir="/tmp/archypie-archive"
@@ -21,7 +29,7 @@ function archiveExtract() {
     local src_file="$1"
     local disk_exts="$2"
 
-    # clean temp directory if needed
+    # Clean temp directory if needed
     archiveCleanup
     mkdir "$arch_dir"
 
@@ -37,7 +45,7 @@ function archiveExtract() {
             ;;
     esac
 
-    # build a regex portion from the passed extensions
+    # Build a regex portion from the passed extensions
     local regex="${disk_exts// /\\|}"
 
     IFS=$'\n' read -d '' -r -a arch_files < <(find "$arch_dir" -iregex ".*.\(${regex}\)$" | sort)
@@ -52,3 +60,4 @@ function archiveExtract() {
 function archiveCleanup() {
     [[ -d "$arch_dir" ]] && rm -rf "$arch_dir"
 }
+
