@@ -765,7 +765,7 @@ function rp_setPackageInfo() {
     local id="$1"
     local install_path="$(rp_getInstallPath $id)"
     [[ ! -d "$install_path" ]] && return 1
-    local pkg="$install_path/retropie.pkg"
+    local pkg="$install_path/archypie.pkg"
     local origin="$2"
 
     rp_clearCachedInfo "$id"
