@@ -1,53 +1,65 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="joy2key"
-rp_module_desc="Provides Joystick To Keyboard Conversion For Navigation Of ArchyPie Dialog Menus"
+rp_module_desc="Provides Joystick to keyboard conversion for navigation of ArchyPie dialog menus"
 rp_module_section="core"
 
 function _update_hook_joy2key() {
     # Make sure joy2key is always updated when updating archypie-setup
-    rp_isInstalled "${md_id}" && rp_callModule "${md_id}"
+    rp_isInstalled "$md_id" && rp_callModule "$md_id"
 }
 
 function depends_joy2key() {
-    local depends=('python-urwid')
+    local depends=(
+        'python-pysdl2'
+        'python-uinput'
+        'python-urwid'
+    )
     getDepends "${depends[@]}"
 
-    local aurdepends=('python-pysdl2-arpie' 'python-uinput-arpie')
-    local pkg
-    for pkg in "${aurdepends[@]}"; do
-        if hasPackage "${pkg}"; then
-            return
-        else
-            pacmanPKGBuild "${pkg}"
-        fi
-    done
+#    local aurdepends=('python-pysdl2-arpie' 'python-uinput-arpie')
+#    local pkg
+#    for pkg in "${aurdepends[@]}"; do
+#        if hasPackage "${pkg}"; then
+#            return
+#        else
+#            pacmanPKGBuild "${pkg}"
+#        fi
+#    done
 }
 
 function install_bin_joy2key() {
     local file
-    for file in "joy2key_sdl.py" "osk.py"; do
-        cp "${md_data}/${file}" "${md_inst}/"
-        chmod +x "${md_inst}/${file}"
-        python -m compileall "${md_inst}/${file}"
+    for file in "joy2key.py" "joy2key_sdl.py" "osk.py"; do
+        cp "$md_data/$file" "$md_inst/"
+        chmod +x "$md_inst/$file"
+        python -m compileall "$md_inst/$file"
     done
 
-    local wrapper="${md_inst}/joy2key"
-    cat >"${wrapper}" <<_EOF_
-#!/usr/bin/env bash
-mode="\${1}"
-[[ -z "\${mode}" ]] && mode="start"
+    local wrapper="$md_inst/joy2key"
+    cat >"$wrapper" <<_EOF_
+#!/bin/bash
+mode="\$1"
+[[ -z "\$mode" ]] && mode="start"
 shift
 
-# Allow Overriding Joystick Device Via __joy2key_dev env (By Default Will Use /dev/input/jsX Which Will Scan All)
+# Allow overriding joystick device via __joy2key_dev env (by default will use /dev/input/jsX which will scan all)
 device="/dev/input/jsX"
-[[ -n "\${__joy2key_dev}" ]] && device="\${__joy2key_dev}"
+[[ -n "\$__joy2key_dev" ]] && device="\$__joy2key_dev"
 
-params=("\${@}")
+params=("\$@")
 if [[ "\${#params[@]}" -eq 0 ]]; then
     # Default button-to-keyboard mappings:
     # * cursor keys for axis/dpad
@@ -57,22 +69,24 @@ if [[ "\${#params[@]}" -eq 0 ]]; then
 fi
 
 script="joy2key_sdl.py"
+grep --basic-regexp --quiet --no-messages '^legacy_joy2key[[:space:]]*=[[:space:]]*"\?1"\?' $configdir/all/runcommand.cfg && script="joy2key.py"
 
-case "\${mode}" in
+case "\$mode" in
     start)
-        if pgrep -f "\${script}" &>/dev/null; then
-            "\${0}" stop
+        if pgrep -f "\$script" &>/dev/null; then
+            "\$0" stop
         fi
-        "${md_inst}/\${script}" "\${device}" "\${params[@]}" || exit 1
+        "$md_inst/\$script" "\$device" "\${params[@]}" || exit 1
         ;;
     stop)
-        pkill -f "\${script}"
-        sleep 0.5
+        if pid=\$(pgrep -f "\$script"); then
+            /sbin/start-stop-daemon --stop --oknodo --pid \$pid --retry 1
+        fi
         ;;
 esac
 exit 0
 _EOF_
-    chmod +x "${wrapper}"
+    chmod +x "$wrapper"
     if ! grep -q "uinput" /etc/modules; then
         addLineToFile "uinput" "/etc/modules"
     fi
@@ -83,12 +97,8 @@ _EOF_
 
     modprobe uinput
 
-    # Make sure the install user is part of 'input' group
-    local group
-    group="input"
-    if ! hasFlag $(groups "${__user}") "${group}"; then
-        usermod -a -G "${group}" "${__user}"
-    fi
+    # make sure the install user is part of 'input' group
+    usermod -a -G input "$__user"
 
     joy2keyStart
 }
@@ -96,5 +106,6 @@ _EOF_
 function remove_joy2key() {
     joy2keyStop
 
-    pacmanRemove python-pysdl2-arpie python-uinput-arpie
+    #pacmanRemove python-pysdl2-arpie python-uinput-arpie
 }
+

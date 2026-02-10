@@ -1,8 +1,16 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 """
 OnScreen Keyboard Console Utility
@@ -12,11 +20,12 @@ It should be wrapped by 'joy2key' helper script,
 so that the gamepad can be used to navigate and enter the necessary characters.
 
 Keys:
- - Directional keys to move around
+ - directional keys to move around
  - Enter to select a key / press a button
  - Esc to exit the form
 
 It uses the [URWID](https://urwid.org) Python library to show a nice console based keyboard.
+
 
 Example usage:
  <script> WindowTitle StringName [min char number]
@@ -32,23 +41,25 @@ from os import get_terminal_size
 from argparse import ArgumentParser
 
 import urwid
-from urwid.widget import Text, Divider
-from urwid.container import Columns, Frame, GridFlow, Overlay, Pile, WidgetWrap
+from urwid.widget import Text, Divider, FLOW
+from urwid.container import Columns, Frame, GridFlow, Overlay, Pile
 from urwid.decoration import AttrMap, AttrWrap, Filler, Padding
 from urwid.graphics import LineBox
 from urwid.signals import connect_signal
 from urwid.command_map import ACTIVATE
 
+
 ASCII_BLOCK = '█'
 
+# What we consider a small screen
 SMALL_SCREEN_COLS = 43
 SMALL_SCREEN_ROWS = 22
 
 """
-Colors Used In The Application Controls
+Colors used in the application controls
 """
 PALETTE = [
-    # Input Box: border, text & prompt
+    # Input box: border, text and prompt
     ('input',      'dark gray', 'light gray'),
     ('input text', 'black',     'light gray'),
     ('prompt',     'dark red',  'dark cyan' ),
@@ -57,7 +68,7 @@ PALETTE = [
     ('body',     'black',  'light gray'),
     ('bg',       'white',  'dark blue'),
 
-    # Focused Key
+    # Focused key
     ('focus key', 'white', 'dark blue'),
 
     # Header
@@ -70,11 +81,12 @@ PALETTE = [
     ('label',          'dark gray', 'light gray'),
     ('label selected', 'yellow',    'dark blue' ),
 
-    # Error Dialog
+    # Error dialog
     ('error', 'dark red', 'light gray')
 ]
 
-class CenteredButton(WidgetWrap):
+
+class CenteredButton(urwid.WidgetWrap):
     """
     Custom button class that:
       * centers the label text
@@ -103,11 +115,12 @@ class CenteredButton(WidgetWrap):
         else:
             cols = self._label
 
-        self.__super.__init__(cols)
+        super().__init__(cols)
 
         if on_press:
             connect_signal(self, 'click', on_press, user_data)
 
+    # The rest of the methods are taken from urwid.Button
     def set_label(self, label):
         self._label.set_text(label)
 
@@ -116,7 +129,7 @@ class CenteredButton(WidgetWrap):
     label = property(get_label)
 
     def keypress(self, size, key):
-        # Don't Activate With The 'Space' Key
+        # don't activate with the 'Space' key
         if self._command_map[key] != ACTIVATE or key == ' ':
             return key
 
@@ -125,21 +138,22 @@ class CenteredButton(WidgetWrap):
     def mouse_event(self, size, event, button, x, y, focus):
         return False
 
+
 class KeyButton(CenteredButton):
     """
     Custom button class to model a keyboard key
     It has primary and secondary key values, returned based on the shift state
     """
     def __init__(self, text, primary=None, secondary=None, on_press=None, user_data=None):
-        self.__super.__init__(text, on_press, user_data, delimiters=False)
+        super().__init__(text, on_press, user_data, delimiters=False)
 
-        # Store The Primary And Secondary Key Values
+        # store the primary and secondary key values
         if primary is None:
             self.primary_val = text
         else:
             self.primary_val = primary
 
-        # Calculate The Secondary Value When The Label Is A Letter
+        # calculate the secondary value when the label is a letter
         if secondary is None and len(text) == 1:
             self.secondary_val = text.upper()
         else:
@@ -167,6 +181,7 @@ class KeyButton(CenteredButton):
         if not shifted and self.primary_val:
             return self.primary_val
 
+
 class WrappableColumns(Columns):
     """
     Custom Columns class
@@ -177,15 +192,16 @@ class WrappableColumns(Columns):
             if key not in ('left', 'right'):
                 return key
 
-            # Handle 'left'/'right' For Cursor Wrapping
+            # we have a key, so it wasn't handled by any parent container
+            # handle 'left'/'right' ourselves for cursor wrapping
             if key in ('left'):
-                # Iterate From Last Widget To First
+                # iterate from last widget to first
                 widgets = list(range(len(self.contents) - 1, -1, -1))
             else:
-                # Iterate From First Widget To Last
+                # iterate from first widget to last
                 widgets = list(range(0, len(self.contents)))
 
-            # Find The First Selectable Widget & Focus It
+            # Find the 1st selectable widget and focus it
             for i in widgets:
                 if not self.contents[i][0].selectable():
                     continue
@@ -193,8 +209,10 @@ class WrappableColumns(Columns):
                 self.focus_position = i
                 break
 
+
 class ViewExit(Exception):
     pass
+
 
 class OSK:
     """
@@ -217,7 +235,7 @@ class OSK:
         self.frame = self.setup_frame(title, input_title, input_value)
         self.pop_up = self.setup_popup("Error")
 
-        # Create The Main View, Overlaying The Popup Widget With The Main View
+        # Create the main view, overlaying the popup widget with the main view
         view = Overlay(self.pop_up, self.frame, 'center', None, 'middle', None)
 
         self.view = view
@@ -226,11 +244,11 @@ class OSK:
         """
         Creates the main view, with a 3 horizontal pane container (Frame)
         """
-        self.keys = []  # List Of Keys Added To The OSK
-        self._shift = False  # OSK Shift Key State
+        self.keys = []  # List of keys added to the OSK
+        self._shift = False  # OSK Shift key state
 
-        # Title Frame (Header) Uses A LineBox With Just The Bottom Line Enabled
-        # On A Small Display, Use A Simple Text With Padding
+        # title frame (header) uses a LineBox with just the bottom line enabled
+        # if we're on a small display, use a simple Text with Padding
         if self.small_display:
             header = Padding(Text(title, align='center'))
 
@@ -241,16 +259,16 @@ class OSK:
 
         header = AttrWrap(header, 'header')
 
-        # Body Frame, Containing The Input & The OSK Widget
+        # Body frame, containing the input and the OSK widget
         input = Text([('input text', ''), ('prompt', ASCII_BLOCK)])
         if input_value != '':
             input.set_text([('input text', input_value), ('prompt', ASCII_BLOCK)])
 
         self.input = input
 
-        Key = self.add_osk_key  # Alias The Key Creation Function
+        Key = self.add_osk_key  # alias the key creation function
         osk = Pile([
-                # First Keyboard Row
+                # 1st keyboard row
                 WrappableColumns([
                     (1, Text(" ")),
                     (3, Key('`', shifted='~')),
@@ -269,7 +287,7 @@ class OSK:
                     (1, Text(" ")),
                     ], 0),
                 Divider(),
-                # Second Keyboard Row
+                # 2nd keyboard row
                 WrappableColumns([
                     (2, Text(" ")),
                     (3, Key('q')),
@@ -287,7 +305,7 @@ class OSK:
                     (3, Key('\\', shifted='|')),
                     ], 0),
                 Divider(),
-                # Third Keyboard Row
+                # 3rd keyboard row
                 WrappableColumns([
                     (3, Text(" ")),
                     (3, Key('a')),
@@ -303,7 +321,7 @@ class OSK:
                     (3, Key('\'', shifted='"')),
                     ], 0),
                 Divider(),
-                # Fourth Keyboard Row
+                # 4th keyboard row
                 WrappableColumns([
                     (4, Text(" ")),
                     (3, Key('z')),
@@ -318,7 +336,7 @@ class OSK:
                     (3, Key('/', shifted='?'))
                     ], 0),
                 Divider(),
-                # Fifth (Last) Keyboard Row
+                # 5th (last) keyboard row
                 WrappableColumns([
                     (1, Text(" ")),
                     (9, Key('↑ Shift', shifted='↑ SHIFT', callback=self.shift_key_press)),
@@ -331,18 +349,18 @@ class OSK:
               ])
 
         if self.small_display:
-            # Small Displays: Remove Last Divider Line
+            # small displays: remove last divider line
             osk.contents.pop(len(osk.contents) - 1)
 
         osk = Padding(osk, 'center', 40)
 
-        # Setup The Text Input And The Buttons
+        # setup the text input and the buttons
         input=AttrWrap(LineBox(input), 'input')
         input = Padding(AttrWrap(input, 'input text'), 'center', ('relative', 80), min_width=30)
         ok_btn = self.setup_button("OK", self.button_press, exitcode=0)
         cancel_btn = self.setup_button("Cancel", self.button_press, exitcode=1)
 
-        # Setup The Main OSK Area, Depending On The Screen Size
+        # setup the main OSK area, depending on the screen size
         if self.small_display:
             body = Pile([
                         Text(f'{input_title}', align='center'),
@@ -363,13 +381,13 @@ class OSK:
                         ])
             body = LineBox(body, f'{input_title}')
 
-        body = AttrWrap(body, 'body')  # Style The Main OSK Area
+        body = AttrWrap(body, 'body')  # Style the main OSK area
 
-        # Wrap & Align The Main OSK In The Frame
+        # wrap and align the main OSK in the frame
         body = Padding(body, 'center', 55, min_width=42)
         body = Filler(body, 'middle')
 
-        body = AttrWrap(body, 'bg')  # Style The Body Containing The OSK
+        body = AttrWrap(body, 'bg')  # Style the body containing the OSK
 
         frame = Frame(body, header=header, focus_part='body')
 
@@ -402,7 +420,7 @@ class OSK:
 
         # Body
         error_text = Text("", align='center')
-        # Register The Text Widget With The Application, So We Can Change It
+        # register the Text widget with the application, so we can change it
         self._error = error_text
 
         error_text = AttrWrap(error_text, 'error')
@@ -418,7 +436,7 @@ class OSK:
         body = LineBox(body)
         body = AttrWrap(body, 'body')
 
-        # On Small Displays Let The Popup Fill The Screen (Horizontal)
+        # on small displays let the popup fill the screen (horizontal)
         if self.small_display:
             body = Padding(Filler(body, 'middle'), 'center')
         else:
@@ -426,7 +444,7 @@ class OSK:
 
         body = AttrWrap(body, 'bg')
 
-        # Main Dialog Widget
+        # Main dialog widget
         dialog = Frame(
             body,
             header=header,
@@ -449,8 +467,8 @@ class OSK:
     def get_shifted(self):
         return self._shift
 
-    # Create A Class Property For The Shifted State
-    shifted = property(get_shifted, set_shifted, "The Shift Key State")
+    # create a class property for the shifted state
+    shifted = property(get_shifted, set_shifted, "The Shift key state")
 
     def set_error_text(self, message):
         """
@@ -467,9 +485,9 @@ class OSK:
     def button_press(self, btn):
         txt = self.input.get_text()[0].rstrip(ASCII_BLOCK)
 
-        # Check The Input String Length When Ok Is Asking To Exit
+        # check the input string length when OK is asking to exit
         if len(txt) < self._min_chars and btn.exitcode == 0:
-            self.set_error_text(f"{self._input_title} Must Have At Least {self._min_chars} Characters")
+            self.set_error_text(f"{self._input_title} must have at least {self._min_chars} characters")
             self.open_popup()
             return
 
@@ -495,11 +513,11 @@ class OSK:
         if _inner is None:
             return
 
-        # Remove The Final Block From The Input Control And Append The Value
+        # remove the final block from the input control and append the value
         txt = self.input.get_text()[0].rstrip(ASCII_BLOCK)
         self.input.set_text([('input text', txt + _inner), ('prompt', ASCII_BLOCK)])
 
-        # When Keyboard Is Shifted, Toggle The Shift Key After A Key Press
+        # when keyboard is shifted, toggle the shift key after a key press
         if self.shifted:
             self.shift_key_press()
 
@@ -512,7 +530,7 @@ class OSK:
 
         btn = KeyButton(key, primary=value, secondary=shifted, on_press=callback)
 
-        # Store The Key Internally, So We Can Shift It When Needed
+        # store the key internally, so we can shift it when needed
         self.keys.append(btn)
         self.def_keys.append(btn.get_value(False))
         self.def_keys.append(btn.get_value(True))
@@ -523,7 +541,7 @@ class OSK:
         """
         Keyboard input handling
         """
-        # Handle The Normal Key Press
+        # handle the normal key press
         if len(key) == 1 and ord(key) in range(32, 127):
             txt = self.input.get_text()[0].rstrip(ASCII_BLOCK)
             self.input.set_text([('input text', txt + key), ('prompt', ASCII_BLOCK)])
@@ -532,16 +550,16 @@ class OSK:
         if key == 'backspace':
             self.bksp_key_press()
 
-        # Handle Esccape:
-        # - Close The Error Dialog, If In View, & Return To Main Form
-        # - Exit Application If On Main Form
+        # handle Esccape:
+        # - close the error dialog, if in view, and return to main form
+        # - exit application if on main form
         if str(key) in ('esc'):
             if self.loop.widget == self.pop_up:
                 self.close_popup()
             else:
                 raise urwid.ExitMainLoop()
 
-        # Unhandled, Pass It On
+        # unhandled, pass it on
         return key
 
     def check_wpa_chars(self):
@@ -554,16 +572,16 @@ class OSK:
         wpa_chars = []
         for i in range(32, 127):
             wpa_chars.append(i)
-        print(f' All Allowed WPA Password Characters:\n {[chr(k) for k in wpa_chars]}')
+        print(f' All allowed WPA password characters:\n {[chr(k) for k in wpa_chars]}')
 
         missing = False
         for k in wpa_chars:
             if chr(k) not in self.def_keys:
-                print(f' {chr(k)} Is Not Provided!')
+                print(f' {chr(k)} is not provided !')
                 missing = True
 
         if not missing:
-            print(f'All Chars Are Handled!')
+            print(f'All chars are handled !')
 
     def on_exit(self, exitcode):
         """
@@ -587,32 +605,36 @@ class OSK:
         except ViewExit as e:
             return self.on_exit(e.args[0])
 
+
 def parse_arguments(args):
     parser = ArgumentParser(description="Reads a string using an On Screen Keyboard")
 
-    parser.add_argument('--backtitle', type=str, help='Window Title', required=True)
-    parser.add_argument('--inputbox', type=str, help='Name Of The String Being Captured', required=True)
+    parser.add_argument('--backtitle', type=str, help='Window title', required=True)
+    parser.add_argument('--inputbox', type=str, help='Name of the string being captured', required=True)
     parser.add_argument(
         '--minchars', type=int, nargs='?',
-        help='Minimum Number Of Characters Needed (Default: %(default)s)',
+        help='Minimum number of characters needed (default: %(default)s)',
         default=8)
-    parser.add_argument('input', type=str, help='Input Value', default='', nargs='?')
+    parser.add_argument('input', type=str, help='Input value', default='', nargs='?')
     args = parser.parse_args()
     return args.backtitle, args.inputbox, args.minchars, args.input
 
+
 def main():
     backtitle, inputbox, minchars, value = parse_arguments(sys.argv)
-    # Get The Terminal Size To Detect Small Display
+    # get the terminal size to detect small display
     cols, rows = get_terminal_size(0)
 
     osk = OSK(backtitle, inputbox, value, minchars, (cols < SMALL_SCREEN_COLS or rows < SMALL_SCREEN_ROWS))
     exitcode, exitstring = osk.main()
 
-    # Print The Input Text When Returned By The Application
+    # print the input text when returned by the application
     if exitstring:
         sys.stderr.write(exitstring + "\n")
 
     sys.exit(exitcode)
 
+
 if __name__ == "__main__":
     main()
+
