@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 ## @file helpers.sh
 ## @brief ArchyPie helpers library
@@ -15,13 +23,13 @@
 function printMsgs() {
     local type="$1"
     shift
-    if [[ "${__nodialog}" == "1" && "${type}" == "dialog" ]]; then
+    if [[ "$__nodialog" == "1" && "$type" == "dialog" ]]; then
         type="console"
     fi
     for msg in "$@"; do
-        [[ "${type}" == "dialog" ]] && dialog --backtitle "${__backtitle}" --cr-wrap --no-collapse --msgbox "${msg}" 20 60 >/dev/tty
-        [[ "${type}" == "console" ]] && echo -e "${msg}"
-        [[ "${type}" == "heading" ]] && echo -e "\n= = = = = = = = = = = = = = = = = = = = =\n${msg}\n= = = = = = = = = = = = = = = = = = = = =\n"
+        [[ "$type" == "dialog" ]] && dialog --backtitle "$__backtitle" --cr-wrap --no-collapse --msgbox "$msg" 20 60 >/dev/tty
+        [[ "$type" == "console" ]] && echo -e "$msg"
+        [[ "$type" == "heading" ]] && echo -e "\n= = = = = = = = = = = = = = = = = = = = =\n$msg\n= = = = = = = = = = = = = = = = = = = = =\n"
     done
     return 0
 }
@@ -34,7 +42,7 @@ function printHeading() {
 }
 
 ## @fn fatalError()
-## @param message string & array of messages to display
+## @param message string or array of messages to display
 ## @brief Calls PrintMsgs with "heading" type, and exits immediately.
 function fatalError() {
     printHeading "Error"
@@ -123,9 +131,9 @@ function addLineToFile() {
 ## @brief Opens an editing dialog for specified file.
 function editFile() {
     local file="$1"
-    local cmd=(dialog --backtitle "$__backtitle" --editbox "${file}" 22 76)
+    local cmd=(dialog --backtitle "$__backtitle" --editbox "$file" 22 76)
     local choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-    [[ -n "${choice}" ]] && echo "${choice}" >"${file}"
+    [[ -n "$choice" ]] && echo "$choice" >"$file"
 }
 
 ## @fn inputBox()
@@ -141,42 +149,64 @@ function inputBox() {
     local title="$1"
     local text="$2"
     local minchars="$3"
-    [[ -z "${minchars}" ]] && minchars=0
-    local params=(--backtitle "${__backtitle}" --inputbox "Enter The ${title}")
+    [[ -z "$minchars" ]] && minchars=0
+    local params=(--backtitle "$__backtitle" --inputbox "Enter the $title")
     local osk="$(rp_getInstallPath joy2key)/osk.py"
 
-    if [[ -f "${osk}" ]]; then
-        params+=(--minchars "${minchars}")
-        text=$(python "${osk}" "${params[@]}" "${text}" 2>&1 >/dev/tty) || return $?
+    if [[ -f "$osk" ]]; then
+        params+=(--minchars "$minchars")
+        text=$(python3 "$osk" "${params[@]}" "$text" 2>&1 >/dev/tty) || return $?
     else
         while true; do
-            text=$(dialog "${params[@]}" 10 60 "${text}" 2>&1 >/dev/tty) || return $?
-            [[ "${#text}" -ge "${minchars}" ]] && break
-            dialog --msgbox "${title} Must Have At Least ${minchars} Characters" 8 60 2>&1 >/dev/tty
+            text=$(dialog "${params[@]}" 10 60 "$text" 2>&1 >/dev/tty) || return $?
+            [[ "${#text}" -ge "$minchars" ]] && break
+            dialog --msgbox "$title must have at least $minchars characters" 8 60 2>&1 >/dev/tty
         done
     fi
 
-    echo "${text}"
+    echo "$text"
 }
 
 ## @fn hasPackage()
 ## @param package name of Arch Linux package
-## @brief Test for an installed Arch Linux package.
-## @retval 0 if the requested package is installed
-## @retval 1 if the requested package is not installed
+## @param version requested version (optional)
+## @param comparison type of comparison - defaults to `ge` (greater than or equal) if a version parameter is provided.
+## @brief Test for an installed Arch Linux package / package version.
+## @retval 0 if the requested package / version was installed
+## @retval 1 if the requested package / version was not installed
 function hasPackage() {
-    local pkg
-    local pkgs="${1}"
+    local pkg="$1"
+    local req_ver="$2"
+    local ver
+    local status
+    local package
 
-    # If The Package Is Installed Return True
-    for pkg in "${pkgs[@]}"; do
-        pacman -Q "${pkg}" &>/dev/null
-        if [[ "${?}" -eq 0 ]]; then
-            return 0
-        else
-            return 1
+    for package in "${pkg[@]}"; do
+        local out=$(pacman -Q "$package" 2>/dev/null)
+        if [[ "$?" -eq 0 ]]; then
+            ver=$(echo $out | cut -d' ' -f2)
+            status="Installed"
         fi
     done
+
+    local installed=0
+    [[ "$status" == "Installed" ]] && installed=1
+    # If we are not checking version
+    if [[ -z "$req_ver" ]]; then
+        # If the package is installed return true
+        [[ "$installed" -eq 1 ]] && return 0
+    else
+        # If checking version and the package is not installed we need to clear "ver" as it may contain
+        # the version number of a removed package and give a false positive with compareVersions.
+        # We still need to do the version check even if not installed due to the varied boolean operators
+        #[[ "$installed" -eq 0 ]] && ver=""
+
+        if [[ "$(compareVersions $ver $req_ver)" == "1" ]] || [[ "$(compareVersions $ver $req_ver)" == "0" ]]; then
+            return 0
+        fi
+        #compareVersions "$ver" "$req_ver" && return $?
+    fi
+    return 1
 }
 
 ## @fn pacmanUpdate()
@@ -201,8 +231,62 @@ function pacmanInstall() {
 ## @param packages package / space separated list of packages to remove
 ## @brief Calls pacman -Rsn with the packages provided.
 function pacmanRemove() {
+    pacmanUpdate
     pacman -Rsn "$@" --noconfirm
     return $?
+}
+
+function _mapPackage() {
+    local pkg="$1"
+    case "$pkg" in
+        # Handle our custom package alias LINUX-HEADERS
+        LINUX-HEADERS)
+            if isPlatform "rpi"; then
+                if ! hasPackage "linux-rpi-16k"; then
+                    pkg="linux-rpi-headers"
+                else
+                    pkg="linux-rpi-16k-headers"
+                fi
+            fi
+            ;;
+        sdl2)
+            if rp_isEnabled "sdl2"; then
+                # Check whether to use our own sdl2 - can be disabled to resolve issues/conflicts with
+                # versions of SDL distributed by Arch Linux
+                local own_sdl2=1
+                # Default to off for x11 targets
+                isPlatform "x11" && own_sdl2=0
+                iniConfig " = " '"' "$configdir/all/archypie.cfg"
+                iniGet "own_sdl2"
+                if [[ "$ini_value" == "1" ]]; then
+                    own_sdl2=1
+                elif [[ "$ini_value" == "0" ]]; then
+                    own_sdl2=0
+                    pkg="sdl2-compat"
+                fi
+                [[ "$own_sdl2" -eq 1 ]] && pkg="sdl2-arpie"
+            fi
+            ;;
+        sfml)
+            if rp_isEnabled "sfml"; then
+                # Check whether to use our own sfml - can be disabled to resolve issues/conflicts with
+                # versions of SFML distributed by Arch Linux
+                local own_sfml=1
+                # Default to off for x11 targets
+                isPlatform "x11" && own_sfml=0
+                iniConfig " = " '"' "$configdir/all/archypie.cfg"
+                iniGet "own_sfml"
+                if [[ "$ini_value" == "1" ]]; then
+                    own_sfml=1
+                elif [[ "$ini_value" == "0" ]]; then
+                    own_sfml=0
+                    pkg="sfml"
+                fi
+                [[ "${own_sfml}" -eq 1 ]] && pkg="sfml-arpie"
+            fi
+            ;;
+    esac
+    echo "$pkg"
 }
 
 ## @fn getDepends()
@@ -211,18 +295,38 @@ function pacmanRemove() {
 ## @retval 0 on success
 ## @retval 1 on failure
 function getDepends() {
+    local own_pkgs=()
     local pacman_pkgs=()
     local all_pkgs=()
     local pkg
     for pkg in "$@"; do
+        pkg=($(_mapPackage "$pkg"))
+        # Manage our custom packages (pkg = "RP module_id pkg_name")
+        if [[ "${pkg[0]}" == "RP" ]]; then
+            # If removing, check if any version is installed & queue for removal via the custom module
+            if [[ "$md_mode" == "remove" ]]; then
+                if hasPackage "${pkg[2]}"; then
+                    own_pkgs+=("${pkg[1]}")
+                    all_pkgs+=("${pkg[2]}(custom)")
+                fi
+            else
+                # If installing check if our version is installed & queue for installing via the custom module
+                if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}); then
+                    own_pkgs+=("${pkg[1]}")
+                    all_pkgs+=("${pkg[2]}(custom)")
+                fi
+            fi
+            continue
+        fi
+
         if [[ "$md_mode" == "remove" ]]; then
-            # add package to pacman_pkgs for removal if installed
+            # Add package to pacman_pkgs for removal if installed
             if hasPackage "$pkg"; then
                 pacman_pkgs+=("$pkg")
                 all_pkgs+=("$pkg")
             fi
         else
-            # add package to pacman_pkgs for installation if not installed
+            # Add package to pacman_pkgs for installation if not installed
             if ! hasPackage "$pkg"; then
                 pacman_pkgs+=("$pkg")
                 all_pkgs+=("$pkg")
@@ -230,38 +334,55 @@ function getDepends() {
         fi
     done
 
-    # return if no packages required
-    [[ ${#pacman_pkgs[@]} -eq 0 ]] && return
+    # Return if no packages required
+    [[ ${#pacman_pkgs[@]} -eq 0 && ${#own_pkgs[@]} -eq 0 ]] && return
 
-    # if we are removing, then remove packages and return
+    # If we are removing, then remove packages, remove unused dependencies, clean up orphans and cache and return
     if [[ "$md_mode" == "remove" ]]; then
-        printMsgs "console" "Removing Dependencies: ${all_pkgs[*]}"
+        printMsgs "console" "Removing dependencies: ${all_pkgs[*]}"
+        for pkg in ${own_pkgs[@]}; do
+            rp_callModule "$pkg" remove
+        done
         pacman -Rsn "${pacman_pkgs[@]}" --noconfirm && \
         pacman -Qdtq | pacman -Rsn --noconfirm
         return 0
     fi
 
-    printMsgs "console" "Did Not Find Needed Dependencies: ${all_pkgs[*]}. Trying To Install Them Now."
+    printMsgs "console" "Did not find needed dependencies: ${all_pkgs[*]}. Trying to install them now."
+
+    # Install any custom packages
+    for pkg in ${own_pkgs[@]}; do
+       rp_callModule "$pkg" _auto_
+    done
 
     pacmanInstall "${pacman_pkgs[@]}"
 
     local failed=()
-    # check the required packages again rather than return code of pacman -S,
+    # Check the required packages again rather than return code of pacman -S,
     # as pacman -S might fail for other reasons (eg other half installed packages)
-    for pkg in "${pacman_pkgs[@]}"; do
+    for pkg in ${pacman_pkgs[@]}; do
         if ! hasPackage "$pkg"; then
-            failed+=("$pkg")
+            # workaround for installing samba in a chroot (fails due to failed smbd service restart)
+            # we replace the init.d script with an empty script so the install completes
+            #if [[ "$pkg" == "samba" && "$__chroot" -eq 1 ]]; then
+            #    mv /etc/init.d/smbd /etc/init.d/smbd.old
+            #    echo "#!/bin/sh" >/etc/init.d/smbd
+            #    chmod u+x /etc/init.d/smbd
+            #    apt-get -f install
+            #    mv /etc/init.d/smbd.old /etc/init.d/smbd
+            #else
+                failed+=("$pkg")
+            #fi
         fi
     done
 
     if [[ ${#failed[@]} -gt 0 ]]; then
-        md_ret_errors+=("Could Not Install Package(s): ${failed[*]}")
+        md_ret_errors+=("Could not install package(s): ${failed[*]}.")
         return 1
     fi
 
     return 0
 }
-
 
 ## @fn rpSwap()
 ## @param command *on* to add swap if needed and *off* to remove later
@@ -303,7 +424,7 @@ function rpSwap() {
 ## A depth parameter of 0 will do a full clone with all history.
 function gitPullOrClone() {
     local dir="$1"
-    [[ -z "$dir" ]] && dir="${md_build}"
+    [[ -z "$dir" ]] && dir="$md_build"
     local repo="$2"
     local branch="$3"
     local commit="$4"
@@ -324,14 +445,14 @@ function gitPullOrClone() {
         depth=0
     fi
 
-    # record the source directory in __mod_info[ID/repo_dir] if not previously set which will be used
+    # Record the source directory in __mod_info[ID/repo_dir] if not previously set which will be used
     # by the packaging functions later to grab repository information
     if [[ -z "${__mod_info[$md_id/repo_dir]}" ]]; then
         __mod_info[$md_id/repo_dir]="$dir"
     fi
 
     if [[ -d "$dir/.git" ]]; then
-        pushd "$dir" > /dev/null || exit
+        pushd "$dir" > /dev/null
         # if we are using persistent repos, fetch the latest remote changes and clean the source so
         # any patches can be re-applied as needed.
         if [[ "$__persistent_repos" -eq 1 ]]; then
@@ -345,7 +466,7 @@ function gitPullOrClone() {
             runCmd git pull --ff-only
             runCmd git submodule update --init --recursive
         fi
-        popd > /dev/null || exit
+        popd > /dev/null
     else
         local git="git clone --recursive"
         if [[ "$depth" -gt 0 ]]; then
@@ -370,21 +491,21 @@ function gitPullOrClone() {
 # @fn setupDirectories()
 # @brief Makes sure some required ArchyPie directories and files are created.
 function setupDirectories() {
+    mkdir -p "$rootdir"
+    mkUserDir "$datadir"
+    mkUserDir "$romdir"
+    mkUserDir "$biosdir"
+    mkUserDir "$savedir"
+    mkUserDir "$configdir"
+    mkUserDir "$configdir/all"
+
     # Create home folders for configs that modules rely on
     mkUserDir "$home/.cache"
     mkUserDir "$home/.config"
     mkUserDir "$home/.local"
     mkUserDir "$home/.local/share"
 
-    mkdir -p "$rootdir"
-    mkUserDir "$datadir"
-    mkUserDir "$romdir"
-    mkUserDir "$biosdir"
-    mkUserDir "$arpdir"
-    mkUserDir "$configdir"
-    mkUserDir "$configdir/all"
-
-    # make sure we have inifuncs.sh in place and that it is up to date
+    # Make sure we have inifuncs.sh in place and that it is up to date
     mkdir -p "$rootdir/lib"
     local helper
     for helper in inifuncs.sh archivefuncs.sh; do
@@ -393,12 +514,12 @@ function setupDirectories() {
         fi
     done
 
-    # create template for autoconf.cfg and make sure it is owned by ${__user}
+    # Create template for autoconf.cfg and make sure it is owned by $__user
     local config="$configdir/all/autoconf.cfg"
     if [[ ! -f "$config" ]]; then
         echo "# this file can be used to enable/disable archypie autoconfiguration features" >"$config"
     fi
-    chown "${__user}":"${__group}" "$config"
+    chown "$__user":"$__group" "$config"
 }
 
 ## @fn rmDirExists()
@@ -415,18 +536,18 @@ function rmDirExists() {
 ## @brief Creates a directory owned by the current user.
 function mkUserDir() {
     mkdir -p "$1"
-    chown "${__user}":"${__group}" "$1"
+    chown "$__user":"$__group" "$1"
 }
 
 ## @fn mkRomDir()
 ## @param dir rom directory to create
-## @brief Creates a directory under ${romdir} owned by the current user.
+## @brief Creates a directory under $romdir owned by the current user.
 function mkRomDir() {
-    mkUserDir "${romdir}/${1}"
-    if [[ "${1}" == "megadrive" ]]; then
-        if [[ ! -e "${romdir}/genesis" ]]; then
-            pushd "${romdir}"
-            ln -snf "${1}" "genesis"
+    mkUserDir "$romdir/$1"
+    if [[ "$1" == "megadrive" ]]; then
+        if [[ ! -e "$romdir/genesis" ]]; then
+            pushd "$romdir"
+            ln -snf "$1" "genesis"
             popd
         fi
     fi
@@ -453,8 +574,8 @@ function moveConfigDir() {
         rm -rf "$from"
     fi
     ln -snf "$to" "$from"
-    # set ownership of the actual link to ${__user}
-    chown -h "${__user}":"${__group}" "$from"
+    # set ownership of the actual link to $__user
+    chown -h "$__user":"$__group" "$from"
 }
 
 ## @fn moveConfigFile()
@@ -476,8 +597,8 @@ function moveConfigFile() {
         mv "$from" "$to"
     fi
     ln -sf "$to" "$from"
-    # set ownership of the actual link to ${__user}
-    chown -h "${__user}":"${__group}" "$from"
+    # set ownership of the actual link to $__user
+    chown -h "$__user":"$__group" "$from"
 }
 
 ## @fn diffFiles()
@@ -500,9 +621,11 @@ function diffFiles() {
 ## @retval 1 if the comparison is gt
 ## @retval -1 if the comparison is lt
 function compareVersions() {
-    local ver
-    ver=$(vercmp "${1}" "${2}")
-    echo "${ver}"
+    #local ver
+    #ver=$(vercmp "$1" "$2")
+    #echo "$ver"
+    vercmp "$1" "$2" >/dev/null
+    return $?
 }
 
 ## @fn dirIsEmpty()
@@ -529,19 +652,19 @@ function dirIsEmpty() {
 function copyDefaultConfig() {
     local from="$1"
     local to="$2"
-    # If The Destination Exists, And Is Different Copy The Config As "name.rp-dist"
-    if [[ -f "${to}" ]]; then
-        if ! diffFiles "${from}" "${to}"; then
+    # if the destination exists, and is different then copy the config as name.rp-dist
+    if [[ -f "$to" ]]; then
+        if ! diffFiles "$from" "$to"; then
             to+=".rp-dist"
-            printMsgs "console" "Copying New Default Configuration To: ${to}"
-            cp "${from}" "${to}"
+            printMsgs "console" "Copying new default configuration to $to"
+            cp "$from" "$to"
         fi
     else
-        printMsgs "console" "Copying Default Configuration To: ${to}"
-        cp "${from}" "${to}"
+        printMsgs "console" "Copying default configuration to $to"
+        cp "$from" "$to"
     fi
 
-    chown "${__user}":"${__group}" "${to}"
+    chown "$__user":"$__group" "$to"
 }
 
 ## @fn renameModule()
@@ -574,6 +697,53 @@ function addUdevInputRules() {
     if [[ ! -f /etc/udev/rules.d/99-input.rules ]]; then
         echo 'SUBSYSTEM=="input", GROUP="input", MODE="0660"' > /etc/udev/rules.d/99-input.rules
     fi
+    # remove old 99-evdev.rules
+    rm -f /etc/udev/rules.d/99-evdev.rules
+}
+
+## @fn setBackend()
+## @param emulator.cfg key to configure backend for
+## @param backend name of the backend to set
+## @param force set to 1 to force the change
+## @brief Set a backend rendering driver for a module
+## @details Set a backend rendering driver for a module - can be currently default or x11.
+## This function will only set a backend if
+##   - It's not already configured, or
+##   - The 3rd parameter (force) is set to 1
+## The emulator.cfg key is usually the module_id but some modules add multiple emulator.cfg entries
+## which are all handled separately. A module can use a _backend_set_MODULE function hook which is called
+## from the backends module to handle calling setBackend for additional emulator.cfg entries.
+## See "fuse" scriptmodule for an example.
+function setBackend() {
+    local config="$configdir/all/backends.cfg"
+    local id="$1"
+    local mode="$2"
+    local force="$3"
+    iniConfig "=" "\"" "$config"
+    iniGet "$id"
+    if [[ "$force" -eq 1 || -z "$ini_value" ]]; then
+        iniSet "$id" "$mode"
+        chown "$__user":"$__group" "$config"
+    fi
+}
+
+## @fn getBackend()
+## @param emulator.cfg key to get backend for
+## @brief Get a backend rendering driver for a module
+## @details Get a backend rendering driver for a module
+## The function echos the result so the value can be captured using var=$(getBackend "$module_id")
+function getBackend() {
+    local config="$configdir/all/backends.cfg"
+    local id="$1"
+    iniConfig " = " '"' "$config"
+    iniGet "$id"
+    if [[ -n "$ini_value" ]]; then
+        # Translate old value of 1 as dispmanx for backward compatibility
+        #[[ "$ini_value" == "1" ]] && ini_value="dispmanx"
+    #else
+        ini_value="default"
+    fi
+    echo "$ini_value"
 }
 
 ## @fn iniFileEditor()
@@ -587,7 +757,7 @@ function addUdevInputRules() {
 ## The first array is `$ini_titles` which provides the titles for each
 ## entry..
 ##
-## The second array is `$_descs` which contains a help description for each
+## The second array is `$ini_descs` which contains a help description for each
 ## entry.
 ##
 ## The third array is `$ini_options` which contains multiple space separated
@@ -655,16 +825,16 @@ function iniFileEditor() {
             # split into new array (globbing safe)
             read -ra option <<<"$option"
             key="${option[0]}"
-            keys+=("${key}")
+            keys+=("$key")
             params+=("${option[*]:1}")
 
             # if the first parameter is _function_ we call the second parameter as a function
             # so we can handle some options with a custom menu etc
-            if [[ "${key}" == "_function_" ]]; then
+            if [[ "$key" == "_function_" ]]; then
                 value="$(${option[1]} get)"
             else
                 # get current value
-                iniGet "${key}"
+                iniGet "$key"
                 if [[ -n "$ini_value" ]]; then
                     value="$ini_value"
                 else
@@ -683,10 +853,10 @@ function iniFileEditor() {
             if [[ -n "${ini_titles[i]}" ]]; then
                 title="${ini_titles[i]}"
             else
-                title="${key}"
+                title="$key"
             fi
 
-            options+=("${i}" "$title ($value)" "${ini_descs[i]}")
+            options+=("$i" "$title ($value)" "${ini_descs[i]}")
 
             ((i++))
         done
@@ -725,9 +895,9 @@ function iniFileEditor() {
                 local path="${params[*]:2}"
                 local file
                 while read file; do
-                    [[ "${values[sel]}" == "${file}" ]] && default="${i}"
+                    [[ "${values[sel]}" == "$file" ]] && default="$i"
                     file="${file//$path\//}"
-                    options+=("${i}" "${file}")
+                    options+=("$i" "$file")
                     ((i++))
                 done < <(find -L "$path" -type f -name "$match" | sort)
                 ;;
@@ -735,32 +905,32 @@ function iniFileEditor() {
                 [[ "$mode" == "_id_" ]] && params=("${params[@]:1}")
                 for option in "${params[@]}"; do
                     if [[ "$mode" == "_id_" ]]; then
-                        [[ "${values[sel]}" == "${i}" ]] && default="${i}"
+                        [[ "${values[sel]}" == "$i" ]] && default="$i"
                     else
-                        [[ "${values[sel]}" == "$option" ]] && default="${i}"
+                        [[ "${values[sel]}" == "$option" ]] && default="$i"
                     fi
-                    options+=("${i}" "$option")
+                    options+=("$i" "$option")
                     ((i++))
                 done
                 ;;
         esac
         [[ -z "$default" ]] && default="U"
         # display values
-        cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --menu "Please Choose The Value For ${keys[sel]}" 22 76 16)
+        cmd=(dialog --backtitle "$__backtitle" --default-item "$default" --menu "Please choose the value for ${keys[sel]}" 22 76 16)
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
         # if it is a _string_ type we will open an inputbox dialog to get a manual value
-        if [[ -z "${choice}" ]]; then
+        if [[ -z "$choice" ]]; then
             continue
-        elif [[ "${choice}" == "E" ]]; then
+        elif [[ "$choice" == "E" ]]; then
             [[ "${values[sel]}" == "unset" ]] && values[sel]=""
-            cmd=(dialog --backtitle "$__backtitle" --inputbox "Please Enter The Value For ${keys[sel]}" 10 60 "${values[sel]}")
+            cmd=(dialog --backtitle "$__backtitle" --inputbox "Please enter the value for ${keys[sel]}" 10 60 "${values[sel]}")
             value=$("${cmd[@]}" 2>&1 >/dev/tty)
-        elif [[ "${choice}" == "U" ]]; then
+        elif [[ "$choice" == "U" ]]; then
             value=""
         else
             if [[ "$mode" == "_id_" ]]; then
-                value="${choice}"
+                value="$choice"
             else
                 # get the actual value from the options array
                 local index=$((choice*2+3))
@@ -772,12 +942,11 @@ function iniFileEditor() {
             fi
         fi
 
-        if [[ "${choice}" == "U" ]]; then
+        if [[ "$choice" == "U" ]]; then
             iniUnset "${keys[sel]}" "$value"
         else
             iniSet "${keys[sel]}" "$value"
         fi
-
     done
 }
 
@@ -800,43 +969,42 @@ function setESSystem() {
 ## @fn defaultRAConfig()
 ## @param system system to create retroarch.cfg for
 ## @param ... optional key then value parameters to be used in the config
-## @brief Creates a default retroarch.cfg for the specified system in `${md_root_dir}/${system}/retroarch.cfg`
-## @details Additional default configuration values can be provided as parameters to the function. Example: "fps_show" "true"
+## @brief Creates a default retroarch.cfg for specified system in `$md_root_dir/$system/retroarch.cfg`.
+## @details Additional default configuration values can be provided as parameters to the function - eg. "fps_show" "true"
 ## as two parameters would add a default entry of fps_show = "true" to the default configuration.
-## This function uses ${md_conf_root} as a base, so there is no need to use "ports/${system}" for libretro ports.
+## This function uses ${md_conf_root} as a base, so there is no need to use "ports/$system" for libretro ports.
 function defaultRAConfig() {
-    # Don't Do Any Config Work On Module Removal
-    [[ "${md_mode}" == "remove" ]] && return
+    # don't do any config work on module removal
+    [[ "$md_mode" == "remove" ]] && return
 
-    local system="${1}"
+    local system="$1"
     shift
-    local defaults=("${@}")
+    local defaults=("$@")
 
-    local config_path="${md_conf_root}/${system}"
+    local config_path="$md_conf_root/$system"
 
-    [[ ! -d "${config_path}" ]] && mkUserDir "${config_path}"
+    [[ ! -d "$config_path" ]] && mkUserDir "$config_path"
 
-    local config
-    config="$(mktemp)"
-    # Add The Initial Comment Regarding Include Order
-    echo -e "# Settings made here will only override settings in the global retroarch.cfg if placed above the #include line\n" >"${config}"
+    local config="$(mktemp)"
+    # add the initial comment regarding include order
+    echo -e "# Settings made here will only override settings in the global retroarch.cfg if placed above the #include line\n" >"$config"
 
-    # Add The Per System Default Settings
-    iniConfig " = " '"' "${config}"
-    iniSet "input_remapping_directory" "${config_path}"
+    # add the per system default settings
+    iniConfig " = " '"' "$config"
+    iniSet "input_remapping_directory" "$config_path"
 
-    # Add Any Additional Config Key / Values From Function Parameters
+    # add any additional config key / values from function parameters
     local key
     local value
     while read key value; do
-        [[ -n "${key}" ]] && iniSet "${key}" "${value}"
+        [[ -n "$key" ]] && iniSet "$key" "$value"
     done <<< "${defaults[@]}"
 
-    # Include The Main RetroArch Config
-    echo -e "\n#include \"${configdir}/all/retroarch.cfg\"" >>"${config}"
+    # include the main retroarch config
+    echo -e "\n#include \"$configdir/all/retroarch.cfg\"" >>"$config"
 
-    copyDefaultConfig "${config}" "${config_path}/retroarch.cfg"
-    rm "${config}"
+    copyDefaultConfig "$config" "$config_path/retroarch.cfg"
+    rm "$config"
 }
 
 ## @fn setRetroArchCoreOption()
@@ -851,7 +1019,7 @@ function setRetroArchCoreOption() {
     if [[ -z "$ini_value" ]]; then
         iniSet "$option" "$value"
     fi
-    chown "${__user}":"${__group}" "$configdir/all/retroarch-core-options.cfg"
+    chown "$__user":"$__group" "$configdir/all/retroarch-core-options.cfg"
 }
 
 ## @fn setConfigRoot()
@@ -894,12 +1062,12 @@ function loadModuleConfig() {
         option=(${option/=/ })
         key="${option[0]}"
         value="${option[@]:1}"
-        iniGet "${key}"
+        iniGet "$key"
         if [[ -z "$ini_value" ]]; then
-            iniSet "${key}" "$value"
-            echo "local ${key}=\"$value\""
+            iniSet "$key" "$value"
+            echo "local $key=\"$value\""
         else
-            echo "local ${key}=\"$ini_value\""
+            echo "local $key=\"$ini_value\""
         fi
     done
 }
@@ -983,10 +1151,10 @@ function download() {
     local file="${url##*/}"
 
     # if no destination, get the basename from the url
-    [[ -z "$dest" ]] && dest="${PWD}/${file}"
+    [[ -z "$dest" ]] && dest="${PWD}/$file"
 
     # if the destination is a folder, download to that with filename from url
-    [[ -d "$dest" ]] && dest="$dest/${file}"
+    [[ -d "$dest" ]] && dest="$dest/$file"
 
     local params=(--location)
     if [[ "$dest" == "-" ]]; then
@@ -1026,7 +1194,7 @@ function downloadAndVerify() {
     local file="${url##*/}"
 
     # if no destination, get the basename from the url (supported by GNU basename)
-    [[ -z "$dest" ]] && dest="${PWD}/${file}"
+    [[ -z "$dest" ]] && dest="${PWD}/$file"
 
     local cmd_out
     local ret=1
@@ -1060,7 +1228,7 @@ function downloadAndExtract() {
 
     local temp="$(mktemp -d)"
     # download file, removing temporary folder and returning on error
-    if ! download "$url" "$temp/${file}"; then
+    if ! download "$url" "$temp/$file"; then
         rm -rf "$temp"
         return 1
     fi
@@ -1070,10 +1238,10 @@ function downloadAndExtract() {
     local ret
     case "$ext" in
         exe|zip)
-            runCmd unzip "${opts[@]}" -o "$temp/${file}" -d "$dest"
+            runCmd unzip "${opts[@]}" -o "$temp/$file" -d "$dest"
             ;;
         *)
-            tar -xvf "$temp/${file}" -C "$dest" "${opts[@]}"
+            tar -xvf "$temp/$file" -C "$dest" "${opts[@]}"
             ;;
     esac
     ret=$?
@@ -1081,6 +1249,31 @@ function downloadAndExtract() {
     rm -rf "$temp"
 
     return $ret
+}
+
+## @fn ensureFBMode()
+## @param res_x width of mode
+## @param res_y height of mode
+## @brief Add a framebuffer mode to /etc/fb.modes
+## @details Useful for adding specific resolutions used by emulators so SDL1 can
+## use them and utilise the RPI hardware scaling. Without for example a 320x240
+## mode in fb.modes many of the emulators that output to the framebuffer and
+## were not set to use the dispmanx SDL1 backend would just show in a small
+## area of the screen.
+function ensureFBMode() {
+    [[ ! -f /etc/fb.modes ]] && return
+    local res_x="$1"
+    local res_y="$2"
+    local res="${res_x}x${res_y}"
+    sed -i --follow-symlinks "/$res mode/,/endmode/d" /etc/fb.modes
+
+    cat >> /etc/fb.modes <<_EOF_
+# Added by ArchyPie-Setup - $res mode for emulators
+mode "$res"
+    geometry $res_x $res_y $res_x $res_y 16
+    timings 0 0 0 0 0 0 0
+endmode
+_EOF_
 }
 
 ## @fn joy2keyStart()
@@ -1131,11 +1324,11 @@ function getPlatformConfig() {
     for conf in "$configdir/all/platforms.cfg" "$scriptdir/platforms.cfg"; do
         [[ ! -f "$conf" ]] && continue
         iniConfig "=" '"' "$conf"
-        iniGet "${key}"
+        iniGet "$key"
         [[ -n "$ini_value" ]] && break
     done
-    # workaround for archypie platform
-    [[ "${key}" == "archypie_fullname" ]] && ini_value="ArchyPie"
+    # workaround for ArchyPie platform
+    [[ "$key" == "archypie_fullname" ]] && ini_value="ArchyPie"
     echo "$ini_value"
 }
 
@@ -1148,7 +1341,6 @@ function getPlatformConfig() {
 function addSystem() {
     local system="$1"
     local fullname="$2"
-    # shellcheck disable=SC2206
     local exts=($3)
 
     local platform="$system"
@@ -1240,19 +1432,14 @@ function addPort() {
     local cmd="$4"
     local game="$5"
 
-    # move configurations from old ports location
-    #if [[ -d "$configdir/$port" ]]; then
-    #    mv "$configdir/$port" "$md_conf_root/"
-    #fi
-
     # remove the emulator / port
     if [[ "$md_mode" == "remove" ]]; then
-        delEmulator "${id}" "$port"
+        delEmulator "$id" "$port"
 
         # remove launch script if in remove mode and the ports emulators.cfg is empty
-        [[ ! -f "$md_conf_root/$port/emulators.cfg" ]] && rm -f "${file}"
+        [[ ! -f "$md_conf_root/$port/emulators.cfg" ]] && rm -f "$file"
 
-        # if there are no more port launch scripts we can remove ports from emulation station
+        # if there are no more port launch scripts we can remove ports from EmulationStation
         if [[ "$(find "$romdir/ports" -maxdepth 1 -name "*.sh" | wc -l)" -eq 0 ]]; then
             delSystem "ports"
         fi
@@ -1261,15 +1448,15 @@ function addPort() {
 
     mkUserDir "$romdir/ports"
 
-    cat >"${file}" << _EOF_
-#!/usr/bin/env bash
-"$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "${game}"
+    cat >"$file" << _EOF_
+#!/bin/bash
+"$rootdir/supplementary/runcommand/runcommand.sh" 0 _PORT_ "$port" "$game"
 _EOF_
 
-    chown "${__user}":"${__group}" "${file}"
-    chmod +x "${file}"
+    chown "$__user":"$__group" "$file"
+    chmod +x "$file"
 
-    [[ -n "$cmd" ]] && addEmulator 1 "${id}" "$port" "$cmd"
+    [[ -n "$cmd" ]] && addEmulator 1 "$id" "$port" "$cmd"
     addSystem "ports"
 }
 
@@ -1280,50 +1467,54 @@ _EOF_
 ## @param cmd commandline to launch
 ## @brief Adds a new emulator for a system.
 ## @details This is the primary function for adding emulators to a system which can be
-## switched between via the runcommand launch menu
+## switched between via the runcommand launch menu 
 ##
-## The example below adds two optional emulators for the c64, with vice-x64 being the default if no default
-## was already set. The entries are added to `${configdir}/${system}/emulators.cfg`.
+##     addEmulator 1 "vice-x64" "c64" "$md_inst/bin/x64 %ROM%"
+##     addEmulator 0 "vice-xvic" "c64" "$md_inst/bin/xvic %ROM%"
 ##
-## EXAMPLE:
-##    addEmulator 1 "vice-x64" "c64" "${md_inst}/bin/x64 %ROM%"
-##    addEmulator 0 "vice-xvic" "c64" "${md_inst}/bin/xvic %ROM%"
+## Would add two optional emulators for the c64 - with vice-x64 being the default if no default
+## was already set. This adds entries to `$configdir/$system/emulators.cfg` with
 ##
-## For Libretro emulators, cmd needs to only contain the path to the libretro library.
+##     id = "cmd"
+##     default = id
 ##
-## EXAMPLE:
-##    addEmulator 1 "${md_id}" "nes" "${md_inst}/fceumm_libretro.so"
+## Which are then selectable from runcommand when launching roms
 ##
+## For libretro emulators, cmd needs to only contain the path to the libretro library.
+##
+## eg. for the lr-fcuemm module
+##
+##     addEmulator 1 "$md_id" "nes" "$md_inst/fceumm_libretro.so"
 function addEmulator() {
-    local default="${1}"
-    local id="${2}"
-    local system="${3}"
-    local cmd="${4}"
+    local default="$1"
+    local id="$2"
+    local system="$3"
+    local cmd="$4"
 
-    # Check If We Are Removing The System
-    if [[ "${md_mode}" == "remove" ]]; then
-        delEmulator "${id}" "${system}"
+    # check if we are removing the system
+    if [[ "$md_mode" == "remove" ]]; then
+        delEmulator "$id" "$system"
         return
     fi
 
-    # Automatically Add Parameters For Libretro Modules
-    if [[ "${id}" == lr-* && "${cmd}" =~ ^"${md_inst}"[^[:space:]]*\.so ]]; then
-        cmd="${emudir}/retroarch/bin/retroarch -L ${cmd} --config ${md_conf_root}/${system}/retroarch.cfg %ROM%"
+    # automatically add parameters for libretro modules
+    if [[ "$id" == lr-* && "$cmd" =~ ^"$md_inst"[^[:space:]]*\.so ]]; then
+        cmd="$emudir/retroarch/bin/retroarch -L $cmd --config $md_conf_root/$system/retroarch.cfg %ROM%"
     fi
 
-    # Create A Config Folder For The System / Port
-    mkUserDir "${md_conf_root}/${system}"
+    # create a config folder for the system / port
+    mkUserDir "$md_conf_root/$system"
 
-    # Add The Emulator To The ${conf_dir}/emulators.cfg If A Commandline Exists (Not Used For Some Ports)
-    if [[ -n "${cmd}" ]]; then
-        iniConfig " = " '"' "${md_conf_root}/${system}/emulators.cfg"
-        iniSet "${id}" "${cmd}"
-        # Set A Default Unless There Is One Already Set
+    # add the emulator to the $conf_dir/emulators.cfg if a commandline exists (not used for some ports)
+    if [[ -n "$cmd" ]]; then
+        iniConfig " = " '"' "$md_conf_root/$system/emulators.cfg"
+        iniSet "$id" "$cmd"
+        # set a default unless there is one already set
         iniGet "default"
-        if [[ -z "${ini_value}" && "${default}" -eq 1 ]]; then
-            iniSet "default" "${id}"
+        if [[ -z "$ini_value" && "$default" -eq 1 ]]; then
+            iniSet "default" "$id"
         fi
-        chown "${__user}":"${__group}" "${md_conf_root}/${system}/emulators.cfg"
+        chown "$__user":"$__group" "$md_conf_root/$system/emulators.cfg"
     fi
 }
 
@@ -1340,17 +1531,16 @@ function delEmulator() {
 
     local config="$md_conf_root/$system/emulators.cfg"
     # remove from apps list for system
-    if [[ -f "$config" && -n "${id}" ]]; then
+    if [[ -f "$config" && -n "$id" ]]; then
         # delete emulator entry
         iniConfig " = " '"' "$config"
-        iniDel "${id}"
+        iniDel "$id"
         # if it is the default - remove it - runcommand will prompt to select a new default
         iniGet "default"
-        [[ "$ini_value" == "${id}" ]] && iniDel "default"
+        [[ "$ini_value" == "$id" ]] && iniDel "default"
         # if we no longer have any entries in the emulators.cfg file we can remove it
         grep -q "=" "$config" || rm -f "$config"
     fi
-
 }
 
 ## @fn dkmsManager()
@@ -1387,8 +1577,8 @@ function dkmsManager() {
             fi
             ;;
         remove)
-            for ver in $(dkms status "$module_name" | cut -d"," -f2 | cut -d":" -f1); do
-                dkms remove -m "$module_name" -v "${ver}" --all
+            for ver in $(dkms status "$module_name" | awk -F'[/,:]' '{print $2}'); do
+                dkms remove -m "$module_name" -v "$ver" --all
                 rm -f "/usr/src/${module_name}-${ver}"
             done
             dkmsManager unload "$module_name" "$module_ver"
@@ -1491,9 +1681,9 @@ function signFile() {
 ## @brief changes filename case from uppercase to lowercase
 ## @details passes a list of files to 'perl-rename', case is then changed from uppercase to lowercase using regex
 function changeFileCase() {
-    local dir="${1}"
+    local dir="$1"
 
-    pushd "${dir}" || return
+    pushd "$dir" || return
     find . -depth -name "*" -execdir perl-rename 'y/A-Z/a-z/' '[^.-]' '{}' \;
     popd || return
 }
@@ -1505,16 +1695,17 @@ function pacmanPKGBuild() {
     local builddir="/tmp/pkgs"
     local pkg
 
-    for pkg in "${@}"; do
-        su "${__user}" --session-command 'cd '"${scriptdir}/packages/${pkg}"' && \
-            if [[ ! -d '"${builddir}/${pkg}"' ]]; then
-                mkdir -p '"${builddir}/${pkg}"'
+    for pkg in "$@"; do
+        su "$__user" --session-command 'cd '"$scriptdir/packages/$pkg"' && \
+            if [[ ! -d '"$builddir/$pkg"' ]]; then
+                mkdir -p '"$builddir/${pkg}"'
             fi
-            BUILDDIR='"${builddir}/${pkg}"' \
-            PKGDEST='"${builddir}/${pkg}"' \
-            SRCDEST='"${builddir}/${pkg}"' \
-            SRCPKGDEST='"${builddir}/${pkg}"' \
+            BUILDDIR='"$builddir/$pkg"' \
+            PKGDEST='"$builddir/$pkg"' \
+            SRCDEST='"$builddir/$pkg"' \
+            SRCPKGDEST='"$builddir/$pkg"' \
             PACKAGER="archrgs.project <archrgs.project@gmail.com>" \
-            makepkg -csi --noconfirm'
+            makepkg -crsi --noconfirm'
     done
 }
+
