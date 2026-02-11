@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 # Editor's note: You may notice "\c \%" escape sequences, these are needed
 # to avoid the initial % char to be swallowed by doxygen.
@@ -19,7 +27,7 @@
 ##
 ## `runcommand.sh VIDEO_MODE _SYS_/_PORT_ SYSTEM ROM`
 ##
-## Video mode switching is supported on X11, KMS and Raspberry Pi (legacy graphics) systems
+## Video mode switching is supported on X11 and KMS systems
 ##
 ## Automatic video mode selection (all):
 ##
@@ -83,16 +91,18 @@ EMU_CONF="$CONFIGDIR/all/emulators.cfg"
 BACKENDS_CONF="$CONFIGDIR/all/backends.cfg"
 RETRONETPLAY_CONF="$CONFIGDIR/all/retronetplay.cfg"
 JOY2KEY="$ROOTDIR/admin/joy2key/joy2key"
-BIOSDIR="${HOME}/ArchyPie/BIOS"
+SDL2_MAPPINGS="$CONFIGDIR/all/sdl2_gamecontrollerdb.txt"
+BIOSDIR="$HOME/ArchyPie/BIOS"
+SAVEDIR="$HOME/ArchyPie/saves"
 
-# modesetting tools
+# Modesetting tools
 TVSERVICE="/opt/vc/bin/tvservice"
 KMSTOOL="$ROOTDIR/supplementary/kmsxx/kmsprint-rp"
 XRANDR="xrandr"
 
 source "$ROOTDIR/lib/inifuncs.sh"
 
-# disable the `patsub_replacement` shell option, it breaks the string substitution when replacement contains '&'
+# Disable the `patsub_replacement` shell option, it breaks the string substitution when replacement contains '&'
 if shopt -s patsub_replacement 2>/dev/null; then
     shopt -u patsub_replacement
 fi
@@ -121,14 +131,17 @@ function get_config() {
         iniGet "image_delay"
         IMAGE_DELAY="$ini_value"
         [[ -z "$IMAGE_DELAY" ]] && IMAGE_DELAY=2
+        iniGet "legacy_joy2key"
+        LEGACY_JOY2KEY="$ini_value"
+        [[ -z "$LEGACY_JOY2KEY" ]] && LEGACY_JOY2KEY=0
     fi
 
-    if [[ -n "${DISPLAY}" ]] && ${XRANDR} &>/dev/null; then
+    if [[ -n "$DISPLAY" ]] && $XRANDR &>/dev/null; then
         HAS_MODESET="x11"
-    # Copy KMS Tool Output To Global Variable To Avoid Multiple Invocations
-    elif [[ -c /dev/dri/card0 ]] && KMS_BUFFER="$(${KMSTOOL} 2>/dev/null)"; then
+    # copy kms tool output to global variable to avoid multiple invocations
+    elif [[ -c /dev/dri/card0 ]] && KMS_BUFFER="$($KMSTOOL 2>/dev/null)"; then
         HAS_MODESET="kms"
-    elif [[ -f "${TVSERVICE}" ]]; then
+    elif [[ -f "$TVSERVICE" ]]; then
         HAS_MODESET="tvs"
     fi
 }
@@ -218,12 +231,12 @@ function get_all_tvs_modes() {
     local group
     for group in CEA DMT; do
         while read -r line; do
-            local id="$(echo "${line}" | grep -oE "mode [0-9]*" | cut -d" " -f2)"
-            local info="$(echo "${line}" | cut -d":" -f2-)"
+            local id="$(echo "$line" | grep -oE "mode [0-9]*" | cut -d" " -f2)"
+            local info="$(echo "$line" | cut -d":" -f2-)"
             info=${info/ /}
-            if [[ -n "${id}" ]]; then
-                MODE_ID+=($group-${id})
-                MODE[$group-${id}]="$info"
+            if [[ -n "$id" ]]; then
+                MODE_ID+=($group-$id)
+                MODE[$group-$id]="$info"
             fi
         done < <($TVSERVICE -m $group)
     done
@@ -257,18 +270,17 @@ function get_all_kms_modes() {
     done < <(echo "$KMS_BUFFER" | grep -E "^Mode: [0-9]+ connector $crtc_encoder")
 }
 
-function get_all_x11_modes()
-{
+function get_all_x11_modes() {
     declare -Ag MODE
     local id
     local line
     while read -r id; do
         # populate CONNECTOR:0xID into an array
-        MODE_ID+=(${id}) # output:id as in (hdmi:0x44)
+        MODE_ID+=($id) # output:id as in (hdmi:0x44)
 
         read -r line
         # array is x/y resolution @ vertical refresh rate ( details )
-        MODE[${id}]="${line}"
+        MODE[$id]="$line"
     done < <( $XRANDR --verbose | awk '
         # defines the type of line
         # true is the "header" (output and id)
@@ -420,17 +432,17 @@ function default_process() {
     local key="$3"
     local value="$4"
 
-    iniConfig " = " '"' "${config}"
+    iniConfig " = " '"' "$config"
     case "$mode" in
         get)
-            iniGet "${key}"
+            iniGet "$key"
             echo "$ini_value"
             ;;
         set)
-            iniSet "${key}" "$value"
+            iniSet "$key" "$value"
             ;;
         del)
-            iniDel "${key}"
+            iniDel "$key"
             ;;
     esac
 }
@@ -441,7 +453,7 @@ function default_mode() {
     local value="$3"
 
     local key
-    case "${type}" in
+    case "$type" in
         vid_emu)
             key="$SAVE_EMU"
             ;;
@@ -464,7 +476,7 @@ function default_mode() {
             key="${SAVE_EMU}_render"
             ;;
     esac
-    default_process "$VIDEO_CONF" "$mode" "${key}" "$value"
+    default_process "$VIDEO_CONF" "$mode" "$key" "$value"
 }
 
 function default_emulator() {
@@ -475,7 +487,7 @@ function default_emulator() {
     local key
     local config="$EMU_SYS_CONF"
 
-    case "${type}" in
+    case "$type" in
         emu_sys)
             key="default"
             ;;
@@ -491,7 +503,7 @@ function default_emulator() {
             config="$EMU_CONF"
             ;;
     esac
-    default_process "${config}" "$mode" "${key}" "$value"
+    default_process "$config" "$mode" "$key" "$value"
 }
 
 function load_mode_defaults() {
@@ -528,13 +540,13 @@ function load_mode_defaults() {
     fi
 
     # get default fb_res (if not running on X)
-    # FB_ORIG=()
-    # if [[ -z "$DISPLAY" ]]; then
-    #     local status=($(fbset | tr -s '\n'))
-    #     FB_ORIG[0]="${status[3]}"
-    #     FB_ORIG[1]="${status[4]}"
-    #     FB_ORIG[2]="${status[7]}"
-    # fi
+    FB_ORIG=()
+    if [[ -z "$DISPLAY" ]]; then
+        local status=($(fbset | tr -s '\n'))
+        FB_ORIG[0]="${status[3]}"
+        FB_ORIG[1]="${status[4]}"
+        FB_ORIG[2]="${status[7]}"
+    fi
 
     # default retroarch render res to config file
     RENDER_RES="config"
@@ -639,7 +651,7 @@ function main_menu() {
             options+=(U "User Menu")
         fi
 
-        options+=(Q "Exit (without launching)")
+        options+=(Q "Exit (Without Launching)")
 
         local temp_mode
         if [[ -n "$HAS_MODESET" ]]; then
@@ -650,9 +662,9 @@ function main_menu() {
 
         cmd=(dialog --nocancel --default-item "$default" --menu "System: $SYSTEM\nEmulator: $EMULATOR\nVideo Mode: $temp_mode\nROM: $ROM_BN"  22 76 16 )
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="${choice}"
+        default="$choice"
 
-        case "${choice}" in
+        case "$choice" in
             ES)
                 choose_emulator "emu_sys" "$emu_sys"
                 ;;
@@ -672,7 +684,7 @@ function main_menu() {
                 touch "$ROM.cfg"
                 cmd=(dialog --editbox "$ROM.cfg" 22 76)
                 choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-                [[ -n "${choice}" ]] && echo "${choice}" >"$ROM.cfg"
+                [[ -n "$choice" ]] && echo "$choice" >"$ROM.cfg"
                 [[ ! -s "$ROM.cfg" ]] && rm "$ROM.cfg"
                 ;;
             FE)
@@ -719,12 +731,12 @@ function choose_mode() {
     if [[ "$mode" == vid_* ]]; then
         mode_desc="video mode for "
         for key in "${MODE_ID[@]}"; do
-            options+=("${key}" "${MODE[${key}]}")
+            options+=("$key" "${MODE[$key]}")
         done
     elif [[ "$mode" == fb_* ]]; then
         mode_desc="framebuffer resolution for "
         for key in $(get_resolutions); do
-            options+=("${key}" "${key}")
+            options+=("$key" "$key")
         done
     fi
 
@@ -736,19 +748,19 @@ function choose_mode() {
 
     local menu_title="Choose $mode_desc\nCurrently: "
     if [[ -z "$default" ]]; then
-        menu_title+="(not set)"
+        menu_title+="(Not set)"
     else
         menu_title+="$default"
     fi
 
     local cmd=(dialog --default-item "$default" --menu "$menu_title"  22 76 16 )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    [[ -z "${choice}" ]] && return
+    [[ -z "$choice" ]] && return
 
-    if [[ "${choice}" == "X" ]]; then
+    if [[ "$choice" == "X" ]]; then
         default_mode del "$mode"
     else
-        default_mode set "$mode" "${choice}"
+        default_mode set "$mode" "$choice"
     fi
     load_mode_defaults
 }
@@ -769,20 +781,20 @@ function choose_emulator() {
 
     local options=()
     local i=1
-    while read -r line; do
+    while read line; do
         # convert key=value to array
         local line=(${line/=/ })
         local id=${line[0]}
-        [[ "${id}" == "default" ]] && continue
-        local apps[${i}]="${id}"
-        if [[ "${id}" == "$default" ]]; then
-            default_id="${i}"
+        [[ "$id" == "default" ]] && continue
+        local apps[$i]="$id"
+        if [[ "$id" == "$default" ]]; then
+            default_id="$i"
         fi
-        options+=("${i}" "${id}")
+        options+=($i "$id")
         ((i++))
     done < <(sort "$EMU_SYS_CONF")
     if [[ "${#options[@]}" -eq 0 ]]; then
-        dialog --msgbox "No Emulator Options Found For ${SYSTEM} - Do You Have A Valid ${EMU_SYS_CONF}?" 20 60 >/dev/tty
+        dialog --msgbox "No emulator options found for $SYSTEM - Do you have a valid $EMU_SYS_CONF ?" 20 60 >/dev/tty
         stop_joy2key
         exit 1
     fi
@@ -790,19 +802,19 @@ function choose_emulator() {
 
     local menu_title="Choose $mode_desc\nCurrently: "
     if [[ -z "$default" ]]; then
-        menu_title+="(not set)"
+        menu_title+="(Not set)"
     else
         menu_title+="$default"
     fi
 
     local cmd=(dialog $cancel --default-item "$default_id" --menu "$menu_title"  22 76 16 )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    [[ -z "${choice}" ]] && return
+    [[ -z "$choice" ]] && return
 
-    if [[ "${choice}" == "X" ]]; then
+    if [[ "$choice" == "X" ]]; then
         default_emulator del "$mode"
     else
-        default_emulator set "$mode" "${apps[${choice}]}"
+        default_emulator set "$mode" "${apps[$choice]}"
     fi
     get_sys_command
     set_save_vars
@@ -836,16 +848,16 @@ function get_resolutions() {
 }
 
 function choose_render_res() {
-    local mode="${1}"
-    local default="${2}"
+    local mode="$1"
+    local default="$2"
 
     local res=($(get_resolutions))
     local i=1
     local item
     local options=()
     for item in "${res[@]}"; do
-        [[ "${item}" == "${default}" ]] && default="${i}"
-        options+=(${i} "${item}")
+        [[ "$item" == "$default" ]] && default="$i"
+        options+=($i "$item")
         ((i++))
     done
     options+=(
@@ -854,10 +866,10 @@ function choose_render_res() {
     )
     [[ "$default" == "output" ]] && default="O"
     [[ "$default" == "config" ]] && default="C"
-    local cmd=(dialog --default-item "$default" --menu "Choose RetroArch Render Resolution" 22 76 16 )
+    local cmd=(dialog --default-item "$default" --menu "Choose RetroArch render resolution" 22 76 16 )
     local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    [[ -z "${choice}" ]] && return
-    case "${choice}" in
+    [[ -z "$choice" ]] && return
+    case "$choice" in
         O)
             choice="output"
             ;;
@@ -865,11 +877,11 @@ function choose_render_res() {
             choice="config"
             ;;
         *)
-            choice="${res[${choice}-1]}"
+            choice="${res[$choice-1]}"
             ;;
     esac
 
-    default_mode set "$mode" "${choice}"
+    default_mode set "$mode" "$choice"
     load_mode_defaults
 }
 
@@ -881,7 +893,7 @@ function user_menu() {
     while read -r script; do
         script="${script##*/}"
         script="${script%.*}"
-        options+=(${i} "$script")
+        options+=($i "$script")
         ((i++))
     done < <(find "$CONFIGDIR/all/runcommand-menu" -type f -name "*.sh" | sort)
     local default
@@ -889,10 +901,10 @@ function user_menu() {
     local choice
     local ret
     while true; do
-        cmd=(dialog --default-item "$default" --cancel-label "Back" --menu "Choose An Option"  22 76 16)
+        cmd=(dialog --default-item "$default" --cancel-label "Back" --menu "Choose option"  22 76 16)
         choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        [[ -z "${choice}" ]] && return 0
-        default="${choice}"
+        [[ -z "$choice" ]] && return 0
+        default="$choice"
         script="runcommand-menu/${options[choice*2-1]}.sh"
         user_script "$script"
         ret="$?"
@@ -900,21 +912,21 @@ function user_menu() {
     done
 }
 
-# function switch_fb_res() {
-#     local res=(${1/x/ })
-#     local res_x="${res[0]}"
-#     local res_y="${res[1]}"
-#     local depth="$2"
-#     [[ -z "$depth" ]] && depth="${FB_ORIG[2]}"
+function switch_fb_res() {
+    local res=(${1/x/ })
+    local res_x="${res[0]}"
+    local res_y="${res[1]}"
+    local depth="$2"
+    [[ -z "$depth" ]] && depth="${FB_ORIG[2]}"
 
-#     if [[ -z "$res_x" || -z "$res_y" ]]; then
-#         fbset --all -depth 8
-#         fbset --all -depth $depth
-#     else
-#         fbset --all -depth 8
-#         fbset --all --geometry $res_x $res_y $res_x $res_y $depth
-#     fi
-# }
+    if [[ -z "$res_x" || -z "$res_y" ]]; then
+        fbset --all -depth 8
+        fbset --all -depth $depth
+    else
+        fbset --all -depth 8
+        fbset --all --geometry $res_x $res_y $res_x $res_y $depth
+    fi
+}
 
 function build_xinitrc() {
     local mode="$1"
@@ -925,7 +937,7 @@ function build_xinitrc() {
             rm -rf "$xinitrc"
             ;;
         build)
-            echo "#!/usr/bin/env bash" >"$xinitrc"
+            echo "#!/bin/bash" >"$xinitrc"
 
             # do modesetting (if supported)
             if [[ -n "$HAS_MODESET" ]]; then
@@ -941,7 +953,7 @@ _EOF_
                 [[ "$XINIT_WM" -eq 1 ]] && params+=(-use_cursor no)
                 [[ "$XINIT_WM" -eq 2 ]] && params+=(-use_cursor yes)
                 cat >>"$xinitrc" <<_EOF_
-matchbox-window-manager ${params[@]} &
+blackbox ${params[@]} &
 sleep 0.5
 xset -dpms s off s noblank
 _EOF_
@@ -1025,10 +1037,10 @@ function mode_switch() {
     return 1
 }
 
-# function restore_fb() {
-#     sleep 1
-#     switch_fb_res "${FB_ORIG[0]}x${FB_ORIG[1]}" "${FB_ORIG[2]}"
-# }
+function restore_fb() {
+    sleep 1
+    switch_fb_res "${FB_ORIG[0]}x${FB_ORIG[1]}" "${FB_ORIG[2]}"
+}
 
 function config_backend() {
     # if we are running under X then don't try and use a different backend
@@ -1045,6 +1057,9 @@ function config_backend() {
                     COMMAND="SDL_DISPMANX_WIDTH=${MODE_CUR[2]} SDL_DISPMANX_HEIGHT=${MODE_CUR[3]} $COMMAND"
                 fi
                 COMMAND="SDL1_VIDEODRIVER=dispmanx $COMMAND"
+                ;;
+            sdl12-compat)
+                COMMAND="LD_PRELOAD=\"$ROOTDIR/supplementary/sdl12-compat/libSDL-1.2.so.0\" $COMMAND"
                 ;;
             x11)
                 XINIT=1
@@ -1099,8 +1114,11 @@ function retroarch_append_config() {
     core_dir=$(dirname "$core_dir")
     [[ -n "$core_dir" ]] && iniSet "libretro_directory" "$core_dir"
 
-    # Dynamically Set BIOS Location
-    iniSet "system_directory" "${BIOSDIR}/${SYSTEM}"
+    # Dynamically set BIOS location
+    iniSet "system_directory" "$BIOSDIR/$SYSTEM"
+
+    # Dynamically set saves location
+    iniSet "savefile_directory" "$SAVEDIR/$SYSTEM"
 
     # if verbose logging is on, set core logging to INFO
     [[ "$VERBOSE" -eq 1 ]] && iniSet "libretro_log_level" "1"
@@ -1140,7 +1158,7 @@ function set_governor() {
 function restore_governor() {
     local i=0
     for cpu in /sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_governor; do
-        echo "${governor_old[${i}]}" | sudo tee "$cpu" >/dev/null
+        echo "${governor_old[$i]}" | sudo tee "$cpu" >/dev/null
         ((i++))
     done
 }
@@ -1188,22 +1206,23 @@ function get_sys_command() {
     local quake_dir="${ROM##*/quake/}"
     # remove filename
     quake_dir="${quake_dir%/*}"
-    COMMAND="${COMMAND//\%QUAKEDIR\%/\"${quake_dir}\"}"
+    COMMAND="${COMMAND//\%QUAKEDIR\%/\"$quake_dir\"}"
 
-   # Check If COMMAND Starts With A Launch OPTION:
-    if [[ "${COMMAND}" =~ ^([A-Z\-]+?):(.*)$ ]]; then
+    # check if COMMAND starts with a launch OPTION:
+    if [[ "$COMMAND" =~ ^([A-Z\-]+?):(.*)$ ]]; then
         # extract the command
         COMMAND="${BASH_REMATCH[2]}"
+
         case "${BASH_REMATCH[1]}" in
-            # If It Starts With CON: It Is A Console Application (So We Don't Redirect stdout Later)
+            # if it starts with CON: it is a console application (so we don't redirect stdout later)
             CON)
                 CONSOLE_OUT=1
                 ;;
-            # If It Starts With XINIT It Is An X11 Application (So We Need To Launch Via xinit)
+            # if it starts with XINIT it is an X11 application (so we need to launch via xinit)
             XINIT*)
                 XINIT=1
                 ;;&
-            # If It Starts With XINIT-WM Or XINIT-WMC (With Cursor) It Is An X11 Application Needing A Window Manager
+            # if it starts with XINIT-WM or XINIT-WMC (with cursor) it is an X11 application needing a window manager
             XINIT-WM)
                 XINIT_WM=1
                 ;;
@@ -1220,17 +1239,17 @@ function show_launch() {
     if [[ "$IS_SYS" -eq 1 && "$USE_ART" -eq 1 ]]; then
         # if using art look for images in paths for es art.
         images+=(
-            "$HOME/ArchyPie/roms/$SYSTEM/images/${ROM_BN}-image"
-            "$HOME/.emulationstation/downloaded_images/$SYSTEM/${ROM_BN}-image"
-            "$HOME/.emulationstation/downloaded_media/$SYSTEM/screenshots/${ROM_BN}"
-            "$HOME/ArchyPie/roms/$SYSTEM/media/screenshots/${ROM_BN}"
+            "$HOME/ArchyPie/roms/$SYSTEM/images/$ROM_BN-image"
+            "$HOME/.emulationstation/downloaded_images/$SYSTEM/$ROM_BN-image"
+            "$HOME/.emulationstation/downloaded_media/$SYSTEM/screenshots/$ROM_BN"
+            "$HOME/ArchyPie/roms/$SYSTEM/media/screenshots/$ROM_BN"
         )
     fi
 
     # look for custom launching images
     if [[ "$IS_SYS" -eq 1 ]]; then
         images+=(
-            "$HOME/ArchyPie/roms/$SYSTEM/images/${ROM_BN}-launching"
+            "$HOME/ArchyPie/roms/$SYSTEM/images/$ROM_BN-launching"
             "$CONF_ROOT/launching"
         )
     fi
@@ -1249,10 +1268,15 @@ function show_launch() {
         done
     done
 
-    if [[ -n "${image}" ]]; then
-        if [[ -n "${DISPLAY}" ]]; then
-            imv -f -x -t "${IMAGE_DELAY}" "${image}" </dev/tty &>/dev/null
-            IMG_PID=${!}
+    if [[ -n "$image" ]]; then
+        # If we are running under X use imv otherwise try and use fbi
+        if [[ -n "$DISPLAY" ]]; then
+            imv -f -x -t "$IMAGE_DELAY" "$image" & &>/dev/null
+            IMG_PID=$!
+            sleep "$IMAGE_DELAY"
+            # if we're not using the old Joy2Key script, we need imv to stop after the delay
+            # otherwise the menu will not be triggered due to terminal being out of focus
+            [[ "$LEGACY_JOY2KEY" -eq 0 && "DISABLE_MENU" -ne 1 ]] && kill -SIGINT "$IMG_PID"
         else
             fbi -1 -t "$IMAGE_DELAY" -noverbose -a "$image" </dev/tty &>/dev/null
         fi
@@ -1263,7 +1287,7 @@ function show_launch() {
         else
             launch_name="$EMULATOR"
         fi
-        DIALOGRC="$CONFIGDIR/all/runcommand-launch-dialog.cfg" dialog --infobox "\nLaunching ${launch_name} ...\n\nPress A Button To Configure\n\nErrors Are Logged To ${LOG}" 9 60
+        DIALOGRC="$CONFIGDIR/all/runcommand-launch-dialog.cfg" dialog --infobox "\nLaunching $launch_name ...\n\nPress a button to configure\n\nErrors are logged to $LOG" 9 60
     fi
 }
 
@@ -1271,7 +1295,7 @@ function check_menu() {
     local dont_launch=0
     # check for key pressed to enter configuration
     IFS= read -s -t 2 -N 1 key </dev/tty
-    if [[ -n "${key}" ]]; then
+    if [[ -n "$key" ]]; then
         [[ -n "$IMG_PID" ]] && kill -SIGINT "$IMG_PID"
         tput cnorm
         main_menu
@@ -1301,21 +1325,21 @@ function restore_cursor_and_exit() {
 
 function launch_command() {
     local ret
-    # Escape $ To Avoid Variable Expansion (Example: Roms Containing ${!})
+    # escape $ to avoid variable expansion (eg roms containing $!)
     COMMAND="${COMMAND//\$/\\\$}"
-    # Launch The Command
-    echo -e "Parameters: ${@}\nExecuting: ${COMMAND}" >>"${LOG}"
-    if [[ "${CONSOLE_OUT}" -eq 1 ]]; then
-        # Turn Cursor On
+    # launch the command
+    echo -e "Parameters: $@\nExecuting: $COMMAND" >>"$LOG"
+    if [[ "$CONSOLE_OUT" -eq 1 ]]; then
+        # turn cursor on
         tput cnorm
-        eval "${COMMAND}" </dev/tty 2>>"${LOG}"
-        ret=${?}
+        eval "$COMMAND" </dev/tty 2>>"$LOG"
+        ret=$?
         tput civis
     else
-        eval "${COMMAND}" </dev/tty &>>"${LOG}"
-        ret=${?}
+        eval "$COMMAND" </dev/tty &>>"$LOG"
+        ret=$?
     fi
-    return ${ret}
+    return $ret
 }
 
 function log_info() {
@@ -1366,7 +1390,7 @@ function runcommand() {
     # resave info after menu and resolution replacements so runcommand.info is up to date
     log_info
 
-    #[[ -n "$FB_NEW" ]] && switch_fb_res $FB_NEW
+    [[ -n "$FB_NEW" ]] && switch_fb_res $FB_NEW
 
     config_backend "$SAVE_EMU"
 
@@ -1382,8 +1406,15 @@ function runcommand() {
 
     user_script "runcommand-onlaunch.sh"
 
+    # include our SDL gamecontroller mappings in the environment
+    # but check if the environment doesn't already have the SDL GameController mapping hint
+    if [[ -z $SDL_GAMECONTROLLERCONFIG && -f "$SDL2_MAPPINGS" ]]; then
+        export SDL_GAMECONTROLLERCONFIG="$(cat "$SDL2_MAPPINGS")"
+    fi
+
     local ret
-    launch_command "${@}"
+    clear
+    launch_command
     ret=$?
 
     [[ -n "$IMG_PID" ]] && kill -SIGINT "$IMG_PID"
@@ -1415,3 +1446,4 @@ function runcommand() {
 }
 
 runcommand "$@"
+
