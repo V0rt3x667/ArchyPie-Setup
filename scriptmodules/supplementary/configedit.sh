@@ -1,27 +1,35 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="configedit"
 rp_module_desc="Edit ArchyPie & RetroArch Configurations"
 rp_module_section="config"
 
 function _video_fullscreen_configedit() {
-    local mode="${1}"
-    local value="${2}"
-    case "${mode}" in
+    local mode="$1"
+    local value="$2"
+    case "$mode" in
         get)
             iniGet "video_fullscreen_x"
-            local res_x="${ini_value}"
+            local res_x="$ini_value"
 
             iniGet "video_fullscreen_y"
-            local res_y="${ini_value}"
+            local res_y="$ini_value"
 
-            if [[ -z "${res_x}" && -z "${res_y}" ]]; then
+            if [[ -z "$res_x" && -z "$res_y" ]]; then
                 echo "unset"
-            elif [[ "${res_x}" == "0" && "${res_y}" == "0" ]]; then
+            elif [[ "$res_x" == "0" && "$res_y" == "0" ]]; then
                 echo "Video Output Resolution"
             else
                 echo "${res_x}x${res_y}"
@@ -41,35 +49,34 @@ function _video_fullscreen_configedit() {
             local options=(U "unset")
             local default
             for item in "${res[@]}"; do
-                [[ "${item}" == "${value}" ]] && default="${i}"
-                options+=("${i}" "${item}")
+                [[ "$item" == "$value" ]] && default="$i"
+                options+=($i "$item")
                 ((i++))
             done
             options+=(
                 O "Video Output Resolution"
                 C "Custom"
             )
-            [[ "${value}" == "Video Output Resolution" ]] && default="O"
-            [[ "${value}" == "unset" ]] && default="U"
-            [[ -z "${default}" ]] && default="C"
-            local cmd=(dialog --default-item "${default}" --cancel-label "Back" --menu "Choose RetroArch Render Resolution" 22 76 16 )
-            local choice
-            choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-            [[ -z "${choice}" ]] && return
+            [[ "$value" == "Video output resolution" ]] && default="O"
+            [[ "$value" == "unset" ]] && default="U"
+            [[ -z "$default" ]] && default="C"
+            local cmd=(dialog --default-item "$default" --cancel-label "Back" --menu "Choose RetroArch render resolution" 22 76 16 )
+            local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+            [[ -z "$choice" ]] && return
             local res
-            if [[ "${choice}" == "U" ]]; then
+            if [[ "$choice" == "U" ]]; then
                 iniUnset "video_fullscreen_x"
                 iniUnset "video_fullscreen_y"
-            elif [[ "${choice}" == "O" ]]; then
+            elif [[ "$choice" == "O" ]]; then
                 iniSet "video_fullscreen_x" "0"
                 iniSet "video_fullscreen_y" "0"
             else
-                if [[ "${choice}" == "C" ]]; then
-                    cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --inputbox "Please Enter The Render Resolution As WIDTHxHEIGHT" 10 60)
+                if [[ "$choice" == "C" ]]; then
+                    cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --inputbox "Please enter the render resolution as WIDTHxHEIGHT" 10 60)
                     res=$("${cmd[@]}" 2>&1 >/dev/tty)
-                    [[ -z "${res}" || ! "${res}" =~ ^[0-9]+x[0-9]+$ ]] && return
+                    [[ -z "$res" || ! "$res" =~ ^[0-9]+x[0-9]+$ ]] && return
                 else
-                    res="${res[${choice}-1]}"
+                    res="${res[$choice-1]}"
                 fi
                 res=(${res/x/ })
                 iniSet "video_fullscreen_x" "${res[0]}"
@@ -80,21 +87,21 @@ function _video_fullscreen_configedit() {
 }
 
 function _joypad_index_configedit() {
-    local mode="${1}"
-    local value="${2}"
+    local mode="$1"
+    local value="$2"
     while true; do
         local players=()
         local player
         for player in 1 2 3 4; do
             iniGet "input_player${player}_joypad_index"
-            if [[ -n "${ini_value}" ]]; then
-                players+=("${ini_value}")
+            if [[ -n "$ini_value" ]]; then
+                players+=("$ini_value")
             else
                 players+=("unset")
             fi
         done
 
-        case "${mode}" in
+        case "$mode" in
             get)
                 echo "${players[@]}"
                 return
@@ -105,18 +112,18 @@ function _joypad_index_configedit() {
                 local path
                 local paths=()
 
-                # Get Joystick Device Paths
+                # get joystick device paths
                 while read -r dev; do
-                    if udevadm info --name="${dev}" | grep -q "ID_INPUT_JOYSTICK=1"; then
-                        paths+=("$(udevadm info --name="${dev}" --query=name)")
+                    if udevadm info --name=$dev | grep -q "ID_INPUT_JOYSTICK=1"; then
+                        paths+=("$(udevadm info --name=$dev --query=name)")
                     fi
                 done < <(find /dev/input -name "js*")
 
                 if [[ "${#paths[@]}" -gt 0 ]]; then
-                    # Sort By Path
+                    # sort by path
                     IFS=$'\n'
                     while read -r path; do
-                        devs_name+=("$(cat /sys/class/${path}/device/name)")
+                        devs_name+=("$(cat /sys/class/$path/device/name)")
                     done < <(sort <<<"${paths[*]}")
                     unset IFS
                 fi
@@ -126,34 +133,32 @@ function _joypad_index_configedit() {
                 local value
                 local joypad
                 for i in 1 2 3 4; do
-                    player="${players[${i}-1]}"
-                    value="${player}"
-                    joypad="${devs_name[${player}]}"
-                    [[ -z "${joypad}" ]] && joypad="not connected"
-                    [[ "${player}" != "unset" ]] && value+=" (${joypad})"
-                    options+=("${i}" "${value}")
+                    player="${players[$i-1]}"
+                    value="$player"
+                    joypad="${devs_name[$player]}"
+                    [[ -z "$joypad" ]] && joypad="not connected"
+                    [[ "$player" != "unset" ]] && value+=" ($joypad)"
+                    options+=("$i" "$value")
                 done
-                local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --menu "Choose A Player To Adjust" 22 76 16)
-                local choice
-                choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                [[ -z "${choice}" ]] && return
-                player="${choice}"
+                local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --menu "Choose a player to adjust" 22 76 16)
+                local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+                [[ -z "$choice" ]] && return
+                player="$choice"
                 options=(U Unset)
                 local i=0
                 for dev in "${devs_name[@]}"; do
-                    options+=("${i}" "${dev}")
+                    options+=("$i" "$dev")
                     ((i++))
                 done
-                local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --menu "Choose A Gamepad" 22 76 16)
-                local choice
-                choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                [[ -z "${choice}" ]] && continue
-                case "${choice}" in
+                local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --menu "Choose a Gamepad" 22 76 16)
+                local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+                [[ -z "$choice" ]] && continue
+                case "$choice" in
                     U)
                         iniUnset "input_player${player}_joypad_index"
                         ;;
                     *)
-                        iniSet "input_player${player}_joypad_index" "${choice}"
+                        iniSet "input_player${player}_joypad_index" "$choice"
                         ;;
                 esac
                 ;;
@@ -169,10 +174,10 @@ function basic_configedit() {
         'aspect_ratio_index _id_ 4:3 16:9 16:10 16:15 21:9 1:1 2:1 3:2 3:4 4:1 4:4 5:4 6:5 7:9 8:3 8:7 19:12 19:14 30:17 32:9 config square core custom'
         '_function_ _video_fullscreen_configedit'
         'video_shader_enable true false'
-        "video_shader _file_ *.*p ${rootdir}/emulators/retroarch/shader"
+        "video_shader _file_ *.*p $rootdir/emulators/retroarch/shader"
         'input_auto_game_focus _id_ off on detect'
         'input_overlay_enable true false'
-        "input_overlay _file_ *.cfg ${rootdir}/emulators/retroarch/overlays"
+        "input_overlay _file_ *.cfg $rootdir/emulators/retroarch/overlays"
         '_function_ _joypad_index_configedit'
         'input_player1_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
         'input_player2_analog_dpad_mode _id_ disabled left-stick right-stick left-stick-forced right-stick-forced'
@@ -212,7 +217,7 @@ function basic_configedit() {
         'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
     )
 
-    iniFileEditor " = " '"' "${config}"
+    iniFileEditor " = " '"' "$config"
 }
 
 function advanced_configedit() {
@@ -227,10 +232,10 @@ function advanced_configedit() {
         'video_smooth true false'
         'aspect_ratio_index _id_ 4:3 16:9 16:10 16:15 21:9 1:1 2:1 3:2 3:4 4:1 4:4 5:4 6:5 7:9 8:3 8:7 19:12 19:14 30:17 32:9 config square core custom'
         'video_shader_enable true false'
-        "video_shader _file_ *.*p ${rootdir}/emulators/retroarch/shader"
+        "video_shader _file_ *.*p $rootdir/emulators/retroarch/shader"
         'input_overlay_enable true false'
-        "input_overlay _file_ *.cfg ${rootdir}/emulators/retroarch/overlays"
-        "audio_driver ${audio_opts}"
+        "input_overlay _file_ *.cfg $rootdir/emulators/retroarch/overlays"
+        "audio_driver $audio_opts"
         'video_driver gl glcore sdl2 vulkan'
         'menu_driver rgui xmb ozone'
         'video_fullscreen_x _string_'
@@ -251,7 +256,7 @@ function advanced_configedit() {
         'fps_show true false'
         'input_overlay_opacity _string_'
         'input_overlay_scale _string_'
-        'input_joypad_driver hid linuxraw sdl2 udev'
+        'input_joypad_driver udev sdl2 linuxraw hid'
         'game_specific_options true false'
         'input_player1_joypad_index _string_'
         'input_player2_joypad_index _string_'
@@ -319,55 +324,53 @@ function advanced_configedit() {
         'Allow analogue sticks to be used as a d-pad - 0 = disabled, 1 = left stick, 2 = right stick, 3 = left stick forced, 4 = right stick forced'
     )
 
-    iniFileEditor " = " '"' "${config}"
+    iniFileEditor " = " '"' "$config"
 }
 
 function choose_config_configedit() {
     local path="$1"
     local include="$2"
     local exclude="$3"
-    local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --menu "Which Configuration Would You Like To Edit?" 22 76 16)
+    local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --menu "Which configuration would you like to edit?" 22 76 16)
     local configs=()
     local options=()
     local config
     local i=0
-    while read -r config; do
-        config=${config//${path}\//}
-        configs+=("${config}")
-        options+=("${i}" "${config}")
+    while read config; do
+        config=${config//$path\//}
+        configs+=("$config")
+        options+=("$i" "$config")
         ((i++))
-    done < <(find "${path}" -type f -regex "${include}" ! -regex "${exclude}" ! -regex ".*/downloaded_images/.*" | sort)
-    local choice
-    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "${choice}" ]]; then
+    done < <(find "$path" -type f -regex "$include" ! -regex "$exclude" ! -regex ".*/downloaded_images/.*" | sort)
+    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+    if [[ -n "$choice" ]]; then
         echo "${configs[choice]}"
     fi
 }
 
 function basic_menu_configedit() {
     while true; do
-        local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --menu "Which Platform Do You Want To Adjust?" 22 76 16)
+        local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --menu "Which platform do you want to adjust?" 22 76 16)
         local configs=()
         local options=()
         local config
         local dir
         local desc
         local i=0
-        while read -r config; do
-            configs+=("${config}")
+        while read config; do
+            configs+=("$config")
             dir=${config%/*}
-            dir=${dir//${configdir}\//}
-            if [[ "${dir}" == "all" ]]; then
-                desc="Configure Default Options For All Libretro Emulators"
+            dir=${dir//$configdir\//}
+            if [[ "$dir" == "all" ]]; then
+                desc="Configure default options for all Libretro emulators"
             else
-                desc="Configure Additional Options For ${dir}"
+                desc="Configure additional options for $dir"
             fi
-            options+=("${i}" "${desc}")
+            options+=("$i" "$desc")
             ((i++))
-        done < <(find "${configdir}" -type f -regex ".*/retroarch.cfg" | sort)
-        local choice
-        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        if [[ -n "${choice}" ]]; then
+        done < <(find "$configdir" -type f -regex ".*/retroarch.cfg" | sort)
+        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        if [[ -n "$choice" ]]; then
             basic_configedit "${configs[choice]}"
         else
             break
@@ -377,7 +380,7 @@ function basic_menu_configedit() {
 
 function advanced_menu_configedit() {
     while true; do
-        local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Back" --menu "Choose An Option" 22 76 16)
+        local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Back" --menu "Choose an option" 22 76 16)
         local options=(
             1 "Configure Libretro Options"
             2 "Manually Edit RetroArch Configurations"
@@ -385,32 +388,31 @@ function advanced_menu_configedit() {
             4 "Manually Edit Non-RetroArch Configurations"
             5 "Manually Edit All Configurations"
         )
-        local choice
-        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         local file="-"
-        if [[ -n "${choice}" ]]; then
+        if [[ -n "$choice" ]]; then
             local ra_exclude='.*/all/retroarch/\(assets\|shaders\|thumbnails\)/.*'
-            while [[ -n "${file}" ]]; do
-                case "${choice}" in
+            while [[ -n "$file" ]]; do
+                case "$choice" in
                     1)
-                        file=$(choose_config_configedit "${configdir}" ".*/retroarch.cfg")
-                        advanced_configedit "${configdir}/${file}" 2
+                        file=$(choose_config_configedit "$configdir" ".*/retroarch.cfg")
+                        advanced_configedit "$configdir/$file" 2
                         ;;
                     2)
-                        file=$(choose_config_configedit "${configdir}" ".*/retroarch.*" "${ra_exclude}")
-                        editFile "${configdir}/${file}"
+                        file=$(choose_config_configedit "$configdir" ".*/retroarch.*" "$ra_exclude")
+                        editFile "$configdir/$file"
                         ;;
                     3)
-                        file=$(choose_config_configedit "${configdir}" ".*/all/.*" "${ra_exclude}")
-                        editFile "${configdir}/${file}"
+                        file=$(choose_config_configedit "$configdir" ".*/all/.*" "$ra_exclude")
+                        editFile "$configdir/$file"
                         ;;
                     4)
-                        file=$(choose_config_configedit "${configdir}" ".*" ".*retroarch.*")
-                        editFile "${configdir}/${file}"
+                        file=$(choose_config_configedit "$configdir" ".*" ".*retroarch.*")
+                        editFile "$configdir/$file"
                         ;;
                     5)
-                        file=$(choose_config_configedit "${configdir}" ".*" "${ra_exclude}")
-                        editFile "${configdir}/${file}"
+                        file=$(choose_config_configedit "$configdir" ".*" "$ra_exclude")
+                        editFile "$configdir/$file"
                         ;;
                 esac
             done
@@ -422,16 +424,15 @@ function advanced_menu_configedit() {
 
 function gui_configedit() {
     while true; do
-        local cmd=(dialog --backtitle "${__backtitle}" --cancel-label "Exit" --menu "Choose An Option" 22 76 16)
+        local cmd=(dialog --backtitle "$__backtitle" --cancel-label "Exit" --menu "Choose an option" 22 76 16)
         local options=(
             1 "Configure Basic Libretro Emulator Options"
             2 "Advanced Configuration"
         )
-        local choice
-        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         local file="-"
-        if [[ -n "${choice}" ]]; then
-            case ${choice} in
+        if [[ -n "$choice" ]]; then
+            case $choice in
                 1)
                     basic_menu_configedit
                     ;;
@@ -444,3 +445,4 @@ function gui_configedit() {
         fi
     done
 }
+
