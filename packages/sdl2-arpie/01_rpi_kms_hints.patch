@@ -1,0 +1,263 @@
+diff --git a/configure b/configure
+index 3970fa07e03dc..b161e26b48f40 100755
+--- a/configure
++++ b/configure
+@@ -23742,7 +23742,7 @@ printf "%s\n" "$have_video_rpi" >&6; }
+ 
+         if test x$have_video_rpi = xyes; then
+             CFLAGS="$CFLAGS $RPI_CFLAGS"
+-            SDL_CFLAGS="$SDL_CFLAGS $RPI_CFLAGS"
++            # SDL_CFLAGS="$SDL_CFLAGS $RPI_CFLAGS"
+             EXTRA_CFLAGS="$EXTRA_CFLAGS $RPI_CFLAGS"
+             EXTRA_LDFLAGS="$EXTRA_LDFLAGS $RPI_LIBS"
+             SOURCES="$SOURCES $srcdir/src/video/raspberry/*.c"
+diff --git a/configure.ac b/configure.ac
+index 22831029d2bb5..c4b9738dcc89d 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1885,7 +1885,7 @@ CheckRPI()
+ 
+         if test x$have_video_rpi = xyes; then
+             CFLAGS="$CFLAGS $RPI_CFLAGS"
+-            SDL_CFLAGS="$SDL_CFLAGS $RPI_CFLAGS"
++            # SDL_CFLAGS="$SDL_CFLAGS $RPI_CFLAGS"
+             EXTRA_CFLAGS="$EXTRA_CFLAGS $RPI_CFLAGS"
+             EXTRA_LDFLAGS="$EXTRA_LDFLAGS $RPI_LIBS"
+             SOURCES="$SOURCES $srcdir/src/video/raspberry/*.c"
+diff --git a/src/video/SDL_egl.c b/src/video/SDL_egl.c
+index 945ba21b32c8e..f3406d3e0c7b0 100644
+--- a/src/video/SDL_egl.c
++++ b/src/video/SDL_egl.c
+@@ -59,12 +59,13 @@
+ 
+ #ifdef SDL_VIDEO_DRIVER_RPI
+ /* Raspbian places the OpenGL ES/EGL binaries in a non standard path */
+-#define DEFAULT_EGL        (vc4 ? "libEGL.so.1" : "libbrcmEGL.so")
+-#define DEFAULT_OGL_ES2    (vc4 ? "libGLESv2.so.2" : "libbrcmGLESv2.so")
+-#define ALT_EGL            "libEGL.so"
+-#define ALT_OGL_ES2        "libGLESv2.so"
+-#define DEFAULT_OGL_ES_PVR (vc4 ? "libGLES_CM.so.1" : "libbrcmGLESv2.so")
+-#define DEFAULT_OGL_ES     (vc4 ? "libGLESv1_CM.so.1" : "libbrcmGLESv2.so")
++#define DEFAULT_OGL ( vc4 ? "libGL.so.1" : "" )
++#define DEFAULT_EGL ( vc4 ? "libEGL.so.1" : "libbrcmEGL.so" )
++#define DEFAULT_OGL_ES2 ( vc4 ? "libGLESv2.so.2" : "libbrcmGLESv2.so" )
++#define ALT_EGL "libEGL.so"
++#define ALT_OGL_ES2 "libGLESv2.so"
++#define DEFAULT_OGL_ES_PVR ( vc4 ? "libGLES_CM.so.1" : "libbrcmGLESv2.so" )
++#define DEFAULT_OGL_ES ( vc4 ? "libGLESv1_CM.so.1" : "libbrcmGLESv2.so" )
+ 
+ #elif defined(SDL_VIDEO_DRIVER_ANDROID) || defined(SDL_VIDEO_DRIVER_MALI) || defined(SDL_VIDEO_DRIVER_VIVANTE)
+ /* Android */
+diff --git a/src/video/kmsdrm/SDL_kmsdrmopengles.c b/src/video/kmsdrm/SDL_kmsdrmopengles.c
+index cbf86c9498c54..bd0da6f923858 100644
+--- a/src/video/kmsdrm/SDL_kmsdrmopengles.c
++++ b/src/video/kmsdrm/SDL_kmsdrmopengles.c
+@@ -41,11 +41,6 @@ void KMSDRM_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor)
+ {
+     /* if SDL was _also_ built with the Raspberry Pi driver (so we're
+        definitely a Pi device), default to GLES2. */
+-#ifdef SDL_VIDEO_DRIVER_RPI
+-    *mask = SDL_GL_CONTEXT_PROFILE_ES;
+-    *major = 2;
+-    *minor = 0;
+-#endif
+ }
+ 
+ int KMSDRM_GLES_LoadLibrary(_THIS, const char *path)
+diff --git a/src/video/kmsdrm/SDL_kmsdrmvideo.c b/src/video/kmsdrm/SDL_kmsdrmvideo.c
+index dbcb05239b6b5..4b8258bc23f32 100644
+--- a/src/video/kmsdrm/SDL_kmsdrmvideo.c
++++ b/src/video/kmsdrm/SDL_kmsdrmvideo.c
+@@ -79,6 +79,13 @@ static int get_driindex(void)
+     const char *hint;
+     struct dirent *res;
+ 
++#if SDL_VIDEO_DRIVER_RPI
++        // exit silently if VC4 driver is not active
++        SDL_bool vc4 = (0 == access("/sys/module/vc4/", F_OK));
++        if (!vc4)
++            return -ENOENT;
++#endif
++
+     hint = SDL_GetHint(SDL_HINT_KMSDRM_DEVICE_INDEX);
+     if (hint && *hint) {
+         char *endptr = NULL;
+
+diff --git a/src/video/kmsdrm/SDL_kmsdrmvideo.c b/src/video/kmsdrm/SDL_kmsdrmvideo.c
+index 4b8258bc23f32..58fba4a145a3b 100644
+--- a/src/video/kmsdrm/SDL_kmsdrmvideo.c
++++ b/src/video/kmsdrm/SDL_kmsdrmvideo.c
+@@ -117,7 +117,17 @@ static int get_driindex(void)
+                 devindex = SDL_atoi(device + kmsdrm_dri_pathsize +
+                                     kmsdrm_dri_devnamesize);
+                 if (SDL_KMSDRM_LoadSymbols()) {
+-                    drmModeRes *resources = KMSDRM_drmModeGetResources(drm_fd);
++                    drmModeRes *resources;
++#ifdef DRM_CLIENT_CAP_ASPECT_RATIO
++                    /* Expose aspect ratio flags to userspace if available */
++                    if (KMSDRM_drmSetClientCap(drm_fd, DRM_CLIENT_CAP_ASPECT_RATIO, 1)) {
++                        SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "%s%d has no aspect ratio reporting information support.", kmsdrm_dri_cardpath, devindex);
++                        continue;
++                    } else {
++                        SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "%s%d supports aspect ratio reporting information.", kmsdrm_dri_cardpath, devindex);
++                    }
++#endif
++                    resources = KMSDRM_drmModeGetResources(drm_fd);
+                     if (resources) {
+                         SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO,
+                                      "%s%d connector, encoder and CRTC counts are: %d %d %d",
+@@ -178,6 +188,33 @@ static int get_driindex(void)
+     return available;
+ }
+ 
++static short connector_find_mode(drmModeConnector *connector, const char *mode_str, const unsigned int vrefresh)
++{
++    short i;
++    drmModeModeInfo *mode;
++    for (i = 0; i < connector->count_modes; i++) {
++        mode = &connector->modes[i];
++        if (!strcmp(mode->name, mode_str)) {
++            /* If the vertical refresh frequency is not specified, then return the first mode that matches by name.
++             * Otherwise, return the mode that matches the name and the specified vertical refresh frequency.
++             */
++            if (vrefresh == 0)
++                return i;
++            else if (mode->vrefresh == vrefresh)
++                return i;
++        }
++    }
++
++    return 0;
++}
++static SDL_bool compare_drm_mode_info(const drmModeModeInfo mode1, const drmModeModeInfo mode2) {
++    if ( mode1.hdisplay == mode2.hdisplay && mode1.vdisplay==mode2.vdisplay && mode1.vrefresh==mode2.vrefresh) {
++        return SDL_TRUE;
++    } else {
++      return SDL_FALSE;
++    }
++}
++
+ static int KMSDRM_Available(void)
+ {
+ #ifdef __OpenBSD__
+@@ -731,6 +768,12 @@ static void KMSDRM_AddDisplay(_THIS, drmModeConnector *connector, drmModeRes *re
+     int mode_index;
+     int i, j;
+     int ret = 0;
++    const char *crtc_override = NULL, *mode_line_override = NULL, *mode_id_override = NULL;
++    const char *p;
++    char *hint_video_mode = NULL;
++    uint32_t hint_vrefresh = 0;
++    drmModeModeInfo *override_mode = NULL;
++    short override_mode_index = 0;
+ 
+     /* Reserve memory for the new display's driverdata. */
+     dispdata = (SDL_DisplayData *)SDL_calloc(1, sizeof(SDL_DisplayData));
+@@ -812,6 +855,15 @@ static void KMSDRM_AddDisplay(_THIS, drmModeConnector *connector, drmModeRes *re
+         }
+     }
+ 
++
++    /* See if there is any CRTC ID override passed in the environment */
++    crtc_override = SDL_getenv("SDL_VIDEO_KMSDRM_CRTCID");
++    if (crtc_override) {
++        SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO,"Override KMS CRTCID hint received (SDL_VIDEO_KMSDRM_CRTCID: %s)", crtc_override);
++        encoder->crtc_id=SDL_atoi(crtc_override);
++        crtc = KMSDRM_drmModeGetCrtc(viddata->drm_fd, encoder->crtc_id);
++    }
++
+     if (!crtc) {
+         ret = SDL_SetError("No CRTC found for connector.");
+         goto cleanup;
+@@ -872,6 +924,54 @@ static void KMSDRM_AddDisplay(_THIS, drmModeConnector *connector, drmModeRes *re
+     dispdata->original_mode = crtc->mode;
+     dispdata->fullscreen_mode = crtc->mode;
+ 
++    /* See if any hints about the CRTCID/MODEID/MODELINE are set by the calling environment
++        - SDL_VIDEO_KMSDRM_MODEID: the Mode ID
++        - SDL_VIDEO_KMSDRM_MODELINE: a video mode specificatied as WxH[@VertRefresh]
++    */
++    mode_id_override = SDL_getenv("SDL_VIDEO_KMSDRM_MODEID");
++    if (mode_id_override) {
++        if ( SDL_atoi(mode_id_override) > connector->count_modes ) {
++            SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Invalid override KMS ModeID received (SDL_VIDEO_KMSDRM_MODEID: %s)", mode_id_override);
++        } else {
++            SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Override KMS ModeID received (SDL_VIDEO_KMSDRM_MODEID: %s)", mode_id_override);
++            if ( !compare_drm_mode_info(dispdata->mode, connector->modes[SDL_atoi(mode_id_override)]) ) {
++                dispdata->mode = connector->modes[SDL_atoi(mode_id_override)];
++                mode_index=SDL_atoi(mode_id_override);
++                SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Override KMS ModeID resolved to %dx%d @ %d",
++                    dispdata->mode.hdisplay, dispdata->mode.vdisplay, dispdata->mode.vrefresh);
++            }
++        }
++    }
++
++    mode_line_override = SDL_getenv("SDL_VIDEO_KMSDRM_MODELINE");
++    if (mode_line_override && !mode_id_override) {
++        /* Video mode override, formatted as WxH[@VertRefresh] */
++        SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Override KMS video mode received (SDL_VIDEO_KMSDRM_MODELINE: %s)", mode_line_override);
++
++        p = strchr(mode_line_override, '@');
++        if (p == NULL) {
++            // No hint for refresh rate
++            hint_video_mode = strdup(mode_line_override);
++        } else {
++            hint_video_mode = strndup(mode_line_override, (unsigned int)(p - mode_line_override));
++            hint_vrefresh = strtoul(p + 1, NULL, 10);
++        }
++    }
++
++    if (hint_video_mode) {
++        override_mode_index = connector_find_mode(connector, hint_video_mode, hint_vrefresh);
++    }
++    if (override_mode_index) {
++        override_mode=&connector->modes[override_mode_index];
++        if ((*override_mode).hdisplay != dispdata->mode.hdisplay ||
++             (*override_mode).vdisplay != dispdata->mode.vdisplay ||
++             (*override_mode).vrefresh != dispdata->mode.vrefresh) {
++            SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Setting initial video mode to %dx%d @ %d",(*override_mode).hdisplay, (*override_mode).vdisplay, (*override_mode).vrefresh);
++            dispdata->mode = (*override_mode);
++            mode_index = override_mode_index;
++        }
++    }
++
+     if (dispdata->mode.hdisplay == 0 || dispdata->mode.vdisplay == 0) {
+         ret = SDL_SetError("Couldn't get a valid connector videomode.");
+         goto cleanup;
+
+diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
+index 97c6bf0c59c54..7fa68b5d9bf02 100644
+--- a/src/video/SDL_video.c
++++ b/src/video/SDL_video.c
+@@ -483,29 +483,8 @@ int SDL_VideoInit(const char *driver_name)
+     if (!driver_name) {
+         driver_name = SDL_GetHint(SDL_HINT_VIDEODRIVER);
+     }
+-#if defined(__LINUX__) && defined(SDL_VIDEO_DRIVER_X11)
+-    if (!driver_name) {
+-        /* See if it looks like we need X11 */
+-        SDL_bool force_x11 = SDL_FALSE;
+-        void *global_symbols = dlopen(NULL, RTLD_LOCAL|RTLD_NOW);
+-
+-        /* Use linked libraries to detect what quirks we are likely to need */
+-        if (global_symbols != NULL) {
+-            if (dlsym(global_symbols, "glxewInit") != NULL) {  /* GLEW (e.g. Frogatto, SLUDGE) */
+-                force_x11 = SDL_TRUE;
+-            } else if (dlsym(global_symbols, "cgGLEnableProgramProfiles") != NULL) {  /* NVIDIA Cg (e.g. Awesomenauts, Braid) */
+-                force_x11 = SDL_TRUE;
+-            } else if (dlsym(global_symbols, "_Z7ssgInitv") != NULL) {  /* ::ssgInit(void) in plib (e.g. crrcsim) */
+-                force_x11 = SDL_TRUE;
+-            }
+-            dlclose(global_symbols);
+-        }
+-        if (force_x11) {
+-            driver_name = "x11";
+-        }
+-    }
+-#endif
+-    if (driver_name && *driver_name != 0) {
++
++   if (driver_name && *driver_name != 0) {
+         const char *driver_attempt = driver_name;
+         while (driver_attempt && *driver_attempt != 0 && !video) {
+             const char *driver_attempt_end = SDL_strchr(driver_attempt, ',');

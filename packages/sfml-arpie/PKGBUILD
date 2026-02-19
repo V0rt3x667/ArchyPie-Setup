@@ -1,0 +1,64 @@
+# Maintainer: archypieproject <archypieproject@protonmail.com>
+
+pkgname=sfml-arpie
+pkgver=2.6.2
+pkgrel=1
+pkgdesc='A simple, fast, cross-platform, and object-oriented multimedia API'
+arch=('x86_64' 'i686' 'aarch64' 'armv7h')
+url="http://www.sfml-dev.org"
+license=('zlib')
+depends=(
+    'freetype2'
+    'glew'
+    'libsndfile'
+    'libx11'
+    'libxcursor'
+    'libxrandr'
+    'openal'
+    )
+makedepends=(
+    'cmake'
+    'doxygen'
+    'mesa'
+    'mold'
+    'ninja'
+    'systemd'
+    )
+provides=(
+    'libsfml-audio.so'
+    'libsfml-graphics.so'
+    'libsfml-network.so'
+    'libsfml-system.so'
+    'libsfml-window.so'
+    )
+conflicts=('sfml' 'sfml-git')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/SFML/SFML/archive/${pkgver}.tar.gz")
+sha512sums=('d8a8bee3aa9acda4609104c2a9d4a2512e4be6d6e85fd4b24c287c03f60cfb888e669e61bfac4113dae35f0c3492559b65b3453baf38766d8c0223d9ab77aada')
+
+build() {
+    cmake . \
+        -B"build" \
+        -G"Ninja" \
+        -S"SFML-${pkgver}" \
+        -DCMAKE_BUILD_RPATH_USE_ORIGIN="ON" \
+        -DCMAKE_BUILD_TYPE="Release" \
+        -DCMAKE_C_COMPILER="clang" \
+        -DCMAKE_CXX_COMPILER="clang++" \
+        -DCMAKE_INSTALL_PREFIX="/usr" \
+        -DCMAKE_LINKER_TYPE="MOLD" \
+        -DSFML_BUILD_DOC="OFF" \
+        -DSFML_BUILD_EXAMPLES="OFF" \
+        -DSFML_INSTALL_PKGCONFIG_FILES="ON" \
+        -DSFML_PKGCONFIG_INSTALL_PREFIX="/usr/share/pkgconfig" \
+        -DSFML_USE_DRM="ON" \
+        -DSFML_USE_SYSTEM_DEPS="ON" \
+        -Wno-dev
+    ninja -C build clean
+    ninja -C build
+}
+
+package() {
+    DESTDIR="${pkgdir}/" ninja -C build install/strip
+
+    install -Dm644 "SFML-${pkgver}/license.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
