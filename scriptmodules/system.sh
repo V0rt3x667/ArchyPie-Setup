@@ -66,27 +66,33 @@ function conf_binary_vars() {
     [[ -z "$__has_binaries" ]] && __has_binaries=0
 
     # Set: Binary download URLs
-    #__binary_host="files.retropie.org.uk"
-    #__binary_base_url="https://$__binary_host/binaries"
+    __binary_host="https://github.com/v0rt3x667"
+    __binary_base_url="https://$__binary_host/archypie-packages"
 
-    # Code might be used in future
     # __binary_path="$__os_codename/$__platform"
-    # isPlatform "kms" && __binary_path+="/kms"
-    # __binary_url="$__binary_base_url/$__binary_path"
+    __binary_url="$__binary_base_url/$__platform_arch"
 
     __archive_url="https://files.retropie.org.uk/archives"
     __arpie_url="https://github.com/v0rt3x667/archypie-resources/raw"
 
     # Set: GPG key used by ArchyPie
-    #__gpg_retropie_key="retropieproject@gmail.com"
+    __gpg_archypie_key="archypieproject@protonmail.com"
 
-    # If __gpg_signing_key is not set, set to __gpg_retropie_key
-    #[[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_retropie_key"
+    # If __gpg_signing_key is not set, set to __gpg_archypie_key
+    [[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_archypie_key"
 
-    # Install: RetroPie public key
-    #if ! gpg --list-keys "$__gpg_retropie_key" &>/dev/null; then
-    #    gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys DC9D77FF8208FFC51D8F50CCF1B030906A3B0D31
-    #fi
+    # Install: ArchyPie public key
+    if ! gpg --list-keys "$__gpg_archypie_key" &>/dev/null; then
+        gpg --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys B73B4ACF44D6491CE94E52223D27922F2EC6B6AE
+        pacman-key --recv-keys "$__gpg_archypie_key"
+    fi
+
+    # Add the ArchyPie package repo to /etc/pacman.conf
+    cat >> /etc/pacman.conf <<_EOF_
+[archypie-packages]
+Server = "$__binary_url"
+SigLevel = Required TrustedOnly
+_EOF_
 }
 
 function conf_build_vars() {
