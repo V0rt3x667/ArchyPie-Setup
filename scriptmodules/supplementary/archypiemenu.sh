@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="archypiemenu"
 rp_module_desc="ArchyPie Menu: Configuration Menu for EmulationStation"
@@ -10,8 +18,9 @@ rp_module_section="core"
 rp_module_flags="nonet"
 
 function _update_hook_archypiemenu() {
-    if ! rp_isInstalled "${md_id}" && [[ -f "${home}/.emulationstation/gamelists/archypie/gamelist.xml" ]]; then
-        mkdir -p "${md_inst}"
+    if ! rp_isInstalled "$md_id" && [[ -f "$home/.emulationstation/gamelists/archypie/gamelist.xml" ]]; then
+        mkdir -p "$md_inst"
+        touch "$md_inst/.archypie"
     fi
 }
 
@@ -28,13 +37,13 @@ function install_bin_archypiemenu() {
 }
 
 function configure_archypiemenu() {
-    if [[ "${md_mode}" == "install" ]]; then
-        local rpdir="${home}/ArchyPie/archypiemenu"
-        mkdir -p "${rpdir}"
-        cp -Rv "${md_data}/icons" "${rpdir}/"
-        chown -R "${__user}":"${__group}" "${rpdir}"
+    if [[ "$md_mode" == "install" ]]; then
+        local rpdir="$home/ArchyPie/archypiemenu"
+        mkdir -p "$rpdir"
+        cp -Rv "$md_data/icons" "$rpdir/"
+        chown -R "$__user":"$__group" "$rpdir"
 
-        # Add Games List & Icons
+        # Add games list and icons
         local files=(
             'audiosettings'
             'bluetooth'
@@ -43,9 +52,10 @@ function configure_archypiemenu() {
             'filemanager'
             'retroarch'
             'retronetplay'
-            'arpisetup'
+            'rpsetup'
             'runcommand'
             'showip'
+            'splashscreen'
             'wifi'
         )
 
@@ -60,6 +70,7 @@ function configure_archypiemenu() {
             'ArchyPie Setup'
             'Run Command Configuration'
             'Show IP'
+            'Splash Screens'
             'Wi-Fi'
         )
 
@@ -74,10 +85,16 @@ function configure_archypiemenu() {
             'Install ArchyPie from binary or source, install experimental packages, additional drivers, edit Samba shares, custom scraper, as well as other ArchyPie-related configurations.'
             'Change what appears on the runcommand screen. Enable or disable the menu, enable or disable box art, and change CPU configuration.'
             'Displays your current IP address, as well as other information provided by the command "ip addr show."'
+            'Enable or disable the splashscreen on ArchyPie boot. Choose a splashscreen, download new splashscreens, and return splashscreen to default.'
             'Connect to or disconnect from a Wi-Fi network and configure Wi-Fi settings.'
         )
 
-        setESSystem "ArchyPie" "archypie" "${rpdir}" ".rp .sh" "sudo ${scriptdir}/archypie_packages.sh archypiemenu launch %ROM%" "" "archypie"
+        # 'legacy' joy2key uses direct tty I/O and needs the extra redirection arguments
+        iniConfig " = " '"' "$configdir/all/runcommand.cfg"
+        iniGet "legacy_joy2key"
+        local tty_args
+        [[ "$ini_value" == "1" ]] && tty_args=" </dev/tty >/dev/tty"
+        setESSystem "ArchyPie" "archypie" "$rpdir" ".rp .sh" "sudo $scriptdir/archypie_packages.sh archypiemenu launch %ROM% $tty_args" "" "archypie"
 
         local file
         local name
@@ -86,7 +103,10 @@ function configure_archypiemenu() {
         local i
         for i in "${!files[@]}"; do
             case "${files[i]}" in
-                audiosettings)
+                audiosettings|splashscreen)
+                    ! isPlatform "rpi" && continue
+                    ;;
+                wifi)
                     ! isPlatform "rpi" && continue
                     ;;
             esac
@@ -94,63 +114,63 @@ function configure_archypiemenu() {
             file="${files[i]}"
             name="${names[i]}"
             desc="${descs[i]}"
-            image="${home}/ArchyPie/archypiemenu/icons/${files[i]}.png"
+            image="$home/ArchyPie/archypiemenu/icons/${files[i]}.png"
 
-            touch "${rpdir}/${file}.rp"
+            touch "$rpdir/$file.rp"
 
             local function
             for function in $(compgen -A function _add_rom_); do
-                "${function}" "archypie" "ArchyPie" "${file}.rp" "${name}" "${desc}" "${image}"
+                "$function" "archypie" "ArchyPie" "$file.rp" "$name" "$desc" "$image"
             done
         done
     fi
 }
 
 function remove_archypiemenu() {
-    rm -rf "${home}/ArchyPie/archypiemenu"
-    rm -rf "${home}/.emulationstation/gamelists/archypie"
+    rm -rf "$home/ArchyPie/archypiemenu"
+    rm -rf "$home/.emulationstation/gamelists/archypie"
     delSystem archypie
 }
 
 function launch_archypiemenu() {
     clear
-    local command="${1}"
+    local command="$1"
     local basename="${command##*/}"
     local no_ext="${basename%.rp}"
     joy2keyStart
-    case "${basename}" in
+    case "$basename" in
         retroarch.rp)
             joy2keyStop
-            cp "${configdir}/all/retroarch.cfg" "${configdir}/all/retroarch.cfg.bak"
-            chown "${__user}":"${__group}" "${configdir}/all/retroarch.cfg.bak"
-            su "${__user}" -c "XDG_RUNTIME_DIR=/run/user/${SUDO_UID} \"${emudir}/retroarch/bin/retroarch\" --menu --config \"${configdir}/all/retroarch.cfg\""
-            iniConfig " = " '"' "${configdir}/all/retroarch.cfg"
+            cp "$configdir/all/retroarch.cfg" "$configdir/all/retroarch.cfg.bak"
+            chown "$__user":"$__group" "$configdir/all/retroarch.cfg.bak"
+            su "$__user" -c "XDG_RUNTIME_DIR=/run/user/$SUDO_UID \"$emudir/retroarch/bin/retroarch\" --menu --config \"$configdir/all/retroarch.cfg\""
+            iniConfig " = " '"' "$configdir/all/retroarch.cfg"
             iniSet "config_save_on_exit" "false"
             ;;
-        arpisetup.rp)
+        rpsetup.rp)
             rp_callModule setup gui
             ;;
         filemanager.rp)
             mc
             ;;
         showip.rp)
-            local ip
-            ip="$(getIPAddress)"
+            local ip="$(getIPAddress)"
             printMsgs "dialog" "Your IP address is: ${ip:-(unknown)}\n\nOutput of 'ip addr show':\n\n$(ip addr show)"
             ;;
         *.rp)
-            rp_callModule "${no_ext}" depends
-            if fnExists gui_"${no_ext}"; then
-                rp_callModule "${no_ext}" gui
+            rp_callModule $no_ext depends
+            if fnExists gui_$no_ext; then
+                rp_callModule $no_ext gui
             else
-                rp_callModule "${no_ext}" configure
+                rp_callModule $no_ext configure
             fi
             ;;
         *.sh)
-            cd "${home}/ArchyPie/archypie" || exit
-            sudo -u "${__user}" bash "${command}"
+            cd "$home/ArchyPie/archypiemenu"
+            sudo -u "$__user" bash "$command"
             ;;
     esac
     joy2keyStop
     clear
 }
+
