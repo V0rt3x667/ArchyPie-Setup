@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 function onstart_emulationstation_joystick() {
     local es_conf="$home/.emulationstation/es_input.cfg"
@@ -67,9 +75,9 @@ function map_emulationstation_joystick() {
     local es_conf="$home/.emulationstation/es_input.cfg"
 
     # add or update element
-    if [[ $(xmlstarlet sel -t -v "count(/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"])" "$es_conf") -eq 0 ]]; then
+    if [[ $(xmlstarlet sel -t -v "count(/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"])" "$es_conf") -eq 0 ]]; then
         xmlstarlet ed -L -s "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]" -t elem -n newinput -v "" \
-            -i //newinput -t attr -n "name" -v "${key}" \
+            -i //newinput -t attr -n "name" -v "$key" \
             -i //newinput -t attr -n "type" -v "$input_type" \
             -i //newinput -t attr -n "id" -v "$input_id" \
             -i //newinput -t attr -n "value" -v "$input_value" \
@@ -77,9 +85,9 @@ function map_emulationstation_joystick() {
             "$es_conf"
     else  # if device already exists, update it
         xmlstarlet ed -L \
-            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"]/@type" -v "$input_type" \
-            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"]/@id" -v "$input_id" \
-            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"${key}\"]/@value" -v "$input_value" \
+            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"]/@type" -v "$input_type" \
+            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"]/@id" -v "$input_id" \
+            -u "/inputList/inputConfig[@deviceGUID=\"$DEVICE_GUID\"]/input[@name=\"$key\"]/@value" -v "$input_value" \
             "$es_conf"
     fi
 }
@@ -99,3 +107,4 @@ function onstart_emulationstation_cec() {
 function map_emulationstation_cec() {
     map_emulationstation_joystick "$@"
 }
+

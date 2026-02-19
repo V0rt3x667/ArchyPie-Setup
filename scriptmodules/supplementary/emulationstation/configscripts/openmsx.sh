@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 function onstart_openmsx_joystick()
 {
     truncate --size 0 /tmp/openMSXtemp.cfg
 }
 
-# Function To Return The Binding Configuration String When Mapping To The MSX Machine Joystick
+# Function to return the binding configuration string, when mapping to the MSX machine joystick
 # See https://openmsx.org/manual/commands.html#joystickN_config
 function _get_msx_bind()
 {
@@ -19,12 +27,12 @@ function _get_msx_bind()
     local input_value="$4"
     declare -A sdl_hat_directions=([1]="U" [2]="R" [4]="D" [8]="L")
 
-    case "${input_type}" in
+    case "$input_type" in
         button)
             echo "button${input_id}"
             ;;
         axis)
-            if [[ ${input_value} =~ ^- ]]; then
+            if [[ $input_value =~ ^- ]]; then
                 echo "-axis${input_id}"
             else
                 echo "+axis${input_id}"
@@ -38,7 +46,7 @@ function _get_msx_bind()
     esac
 }
 
-# Function To Return The Binding Configuration String When Mapping To openMSX Emulator Actions
+# Function to return the binding configuration string, when mapping to openMSX emulator actions
 # See http://openmsx.org/manual/commands.html#bind
 function _get_emu_bind()
 {
@@ -48,12 +56,12 @@ function _get_emu_bind()
     local input_value="$4"
     declare -A sdl_hat_directions=([1]="up" [2]="right" [4]="down" [8]="left")
 
-    case "${input_type}" in
+    case "$input_type" in
         button)
             echo "button${input_id} down"
             ;;
         axis)
-            if [[ ${input_value} =~ ^- ]]; then
+            if [[ $input_value =~ ^- ]]; then
                 echo "axis${input_id} -1"
             else
                 echo "+axis${input_id} +1"
@@ -73,16 +81,13 @@ function map_openmsx_joystick() {
     local input_id="$3"
     local input_value="$4"
 
-    local bind_msx_joystick
-    local bind_msx_emulator
+    local bind_msx_joystick=$(_get_msx_bind "$1" "$2" "$3" "$4")
+    local bind_msx_emulator=$(_get_emu_bind "$1" "$2" "$3" "$4")
     local msx_key
     local emu_key
     local temp_conf="/tmp/openMSXtemp.cfg"
 
-    bind_msx_joystick=$(_get_msx_bind "$1" "$2" "$3" "$4")
-    bind_msx_emulator=$(_get_emu_bind "$1" "$2" "$3" "$4")
-
-    case "${input_name}" in
+    case "$input_name" in
         a)
             msx_key="A"
             ;;
@@ -124,50 +129,50 @@ function map_openmsx_joystick() {
             ;;
     esac
 
-    if [[ -n ${msx_key} ]]; then
-        echo "    dict lappend joystick1_config ${msx_key} ${bind_msx_joystick}" >> "${temp_conf}"
+    if [[ -n $msx_key ]]; then
+        echo "    dict lappend joystick1_config $msx_key $bind_msx_joystick" >> "$temp_conf"
     fi
 
-    if [[ -n ${emu_key} ]]; then
-        # Don't Try To Bind A Non-Button Input To A Keyboard Key, There's No 'release' Event For Axis/Hat Inputs
-        [[ ${emu_key} =~ ^keymatrixdown && ! ${bind_msx_emulator} =~ "button" ]] && return
+    if [[ -n $emu_key ]]; then
+        # Don't try to bind a non-button input to a keyboard key, there's no 'release' event for axis/hat inputs
+        [[ $emu_key =~ ^keymatrixdown && ! $bind_msx_emulator =~ "button" ]] && return
 
-        echo "    bind_default \"joy1 ${bind_msx_emulator}\" \"${emu_key}\"" >> "${temp_conf}"
-        if [[ ${emu_key} =~ ^keymatrixdown ]]; then
-            echo "    bind_default \"joy1 ${bind_msx_emulator//down/up}\" \"${emu_key//down/up}\"" >>  "${temp_conf}"
+        echo "    bind_default \"joy1 $bind_msx_emulator\" \"$emu_key\"" >> "$temp_conf"
+        if [[ $emu_key =~ ^keymatrixdown ]]; then
+            echo "    bind_default \"joy1 ${bind_msx_emulator//down/up}\" \"${emu_key//down/up}\"" >>  "$temp_conf"
         fi
     fi
 
-    # Add An Extra Configuration For 'Start' To Close The OSD Menu
-    if [[ "${input_name}" == "start" ]]; then
-        echo "    bind \"joy1 ${bind_msx_emulator}\" -layer osd_menu \"main_menu_close\"" >> "${temp_conf}"
+    # Add an extra configuration for 'Start' to close the OSD menu
+    if [[ "$input_name" == "start" ]]; then
+        echo "    bind \"joy1 ${bind_msx_emulator}\" -layer osd_menu \"main_menu_close\"" >> "$temp_conf"
     fi
 }
 
 function onend_openmsx_joystick() {
     local conf
 
-    # Sanitize Filename
+    # sanitize filename
     conf=${DEVICE_NAME//[:><?\"\/\\|*]/}
 
-    mkdir -p "${configdir}/openmsx/share/joystick/game"
-    cat > "${configdir}/openmsx/share/joystick/${conf}.tcl" <<_EOF_
+    mkdir -p "$configdir/openmsx/share/joystick/game"
+    cat > "$configdir/openmsx/share/joystick/$conf.tcl" <<_EOF_
 proc auto_config_joypad { } {
-    # Clear Existing Joypad Configuration
+    # clear existing joypad configuration
     global joystick1_config
-    dict for {btn binding} \${joystick1_config} { dict set joystick1_config \${btn} {} }
+    dict for {btn binding} \$joystick1_config { dict set joystick1_config \$btn {} }
 
 $(sort /tmp/openMSXtemp.cfg )
 }
 _EOF_
 
-# Add A Note About Game Overrides
-cat > "${configdir}/openmsx/share/joystick/README.txt" <<_EOF2_
+# Add a note about game overrides
+cat > "$configdir/openmsx/share/joystick/README.txt" <<_EOF2_
 This folder contains joypad configuration scripts, generated by EmulationStation's input configuration.
 They are read by openMSX at start-up and loaded automatically when the corresponding joypad is plugged in.
 
 If you wish to have a game specific joystick configuration, you can override the gamepad's configuration by:
- * copying an already existing controller '.tcl' configuration file to the 'game' subfolder.
+ * copy an already existing controller '.tcl' configuration file to the 'game' subfolder.
  * edit the file and adjust the 'bind_default' commands or the 'joystick1_config' configuration.
    See the openMSX documentation for how to use those commands:
    - http://openmsx.org/manual/commands.html#bind
@@ -183,3 +188,4 @@ _EOF2_
 
     rm /tmp/openMSXtemp.cfg
 }
+
