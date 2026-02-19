@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="kmsxx"
-rp_module_desc="Library & Utilities For Linux Kernel Mode Setting"
+rp_module_desc="Library & Utilities for Linux Kernel Mode Setting"
 rp_module_licence="MPL2 https://raw.githubusercontent.com/cmitu/kmsxx/master/LICENSE"
 rp_module_repo="git https://github.com/cmitu/kmsxx retropie"
 rp_module_section="depends"
@@ -15,6 +23,7 @@ function depends_kmsxx() {
     local depends=(
         'fmt'
         'libdrm'
+        'libevdev'
         'meson'
         'ninja'
         'pkgconf'
@@ -32,12 +41,12 @@ function build_kmsxx() {
         -Ddefault_library="static" \
         -Dkmscube="false" \
         -Domap="disabled" \
-        -Dprefix="${md_inst}" \
+        -Dprefix="$md_inst" \
         -Dpykms="disabled"
     ninja -C build clean
     ninja -C build
 
-    md_ret_require="${md_build}/build/utils/kmsprint-rp"
+    md_ret_require="$md_build/build/utils/kmsprint-rp"
 }
 
 function install_kmsxx() {
@@ -49,3 +58,4 @@ function install_kmsxx() {
         build/utils/fbtest
     )
 }
+
