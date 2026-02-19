@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="lr-dinothawr"
 rp_module_desc="Dinothawr Libretro Core"
+rp_module_help="Dinothawr game assets are automatically installed to $romdir/ports/dinothawr/"
 rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/Dinothawr/master/LICENSE"
-rp_module_repo="git https://github.com/libretro/Dinothawr master"
-rp_module_section="opt"
+rp_module_repo="git https://github.com/libretro/Dinothawr.git master"
+rp_module_section="exp"
+rp_module_flags="all"
 
 function sources_lr-dinothawr() {
     gitPullOrClone
@@ -22,7 +32,7 @@ function build_lr-dinothawr() {
     else
         make
     fi
-    md_ret_require="${md_build}/dinothawr_libretro.so"
+    md_ret_require="$md_build/dinothawr_libretro.so"
 }
 
 function install_lr-dinothawr() {
@@ -33,14 +43,15 @@ function install_lr-dinothawr() {
 }
 
 function configure_lr-dinothawr() {
-    if [[ "${md_mode}" == "install" ]]; then
+    if [[ "$md_mode" == "install" ]]; then
         mkRomDir "ports/dinothawr"
         setConfigRoot "ports"
         defaultRAConfig "dinothawr"
 
-        cp -Rv "${md_inst}"/dinothawr/* "${romdir}/ports/dinothawr/"
-        chown -R "${__user}":"${__group}" "${romdir}/ports/dinothawr"
+        cp -Rv "$md_inst/dinothawr" "$romdir/ports"
+        chown -R "$__user":"$__group" "$romdir/ports/dinothawr"
     fi
 
-    addPort "${md_id}" "dinothawr" "Dinothawr" "${md_inst}/dinothawr_libretro.so" "${romdir}/ports/dinothawr/dinothawr.game"
+    addPort "$md_id" "dinothawr" "Dinothawr" "$md_inst/dinothawr_libretro.so" "$romdir/ports/dinothawr/dinothawr.game"
 }
+
