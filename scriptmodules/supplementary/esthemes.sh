@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="esthemes"
-rp_module_desc="Install Themes For EmulationStation"
+rp_module_desc="Install Themes for EmulationStation"
 rp_module_section="config"
 
 function depends_esthemes() {
@@ -19,44 +27,44 @@ function depends_esthemes() {
 }
 
 function install_theme_esthemes() {
-    local theme="${1}"
-    local repo="${2}"
-    local branch="${3}"
+    local theme="$1"
+    local repo="$2"
+    local branch="$3"
 
-    if [[ -z "${repo}" ]]; then
+    if [[ -z "$repo" ]]; then
         repo="RetroPie"
     fi
 
-    if [[ -z "${theme}" ]]; then
+    if [[ -z "$theme" ]]; then
         theme="carbon-2021"
         repo="V0rt3x667"
     fi
 
-    local name="${theme}"
+    local name="$theme"
 
-    if [[ -z "${branch}" ]]; then
-        # Get The Name Of The Default Branch, Fallback To 'master' If Not Found
-        branch=$(runCmd git ls-remote --symref --exit-code "https://github.com/${repo}/es-theme-${theme}.git" HEAD | grep -oP ".*/\K[^\t]+")
-        [[ -z "${branch}" ]] && branch="master"
+    if [[ -z "$branch" ]]; then
+        # Get the name of the default branch, fallback to 'master' if not found
+        branch=$(runCmd git ls-remote --symref --exit-code "https://github.com/$repo/es-theme-$theme.git" HEAD | grep -oP ".*/\K[^\t]+")
+        [[ -z "$branch" ]] && branch="master"
     else
-        name+="-${branch}"
+        name+="-$branch"
     fi
 
     mkdir -p "/etc/emulationstation/themes"
-    gitPullOrClone "/etc/emulationstation/themes/${name}" "https://github.com/${repo}/es-theme-${theme}.git" "${branch}"
+    gitPullOrClone "/etc/emulationstation/themes/$name" "https://github.com/$repo/es-theme-$theme.git" "$branch"
 
-    # Apply Any Patches For Themes Broken Due To ES Fixes
-    if [[ -f "${md_data}/patch-${repo}-${theme}.diff" ]]; then
-        pushd "/etc/emulationstation/themes/${name}"
-        applyPatch "${md_data}/patch-${repo}-${theme}.diff"
+    # apply any patches for themes broken due to ES fixes
+    if [[ -f "$md_data/patch-$repo-$theme.diff" ]]; then
+        pushd "/etc/emulationstation/themes/$name"
+        applyPatch "$md_data/patch-$repo-$theme.diff"
         popd
     fi
 }
 
 function uninstall_theme_esthemes() {
-    local theme="${1}"
-    if [[ -d "/etc/emulationstation/themes/${theme}" ]]; then
-        rm -rf "/etc/emulationstation/themes/${theme}"
+    local theme="$1"
+    if [[ -d "/etc/emulationstation/themes/$theme" ]]; then
+        rm -rf "/etc/emulationstation/themes/$theme"
     fi
 }
 
@@ -298,22 +306,24 @@ function gui_esthemes() {
         'cjonasw raspixel-320-240'
         'crxone 3twenty2fourty'
         'leochely Guilty-Gear'
+        'flpowergamesretro-rtp ffarts'
     )
     while true; do
-        local branch
-        local default
-        local installed_themes=()
-        local name
-        local options=()
-        local repo
-        local status=()
         local theme
         local theme_dir
+        local branch
+        local name
+
+        local installed_themes=()
+        local repo
+        local options=()
+        local status=()
+        local default
 
         local gallerydir="/etc/emulationstation/es-theme-gallery"
-        if [[ -d "${gallerydir}" ]]; then
+        if [[ -d "$gallerydir" ]]; then
             status+=("i")
-            options+=(G "View Or Update Theme Gallery")
+            options+=(G "View / Update Theme Gallery")
         else
             status+=("n")
             options+=(G "Download Theme Gallery")
@@ -325,73 +335,71 @@ function gui_esthemes() {
 
         local i=1
         for theme in "${themes[@]}"; do
-            theme=(${theme})
+            theme=($theme)
             repo="${theme[0]}"
             theme="${theme[1]}"
             branch="${theme[2]}"
-            name="${repo}/${theme}"
-            theme_dir="${theme}"
-            if [[ -n "${branch}" ]]; then
-                name+=" (${branch})"
-                theme_dir+="-${branch}"
+            name="$repo/$theme"
+            theme_dir="$theme"
+            if [[ -n "$branch" ]]; then
+                name+=" ($branch)"
+                theme_dir+="-$branch"
             fi
-            if [[ -d "/etc/emulationstation/themes/${theme_dir}" ]]; then
+            if [[ -d "/etc/emulationstation/themes/$theme_dir" ]]; then
                 status+=("i")
-                options+=("$i" "Update Or Uninstall ${name} (Installed)")
-                installed_themes+=("${theme} ${repo} ${branch}")
+                options+=("$i" "Update / Uninstall $name (Installed)")
+                installed_themes+=("$theme $repo $branch")
             else
                 status+=("n")
-                options+=("$i" "Install ${name}")
+                options+=("$i" "Install $name")
             fi
             ((i++))
         done
-        local cmd=(dialog --default-item "${default}" --backtitle "${__backtitle}" --menu "Choose An Option" 22 76 16)
-        local choice
-        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        default="${choice}"
-        [[ -z "${choice}" ]] && break
-        case "${choice}" in
+        local cmd=(dialog --default-item "$default" --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
+        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        default="$choice"
+        [[ -z "$choice" ]] && break
+        case "$choice" in
             G)
                 if [[ "${status[0]}" == "i" ]]; then
                     options=(1 "View Theme Gallery" 2 "Update Theme Gallery" 3 "Remove Theme Gallery")
-                    cmd=(dialog --backtitle "${__backtitle}" --menu "Choose An Option For Gallery" 12 40 06)
-                    local choice
-                    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                    case "${choice}" in
+                    cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for gallery" 12 40 06)
+                    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+                    case "$choice" in
                         1)
-                            cd "${gallerydir}" || exit
+                            cd "$gallerydir"
                             if isPlatform "x11"; then
-                                imv -f -d -t 6 -x "${gallerydir}"
+                                imv -f -d -t 6 -x "$gallerydir"
                             else
                                 fbi --timeout 6 --once --autozoom --list images.list
                             fi
                             ;;
                         2)
-                            gitPullOrClone "${gallerydir}" "https://github.com/wetriner/es-theme-gallery"
+                            gitPullOrClone "$gallerydir" "https://github.com/wetriner/es-theme-gallery"
                             ;;
                         3)
-                            if [[ -d "${gallerydir}" ]]; then
-                                rm -rf "${gallerydir}"
+                            if [[ -d "$gallerydir" ]]; then
+                                rm -rf "$gallerydir"
                             fi
                             ;;
                     esac
                 else
-                    gitPullOrClone "${gallerydir}" "http://github.com/wetriner/es-theme-gallery"
+                    gitPullOrClone "$gallerydir" "http://github.com/wetriner/es-theme-gallery"
                 fi
                 ;;
             A)
                 for theme in "${themes[@]}"; do
-                    printf "%s" "${theme}"
-                    theme=(${theme})
+                    printf "%s" "$theme"
+                    theme=($theme)
                     repo="${theme[0]}"
                     theme="${theme[1]}"
                     branch="${theme[2]}"
-                    rp_callModule esthemes install_theme "${theme}" "${repo}" "${branch}"
+                    rp_callModule esthemes install_theme "$theme" "$repo" "$branch"
                 done
                 ;;
             U)
                 for theme in "${installed_themes[@]}"; do
-                    theme=(${theme})
+                    theme=($theme)
                     rp_callModule esthemes install_theme "${theme[0]}" "${theme[1]}" "${theme[2]}"
                 done
                 ;;
@@ -400,29 +408,29 @@ function gui_esthemes() {
                 repo="${theme[0]}"
                 theme="${theme[1]}"
                 branch="${theme[2]}"
-                name="${repo}/${theme}"
-                theme_dir="${theme}"
-                if [[ -n "${branch}" ]]; then
-                    name+=" (${branch})"
-                    theme_dir+="-${branch}"
+                name="$repo/$theme"
+                theme_dir="$theme"
+                if [[ -n "$branch" ]]; then
+                    name+=" ($branch)"
+                    theme_dir+="-$branch"
                 fi
                 if [[ "${status[choice]}" == "i" ]]; then
-                    options=(1 "Update ${name}" 2 "Uninstall ${name}")
-                    cmd=(dialog --backtitle "${__backtitle}" --menu "Choose An Option For Theme" 12 60 06)
-                    local choice
-                    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-                    case "${choice}" in
+                    options=(1 "Update $name" 2 "Uninstall $name")
+                    cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for theme" 12 60 06)
+                    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+                    case "$choice" in
                         1)
-                            rp_callModule esthemes install_theme "${theme}" "${repo}" "${branch}"
+                            rp_callModule esthemes install_theme "$theme" "$repo" "$branch"
                             ;;
                         2)
-                            rp_callModule esthemes uninstall_theme "${theme_dir}"
+                            rp_callModule esthemes uninstall_theme "$theme_dir"
                             ;;
                     esac
                 else
-                    rp_callModule esthemes install_theme "${theme}" "${repo}" "${branch}"
+                    rp_callModule esthemes install_theme "$theme" "$repo" "$branch"
                 fi
                 ;;
         esac
     done
 }
+
