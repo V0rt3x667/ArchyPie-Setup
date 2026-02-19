@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 
-# This file is part of the ArchyPie project.
+#     ________   ______    ______   ___   ___   __  __            ______   ________  ______      
+#    /_______/\ /_____/\  /_____/\ /__/\ /__/\ /_/\/_/\          /_____/\ /_______/\/_____/\     
+#    \::: _  \ \\:::_ \ \ \:::__\/ \::\ \\  \ \\ \ \ \ \  _______\:::_ \ \\__.::._\/\::::_\/_    
+#     \::(_)  \ \\:(_) ) )_\:\ \  __\::\/_\ .\ \\:\_\ \ \/______/\\:(_) \ \  \::\ \  \:\/___/\   
+#      \:: __  \ \\: __ `\ \\:\ \/_/\\:: ___::\ \\::::_\/\__::::\/ \: ___\/  _\::\ \__\::___\/_  
+#       \:.\ \  \ \\ \ `\ \ \\:\_\ \ \\: \ \\::\ \ \::\ \           \ \ \   /__\::\__/\\:\____/\ 
+#        \__\/\__\/ \_\/ \_\/ \_____\/ \__\/ \::\/  \__\/            \_\/   \________\/ \_____\/ 
 #
-# Please see the LICENSE file at the top-level directory of this distribution.
+#    This file is part of the ArchyPie Project.
+#
+#    Please see the LICENSE file at the top-level directory of this distribution.
 
 rp_module_id="retroarch"
-rp_module_desc="RetroArch: Libretro Frontend (Required By All lr-* Cores)"
+rp_module_desc="RetroArch: Frontend For Libretro Cores"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/libretro/RetroArch/master/COPYING"
-rp_module_repo="git https://github.com/Libretro/RetroArch v1.19.1"
+rp_module_repo="git https://github.com/Libretro/RetroArch v1.22.2"
 rp_module_section="core"
 
 function depends_retroarch() {
@@ -46,7 +54,7 @@ function depends_retroarch() {
 function sources_retroarch() {
     gitPullOrClone
 
-    # Adds Default RetroPie Behaviour For Shaders & Saves
+    # Adds default RetroPie behaviour for shaders & saves
     applyPatch "${md_data}/01_retropie_fixes.patch"
 }
 
@@ -74,7 +82,12 @@ function build_retroarch() {
     isPlatform "gles3" && params+=('--enable-opengles3')
     isPlatform "gles31" && params+=('--enable-opengles3_1')
     isPlatform "gles32" && params+=('--enable-opengles3_2')
-    isPlatform "kms" && params+=('--disable-wayland' '--disable-x11' '--enable-egl' '--enable-kms')
+    isPlatform "kms" && params+=(
+        '--disable-wayland'
+        '--disable-x11'
+        '--enable-egl'
+        '--enable-kms'
+    )
     isPlatform "mali" && params+=('--enable-mali_fbdev')
     isPlatform "neon" && params+=('--enable-neon')
     isPlatform "rpi" && params+=('--disable-videocore')
@@ -86,10 +99,10 @@ function build_retroarch() {
         params+=('--disable-vulkan')
     fi
 
-    ./configure --prefix="${md_inst}" "${params[@]}"
+    ./configure --prefix="$md_inst" "${params[@]}"
     make clean
     make
-    md_ret_require="${md_build}/${md_id}"
+    md_ret_require="$md_build/$md_id"
 }
 
 function install_retroarch() {
@@ -98,98 +111,120 @@ function install_retroarch() {
 }
 
 function update_shaders-retropie_retroarch() {
-    local dir="${configdir}/all/${md_id}/shaders"
-    # Remove If Not A Git Repository & Do A Fresh Checkout
-    [[ ! -d "${dir}/retropie/.git" ]] && rm -rf "${dir}/retropie"
-    gitPullOrClone "${dir}/retropie" "https://github.com/RetroPie/common-shaders.git"
-    chown -R "${__user}":"${__group}" "${dir}"
+    local dir="$configdir/all/$md_id/shaders"
+    local branch=""
+    isPlatform "rpi" && branch="rpi"
+    # Remove if not a Git repository and do a fresh checkout
+    [[ ! -d "$dir/retropie/.git" ]] && rm -rf "$dir/retropie"
+    gitPullOrClone "$dir/retropie" "https://github.com/RetroPie/common-shaders.git" "${branch}"
+    chown -R "$__user":"$__group" "$dir"
 }
 
 function update_shaders-glsl_retroarch() {
-    local dir="${configdir}/all/${md_id}/shaders"
-    # Remove If Not A Git Repository & Do A Fresh Checkout
-    [[ ! -d "${dir}/glsl/.git" ]] && rm -rf "${dir}/glsl"
-    gitPullOrClone "${dir}/glsl" "https://github.com/libretro/glsl-shaders.git"
-    chown -R "${__user}":"${__group}" "${dir}"
+    local dir="$configdir/all/$md_id/shaders"
+    # Remove if not a Git repository & do a fresh checkout
+    [[ ! -d "$dir/glsl/.git" ]] && rm -rf "$dir/glsl"
+    gitPullOrClone "$dir/glsl" "https://github.com/libretro/glsl-shaders.git"
+    chown -R "$__user":"$__group" "$dir"
 }
 
 function update_shaders-slang_retroarch() {
-    local dir="${configdir}/all/${md_id}/shaders"
-    # Remove If Not A Git Repository & Do A Fresh Checkout
-    [[ ! -d "${dir}/slang/.git" ]] && rm -rf "${dir}/slang"
-    gitPullOrClone "${dir}/slang" "https://github.com/libretro/slang-shaders.git"
-    chown -R "${__user}":"${__group}" "${dir}"
+    local dir="$configdir/all/$md_id/shaders"
+    # Remove if not a git repository & do a fresh checkout
+    [[ ! -d "$dir/slang/.git" ]] && rm -rf "$dir/slang"
+    gitPullOrClone "$dir/slang" "https://github.com/libretro/slang-shaders.git"
+    chown -R "$__user":"$__group" "$dir"
 }
 
 function update_overlays_retroarch() {
-    local dir="${configdir}/all/${md_id}/overlay"
-    # Remove If Not A Git Repository & Do A Fresh Checkout
-    [[ ! -d "${dir}/.git" ]] && rm -rf "${dir}"
-    gitPullOrClone "${dir}" "https://github.com/libretro/common-overlays.git"
-    chown -R "${__user}":"${__group}" "${dir}"
+    local dir="$configdir/all/retroarch/overlay"
+    # remove if not a git repository for fresh checkout
+    [[ ! -d "$dir/.git" ]] && rm -rf "$dir"
+    gitPullOrClone "$dir" https://github.com/libretro/common-overlays.git
+    chown -R "$__user":"$__group" "$dir"
 }
 
 function update_joypad_autoconfigs_retroarch() {
-    gitPullOrClone "${md_build}/autoconfigs" "https://github.com/libretro/${md_id}-joypad-autoconfig.git"
-    cp -a "${md_build}/autoconfigs/." "${md_inst}/autoconfig-presets/"
+    gitPullOrClone "$md_build/autoconfigs" https://github.com/libretro/retroarch-joypad-autoconfig.git
+    cp -a "$md_build/autoconfigs/." "$md_inst/autoconfig-presets/"
 }
 
 function update_assets_retroarch() {
-    local dir="${configdir}/all/${md_id}/assets"
-    # Remove If Not A Git Repository & Do A Fresh Checkout
-    [[ ! -d "${dir}/.git" ]] && rm -rf "${dir}"
-    gitPullOrClone "${dir}" "https://github.com/libretro/${md_id}-assets.git"
-    chown -R "${__user}":"${__group}" "${dir}"
+    local dir="$configdir/all/retroarch/assets"
+    # remove if not a git repository for fresh checkout
+    [[ ! -d "$dir/.git" ]] && rm -rf "$dir"
+    gitPullOrClone "$dir" https://github.com/libretro/retroarch-assets.git
+    chown -R "$__user":"$__group" "$dir"
 }
 
 function update_core_info_retroarch() {
-    local dir="${configdir}/all/${md_id}/cores"
-    # Remove If Not A 'git' Repository & Do A Fresh Checkout
-    [[ ! -d "${dir}/.git" ]] && rm -fr "${dir}"
-    # Remove Locally Generated `.info` Files, Just In Case Upstream Adds Them
-    [[ -d "${dir}/.git" ]] && git -C "${dir}" clean -q -f "*.info"
-    gitPullOrClone "${dir}" "https://github.com/libretro/libretro-core-info.git"
-    # Add Info Files For Cores Not Included In The Upstream Repo
-    cp --update "${md_data}"/*.info "${dir}"
-    chown -R "${__user}":"${__group}" "${dir}"
+    local dir="$configdir/all/retroarch/cores"
+    # remove if not a git repository and do a fresh checkout
+    [[ ! -d "$dir/.git" ]] && rm -fr "$dir"
+    # remove our locally generated `.info` files, just in case upstream adds them
+    [[ -d "$dir/.git" ]] && git -C "$dir" clean -q -f "*.info"
+    gitPullOrClone "$dir" https://github.com/libretro/libretro-core-info.git
+    # add our info files for cores not included in the upstream repo
+    cp --update "$md_data"/*.info "$dir"
+    chown -R "$__user":"$__group" "$dir"
+}
+
+function install_minimal_assets_retroarch() {
+    local dir="$configdir/all/retroarch/assets"
+    [[ -d "$dir/.git" ]] && return
+    [[ ! -d "$dir" ]] && mkUserDir "$dir"
+    downloadAndExtract "$__binary_base_url/retroarch-minimal-assets.tar.gz" "$dir"
+    chown -R "$__user":"$__group" "$dir"
+}
+
+function _package_minimal_assets_retroarch() {
+    gitPullOrClone "$md_build/assets" https://github.com/libretro/retroarch-assets.git
+    mkdir -p "$__tmpdir/archives"
+    local archive="$__tmpdir/archives/retroarch-minimal-assets.tar.gz"
+    rm -f "$archive"
+    tar cvzf "$archive" -C "$md_build/assets" ozone menu_widgets xmb/monochrome
 }
 
 function configure_retroarch() {
-    [[ "${md_mode}" == "remove" ]] && return
+    [[ "$md_mode" == "remove" ]] && return
 
     addUdevInputRules
 
-    # Move & Symlink The RetroArch Configuration
-    moveConfigDir "${home}/.config/${md_id}" "${configdir}/all/${md_id}"
+    # move / symlink the retroarch configuration
+    moveConfigDir "$home/.config/retroarch" "$configdir/all/retroarch"
 
-    # Move & Symlink "retroarch-joypads" Folder
-    moveConfigDir "${configdir}/all/${md_id}-joypads" "${configdir}/all/${md_id}/autoconfig"
+    # move / symlink our old retroarch-joypads folder
+    moveConfigDir "$configdir/all/retroarch-joypads" "$configdir/all/retroarch/autoconfig"
 
-    # Move & Symlink Old Assets, Overlays & Shader Folders
-    moveConfigDir "${md_inst}/assets" "${configdir}/all/${md_id}/assets"
-    moveConfigDir "${md_inst}/overlays" "${configdir}/all/${md_id}/overlay"
-    moveConfigDir "${md_inst}/shader" "${configdir}/all/${md_id}/shaders"
+    # move / symlink old assets / overlays and shader folder
+    moveConfigDir "$md_inst/assets" "$configdir/all/retroarch/assets"
+    moveConfigDir "$md_inst/overlays" "$configdir/all/retroarch/overlay"
+    moveConfigDir "$md_inst/shader" "$configdir/all/retroarch/shaders"
 
-    # Install Assets
-    update_assets_retroarch
+    # install shaders by default
+    update_shaders_retroarch
 
-    # Install Core Info Files
+    # install minimal assets
+    install_minimal_assets_retroarch
+
+    # install core info files
     update_core_info_retroarch
 
-    # Install Joypad Autoconfig Presets
+    # install joypad autoconfig presets
     update_joypad_autoconfigs_retroarch
 
-    local config
-    config="$(mktemp)"
+    local config="$(mktemp)"
+    
+    cp "$md_inst/retroarch.cfg" "$config"
 
-    # Query ES A/B Keyswap Configuration
+    # Query ES A/B keyswap configuration
     local es_swap="false"
     getAutoConf "es_swap_a_b" && es_swap="true"
 
-    # Configure Default Options
-    iniConfig " = " '"' "${config}"
-    iniSet "cache_directory" "/tmp/${md_id}"
-    iniSet "system_directory" "${biosdir}"
+    # Configure default options
+    iniConfig " = " '"' "$config"
+    iniSet "cache_directory" "/tmp/retroarch"
+    iniSet "system_directory" "$biosdir"
     iniSet "config_save_on_exit" "false"
     iniSet "video_aspect_ratio_auto" "true"
     if ! isPlatform "x86"; then
@@ -197,28 +232,28 @@ function configure_retroarch() {
     fi
 
     iniSet "video_font_size" "24"
-    iniSet "core_options_path" "${configdir}/all/${md_id}-core-options.cfg"
+    iniSet "core_options_path" "$configdir/all/retroarch-core-options.cfg"
     iniSet "global_core_options" "true"
     iniSet "video_fullscreen" "true"
 
-    # Enable Hotkey ("select" Button)
+    # Enable hotkey ("select" button)
     iniSet "input_enable_hotkey" "nul"
     iniSet "input_exit_emulator" "escape"
 
-    # Enable And Configure Rewind Feature
+    # Enable & configure rewind feature
     iniSet "rewind_enable" "false"
     iniSet "rewind_buffer_size" "10"
     iniSet "rewind_granularity" "2"
     iniSet "input_rewind" "r"
 
-    # Enable GPU Screenshots
+    # Enable GPU screenshots
     iniSet "video_gpu_screenshot" "true"
 
-    # Enable And Configure Shaders
+    # Enable & configure shaders
     iniSet "input_shader_next" "m"
     iniSet "input_shader_prev" "n"
 
-    # Configure Keyboard Mappings
+    # Configure keyboard mappings
     iniSet "input_player1_a" "x"
     iniSet "input_player1_b" "z"
     iniSet "input_player1_y" "a"
@@ -232,30 +267,30 @@ function configure_retroarch() {
     iniSet "input_player1_up" "up"
     iniSet "input_player1_down" "down"
 
-    # Input Settings
+    # Input settings
     iniSet "input_autodetect_enable" "true"
     iniSet "auto_remaps_enable" "true"
     iniSet "input_joypad_driver" "udev"
     iniSet "all_users_control_menu" "true"
     iniSet "remap_save_on_exit" "false"
 
-    # RGUI Menu By Default
+    # RGUI menu by default
     iniSet "menu_driver" "rgui"
     iniSet "rgui_aspect_ratio_lock" "2"
-    iniSet "rgui_browser_directory" "${romdir}"
+    iniSet "rgui_browser_directory" "$romdir"
     iniSet "rgui_switch_icons" "false"
     iniSet "menu_rgui_shadows" "true"
-    iniSet "rgui_menu_color_theme" "29" # Tango Dark Theme
+    iniSet "rgui_menu_color_theme" "29" # Tango Dark theme
 
-    # Hide Online Updater Menu Options And The Restart Option
+    # Hide online updater menu options & the restart option
     iniSet "menu_show_core_updater" "false"
     iniSet "menu_show_online_updater" "false"
     iniSet "menu_show_restart_retroarch" "false"
 
-    # Disable The Search Action
+    # Disable the search action
     iniSet "menu_disable_search_button" "true"
 
-    # Remove Some Options From Quick Menu
+    # Remove some rarely used entries from the quick menu
     iniSet "quick_menu_show_close_content" "false"
     iniSet "quick_menu_show_add_to_favorites" "false"
     iniSet "quick_menu_show_replay" "false"
@@ -263,120 +298,122 @@ function configure_retroarch() {
     iniSet "quick_menu_show_start_streaming" "false"
     iniSet "menu_show_overlays" "false"
 
-    # Disable The Load Notification Message With Core & Game Info
+    # Disable the load notification message with core & game info
     iniSet "menu_show_load_content_animation" "false"
-    # Disable Core Cache File
+    # Disable core cache file
     iniSet "core_info_cache_enable" "false"
-    # Disable Game Runtime Logging
+    # Disable game runtime logging
     iniSet "content_runtime_log" "false"
 
-    # Disable Unnecessary XMB Menu Tabs
+    # Disable unnecessary XMB menu tabs
     iniSet "xmb_show_add" "false"
     iniSet "xmb_show_history" "false"
     iniSet "xmb_show_images" "false"
     iniSet "xmb_show_music" "false"
 
-    # Disable XMB Menu Driver Icon Shadows
+    # Disable XMB menu driver icon shadows
     iniSet "xmb_shadows_enable" "false"
 
-    # Swap A/B Buttons Based On ES Configuration
-    iniSet "menu_swap_ok_cancel_buttons" "${es_swap}"
+    # Swap A/B buttons based on ES configuration
+    iniSet "menu_swap_ok_cancel_buttons" "$es_swap"
 
-    # Enable "menu_unified_controls" By Default
+    # Enable menu_unified_controls by default
     iniSet "menu_unified_controls" "true"
 
-    # Disable "press twice to quit"
+    # Disable 'press twice to quit'
     iniSet "quit_press_twice" "false"
 
-    # Enable Video Shaders By Default
+    # Enable video shaders
     iniSet "video_shader_enable" "true"
 
-    # Enable Overlays By Default
+    # Enable overlays by default
     iniSet "input_overlay_enable" "true"
 
-    # Disable Save Paths Under Sub-folders
+    # Disable save paths under sub-folders
     iniSet "sort_savestates_enable" "false"
     iniSet "sort_savefiles_enable" "false"
 
-    copyDefaultConfig "${config}" "${configdir}/all/${md_id}.cfg"
-    rm "${config}"
+    copyDefaultConfig "$config" "$configdir/all/retroarch.cfg"
+    rm "$config"
 
-    # If No Menu_Driver Is Set Force RGUI As The Default Has Now Changed To XMB
+    # If no menu_driver is set, force RGUI, as the default has now changed to XMB.
     _set_config_option_retroarch "menu_driver" "rgui"
 
-    # Set RGUI Aspect Ratio to "integer scaling" To Prevent Stretching
+    # Set RGUI aspect ratio to 'Integer Scaling' to prevent stretching
     _set_config_option_retroarch "rgui_aspect_ratio_lock" "2"
 
-    # If No "menu_unified_controls" Is Set, Force It On So That Keyboard Player 1 Can Control
-    # The RGUI Menu Which Is Important For Arcade Sticks That Map To Keyboard Inputs
+    # If no menu_unified_controls is set, force it on so that keyboard player 1 can control
+    # the RGUI menu which is important for arcade sticks etc that map to keyboard inputs
     _set_config_option_retroarch "menu_unified_controls" "true"
 
-    # Disable "quit_press_twice" On Existing Configs
+    # Disable 'quit_press_twice' on existing configs
     _set_config_option_retroarch "quit_press_twice" "false"
 
-    # Enable Video Shaders On Existing Configs
+    # Enable video shaders on existing configs
     _set_config_option_retroarch "video_shader_enable" "true"
 
-    # Keep All Core Options In A Single File
+    # Keep all core options in a single file
     _set_config_option_retroarch "global_core_options" "true"
 
-    # Disable The Content Load Info Popup With Core And Game Info
+    # Disable the content load info popup with core and game info
     _set_config_option_retroarch "menu_show_load_content_animation" "false"
 
-    # Disable Search Action
+    # Disable search action
     _set_config_option_retroarch "menu_disable_search_button" "true"
 
-    # Don't Save Input Remaps By Default
+    # Don't save input remaps by default
     _set_config_option_retroarch "remap_save_on_exit" "false"
 
-    # Enable Overlays By Default On Upgrades
+    # Enable overlays by default on upgrades
     _set_config_option_retroarch "input_overlay_enable" "true"
 
-    # Remapping Hack For Old 8bitdo Firmware
+    # Don't sort save files in sub-folders
+    _set_config_option_retroarch "sort_savefiles_enable" "false"
+    _set_config_option_retroarch "sort_savestates_enable" "false"
+
+    # Remapping hack for old 8bitdo firmware
     addAutoConf "8bitdo_hack" 0
 }
 
 function keyboard_retroarch() {
-    if [[ ! -f "${configdir}/all/${md_id}.cfg" ]]; then
-        printMsgs "dialog" "No RetroArch Configuration File Found At: ${configdir}/all/${md_id}.cfg"
+    if [[ ! -f "$configdir/all/retroarch.cfg" ]]; then
+        printMsgs "dialog" "No RetroArch configuration file found at $configdir/all/retroarch.cfg"
         return
     fi
     local input
     local options
     local i=1
     local key=()
-    while read -r input; do
-        local parts=("${input}")
+    while read input; do
+        local parts=($input)
         key+=("${parts[0]}")
-        options+=("${parts[0]}" "${i}" 2 "${parts[*]:2}" "${i}" 26 16 0)
+        options+=("${parts[0]}" $i 2 "${parts[*]:2}" $i 26 16 0)
         ((i++))
-    done < <(grep "^[[:space:]]*input_player[0-9]_[a-z]*" "${configdir}/all/${md_id}.cfg")
-    local cmd=(dialog --backtitle "${__backtitle}" --form "RetroArch Keyboard Configuration" 22 48 16)
-    local choice
-    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "${choice}" ]]; then
+    done < <(grep "^[[:space:]]*input_player[0-9]_[a-z]*" "$configdir/all/retroarch.cfg")
+    local cmd=(dialog --backtitle "$__backtitle" --form "RetroArch keyboard configuration" 22 48 16)
+    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+    if [[ -n "$choice" ]]; then
         local value
         local values
-        readarray -t values <<<"${choice}"
-        iniConfig " = " '"' "${configdir}/all/${md_id}.cfg"
+        readarray -t values <<<"$choice"
+        iniConfig " = " '"' "$configdir/all/retroarch.cfg"
         i=0
         for value in "${values[@]}"; do
-            iniSet "${key[${i}]}" "${value}" >/dev/null
+            iniSet "${key[$i]}" "$value" >/dev/null
             ((i++))
         done
     fi
 }
 
 function hotkey_retroarch() {
-    iniConfig " = " '"' "${configdir}/all/${md_id}.cfg"
-    local cmd=(dialog --backtitle "${__backtitle}" --menu "Choose The Desired Hotkey Behaviour" 22 76 16)
+    iniConfig " = " '"' "$configdir/all/retroarch.cfg"
+    local cmd=(dialog --backtitle "$__backtitle" --menu "Choose the desired hotkey behaviour." 22 76 16)
     local options=(1 "Hotkeys Enabled (Default)"
-             2 "Press ALT To Enable Hotkeys"
-             3 "Hotkeys Disabled. Press ESCAPE To Open RGUI")
-    local choice
-    choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-    if [[ -n "${choice}" ]]; then
-        case "${choice}" in
+             2 "Press ALT to Enable Hotkeys"
+             3 "Hotkeys Disabled. Press ESCAPE to open RGUI")
+    local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+    if [[ -n "$choice" ]]; then
+        case "$choice" in
             1)
                 iniSet "input_enable_hotkey" "nul"
                 iniSet "input_exit_emulator" "escape"
@@ -412,34 +449,34 @@ function gui_retroarch() {
             dirs+=('shaders/glsl' 'shaders/slang')
         fi
         for name in "${names[@]}"; do
-            if [[ -d "${configdir}/all/${md_id}/${dirs[i-1]}/.git" ]]; then
-                options+=("${i}" "Manage ${name} (Installed)")
+            if [[ -d "$configdir/all/retroarch/${dirs[i-1]}/.git" ]]; then
+                options+=("$i" "Manage $name (Installed)")
             else
-                options+=("${i}" "Manage ${name} (Not Installed)")
+                options+=("$i" "Manage $name (Not Installed)")
             fi
             ((i++))
         done
         options+=(
-            6 "Configure Keyboard For Use With RetroArch"
-            7 "Configure Keyboard Hotkey Behaviour For RetroArch"
+            4 "Configure keyboard for use with RetroArch"
+            5 "Configure keyboard hotkey behaviour for RetroArch"
         )
-        local cmd=(dialog --backtitle "${__backtitle}" --menu "Choose An Option" 22 76 16)
-        local choice
-        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-        case "${choice}" in
+        local cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option" 22 76 16)
+        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        case "$choice" in
             1|2|3|4|5)
                 name="${names[choice-1]}"
                 dir="${dirs[choice-1]}"
-                options=(1 "Install/Update ${name}" 2 "Uninstall ${name}" )
-                cmd=(dialog --backtitle "${__backtitle}" --menu "Choose An Option For ${dir}" 12 40 06)
+                options=(1 "Install/Update $name" 2 "Uninstall $name" )
+                cmd=(dialog --backtitle "$__backtitle" --menu "Choose an option for $dir" 12 40 06)
                 choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
-                case "${choice}" in
+                case "$choice" in
                     1)
                         "update_${name}_retroarch"
                         ;;
                     2)
-                        rm -rf "${configdir}/all/${md_id}/${dir}"
+                        rm -rf "$configdir/all/retroarch/$dir"
+                        [[ "$dir" == "assets" ]] && install_xmb_monochrome_assets_retroarch
                         ;;
                     *)
                         continue
@@ -459,13 +496,15 @@ function gui_retroarch() {
     done
 }
 
-# Adds A RetroArch Global Config Option In "${configdir}/all/${md_id}.cfg", If Not Already Set
-function _set_config_option_retroarch() {
-    local option="${1}"
-    local value="${2}"
-    iniConfig " = " '"' "${configdir}/all/${md_id}.cfg"
-    iniGet "${option}"
-    if [[ -z "${ini_value}" ]]; then
-        iniSet "${option}" "${value}"
+# adds a retroarch global config option in `$configdir/all/retroarch.cfg`, if not already set
+function _set_config_option_retroarch()
+{
+    local option="$1"
+    local value="$2"
+    iniConfig " = " '"' "$configdir/all/retroarch.cfg"
+    iniGet "$option"
+    if [[ -z "$ini_value" ]]; then
+        iniSet "$option" "$value"
     fi
 }
+
