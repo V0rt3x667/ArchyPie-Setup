@@ -179,6 +179,7 @@ function gui_autostart() {
                 DL)
                     disable_autostart B3
                     printMsgs "dialog" "Booting To Desktop (Require Login)"
+                    ;;
                 DA)
                     disable_autostart B4
                     printMsgs "dialog" "Booting to desktop (auto login as $__user)."
