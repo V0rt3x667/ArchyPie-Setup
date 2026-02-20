@@ -13,7 +13,7 @@
 #    Please see the LICENSE file at the top-level directory of this distribution.
 
 function createChroot() {
-    local chrootdir="$HOME/Projects/chroot"
+    local chrootdir="$HOME/packages/chroot"
     local key="B73B4ACF44D6491CE94E52223D27922F2EC6B6AE"
 
     sudo pacman -S devtools --needed --noconfirm
@@ -27,32 +27,20 @@ function createChroot() {
     sudo arch-nspawn "$chrootdir/root" -- sudo pacman -Syyu && sudo pacman-key --recv-keys "$key" && sudo pacman-key --lsign-key "$key"
 }
 
-## @fn pacmanPKGBuild()
+## @fn buildPKG()
 ## @param package(s) to build & install
 ## @brief build & install packages from PKGBUILD files
 function buildPKG() {
-    # local builddir="/tmp/pkgs"
-    # local pkg
-
-    # for pkg in "$@"; do
-    #     su "$__user" --session-command 'cd '"$scriptdir/packages/$pkg"' && \
-    #         if [[ ! -d '"$builddir/$pkg"' ]]; then
-    #             mkdir -p '"$builddir/${pkg}"'
-    #         fi
-    #         BUILDDIR='"$builddir/$pkg"' \
-    #         PKGDEST='"$builddir/$pkg"' \
-    #         SRCDEST='"$builddir/$pkg"' \
-    #         SRCPKGDEST='"$builddir/$pkg"' \
-    #         PACKAGER="archrgs.project <archrgs.project@gmail.com>" \
-    #         makepkg -crsi --noconfirm'
-    # done
-
-    #local builddir="./builddir"
-    local builddir="$HOME/Projects/chroot"
+    local builddir="$HOME/packages/chroot"
+    local pkgdir="$HOME/packages/pkgbuilds"
     local pkg=$1
     local key="3D27922F2EC6B6AE"
 
-    cd "$pkg"
+    if [[ ! -d "$pkgdir" ]]; then
+        mkdir -p "$pkgdir"
+    fi
+
+    cd "$pkgdir/$pkg" || exit
     makechrootpkg -c -r "$builddir" -U "$USER" -- \
         BUILDDIR="./" \
         PKGDEST="./" \
