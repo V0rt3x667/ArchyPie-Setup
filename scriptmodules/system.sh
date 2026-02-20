@@ -83,7 +83,7 @@ function conf_binary_vars() {
 
     # Install: ArchyPie public key
     if ! gpg --list-keys "$__gpg_archypie_key" &>/dev/null; then
-        gpg --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys B73B4ACF44D6491CE94E52223D27922F2EC6B6AE
+        gpg --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 87353250AEC9CF3A876EC3CBBCB4D9FBFEEE2E93
         pacman-key --recv-keys "$__gpg_archypie_key" && pacman-key --lsign-key "$__gpg_archypie_key"
     fi
 

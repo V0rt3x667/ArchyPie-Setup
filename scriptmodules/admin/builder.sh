@@ -14,7 +14,7 @@
 
 function createChroot() {
     local chrootdir="$HOME/packages/chroot"
-    local key="B73B4ACF44D6491CE94E52223D27922F2EC6B6AE"
+    local key="87353250AEC9CF3A876EC3CBBCB4D9FBFEEE2E93"
 
     sudo pacman -S devtools --needed --noconfirm
 
@@ -34,14 +34,14 @@ function buildPKG() {
     local builddir="$HOME/packages/chroot"
     local pkgdir="$HOME/packages/pkgbuilds"
     local pkg=$1
-    local key="3D27922F2EC6B6AE"
+    local key="87353250AEC9CF3A876EC3CBBCB4D9FBFEEE2E93"
 
     if [[ ! -d "$pkgdir" ]]; then
         mkdir -p "$pkgdir"
     fi
 
     cd "$pkgdir/$pkg" || exit
-    makechrootpkg -c -r "$builddir" -U "$USER" -- \
+    makechrootpkg -c -r "$builddir" -U "$USER" -- --sign \
         BUILDDIR="./" \
         PKGDEST="./" \
         SRCDEST="./" \
