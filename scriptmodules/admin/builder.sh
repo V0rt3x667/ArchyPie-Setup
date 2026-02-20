@@ -13,9 +13,18 @@
 #    Please see the LICENSE file at the top-level directory of this distribution.
 
 function createChroot() {
-    local chroot=$HOME/Projects/chroot
-    arch-nspawn "$chroot"/root pacman -Syu
-    makechrootpkg -c -r "$chroot"
+    local chrootdir="$HOME/Projects/chroot"
+    local key="B73B4ACF44D6491CE94E52223D27922F2EC6B6AE"
+
+    sudo pacman -S devtools --needed --noconfirm
+
+    if [[ ! -d "$chrootdir" ]]; then
+        mkdir -p "$chrootdir"
+    fi
+
+    sudo mkarchroot "$chrootdir/root" base-devel
+
+    sudo arch-nspawn "$chrootdir/root" -- sudo pacman -Syyu && sudo pacman-key --recv-keys "$key" && sudo pacman-key --lsign-key "$key"
 }
 
 ## @fn pacmanPKGBuild()
@@ -38,25 +47,19 @@ function buildPKG() {
     #         makepkg -crsi --noconfirm'
     # done
 
-    local builddir="./builddir"
+    #local builddir="./builddir"
+    local builddir="$HOME/Projects/chroot"
     local pkg=$1
-    local key="B73B4ACF44D6491CE94E52223D27922F2EC6B6AE"
+    local key="3D27922F2EC6B6AE"
 
-    pacman-key --recv-keys $key && pacman-key --lsign-key $key
-
-    for pkg in "$@"; do
-        su "$USER" --session-command 'cd '"./packages/$pkg"' && \
-            if [[ ! -d '"$builddir/$pkg"' ]]; then
-                mkdir -p '"$builddir/$pkg"'
-            fi
-            BUILDDIR='"$builddir/$pkg"' \
-            PKGDEST='"$builddir/$pkg"' \
-            SRCDEST='"$builddir/$pkg"' \
-            SRCPKGDEST='"$builddir/$pkg"' \
-            PACKAGER='"archypieproject <archypieproject@protonmail.com>"' \
-            GPGKEY='"$key"' \
-            makepkg -crsi --sign'
-    done
+    cd "$pkg"
+    makechrootpkg -c -r "$builddir" -U "$USER" -- \
+        BUILDDIR="./" \
+        PKGDEST="./" \
+        SRCDEST="./" \
+        SRCPKGDEST="./" \
+        PACKAGER="archypieproject <archypieproject@protonmail.com>" \
+        GPGKEY="$key"
 }
 
 createChroot && buildPKG "$1"
