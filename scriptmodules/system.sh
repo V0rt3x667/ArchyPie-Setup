@@ -84,15 +84,15 @@ function conf_binary_vars() {
     # Install: ArchyPie public key
     if ! gpg --list-keys "$__gpg_archypie_key" &>/dev/null; then
         gpg --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 87353250AEC9CF3A876EC3CBBCB4D9FBFEEE2E93
-        pacman-key --recv-keys "$__gpg_archypie_key" && pacman-key --lsign-key "$__gpg_archypie_key"
+        #pacman-key --recv-keys "$__gpg_archypie_key" && pacman-key --lsign-key "$__gpg_archypie_key"
     fi
 
     # Add the ArchyPie package repo to /etc/pacman.conf
-    cat >> /etc/pacman.conf <<_EOF_
-[archypie-packages]
-Server = "$__binary_url"
-SigLevel = Required TrustedOnly
-_EOF_
+    if [[ ! "$(cat "/etc/pacman.conf" | grep -o "\[archypie-packages\]")" ]]; then
+        echo -e "\n[archypie-packages]" >>"/etc/pacman.conf"
+        echo -e "Server = $__binary_url" >>"/etc/pacman.conf"
+        echo -e "Required TrustedOnly\n" >>"/etc/pacman.conf"
+    fi
 }
 
 function conf_build_vars() {
