@@ -180,32 +180,29 @@ function hasPackage() {
     local ver
     local status
     local package
+    local out
 
     for package in "${pkg[@]}"; do
-        local out=$(pacman -Q "$package" 2>/dev/null)
+        out="$(pacman -Q "$package" 2>/dev/null)"
         if [[ "$?" -eq 0 ]]; then
-            ver=$(echo $out | cut -d' ' -f2)
+            ver="$(echo "$out" | cut -d' ' -f2)"
             status="Installed"
+        else
+            status="Not Installed"
         fi
     done
 
-    local installed=0
-    [[ "$status" == "Installed" ]] && installed=1
-    # If we are not checking version
-    if [[ -z "$req_ver" ]]; then
-        # If the package is installed return true
-        [[ "$installed" -eq 1 ]] && return 0
-    else
-        # If checking version and the package is not installed we need to clear "ver" as it may contain
-        # the version number of a removed package and give a false positive with compareVersions.
-        # We still need to do the version check even if not installed due to the varied boolean operators
-        #[[ "$installed" -eq 0 ]] && ver=""
-
-        if [[ "$(compareVersions $ver $req_ver)" == "1" ]] || [[ "$(compareVersions $ver $req_ver)" == "0" ]]; then
+    if [[ "$status" == "Installed" ]]; then
+        # If we are not checking the version number return true
+        if [[ -z "$req_ver" ]]; then
             return 0
+        elif [[ "$(compareVersions "$ver" "$req_ver")" == "1" || "$(compareVersions "$ver" "$req_ver")" == "0" ]]; then
+            status="Required version installed"
+        else
+            status="Update required"
         fi
-        #compareVersions "$ver" "$req_ver" && return $?
     fi
+
     return 1
 }
 
@@ -295,38 +292,18 @@ function _mapPackage() {
 ## @retval 0 on success
 ## @retval 1 on failure
 function getDepends() {
-    local own_pkgs=()
-    local pacman_pkgs=()
+local pacman_pkgs=()
     local all_pkgs=()
     local pkg
     for pkg in "$@"; do
-        pkg=($(_mapPackage "$pkg"))
-        # Manage our custom packages (pkg = "RP module_id pkg_name")
-        if [[ "${pkg[0]}" == "RP" ]]; then
-            # If removing, check if any version is installed & queue for removal via the custom module
-            if [[ "$md_mode" == "remove" ]]; then
-                if hasPackage "${pkg[2]}"; then
-                    own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(custom)")
-                fi
-            else
-                # If installing check if our version is installed & queue for installing via the custom module
-                if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}); then
-                    own_pkgs+=("${pkg[1]}")
-                    all_pkgs+=("${pkg[2]}(custom)")
-                fi
-            fi
-            continue
-        fi
-
         if [[ "$md_mode" == "remove" ]]; then
-            # Add package to pacman_pkgs for removal if installed
+            # add package to pacman_pkgs for removal if installed
             if hasPackage "$pkg"; then
                 pacman_pkgs+=("$pkg")
                 all_pkgs+=("$pkg")
             fi
         else
-            # Add package to pacman_pkgs for installation if not installed
+            # add package to pacman_pkgs for installation if not installed
             if ! hasPackage "$pkg"; then
                 pacman_pkgs+=("$pkg")
                 all_pkgs+=("$pkg")
@@ -334,54 +311,124 @@ function getDepends() {
         fi
     done
 
-    # Return if no packages required
-    [[ ${#pacman_pkgs[@]} -eq 0 && ${#own_pkgs[@]} -eq 0 ]] && return
+    # return if no packages required
+    [[ ${#pacman_pkgs[@]} -eq 0 ]] && return
 
-    # If we are removing, then remove packages, remove unused dependencies, clean up orphans and cache and return
+    # if we are removing, then remove packages and return
     if [[ "$md_mode" == "remove" ]]; then
-        printMsgs "console" "Removing dependencies: ${all_pkgs[*]}"
-        for pkg in ${own_pkgs[@]}; do
-            rp_callModule "$pkg" remove
-        done
+        printMsgs "console" "Removing Dependencies: ${all_pkgs[*]}"
         pacman -Rsn "${pacman_pkgs[@]}" --noconfirm && \
         pacman -Qdtq | pacman -Rsn --noconfirm
         return 0
     fi
 
-    printMsgs "console" "Did not find needed dependencies: ${all_pkgs[*]}. Trying to install them now."
-
-    # Install any custom packages
-    for pkg in ${own_pkgs[@]}; do
-       rp_callModule "$pkg" _auto_
-    done
+    printMsgs "console" "Did Not Find Needed Dependencies: ${all_pkgs[*]}. Trying To Install Them Now."
 
     pacmanInstall "${pacman_pkgs[@]}"
 
     local failed=()
-    # Check the required packages again rather than return code of pacman -S,
+    # check the required packages again rather than return code of pacman -S,
     # as pacman -S might fail for other reasons (eg other half installed packages)
-    for pkg in ${pacman_pkgs[@]}; do
+    for pkg in "${pacman_pkgs[@]}"; do
         if ! hasPackage "$pkg"; then
-            # workaround for installing samba in a chroot (fails due to failed smbd service restart)
-            # we replace the init.d script with an empty script so the install completes
-            #if [[ "$pkg" == "samba" && "$__chroot" -eq 1 ]]; then
-            #    mv /etc/init.d/smbd /etc/init.d/smbd.old
-            #    echo "#!/bin/sh" >/etc/init.d/smbd
-            #    chmod u+x /etc/init.d/smbd
-            #    apt-get -f install
-            #    mv /etc/init.d/smbd.old /etc/init.d/smbd
-            #else
-                failed+=("$pkg")
-            #fi
+            failed+=("$pkg")
         fi
     done
 
     if [[ ${#failed[@]} -gt 0 ]]; then
-        md_ret_errors+=("Could not install package(s): ${failed[*]}.")
+        md_ret_errors+=("Could Not Install Package(s): ${failed[*]}")
         return 1
     fi
 
     return 0
+
+    # local own_pkgs=()
+    # local pacman_pkgs=()
+    # local all_pkgs=()
+    # local pkg
+    # for pkg in "$@"; do
+    #     pkg=($(_mapPackage "$pkg"))
+    #     # Manage our custom packages (pkg = "RP module_id pkg_name")
+    #     if [[ "${pkg[0]}" == "RP" ]]; then
+    #         # If removing, check if any version is installed & queue for removal via the custom module
+    #         if [[ "$md_mode" == "remove" ]]; then
+    #             if hasPackage "${pkg[2]}"; then
+    #                 own_pkgs+=("${pkg[1]}")
+    #                 all_pkgs+=("${pkg[2]}(custom)")
+    #             fi
+    #         else
+    #             # If installing check if our version is installed & queue for installing via the custom module
+    #             if hasPackage "${pkg[2]}" $(get_pkg_ver_${pkg[1]}); then
+    #                 own_pkgs+=("${pkg[1]}")
+    #                 all_pkgs+=("${pkg[2]}(custom)")
+    #             fi
+    #         fi
+    #         continue
+    #     fi
+
+    #     if [[ "$md_mode" == "remove" ]]; then
+    #         # Add package to pacman_pkgs for removal if installed
+    #         if hasPackage "$pkg"; then
+    #             pacman_pkgs+=("$pkg")
+    #             all_pkgs+=("$pkg")
+    #         fi
+    #     else
+    #         # Add package to pacman_pkgs for installation if not installed
+    #         if ! hasPackage "$pkg"; then
+    #             pacman_pkgs+=("$pkg")
+    #             all_pkgs+=("$pkg")
+    #         fi
+    #     fi
+    # done
+
+    # # Return if no packages required
+    # [[ ${#pacman_pkgs[@]} -eq 0 && ${#own_pkgs[@]} -eq 0 ]] && return
+
+    # # If we are removing, then remove packages, remove unused dependencies, clean up orphans and cache and return
+    # if [[ "$md_mode" == "remove" ]]; then
+    #     printMsgs "console" "Removing dependencies: ${all_pkgs[*]}"
+    #     for pkg in ${own_pkgs[@]}; do
+    #         rp_callModule "$pkg" remove
+    #     done
+    #     pacman -Rsn "${pacman_pkgs[@]}" --noconfirm && \
+    #     pacman -Qdtq | pacman -Rsn --noconfirm
+    #     return 0
+    # fi
+
+    # printMsgs "console" "Did not find needed dependencies: ${all_pkgs[*]}. Trying to install them now."
+
+    # # Install any custom packages
+    # for pkg in ${own_pkgs[@]}; do
+    #    rp_callModule "$pkg" _auto_
+    # done
+
+    # pacmanInstall "${pacman_pkgs[@]}"
+
+    # local failed=()
+    # # Check the required packages again rather than return code of pacman -S,
+    # # as pacman -S might fail for other reasons (eg other half installed packages)
+    # for pkg in ${pacman_pkgs[@]}; do
+    #     if ! hasPackage "$pkg"; then
+    #         # workaround for installing samba in a chroot (fails due to failed smbd service restart)
+    #         # we replace the init.d script with an empty script so the install completes
+    #         #if [[ "$pkg" == "samba" && "$__chroot" -eq 1 ]]; then
+    #         #    mv /etc/init.d/smbd /etc/init.d/smbd.old
+    #         #    echo "#!/bin/sh" >/etc/init.d/smbd
+    #         #    chmod u+x /etc/init.d/smbd
+    #         #    apt-get -f install
+    #         #    mv /etc/init.d/smbd.old /etc/init.d/smbd
+    #         #else
+    #             failed+=("$pkg")
+    #         #fi
+    #     fi
+    # done
+
+    # if [[ ${#failed[@]} -gt 0 ]]; then
+    #     md_ret_errors+=("Could not install package(s): ${failed[*]}.")
+    #     return 1
+    # fi
+
+    # return 0
 }
 
 ## @fn rpSwap()
