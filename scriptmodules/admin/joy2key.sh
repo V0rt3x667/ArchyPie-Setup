@@ -23,21 +23,12 @@ function _update_hook_joy2key() {
 
 function depends_joy2key() {
     local depends=(
-        'python-pysdl2'
-        'python-uinput'
+        'python-pysdl2-arpie'
+        'python-uinput-arpie'
         'python-urwid'
+        'start-stop-daemon-arpie'
     )
     getDepends "${depends[@]}"
-
-#    local aurdepends=('python-pysdl2-arpie' 'python-uinput-arpie')
-#    local pkg
-#    for pkg in "${aurdepends[@]}"; do
-#        if hasPackage "${pkg}"; then
-#            return
-#        else
-#            pacmanPKGBuild "${pkg}"
-#        fi
-#    done
 }
 
 function install_bin_joy2key() {
