@@ -135,7 +135,7 @@ function post_update_setup() {
     } &> >(_setup_gzip_log "$logfilename")
     rps_printInfo "$logfilename"
 
-    printMsgs "dialog" "NOTICE: The ArchyPie-Setup script is available to download for free from 'https://github.com/v0rt3x667/archypie-setup.git'\n\nArchyPie includes software that has non-commercial licences. Selling ArchyPie or including ArchyPie with your commercial product is not allowed.\n\nNo copyrighted games are included with ArchyPie.\n\nIf you have been sold this software, you can let us know about it by emailing archypieproject@protonmail.com."
+    printMsgs "dialog" "NOTICE: The ArchyPie-Setup script is available to download for free from 'https://github.com/v0rt3x667/archypie-setup.git'\n\nArchyPie includes software that has non-commercial licences. Selling ArchyPie or including ArchyPie with your commercial product is not allowed.\n\nNo copyrighted games are included with ArchyPie.\n\nIf you have been sold this software, you can let us know about it by emailing archypie-project@protonmail.com."
 
     # return to set return function
     "${return_func[@]}"
