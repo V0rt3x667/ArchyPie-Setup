@@ -1735,24 +1735,3 @@ function changeFileCase() {
     popd || return
 }
 
-## @fn pacmanPKGBuild()
-## @param package(s) to build & install
-## @brief build & install packages from PKGBUILD files
-function pacmanPKGBuild() {
-    local builddir="/tmp/pkgs"
-    local pkg
-
-    for pkg in "$@"; do
-        su "$__user" --session-command 'cd '"$scriptdir/packages/$pkg"' && \
-            if [[ ! -d '"$builddir/$pkg"' ]]; then
-                mkdir -p '"$builddir/${pkg}"'
-            fi
-            BUILDDIR='"$builddir/$pkg"' \
-            PKGDEST='"$builddir/$pkg"' \
-            SRCDEST='"$builddir/$pkg"' \
-            SRCPKGDEST='"$builddir/$pkg"' \
-            PACKAGER="archrgs.project <archrgs.project@gmail.com>" \
-            makepkg -crsi --noconfirm'
-    done
-}
-
