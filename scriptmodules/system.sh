@@ -67,31 +67,31 @@ function conf_binary_vars() {
 
     # Set: Binary download URLs
     __binary_host="https://github.com/v0rt3x667"
-    __binary_base_url="https://$__binary_host/archypie-packages"
+    __binary_base_url="$__binary_host/\$repo/raw/refs/heads/packages/\$arch/"
 
     # __binary_path="$__os_codename/$__platform"
-    __binary_url="$__binary_base_url/$__platform_arch"
+    __binary_url="$__binary_base_url"
 
     __archive_url="https://files.retropie.org.uk/archives"
     __arpie_url="https://github.com/v0rt3x667/archypie-resources/raw"
 
     # Set: GPG key used by ArchyPie
-    __gpg_archypie_key="archypieproject@protonmail.com"
+    __gpg_archypie_key="archypie-project"
 
     # If __gpg_signing_key is not set, set to __gpg_archypie_key
     [[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_archypie_key"
 
     # Install: ArchyPie public key
     if ! gpg --list-keys "$__gpg_archypie_key" &>/dev/null; then
-        gpg --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 87353250AEC9CF3A876EC3CBBCB4D9FBFEEE2E93
-        #pacman-key --recv-keys "$__gpg_archypie_key" && pacman-key --lsign-key "$__gpg_archypie_key"
+        pacman-key --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys "$__gpg_archypie_key" && \
+        pacman-key --lsign-key "$__gpg_archypie_key"
     fi
 
     # Add the ArchyPie package repo to /etc/pacman.conf
     if [[ ! "$(cat "/etc/pacman.conf" | grep -o "\[archypie-packages\]")" ]]; then
         echo -e "\n[archypie-packages]" >>"/etc/pacman.conf"
         echo -e "Server = $__binary_url" >>"/etc/pacman.conf"
-        echo -e "Required TrustedOnly\n" >>"/etc/pacman.conf"
+        echo -e "SigLevel = Required TrustedOnly\n" >>"/etc/pacman.conf"
     fi
 }
 
