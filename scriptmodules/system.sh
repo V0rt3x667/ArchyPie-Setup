@@ -91,7 +91,7 @@ function conf_binary_vars() {
     if [[ ! "$(cat "/etc/pacman.conf" | grep -o "\[archypie-packages\]")" ]]; then
         echo -e "\n[archypie-packages]" >>"/etc/pacman.conf"
         echo -e "Server = $__binary_url" >>"/etc/pacman.conf"
-        echo -e "SigLevel = Required TrustedOnly\n" >>"/etc/pacman.conf"
+        echo -e "SigLevel = PackageRequired\n" >>"/etc/pacman.conf"
     fi
 }
 
