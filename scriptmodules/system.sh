@@ -76,15 +76,14 @@ function conf_binary_vars() {
     __arpie_url="https://github.com/v0rt3x667/archypie-resources/raw"
 
     # Set: GPG key used by ArchyPie
-    __gpg_archypie_key="archypie-project"
+    __gpg_archypie_key="87353250AEC9CF3A876EC3CBBCB4D9FBFEEE2E93"
 
     # If __gpg_signing_key is not set, set to __gpg_archypie_key
     [[ ! -v __gpg_signing_key ]] && __gpg_signing_key="$__gpg_archypie_key"
 
     # Install: ArchyPie public key
     if ! gpg --list-keys "$__gpg_archypie_key" &>/dev/null; then
-        pacman-key --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys "$__gpg_archypie_key" && \
-        pacman-key --lsign-key "$__gpg_archypie_key"
+        pacman-key --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys "$__gpg_archypie_key" && pacman-key --lsign-key "$__gpg_archypie_key"
     fi
 
     # Add the ArchyPie package repo to /etc/pacman.conf
